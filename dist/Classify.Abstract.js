@@ -1,4 +1,5 @@
-define(function() {
-    function a(a) {}
-    return a;
+define(function(){
+
+    function Abstract(methods) {};
+    return Abstract;
 });

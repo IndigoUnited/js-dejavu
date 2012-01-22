@@ -29,7 +29,7 @@
  * @returns Function
  */
 
-define('Classify', ["Classify.Abstract", "Classify.Singleton", "Classify.Interface"], function (Abstract, Singleton, Interface) {
+define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify.Singleton"], function (Abstract, Singleton, Interface) {
 
     function Classify(methods) {
 

@@ -11,10 +11,13 @@
         <script>
             require.config({
                 baseUrl : "../dist",
-                urlArgs : "cache=" + (+(new Date()))
+                urlArgs : "cache=" + (+(new Date())),
+                paths : {
+                    "Trinity/Classify": "Classify"
+                }
 
             })
-            require(['Classify'], function(Classify) {
+            require(['Trinity/Classify'], function(Classify) {
                 console.log(arguments);
                 var lol = Classify({
                     method1: function(){}

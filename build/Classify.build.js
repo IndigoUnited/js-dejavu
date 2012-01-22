@@ -3,12 +3,26 @@
  * https://github.com/jrburke/r.js/blob/master/build/example.build.js
  */
 ({
-    appDir: "../src",
+    appDir : "../src",
     baseUrl: "./",
     dir : "../dist",
-    modules: [{ "name": "Classify"}],
+    paths : {
+        "Trinity/Classify": "Classify"
+    },
+    /* namespace : "Trinity", */
+
+    modules: [{
+        name: "Trinity/Classify",
+        include: [
+            "Classify.Abstract",
+            "Classify.Interface",
+            "Classify.Singleton"
+        ]
+    }],
+
+    optimize: "none",
     uglify: {
-        beautify: true,
+        beautify: false,
         unsafe : true
     },
     findNestedDependencies : true
