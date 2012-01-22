@@ -1,5 +1,7 @@
-Classify a set of Object-Oriented tools for Javsacript
+Classify a set of Object-Oriented tools for Javasacript
 ======================================================
+
+---
 
 Classify consists in:
 
