@@ -1,7 +1,6 @@
-define(['Classify'], function(Classify){
-    'use strict';
+define(function () {
 
-    Classify.Singleton = function (methods) {};
+    function Singleton (methods) {};
+    return Singleton;
 
-    return Classify.Singleton;
 });

@@ -1,7 +1,7 @@
 
 Classify.js
 ----------------
+Classify.Abstract.js
 Classify.Singleton.js
 Classify.Interface.js
-Classify.Abstract.js
 Classify.js

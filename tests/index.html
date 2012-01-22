@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+        <title>✔ Classify - Tests Page</title>
+        <link rel="stylesheet" href="qunit/qunit.css">
+        <script type="text/javascript" charset="utf-8" src="qunit/qunit.js"></script>
+        <script type="text/javascript" charset="utf-8" src="http://requirejs.org/docs/release/1.0.4/minified/require.js"></script>
+    </head>
+    <body>
+        <script>
+            require.config({
+                baseUrl : "../dist",
+                urlArgs : "cache=" + (+(new Date()))
+
+            })
+            require(['Classify'], function(Classify) {
+                console.log(arguments);
+                var lol = Classify({
+                    method1: function(){}
+                });
+                console.dir(lol);
+            });
+        </script>
+    </body>
+</html>

@@ -8,7 +8,7 @@
     dir : "../dist",
     modules: [{ "name": "Classify"}],
     uglify: {
-        beautify: false,
+        beautify: true,
         unsafe : true
     },
     findNestedDependencies : true

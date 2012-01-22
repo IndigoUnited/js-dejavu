@@ -1,1 +1,4 @@
-define(["Classify"],function(a){return a.Singleton=function(a){},a.Singleton})
+define(function() {
+    function a(a) {}
+    return a;
+});
