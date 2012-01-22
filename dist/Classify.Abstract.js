@@ -1,0 +1,1 @@
+define(["Classify"],function(a){return a.Abstract=function(a){},a.Abstract})

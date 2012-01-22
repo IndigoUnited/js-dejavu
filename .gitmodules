@@ -1,0 +1,6 @@
+[submodule "vendor/r.js"]
+	path = vendor/r.js
+	url = git://github.com/jrburke/r.js.git
+[submodule "vendor/qunit"]
+	path = vendor/qunit
+	url = git://github.com/jquery/qunit.git
