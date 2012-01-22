@@ -1,57 +1,37 @@
+/*jslint sloppy: true */
+/*global define */
+
 /**
+ * Classify - Sugar syntax for Prototypal Inheritance
  *
- * Blueprint - Sugar syntax for Prototypal Inheritance
- *
- * @author Luis Couto
+ * @author Luís Couto
  * @contact lcouto87@gmail.com
- * @version 0.2
- *
- * @license
- *     Copyright (c) 2012 André Cruz, Luís Couto, Marcelo Conceição
- *
- *     Permission is hereby granted, free of charge, to any person obtaining a copy
- *     of this software and associated documentation files (the "Software"), to deal
- *     in the Software without restriction, including without limitation the rights
- *     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *     copies of the Software, and to permit persons to whom the Software is furnished
- *     to do so, subject to the following conditions:
- *
- *     The above copyright notice and this permission notice shall be included in all
- *     copies or substantial portions of the Software.
- *
- *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- *     THE SOFTWARE.
- *
- * @copyright 2012 André Cruz, Luís Couto, Marcelo Conceição
+ * @version 1.0.0
  *
  * @example
  *      var Example = Classify({
- *          Extends : ParentBlueprint,
- *          Borrows : [Mixin1, Mixin2],
- *          Binds   : ['method1', 'method2'],
- *          Statics : {
- *              staticMethod1 : function(){},
- *              staticMethod2 : function(){},
- *              staticMethod3 : function(){},
+ *          Implements : [oneInterface, twoInterface],
+ *          Extends: ParentClassify,
+ *          Borrows: [Mixin1, Mixin2],
+ *          Binds: ['method1', 'method2'],
+ *          Statics: {
+ *              staticMethod1: function(){},
+ *              staticMethod2: function(){},
+ *              staticMethod3: function(){},
  *          },
- *          initialize : function () {},
- *          method1 : function () {},
- *          method2 : function () {},
- *          method3 : function () {}
+ *          initialize: function () {},
+ *          method1: function () {},
+ *          method2: function () {},
+ *          method3: function () {}
  *      });
+ *
  * @param {Object} methods Object
  * @returns Function
  */
 
-define('Classify', function (){
+define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify.Singleton"], function (Abstract, Singleton, Interface) {
 
     function Classify(methods) {
-        'use strict';
 
         var classify;
 
@@ -65,6 +45,7 @@ define('Classify', function (){
          * @param {Object} target Object's that will get the new methods
          * @returns undefined
          */
+
         function extend(methods, target) {
             var k;
             for (k in methods) {
@@ -85,6 +66,7 @@ define('Classify', function (){
          * @param {Object} Target that will receive the methods
          * @returns undefined
          */
+
         function borrows(arr, target) {
 
             var i = arr.length - 1,
@@ -111,6 +93,7 @@ define('Classify', function (){
          * @param {Function}
          * @returns function handler with fixed context
          */
+
         function binds(arr, context, target) {
             var proxy = function (func) {
 
@@ -122,7 +105,8 @@ define('Classify', function (){
                     return func.apply(context, arguments);
                 };
 
-            }, i = arr.length - 1;
+            },
+                i = arr.length - 1;
 
             for (i; i >= 0; i -= 1) {
                 target[arr[i]] = proxy(target[arr[i]], classify);
@@ -140,6 +124,7 @@ define('Classify', function (){
          * @returns {Function} Instance
          * @type Function
          */
+
         function clone(o) {
             function F() {}
             F.prototype = o;
@@ -148,7 +133,7 @@ define('Classify', function (){
 
 
 
-        function interfaces(arr, target){
+        function interfaces(arr, target) {
             var i = arr.length - 1,
                 k;
 
@@ -197,9 +182,10 @@ define('Classify', function (){
 
     }
 
-    Classify.Singleton = require('Classify.Singleton');
-    Classify.Interface = require('Classify.Interface');
-    Classify.Abstract = require('Classify.Abstract');
+
+    Classify.Abstract = Abstract;
+    Classify.Interface = Interface;
+    Classify.Singleton = Singleton;
 
     return Classify;
 });

@@ -1,1 +1,38 @@
-define(["Classify"],function(a){return a.Interface=function(a){function b(a,b){var c;for(c in b)b.hasOwnProperty(c)&&(a[c]=b[c])}function c(){b(this,a)}if(!a)throw new Error("Classify.Interface constructor called with no arguments, but expects at least 1");if(!a.Name)throw new Error("Classify.Interface expects property Name in arguments");if(a.Name&&typeof a.Name!="string")throw new Error("Classify.Interface's property 'Name' must be a String");return a.Extends&&(c.prototype=a.Extends),new c},a.Interface})
+define(function(){
+
+    function Interface (methods) {
+
+        if (!methods) {
+            throw new Error("Classify.Interface constructor called with no arguments, but expects at least 1")
+        }
+
+        if (!methods.Name) {
+            throw new Error("Classify.Interface expects property Name in arguments");
+        }
+
+        if (methods.Name && typeof methods.Name !== "string") {
+            throw new Error("Classify.Interface's property 'Name' must be a String")
+        }
+
+        function extend(target, source) {
+            var k;
+            for (k in source) {
+                if (source.hasOwnProperty(k)) {
+                    target[k] = source[k];
+                }
+            }
+        }
+
+        function Interface () {
+            extend(this, methods);
+        }
+
+        if (methods.Extends) {
+            Interface.prototype = methods.Extends;
+        }
+
+        return new Interface();
+    };
+
+    return Interface;
+});

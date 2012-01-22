@@ -1,7 +1,5 @@
-define(['Classify'], function(Classify){
-    'use strict';
+define(function(){
 
-    Classify.Abstract = function (methods) {};
-
-    return Classify.Abstract;
+    function Abstract(methods) {};
+    return Abstract;
 });
