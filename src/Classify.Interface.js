@@ -1,7 +1,6 @@
-define(['Classify'], function(Classify){
-    'use strict';
+define(function(){
 
-    Classify.Interface = function (methods) {
+    function Interface (methods) {
 
         if (!methods) {
             throw new Error("Classify.Interface constructor called with no arguments, but expects at least 1")
@@ -35,5 +34,5 @@ define(['Classify'], function(Classify){
         return new Interface();
     };
 
-    return Classify.Interface;
+    return Interface;
 });

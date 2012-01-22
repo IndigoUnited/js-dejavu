@@ -1,1 +1,5 @@
-define(["Classify"],function(a){return a.Abstract=function(a){},a.Abstract})
+define(function(){
+
+    function Abstract(methods) {};
+    return Abstract;
+});
