@@ -69,17 +69,20 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
 
         function borrows(arr, target) {
 
-            var i = arr.length - 1,
-                constructorBck;
+            var i = 0,
+                len = arr.length,
+                constructorBck,
+                current;
 
-            for (i; i >= 0; i -= 1) {
-                if (arr[i].prototype && arr[i].prototype.constructor) {
-                    constructorBck = arr[i].prototype.constructor;
-                    delete arr[i].prototype.constructor;
-                    extend(arr[i].prototype, target.prototype);
-                    arr[i].prototype.constructor = constructorBck;
+            for (; i < len; i += 1) {
+                current = arr[i];
+                if (current.prototype && current.prototype.constructor) {
+                    constructorBck = current.prototype.constructor;
+                    delete current.prototype.constructor;
+                    extend(current.prototype, target.prototype);
+                    current.prototype.constructor = constructorBck;
                 } else {
-                    extend(arr[i].prototype || arr[i], target.prototype);
+                    extend(current.prototype || current, target.prototype);
                 }
             }
         }
@@ -108,7 +111,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
             },
                 i = arr.length - 1;
 
-            for (i; i >= 0; i -= 1) {
+            for (; i >= 0; i -= 1) {
                 target[arr[i]] = proxy(target[arr[i]], classify);
             }
         }
@@ -137,7 +140,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
             var i = arr.length - 1,
                 k;
 
-            for (i; i >= 0; i -= 1) {
+            for (; i >= 0; i -= 1) {
                 for (k in arr[i]) {
                     if (!(target.hasOwnProperty(k)) && (k !== "Extends" || k !== "Name")) {
                         throw new Error("Class does not implements Interface " + arr[i].Name + "correctly");

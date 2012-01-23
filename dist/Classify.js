@@ -125,7 +125,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
                 constructorBck,
                 current;
 
-            for (i; i < len; i += 1) {
+            for (; i < len; i += 1) {
                 current = arr[i];
                 if (current.prototype && current.prototype.constructor) {
                     constructorBck = current.prototype.constructor;
@@ -162,7 +162,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
             },
                 i = arr.length - 1;
 
-            for (i; i >= 0; i -= 1) {
+            for (; i >= 0; i -= 1) {
                 target[arr[i]] = proxy(target[arr[i]], classify);
             }
         }
@@ -191,7 +191,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
             var i = arr.length - 1,
                 k;
 
-            for (i; i >= 0; i -= 1) {
+            for (; i >= 0; i -= 1) {
                 for (k in arr[i]) {
                     if (!(target.hasOwnProperty(k)) && (k !== "Extends" || k !== "Name")) {
                         throw new Error("Class does not implements Interface " + arr[i].Name + "correctly");
