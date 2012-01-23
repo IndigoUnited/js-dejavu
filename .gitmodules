@@ -4,3 +4,6 @@
 [submodule "vendor/mocha"]
 	path = vendor/mocha
 	url = git://github.com/visionmedia/mocha.git
+[submodule "vendor/requirejs-npm"]
+	path = vendor/requirejs-npm
+	url = git://github.com/jrburke/requirejs-npm.git
