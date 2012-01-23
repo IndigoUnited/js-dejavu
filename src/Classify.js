@@ -92,9 +92,9 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
          *
          * @private 
          * 
-         * @param {Array} fns The array of functions to be binded
+         * @param {Array}  fns     The array of functions to be binded
          * @param {Object} context The context that will be bound
-         * @param {Object} target The target class that will have these methods
+         * @param {Object} target  The target class that will have these methods
          */
         function binds(fns, context, target) {
 
