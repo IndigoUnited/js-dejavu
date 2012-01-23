@@ -67,17 +67,22 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
          */
         function borrows(sources, target) {
 
-            var i = sources.length - 1,
-                constructorBck;
+            var i,
+                length = sources.length,
+                constructorBck,
+                current;
 
-            for (i; i >= 0; i -= 1) {
-                if (sources[i].prototype && sources[i].prototype.constructor) {
-                    constructorBck = sources[i].prototype.constructor;
-                    delete sources[i].prototype.constructor;
-                    extend(sources[i].prototype, target.prototype);
-                    sources[i].prototype.constructor = constructorBck;
+            for (i = 0; i < length; i += 1) {
+               
+                current = sources[i];
+               
+                if (current.prototype && current.prototype.constructor) {
+                    constructorBck = current.prototype.constructor;
+                    delete current.prototype.constructor;
+                    extend(current.prototype, target.prototype);
+                    current.prototype.constructor = constructorBck;
                 } else {
-                    extend(sources[i].prototype || sources[i], target.prototype);
+                    extend(current.prototype || current, target.prototype);
                 }
             }
         }
@@ -131,15 +136,15 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
         /**
          * 
          */
-        function interfaces(interfaces, target) {
+        function interfaces(implementations, target) {
 
-            var i = interfaces.length - 1,
+            var i = implementations.length - 1,
                 k;
 
-            for (i; i >= 0; i -= 1) {
-                for (k in interfaces[i]) {
+            for (; i >= 0; i -= 1) {
+                for (k in implementations[i]) {
                     if (!target.hasOwnProperty(k) && (k !== "Extends" || k !== "Name")) {
-                        throw new Error("Class does not implements Interface " + arr[i].Name + "correctly");
+                        throw new Error("Class does not implements Interface " + implementations[i].Name + "correctly");
                     }
                 }
             }
