@@ -73,9 +73,9 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
                 current;
 
             for (i = 0; i < length; i += 1) {
-               
+
                 current = sources[i];
-               
+
                 if (current.prototype && current.prototype.constructor) {
                     constructorBck = current.prototype.constructor;
                     delete current.prototype.constructor;
@@ -90,7 +90,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
         /**
          * Fixes the context in given methods.
          *
-         * @private
+         * @private 
          * 
          * @param {Array} fns The array of functions to be binded
          * @param {Object} context The context that will be bound
@@ -138,10 +138,10 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
          */
         function interfaces(implementations, target) {
 
-            var i = implementations.length - 1,
+            var i,
                 k;
 
-            for (; i >= 0; i -= 1) {
+            for (i = implementations.length - 1; i >= 0; i -= 1) {
                 for (k in implementations[i]) {
                     if (!target.hasOwnProperty(k) && (k !== "Extends" || k !== "Name")) {
                         throw new Error("Class does not implements Interface " + implementations[i].Name + "correctly");
