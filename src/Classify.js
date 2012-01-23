@@ -32,7 +32,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
      * 
      * @param {Object} params An object containing methods and properties
      * 
-     * @returns Function
+     * @returns {Function} The constructor
      */
     function Classify(params) {
 
