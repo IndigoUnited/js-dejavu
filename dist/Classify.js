@@ -120,17 +120,20 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
 
         function borrows(arr, target) {
 
-            var i = arr.length - 1,
-                constructorBck;
+            var i = 0,
+                len = arr.length,
+                constructorBck,
+                current;
 
-            for (i; i >= 0; i -= 1) {
-                if (arr[i].prototype && arr[i].prototype.constructor) {
-                    constructorBck = arr[i].prototype.constructor;
-                    delete arr[i].prototype.constructor;
-                    extend(arr[i].prototype, target.prototype);
-                    arr[i].prototype.constructor = constructorBck;
+            for (i; i < len; i += 1) {
+                current = arr[i];
+                if (current.prototype && current.prototype.constructor) {
+                    constructorBck = current.prototype.constructor;
+                    delete current.prototype.constructor;
+                    extend(current.prototype, target.prototype);
+                    current.prototype.constructor = constructorBck;
                 } else {
-                    extend(arr[i].prototype || arr[i], target.prototype);
+                    extend(current.prototype || current, target.prototype);
                 }
             }
         }
