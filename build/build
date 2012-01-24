@@ -1,3 +1,6 @@
 #!/usr/bin/env bash
+echo -e "\033[32m Building modules…\033[0m" &&
 node r.js -o ./Classify.build.js &&
-mocha -R list ../tests/*.js 
+echo -e "\033[32m Running tests…\033[0m" &&
+mocha -R list ../tests/*.js &&
+echo -e "\033[32m Build completed!\033[0m \n"
