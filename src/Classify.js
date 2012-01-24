@@ -134,7 +134,10 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
         }
 
         /**
+         * Checks a target against interfaces methods.
          * 
+         * @param {Array} implementations The array of interfaces
+         * @param {Object} target         The target that will be check
          */
         function interfaces(implementations, target) {
 
