@@ -25,11 +25,12 @@ cp.exec('node ' + __dirname + '/../vendor/r.js/dist/r.js -o ' + __dirname + '/Cl
 
         var code;
 
-        if (file.substr(file.length - 3) === ".js" && file !== "Classify.js") {
-            console.log("Deleting " + file);
+        if (file.substr(file.length - 3) === '.js' && file !== 'Classify.js') {
+            console.log('Deleting ' + file);
             code = fs.unlinkSync(distDir + file);
 
             if (code === 0) {
+                console.error('Unable to delete file.');
                 exitCode = 1;
             }
         }
