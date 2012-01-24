@@ -1,26 +1,40 @@
 var requirejs = require('requirejs'),
-    assert = require('assert');
+    should = require('chai').should(),
+    expect = require('chai').expect;
 
 requirejs.config({
     baseUrl: __dirname,
-    paths : {
+    paths: {
         "Trinity/Classify": "../dist/Classify"
     },
     nodeRequire: require
 });
 
-requirejs(['Trinity/Classify'], function (Classify) {
-    //foo and bar are loaded according to requirejs
-    //config, but if not found, then node's require
-    //is used to load the module.
+requirejs(['Trinity/Classify'], function(Classify) {
+    var Example = Classify({
+        method1: function() {},
+        method2: function() {}
+    }),
+        example = new Example();
 
-    describe('Array', function(){
-      describe('#indexOf()', function(){
-        it('should return -1 when the value is not present', function(){
-            assert([0,1,2].indexOf(1), 1, "should return 1");
-            assert([0,1,2].indexOf(5), 2, "should return -1");
+    describe('Classify instanciation', function() {
+
+        it('should return an instance of', function() {
+            // Pick one of the syntaxes
+            // More info => http://chaijs.com/
+
+            expect(example).to.be.instanceof(Example);
+            example.should.be.instanceof(Example);
         });
-      })
+
+        it('should return an object', function() {
+            // Pick one of the syntaxes
+            // More info => http://chaijs.com/
+
+            expect(example).to.be.a('object');
+            example.should.be.a('object');
+        });
+
     });
 
 });
