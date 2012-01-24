@@ -1,7 +1,10 @@
 /*jslint node: true, nomen: true, sloppy: true*/
 
-var cp = require('child_process');
-var fs = require('fs');
+var cp = require('child_process'),
+    fs = require('fs'),
+    tests,
+    command,
+    exitCode = 0;
 
 // Execute requirejs optimizer
 cp.exec('node ' + __dirname + '/../vendor/r.js/dist/r.js -o ' + __dirname + '/Classify.build.js', function (error, stdout, stderr) {
@@ -9,6 +12,7 @@ cp.exec('node ' + __dirname + '/../vendor/r.js/dist/r.js -o ' + __dirname + '/Cl
     // Print success or error
     if (error !== null) {
         console.error(stderr);
+        exitCode = 1;
     } else {
         console.log(stdout);
     }
@@ -18,22 +22,38 @@ cp.exec('node ' + __dirname + '/../vendor/r.js/dist/r.js -o ' + __dirname + '/Cl
         distDir = __dirname + '/../dist/';
 
     files.forEach(function (file) {
+
+        var code;
+
         if (file.substr(file.length - 3) === ".js" && file !== "Classify.js") {
             console.log("Deleting " + file);
-            fs.unlinkSync(distDir + file);
+            code = fs.unlinkSync(distDir + file);
+
+            if (code === 0) {
+                exitCode = 1;
+            }
         }
     });
 
-    console.log("");
+    // Exit if something went badly
+    if (exitCode) {
+        process.exit(exitCode);
+    }
 
     // Run tests
-    cp.exec('mocha ' + __dirname + '/../test/Classify.test.js', function (error, stdout, stderr) {
+    command = 'mocha -R list ' + __dirname + '/../test/Classify.test.js';
 
-        // Print success or error
-        if (error !== null) {
-            console.error(stderr);
+    if (process.platform === 'win32') {
+        tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
+    } else {
+        tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
+    }
+    tests.on('exit', function (code) {
+
+        if (code !== 0) {
+            process.exit(1);
         } else {
-            console.log(stdout);
+            process.exit(0);
         }
     });
 });
