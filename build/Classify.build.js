@@ -4,26 +4,17 @@
  */
 ({
     appDir : "../src",
-    baseUrl: "./",
+    baseUrl: "../dist",
     dir : "../dist",
     paths : {
         "Trinity/Classify": "Classify"
     },
-    /* namespace : "Trinity", */
-
     modules: [{
-        name: "Trinity/Classify",
-        include: [
-            "Classify.Abstract",
-            "Classify.Interface",
-            "Classify.Singleton"
-        ]
+        name: "Trinity/Classify"
     }],
-
-    optimize: "none",
+    optimize: "uglify",
     uglify: {
         beautify: false,
         unsafe : true
-    },
-    findNestedDependencies : true
+    }
 })

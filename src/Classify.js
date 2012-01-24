@@ -1,5 +1,5 @@
-/*jslint sloppy: true */
-/*global define */
+/*jslint sloppy: true*/
+/*global define*/
 
 /**
  * Classify - Sugar syntax for Prototypal Inheritance
@@ -19,7 +19,9 @@
  *              staticMethod2: function () {},
  *              staticMethod3: function () {},
  *          },
- *          initialize: function () {},
+ *          initialize: function () {
+ *              MyClass.Super.initialize.call(this);
+ *          },
  *          method1: function () {},
  *          method2: function () {},
  *          method3: function () {}
@@ -156,8 +158,8 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
         classify = params.initialize || function () {};
 
         if (params.Extends) {
-            classify.Parent = params.Extends.prototype;
-            classify.prototype = clone(classify.Parent);
+            classify.Super = params.Extends.prototype;
+            classify.prototype = clone(classify.Super);
             extend(params, classify.prototype);
         } else {
             classify.prototype = params;
@@ -167,19 +169,22 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
 
         if (params.Borrows) {
             borrows(params.Borrows, classify);
+            delete classify.prototype.Borrows;
         }
 
         if (params.Binds) {
             binds(params.Binds, classify, classify.prototype);
+            delete classify.prototype.Binds;
         }
 
         if (params.Statics) {
             extend(params.Statics, classify);
-            delete classify.prototype.Static;
+            delete classify.prototype.Statics;
         }
 
         if (params.Implements) {
             interfaces(params.Implements, this);
+            delete classify.prototype.Implements;
         }
 
         return classify;
