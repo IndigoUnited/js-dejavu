@@ -58,7 +58,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
         }
 
         /**
-         * Borrows the properties and methods of various source objects to the target
+         * Borrows the properties and methods of various source objects to the target.
          *
          * @private
          * 
@@ -117,7 +117,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
         }
 
         /**
-         * Copies the given object into a freshly created empty function's prototype
+         * Copies the given object into a freshly created empty function's prototype.
          *
          * @private
          * 
