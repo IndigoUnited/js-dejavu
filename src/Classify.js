@@ -153,7 +153,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
 
              for (i = implementations.length - 1; i >= 0; i -= 1) {
                  for (k in implementations[i]) {
-                     if ((k !== "Extends" && k !== "Name") && !target.hasOwnProperty[k]) {
+                     if ((k !== "Extends" && k !== "Name") && !target.hasOwnProperty(k)) {
                          throw new Error("Class does not implements Interface " + implementations[i].Name + " correctly, " + k + " was not found");
                      }
                  }
