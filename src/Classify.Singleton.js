@@ -21,6 +21,7 @@ define(['Trinity/Classify', 'Utils/Object/mixIn', 'require'], function (Classify
         // Add methods to the Statics object
         params.Statics = mixIn({
 
+            $singleton: true,    // We hold this in order to inform that we have a singleton
             __instance: null,    // Private variable that holds the instance
 
             /**
@@ -47,7 +48,7 @@ define(['Trinity/Classify', 'Utils/Object/mixIn', 'require'], function (Classify
                     // TODO: We are using eval here.. I couldn't make this work with new Function
                     //       Think of a better way to curry the params of getInstance to the constructor
                     eval("that.__instance = new that(" + params.join() + ");");
-                    this.prototype.$initializing = false;
+                    delete this.prototype.$initializing;
                 }
 
                 return this.__instance;

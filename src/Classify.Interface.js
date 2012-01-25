@@ -10,7 +10,9 @@ define(function () {
         }
 
         function extend(target, source) {
+
             var k;
+
             for (k in source) {
                 if (source.hasOwnProperty(k)) {
                     target[k] = source[k];
@@ -26,6 +28,7 @@ define(function () {
             Interface.prototype = methods.Extends;
         }
 
+        // TODO: Make a way to test if a class implements an interface
         return new InterfaceConstructor();
     }
 

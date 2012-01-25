@@ -161,7 +161,7 @@ requirejs(['Trinity/Classify'], function (Classify) {
         it('should not have the Implements property', function () {
 
             var SomeImplementation = Classify({
-                Implements: SomeInterface,
+                Implements: [SomeInterface],
                 someMethod: function () {},
                 otherMethod: function () {},
                 Statics: {
@@ -173,36 +173,35 @@ requirejs(['Trinity/Classify'], function (Classify) {
             expect(someImplementation.Implements).to.be.not.ok;
         });
 
-        it('should throw error invoking the constructor', function () {
+        it('should throw error on incomplete implementations', function () {
 
             expect(function () {
                 return Classify({
-                    Implements: SomeInterface
+                    Implements: [SomeInterface]
                 });
-            }).to.throw(Error);
+            }).to["throw"](Error);
 
-            expect(function(){
+            expect(function () {
                 return Classify({
-                    Implements: SomeInterface,
+                    Implements: [SomeInterface],
                     someMethod: function () {},
                     otherMethod: function () {},
                     Statics: {
                         weirdStaticMethod : function () {}
                     }
                 });
-            }).to.throw(Error);
+            }).to["throw"](Error);
 
-
-            expect(function(){
+            expect(function () {
                 return Classify({
-                    Implements: SomeInterface,
+                    Implements: [SomeInterface],
                     someMethod: function () {},
                     otherMethod: function () {},
                     Statics: {
                         staticMethod : function () {}
                     }
                 });
-            }).to.not.throw(Error);
+            }).to.not["throw"](Error);
 
         });
     });
@@ -216,7 +215,21 @@ requirejs(['Trinity/Classify'], function (Classify) {
             Statics: {
                 someMethod: function () {}
             }
-        });
+        }),
+            ComplexSingleton = Classify.Singleton({
+                Extends: Singleton,
+                initialize: function (property) {
+                    this._someOther = 'property';
+                    ComplexSingleton.Super.initialize.call(this, property);
+                }
+            }),
+            InheritFromSingleton = Classify({
+                Extends: Singleton,
+                initialize: function (property) {
+                    this._someOther = 'property';
+                    InheritFromSingleton.Super.initialize.call(this, property);
+                }
+            });
 
         it('should throw error invoking the constructor.', function () {
             expect(function () { return new Singleton(); }).to['throw'](Error);
@@ -254,6 +267,26 @@ requirejs(['Trinity/Classify'], function (Classify) {
             Singleton.unsetInstance();
             var instance = Singleton.getInstance('test');
             expect(instance._some).to.be.equal('test');
+        });
+
+        it('should work well with inheritance', function () {
+            ComplexSingleton.unsetInstance();
+            Singleton.unsetInstance();
+            var instance = ComplexSingleton.getInstance('test');
+            expect(instance).to.be['instanceof'](ComplexSingleton);
+            expect(instance._some).to.be.equal('test');
+            expect(instance._someOther).to.be.equal('property');
+            instance = Singleton.getInstance('test');
+            expect(instance).to.be['instanceof'](Singleton);
+            ComplexSingleton.unsetInstance();
+            Singleton.unsetInstance();
+            instance = Singleton.getInstance('test');
+            expect(instance).to.be['instanceof'](Singleton);
+            instance = ComplexSingleton.getInstance('test');
+            expect(instance).to.be['instanceof'](ComplexSingleton);
+            instance = new InheritFromSingleton('test');
+            expect(instance._some).to.be.equal('test');
+            expect(instance._someOther).to.be.equal('property');
         });
     });
 });
