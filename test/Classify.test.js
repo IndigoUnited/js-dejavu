@@ -178,7 +178,7 @@ requirejs(['Trinity/Classify'], function (Classify) {
                 Implements: SomeInterface
             });
 
-            console.dir("WTF=>", lol);
+            console.dir('WTF=>', lol);
 
             expect(Classify({
                 Implements: SomeInterface
@@ -188,7 +188,51 @@ requirejs(['Trinity/Classify'], function (Classify) {
             //     Implements: SomeInterface,
             //     someMethod: function () {},
             //     otherMethod: function () {}
-            // })).to["throw"](Error);
+            // })).to['throw'](Error);
+        });
+    });
+
+    describe('Singleton usage', function () {
+
+        var Singleton = Classify.Singleton({
+            initialize: function () {
+                this._some = 'property';
+            },
+            Statics: {
+                someMethod: function () {}
+            }
+        });
+
+        it('should throw error invoking the constructor.', function () {
+            expect(function () { return new Singleton(); }).to['throw'](Error);
+        });
+
+        it('should merge static methods', function () {
+            expect(Singleton.someMethod).to.be.a('function');
+        });
+
+        it('should have getInstance() and unsetInstance() static methods', function () {
+            expect(Singleton.getInstance).to.be.a('function');
+            expect(Singleton.unsetInstance).to.be.a('function');
+        });
+
+        it('should return a valid instance of the class and always the same', function () {
+            var instance1 = Singleton.getInstance(),
+                instance2 = Singleton.getInstance();
+            expect(instance1).to.be['instanceof'](Singleton);
+            expect(instance2).to.be['instanceof'](Singleton);
+            expect(instance1).to.be.equal(instance2);
+            expect(instance1._some).to.be.equal('property');
+        });
+
+        it('should erase the instance when unsetInstance is called', function () {
+            var instance1 = Singleton.getInstance(),
+                instance2;
+            Singleton.unsetInstance();
+            expect(Singleton.__instance).to.be.not.ok;
+            instance2 = Singleton.getInstance();
+            expect(instance2).to.be['instanceof'](Singleton);
+            expect(instance1).to.be.not.equal(instance2);
         });
     });
 });

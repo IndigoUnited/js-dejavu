@@ -7,12 +7,13 @@
     baseUrl: "../dist",
     dir : "../dist",
     paths : {
-        "Trinity/Classify": "Classify"
+        "Trinity/Classify": "Classify",
+        "Utils": "../vendor/amd-utils/src"
     },
     modules: [{
         name: "Trinity/Classify"
     }],
-    optimize: "uglify",
+    optimize: "none",
     uglify: {
         beautify: false,
         unsafe : true
