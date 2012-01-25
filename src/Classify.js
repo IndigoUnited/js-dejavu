@@ -37,6 +37,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
      *
      * @returns {Function} The constructor
      */
+
     function Classify(params) {
 
         var classify;
@@ -49,6 +50,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
          * @param {Object} source The object to copy from
          * @param {Object} target The object that will get the source properties and methods
          */
+
         function extend(source, target) {
 
             var k;
@@ -68,12 +70,11 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
          * @param {Array}  sources Array of objects that will give their methods
          * @param {Object} target  Target that will receive the methods
          */
+
         function borrows(sources, target) {
 
-            var i,
-                length = sources.length,
-                constructorBck,
-                current;
+            var i, length = sources.length,
+                constructorBck, current;
 
             for (i = 0; i < length; i += 1) {
 
@@ -99,6 +100,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
          * @param {Object} context The context that will be bound
          * @param {Object} target  The target class that will have these methods
          */
+
         function binds(fns, context, target) {
 
             var proxy = function (func) {
@@ -128,6 +130,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
          *
          * @returns {Function} Thew new instance
          */
+
         function clone(object) {
 
             function F() {}
@@ -136,30 +139,47 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
             return new F();
         }
 
-         /**
-          * Checks a target against interfaces methods.
-          *
-          * @param {Array} implementations The array of interfaces
-          * @param {Object} target         The target that will be check
-          */
-         function interfaces(implementations, target) {
+        /**
+         * Checks a target against interfaces methods.
+         *
+         * @param {Array} implementations The array of interfaces
+         * @param {Object} target         The target that will be check
+         */
 
-             var i,
-                 k;
+        function interfaces(implementations, target) {
 
-             if (Object.prototype.toString.call(implementations) !== "[object Array]"){
-                 implementations = [implementations];
-             }
+            var i, k, m, curr;
 
-             for (i = implementations.length - 1; i >= 0; i -= 1) {
-                 for (k in implementations[i]) {
-                     if ((k !== "Extends" && k !== "Name") && !target.hasOwnProperty(k)) {
-                         throw new Error("Class does not implements Interface " + implementations[i].Name + " correctly, " + k + " was not found");
-                     }
-                 }
-             }
+            if (Object.prototype.toString.call(implementations) !== "[object Array]") {
+                implementations = [implementations];
+            }
 
-         }
+            for (i = implementations.length - 1; i >= 0; i -= 1) {
+                curr = implementations[i];
+
+                for (k in curr) {
+                    if (curr.hasOwnProperty(k)) {
+                        if ((k !== "Extends" && k !== "Name" && k !== "Statics") && !target.prototype.hasOwnProperty(k)) {
+                            throw new Error("Class does not implements Interface " + curr.Name + " correctly, " + k + " was not found");
+                        }
+
+                        if (k === "Statics") {
+                            if (!target.prototype.hasOwnProperty(k)) {
+                                throw new Error("Class does not implements Interface " + curr.Name + " correctly, " + k + " method was not found");
+                            }
+
+                            for (m in curr.Statics) {
+                                if (curr.Statics.hasOwnProperty(m)) {
+                                    if (!target.hasOwnProperty(m)) {
+                                        throw new Error("Class does not implements Interface " + curr.Name + " correctly, static method " + k + "  was not found");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
 
         classify = params.initialize || function () {};
@@ -186,13 +206,14 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
 
         if (params.Statics) {
             extend(params.Statics, classify);
-            delete classify.prototype.Statics;
         }
 
         if (params.Implements) {
-            interfaces(params.Implements, classify.prototype);
+            interfaces(params.Implements, classify);
             delete classify.prototype.Implements;
         }
+
+        delete classify.prototype.Statics;
 
         return classify;
     }
