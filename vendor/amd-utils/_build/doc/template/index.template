@@ -1,0 +1,12 @@
+{{> header}}
+<a class="fork" href="http://github.com/millermedeiros/amd-utils/">
+    <img alt="Fork me on GitHub" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png">
+</a>
+{{{content}}}
+<h2>Documentation</h2>
+<ul class="mod-list">
+{{#modules}}
+    <li><a href="{{file}}">{{module}}</a></li>
+{{/modules}}
+</ul>
+{{> footer}}

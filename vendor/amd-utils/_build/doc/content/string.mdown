@@ -1,0 +1,398 @@
+# amd-utils / string #
+
+String utilities.
+
+
+## camelCase(str):String
+
+Convert string to "camelCase" text.
+
+See: [`pascalCase()`](#pascalCase)
+
+### Example
+
+```js
+camelCase('lorem-ipsum-dolor'); // "loremIpsumDolor"
+camelCase('lorem ipsum dolor'); // "loremIpsumDolor"
+```
+
+
+## crop(str, maxChars, [append]):String
+
+Truncate string at full words. Alias to `truncate(str, maxChars, append, true);`.
+
+See: [`truncate()`](#truncate)
+
+### Example
+
+```js
+crop('lorem ipsum dolor', 10);      // "lorem..."
+crop('lorem ipsum dolor', 10, '+'); // "lorem+"
+```
+
+
+
+## escapeRegExp(str):String
+
+Escape special chars to be used as literals in RegExp constructors.
+
+### Example
+
+```js
+str = escapeRegExp('[lorem.ipsum]'); // "\\[lorem\\.ipsum\\]"
+reg = new RegExp(str);               // /\[lorem\.ipsum\]/
+```
+
+
+
+## hyphenate(str):String
+
+Replaces spaces with hyphens, split camelCase text, remove non-word chars,
+remove accents and convert to lower case.
+
+See: [`toSlug()`](#toSlug)
+
+```js
+hyphenate(' %# lorem ipsum  ? $  dolor'); // "lorem-ipsum-dolor"
+hyphenate('spéçïãl çhârs');               // "special-chars"
+hyphenate('loremIpsum');                  // "lorem-ipsum"
+```
+
+
+
+## lowerCase(str):String
+
+"Safer" `String.toLowerCase()`. (Used internally)
+
+### Example
+
+```js
+(null).toLowerCase();      // Error!
+(undefined).toLowerCase(); // Error!
+lowerCase(null);           // ""
+lowerCase(undefined);      // ""
+```
+
+
+
+## lpad(str, minLength[, char]):String
+
+Pad string from left with `char` if its' length is smaller than `minLen`.
+
+See: [`rpad()`](#rpad)
+
+### Example
+
+```js
+lpad('a', 5);        // "    a"
+lpad('a', 5, '-');   // "----a"
+lpad('abc', 3, '-'); // "abc"
+lpad('abc', 4, '-'); // "-abc"
+```
+
+
+
+## ltrim(str):String
+
+Remove white-spaces from beginning of string.
+
+See: [`rtrim()`](#rtrim), [`trim()`](#trim)
+
+### Example
+
+```js
+ltrim('   lorem ipsum   ');  // "lorem ipsum   "
+```
+
+
+
+## makePath(...args):String
+
+Group arguments as path segments, if any of the args is `null` or `undefined`
+it will be ignored from resulting path. It will also remove duplicate "/".
+
+### Example
+
+```js
+makePath('lorem', 'ipsum', null, 'dolor'); // "lorem/ipsum/dolor"
+makePath('foo///bar/');                    // "foo/bar/"
+```
+
+
+
+## normalizeLineBreaks(str, [lineBreak]):String
+
+Normalize line breaks to a single format. Defaults to Unix `\n`.
+
+It handles DOS (`\r\n`), Mac (`\r`) and Unix (`\n`) formats.
+
+### Example
+
+```js
+// "foo\nbar\nlorem\nipsum"
+normalizeLineBreaks('foo\nbar\r\nlorem\ripsum');
+
+// "foo\rbar\rlorem\ripsum"
+normalizeLineBreaks('foo\nbar\r\nlorem\ripsum', '\r');
+
+// "foo bar lorem ipsum"
+normalizeLineBreaks('foo\nbar\r\nlorem\ripsum', ' ');
+```
+
+
+
+## pascalCase(str):String
+
+Convert string to "PascalCase" text.
+
+See: [`camelCase()`](#camelCase)
+
+### Example
+
+```js
+pascalCase('lorem-ipsum-dolor'); // "LoremIpsumDolor"
+pascalCase('lorem ipsum dolor'); // "LoremIpsumDolor"
+```
+
+
+
+## properCase(str):String
+
+UPPERCASE first char of each word, lowercase other chars.
+
+### Example
+
+```js
+properCase('loRem iPSum'); // "Lorem Ipsum"
+```
+
+
+
+## removeNonASCII(str):String
+
+Remove [non-printable ASCII
+chars](http://en.wikipedia.org/wiki/ASCII#ASCII_printable_characters).
+
+### Example
+
+```js
+removeNonASCII('äÄçÇéÉêlorem-ipsumöÖÐþúÚ'); // "lorem-ipsum"
+```
+
+
+
+## removeNonWord(str):String
+
+Remove non-word chars.
+
+### Example
+
+```js
+var str = 'lorem ~!@#$%^&*()_+`-={}[]|\\:";\'/?><., ipsum';
+removeNonWord(str); // "lorem - ipsum"
+```
+
+
+
+## repeat(str, n):String
+
+Repeat string n-times.
+
+### Example
+
+```js
+repeat('a', 3);  // "aaa"
+repeat('bc', 2); // "bcbc"
+repeat('a', 0);  // ""
+```
+
+
+
+## replaceAccents(str):String
+
+Replaces all accented chars with regular ones.
+
+**Important:** Only covers **Basic Latin** and **Latin-1** unicode chars.
+
+### Example
+
+```js
+replaceAccents('spéçïãl çhârs'); // "special chars"
+```
+
+
+
+## rpad(str, minLength[, char]):String
+
+Pad string from right with `char` if its' length is smaller than `minLen`.
+
+See: [`lpad()`](#lpad)
+
+### Example
+
+```js
+rpad('a', 5);        // "a    "
+rpad('a', 5, '-');   // "a----"
+rpad('abc', 3, '-'); // "abc"
+rpad('abc', 4, '-'); // "abc-"
+```
+
+
+
+## rtrim(str):String
+
+Remove white-spaces from end of string.
+
+See: [`trim()`](#trim), [`ltrim()`](#ltrim)
+
+### Example
+
+```js
+rtrim('   lorem ipsum   '); // "   lorem ipsum"
+```
+
+
+
+## sentenceCase(str):String
+
+UPPERCASE first char of each sentence and lowercase other chars.
+
+### Example
+
+```js
+var str = 'Lorem IpSum DoLOr. maeCeNnas Ullamcor.';
+sentenceCase(str); // "Lorem ipsum dolor. Maecennas ullamcor."
+```
+
+
+
+## stripHtmlTags(str):String
+
+Remove HTML/XML tags from string.
+
+### Example
+
+```js
+var str = '<p><em>lorem</em> <strong>ipsum</strong></p>';
+stripHtmlTags(str); // "lorem ipsum"
+```
+
+
+
+## toSlug(str):String
+
+Convert to lower case, remove accents, remove non-word chars and replace spaces
+with hyphens.
+
+Only difference from [string/hyphenate](#hyphenate) is that it doesn't split
+camelCase text.
+
+See: [`hyphenate()`](#hyphenate)
+
+### Example
+
+```js
+var str = 'loremIpsum dolor spéçïãl chârs';
+toSlug(str); // "loremipsum-dolor-special-chars"
+```
+
+
+
+## trim(str):String
+
+Remove white-spaces from beginning and end of string.
+
+See: [`rtrim()`](#rtrim), [`ltrim()`](#ltrim)
+
+### Example
+
+```js
+trim('   lorem ipsum   '); // "lorem ipsum"
+```
+
+
+
+## truncate(str, maxChars, [append], [onlyFullWords]):String
+
+Limit number of chars. Returned string `length` will be `<= maxChars`.
+
+See: [`crop()`](#crop)
+
+### Arguments
+
+ 1. `str` (String) : String
+ 2. `maxChars` (Number) : Maximum number of characters including `append.length`.
+ 3. `[append]` (String) : Value that should be added to the end of string.
+    Defaults to "...".
+ 4. `[onlyFullWords]` (Boolean) : If it shouldn't break words. Default is
+    `false`. (favor [`crop()`](#crop) since code will be clearer).
+
+### Example
+
+```js
+truncate('lorem ipsum dolor', 11);             // "lorem ip..."
+truncate('lorem ipsum dolor', 11, '+');        // "lorem ipsu+"
+truncate('lorem ipsum dolor', 11, null, true); // "lorem..."
+```
+
+
+
+## typecast(str):*
+
+Parses string and convert it into a native value.
+
+### Example
+
+```js
+typecast('lorem ipsum'); // "lorem ipsum"
+typecast('123');         // 123
+typecast('123.45');      // 123.45
+typecast('false');       // false
+typecast('true');        // true
+typecast('null');        // null
+typecast('undefined');   // undefined
+```
+
+
+
+## unCamelCase(str):String
+
+Add space between camelCase text and convert first char of each word to lower
+case.
+
+### Example
+
+```js
+unCamelCase('loremIpsumDolor'); // "lorem ipsum dolor"
+```
+
+
+## unHyphenate(str):String
+
+Replaces hyphens with spaces. (only hyphens between word chars)
+
+### Example
+
+```js
+unHyphenate('lorem-ipsum-dolor'); // "lorem ipsum dolor"
+```
+
+
+## upperCase(str):String
+
+"Safer" `String.toUpperCase()`. (Used internally)
+
+### Example
+
+```js
+(null).toUpperCase();      // Error!
+(undefined).toUpperCase(); // Error!
+upperCase(null);           // ""
+upperCase(undefined);      // ""
+```
+
+-------------------------------------------------------------------------------
+
+For more usage examples check specs inside `/tests` folder. Unit tests are the
+best documentation you can get...
+
