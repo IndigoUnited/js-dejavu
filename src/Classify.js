@@ -212,7 +212,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
             interfaces(params.Implements, classify);
             delete classify.prototype.Implements;
         }
-
+        
         delete classify.prototype.Statics;
 
         return classify;
