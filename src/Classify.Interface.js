@@ -7,7 +7,7 @@ define(function(){
         }
 
         if (!methods.Name) {
-            throw new Error("Classify.Interface expects property Name in arguments");
+            methods.Name = "Unnamed";
         }
 
         if (methods.Name && typeof methods.Name !== "string") {

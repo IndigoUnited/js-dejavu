@@ -8,7 +8,7 @@
  * @version 1.0.0
  *
  * @example
- * 
+ *
  *      var MyClass = Classify({
  *          Implements: [SomeInterface, OtherInterface],
  *          Extends: ParentClass,
@@ -27,13 +27,14 @@
  *          method3: function () {}
  *      });
  */
-define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify.Singleton"], function (Abstract, Singleton, Interface) {
+define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify.Singleton"], function (Abstract, Interface, Singleton) {
+
 
     /**
      * Create a class definition.
-     * 
+     *
      * @param {Object} params An object containing methods and properties
-     * 
+     *
      * @returns {Function} The constructor
      */
     function Classify(params) {
@@ -63,7 +64,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
          * Borrows the properties and methods of various source objects to the target.
          *
          * @private
-         * 
+         *
          * @param {Array}  sources Array of objects that will give their methods
          * @param {Object} target  Target that will receive the methods
          */
@@ -92,8 +93,8 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
         /**
          * Fixes the context in given methods.
          *
-         * @private 
-         * 
+         * @private
+         *
          * @param {Array}  fns     The array of functions to be binded
          * @param {Object} context The context that will be bound
          * @param {Object} target  The target class that will have these methods
@@ -122,9 +123,9 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
          * Copies the given object into a freshly created empty function's prototype.
          *
          * @private
-         * 
+         *
          * @param {Object} object Object
-         * 
+         *
          * @returns {Function} Thew new instance
          */
         function clone(object) {
@@ -135,25 +136,31 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
             return new F();
         }
 
-        /**
-         * Checks a target against interfaces methods.
-         * 
-         * @param {Array} implementations The array of interfaces
-         * @param {Object} target         The target that will be check
-         */
-        function interfaces(implementations, target) {
+         /**
+          * Checks a target against interfaces methods.
+          *
+          * @param {Array} implementations The array of interfaces
+          * @param {Object} target         The target that will be check
+          */
+         function interfaces(implementations, target) {
 
-            var i,
-                k;
+             var i,
+                 k;
 
-            for (i = implementations.length - 1; i >= 0; i -= 1) {
-                for (k in implementations[i]) {
-                    if (!target.hasOwnProperty(k) && (k !== "Extends" || k !== "Name")) {
-                        throw new Error("Class does not implements Interface " + implementations[i].Name + "correctly");
-                    }
-                }
-            }
-        }
+             if (Object.prototype.toString.call(implementations) !== "[object Array]"){
+                 implementations = [implementations];
+             }
+
+             for (i = implementations.length - 1; i >= 0; i -= 1) {
+                 for (k in implementations[i]) {
+                     if ((k !== "Extends" && k !== "Name") && !target.hasOwnProperty[k]) {
+                         throw new Error("Class does not implements Interface " + implementations[i].Name + " correctly, " + k + " was not found");
+                     }
+                 }
+             }
+
+         }
+
 
         classify = params.initialize || function () {};
 
@@ -183,7 +190,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
         }
 
         if (params.Implements) {
-            interfaces(params.Implements, this);
+            interfaces(params.Implements, classify.prototype);
             delete classify.prototype.Implements;
         }
 
