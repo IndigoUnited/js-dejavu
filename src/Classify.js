@@ -145,17 +145,32 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
          function interfaces(implementations, target) {
 
              var i,
-                 k;
+                 k, m, curr;
 
              if (Object.prototype.toString.call(implementations) !== "[object Array]"){
                  implementations = [implementations];
              }
 
              for (i = implementations.length - 1; i >= 0; i -= 1) {
-                 for (k in implementations[i]) {
-                     if ((k !== "Extends" && k !== "Name") && !target.hasOwnProperty(k)) {
-                         throw new Error("Class does not implements Interface " + implementations[i].Name + " correctly, " + k + " was not found");
+                 curr = implementations[i];
+
+                 for (k in curr) {
+                     if ((k !== "Extends" && k !== "Name" && k !== "Statics") && !target.prototype.hasOwnProperty(k)) {
+                         throw new Error("Class does not implements Interface " + curr.Name + " correctly, " + k + " was not found");
                      }
+
+                     if (k === "Statics") {
+                         if (!target.prototype.hasOwnProperty(k)) {
+                             throw new Error("Class does not implements Interface " + curr.Name + " correctly, " + k + " method was not found");
+                         }
+
+                         for (m in curr.Statics) {
+                             if (!target.hasOwnProperty(m)) {
+                                 throw new Error("Class does not implements Interface " + curr.Name + " correctly, static method " + k + "  was not found");
+                             }
+                         }
+                     }
+
                  }
              }
 
@@ -186,13 +201,14 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
 
         if (params.Statics) {
             extend(params.Statics, classify);
-            delete classify.prototype.Statics;
         }
 
         if (params.Implements) {
-            interfaces(params.Implements, classify.prototype);
+            interfaces(params.Implements, classify);
             delete classify.prototype.Implements;
         }
+
+        delete classify.prototype.Statics;
 
         return classify;
     }
