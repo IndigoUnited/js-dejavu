@@ -5,6 +5,7 @@
  * Classify - Sugar syntax for Prototypal Inheritance
  *
  * @author Luís Couto <lcouto87@gmail.com>
+ * @author André Cruz <andremiguelcruz@msn.com>
  * @version 1.0.0
  *
  * @example
