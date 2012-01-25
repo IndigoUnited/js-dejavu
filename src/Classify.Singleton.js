@@ -1,12 +1,11 @@
-/*jslint sloppy: true, nomen: true*/
+/*jslint sloppy: true nomen: true evil: true*/
 /*global define*/
 
 define(['Trinity/Classify', 'Utils/Object/mixIn', 'require'], function (Classify, mixIn, require) {
 
     function Singleton(params) {
 
-        var originalInitialize = params.initialize,
-            ClassDef;
+        var originalInitialize = params.initialize;
 
         // Override the constructor
         function initialize() {
@@ -47,7 +46,7 @@ define(['Trinity/Classify', 'Utils/Object/mixIn', 'require'], function (Classify
                     this.prototype.$initializing = true;
                     // TODO: We are using eval here.. I couldn't make this work with new Function
                     //       Think of a better way to curry the params of getInstance to the constructor
-                    eval("that.__instance = new that(" + params.join() + ");")
+                    eval("that.__instance = new that(" + params.join() + ");");
                     this.prototype.$initializing = false;
                 }
 
@@ -70,7 +69,6 @@ define(['Trinity/Classify', 'Utils/Object/mixIn', 'require'], function (Classify
     return function (params) {
         Classify = require('Trinity/Classify');
         Singleton(params);
-        ClassDef = Classify(params);
-        return ClassDef;
-    }
+        return Classify(params);
+    };
 });
