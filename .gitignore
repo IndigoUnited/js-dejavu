@@ -32,7 +32,35 @@ Compiled source #
 ehthumbs.db
 Icon?
 Thumbs.db
+Desktop.ini
+.Spotlight-V100
+.Trashes
+._*
 
-# Swap Files #
-##############
-*.swp
+# NetBeans #
+############
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+
+# Textmate #
+############
+*.tmproj
+*.tmproject
+tmtags
+
+# VIM #
+#######
+.*.sw[a-z]
+*.un~
+Session.vim
+
+# Sublime TextEditor #
+######################
+/*.sublime-project
+
+
