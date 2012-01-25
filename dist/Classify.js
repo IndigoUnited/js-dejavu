@@ -12,20 +12,14 @@ define('Classify.Interface',[],function () {
 
     function Interface(methods) {
 
-        if (!methods) {
-            throw new Error("Classify.Interface constructor called with no arguments, but expects at least 1");
-        }
-
         if (!methods.Name) {
-            methods.Name = "Unnamed";
-        }
-
-        if (methods.Name && typeof methods.Name !== "string") {
-            throw new Error("Classify.Interface's property 'Name' must be a String");
+            methods.Name = 'Unnamed';
         }
 
         function extend(target, source) {
+
             var k;
+
             for (k in source) {
                 if (source.hasOwnProperty(k)) {
                     target[k] = source[k];
@@ -41,6 +35,7 @@ define('Classify.Interface',[],function () {
             Interface.prototype = methods.Extends;
         }
 
+        // TODO: Make a way to test if a class implements an interface
         return new InterfaceConstructor();
     }
 
@@ -112,6 +107,7 @@ define('Classify.Singleton',['Trinity/Classify', 'Utils/Object/mixIn', 'require'
         // Add methods to the Statics object
         params.Statics = mixIn({
 
+            $singleton: true,    // We hold this in order to inform that we have a singleton
             __instance: null,    // Private variable that holds the instance
 
             /**
@@ -138,7 +134,7 @@ define('Classify.Singleton',['Trinity/Classify', 'Utils/Object/mixIn', 'require'
                     // TODO: We are using eval here.. I couldn't make this work with new Function
                     //       Think of a better way to curry the params of getInstance to the constructor
                     eval("that.__instance = new that(" + params.join() + ");");
-                    this.prototype.$initializing = false;
+                    delete this.prototype.$initializing;
                 }
 
                 return this.__instance;
@@ -194,7 +190,7 @@ define('Classify.Singleton',['Trinity/Classify', 'Utils/Object/mixIn', 'require'
  *          method3: function () {}
  *      });
  */
-define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify.Singleton"], function (Abstract, Interface, Singleton) {
+define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface', 'Classify.Singleton'], function (Abstract, Interface, Singleton) {
 
 
     /**
@@ -207,7 +203,8 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
 
     function Classify(params) {
 
-        var classify;
+        var initialize = params.initialize || function () {},
+            classify = initialize;
 
         /**
          * Extends an object with another given object.
@@ -217,7 +214,6 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
          * @param {Object} source The object to copy from
          * @param {Object} target The object that will get the source properties and methods
          */
-
         function extend(source, target) {
 
             var k;
@@ -237,7 +233,6 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
          * @param {Array}  sources Array of objects that will give their methods
          * @param {Object} target  Target that will receive the methods
          */
-
         function borrows(sources, target) {
 
             var i, length = sources.length,
@@ -267,7 +262,6 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
          * @param {Object} context The context that will be bound
          * @param {Object} target  The target class that will have these methods
          */
-
         function binds(fns, context, target) {
 
             var proxy = function (func) {
@@ -297,7 +291,6 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
          *
          * @returns {Function} Thew new instance
          */
-
         function clone(object) {
 
             function F() {}
@@ -312,33 +305,28 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
          * @param {Array} implementations The array of interfaces
          * @param {Object} target         The target that will be check
          */
-
         function interfaces(implementations, target) {
 
             var i, k, m, curr;
-
-            if (Object.prototype.toString.call(implementations) !== "[object Array]") {
-                implementations = [implementations];
-            }
 
             for (i = implementations.length - 1; i >= 0; i -= 1) {
                 curr = implementations[i];
 
                 for (k in curr) {
                     if (curr.hasOwnProperty(k)) {
-                        if ((k !== "Extends" && k !== "Name" && k !== "Statics") && !target.prototype.hasOwnProperty(k)) {
-                            throw new Error("Class does not implements Interface " + curr.Name + " correctly, " + k + " was not found");
+                        if ((k !== 'Name' && k !== 'Statics') && !target.prototype.hasOwnProperty(k)) {
+                            throw new Error('Class does not implements Interface ' + curr.Name + ' correctly, ' + k + ' was not found');
                         }
 
-                        if (k === "Statics") {
+                        if (k === 'Statics') {
                             if (!target.prototype.hasOwnProperty(k)) {
-                                throw new Error("Class does not implements Interface " + curr.Name + " correctly, " + k + " method was not found");
+                                throw new Error('Class does not implements Interface ' + curr.Name + ' correctly, ' + k + 'object was not found');
                             }
 
                             for (m in curr.Statics) {
                                 if (curr.Statics.hasOwnProperty(m)) {
                                     if (!target.hasOwnProperty(m)) {
-                                        throw new Error("Class does not implements Interface " + curr.Name + " correctly, static method " + k + "  was not found");
+                                        throw new Error('Class does not implements Interface ' + curr.Name + ' correctly, static method ' + k + '  was not found');
                                     }
                                 }
                             }
@@ -348,10 +336,17 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
             }
         }
 
-
-        classify = params.initialize || function () {};
-
         if (params.Extends) {
+
+            // If the user is not defining a singleton but extends from one..
+            if ((!params.Statics || !params.Statics.$singleton) && params.Extends.$singleton) {
+                classify = function () {
+                    this.$initializing = true;
+                    initialize.apply(this, arguments);
+                    delete this.$initializing;
+                };
+            }
+
             classify.Super = params.Extends.prototype;
             classify.prototype = clone(classify.Super);
             extend(params, classify.prototype);
@@ -372,15 +367,17 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
         }
 
         if (params.Statics) {
-            extend(params.Statics, classify);
+            extend(params.Statics, classify);   // We can't delete the Statics yet
         }
 
         if (params.Implements) {
             interfaces(params.Implements, classify);
             delete classify.prototype.Implements;
         }
-        
-        delete classify.prototype.Statics;
+
+        if (params.Statics) {
+            delete classify.prototype.Statics;  // Delete it now
+        }
 
         return classify;
     }
