@@ -28,7 +28,7 @@
  *          method3: function () {}
  *      });
  */
-define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify.Singleton"], function (Abstract, Interface, Singleton) {
+define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface', 'Classify.Singleton'], function (Abstract, Interface, Singleton) {
 
 
     /**
@@ -151,7 +151,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
 
             var i, k, m, curr;
 
-            if (Object.prototype.toString.call(implementations) !== "[object Array]") {
+            if (Object.prototype.toString.call(implementations) !== '[object Array]') {
                 implementations = [implementations];
             }
 
@@ -160,19 +160,19 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
 
                 for (k in curr) {
                     if (curr.hasOwnProperty(k)) {
-                        if ((k !== "Extends" && k !== "Name" && k !== "Statics") && !target.prototype.hasOwnProperty(k)) {
-                            throw new Error("Class does not implements Interface " + curr.Name + " correctly, " + k + " was not found");
+                        if ((k !== 'Extends' && k !== 'Name' && k !== 'Statics') && !target.prototype.hasOwnProperty(k)) {
+                            throw new Error('Class does not implements Interface ' + curr.Name + ' correctly, ' + k + ' was not found');
                         }
 
-                        if (k === "Statics") {
+                        if (k === 'Statics') {
                             if (!target.prototype.hasOwnProperty(k)) {
-                                throw new Error("Class does not implements Interface " + curr.Name + " correctly, " + k + " method was not found");
+                                throw new Error('Class does not implements Interface ' + curr.Name + ' correctly, ' + k + ' method was not found');
                             }
 
                             for (m in curr.Statics) {
                                 if (curr.Statics.hasOwnProperty(m)) {
                                     if (!target.hasOwnProperty(m)) {
-                                        throw new Error("Class does not implements Interface " + curr.Name + " correctly, static method " + k + "  was not found");
+                                        throw new Error('Class does not implements Interface ' + curr.Name + ' correctly, static method ' + k + '  was not found');
                                     }
                                 }
                             }
