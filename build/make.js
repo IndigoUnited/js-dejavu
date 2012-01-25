@@ -4,7 +4,15 @@ var cp = require('child_process'),
     fs = require('fs'),
     tests,
     command,
-    exitCode = 0;
+    exitCode = 0,
+    distDir = __dirname + '/../dist/',
+    files;
+
+// Delete previous files
+files = fs.readdirSync(distDir);
+files.forEach(function (file) {
+    fs.unlinkSync(distDir + file);
+});
 
 // Execute requirejs optimizer
 cp.exec('node ' + __dirname + '/../vendor/r.js/dist/r.js -o ' + __dirname + '/Classify.build.js', function (error, stdout, stderr) {
@@ -22,17 +30,8 @@ cp.exec('node ' + __dirname + '/../vendor/r.js/dist/r.js -o ' + __dirname + '/Cl
         distDir = __dirname + '/../dist/';
 
     files.forEach(function (file) {
-
-        var code;
-
         if (file.substr(file.length - 3) === '.js' && file !== 'Classify.js') {
-            console.log('Deleting ' + file);
-            code = fs.unlinkSync(distDir + file);
-
-            if (code === 0) {
-                console.error('Unable to delete file.');
-                exitCode = 1;
-            }
+            fs.unlinkSync(distDir + file);
         }
     });
 
