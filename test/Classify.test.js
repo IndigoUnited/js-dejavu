@@ -134,7 +134,7 @@ requirejs(['Trinity/Classify'], function (Classify) {
         var SomeInterface = Classify.Interface({        // Simple interface
             someMethod: function () {},
             otherMethod: function () {},
-            Statics: {
+            Statics : {
                 staticMethod: function () {}
             }
         }),
@@ -170,25 +170,29 @@ requirejs(['Trinity/Classify'], function (Classify) {
             }),
                 someImplementation = new SomeImplementation();
 
-            expect(someImplementation.prototype.Implements).to.be.equal(undefined);
+            expect(someImplementation.Implements).to.be.not.ok;
         });
 
-        it('should throw an exception', function () {
-            var lol = Classify({
-                Implements: SomeInterface
-            });
+        it('should throw error invoking the constructor', function () {
 
-            console.dir("WTF=>", lol);
 
-            expect(Classify({
-                Implements: SomeInterface
-            })).to.throw(Error);
+            expect(function () {
+                return Classify({
+                    Implements: SomeInterface
+                });
+            }).to.throw(Error);
 
-            // expect(Classify({
-            //     Implements: SomeInterface,
-            //     someMethod: function () {},
-            //     otherMethod: function () {}
-            // })).to["throw"](Error);
+            expect(function(){
+                return Classify({
+                    Implements: SomeInterface,
+                    someMethod: function () {},
+                    otherMethod: function () {},
+                    Statics : {
+                        staticMethod : function () {}
+                    }
+                });
+            }).to.not.throw(Error);
+
         });
     });
 });
