@@ -5,12 +5,15 @@ define('Classify.Abstract',[],function(){
     return Abstract;
 
 });
-define('Classify.Interface',[],function(){
+/*jslint sloppy: true*/
+/*global define*/
 
-    function Interface (methods) {
+define('Classify.Interface',[],function () {
+
+    function Interface(methods) {
 
         if (!methods) {
-            throw new Error("Classify.Interface constructor called with no arguments, but expects at least 1")
+            throw new Error("Classify.Interface constructor called with no arguments, but expects at least 1");
         }
 
         if (!methods.Name) {
@@ -18,7 +21,7 @@ define('Classify.Interface',[],function(){
         }
 
         if (methods.Name && typeof methods.Name !== "string") {
-            throw new Error("Classify.Interface's property 'Name' must be a String")
+            throw new Error("Classify.Interface's property 'Name' must be a String");
         }
 
         function extend(target, source) {
@@ -30,7 +33,7 @@ define('Classify.Interface',[],function(){
             }
         }
 
-        function Interface () {
+        function InterfaceConstructor() {
             extend(this, methods);
         }
 
@@ -38,8 +41,8 @@ define('Classify.Interface',[],function(){
             Interface.prototype = methods.Extends;
         }
 
-        return new Interface();
-    };
+        return new InterfaceConstructor();
+    }
 
     return Interface;
 });
@@ -86,15 +89,14 @@ define('Utils/Object/mixIn',['./hasOwn'], function(hasOwn){
     return mixIn;
 });
 
-/*jslint sloppy: true, nomen: true*/
+/*jslint sloppy: true nomen: true evil: true*/
 /*global define*/
 
 define('Classify.Singleton',['Trinity/Classify', 'Utils/Object/mixIn', 'require'], function (Classify, mixIn, require) {
 
     function Singleton(params) {
 
-        var originalInitialize = params.initialize,
-            ClassDef;
+        var originalInitialize = params.initialize;
 
         // Override the constructor
         function initialize() {
@@ -133,7 +135,9 @@ define('Classify.Singleton',['Trinity/Classify', 'Utils/Object/mixIn', 'require'
                     }
 
                     this.prototype.$initializing = true;
-                    eval("that.__instance = new that(" + params.join() + ");")
+                    // TODO: We are using eval here.. I couldn't make this work with new Function
+                    //       Think of a better way to curry the params of getInstance to the constructor
+                    eval("that.__instance = new that(" + params.join() + ");");
                     this.prototype.$initializing = false;
                 }
 
@@ -156,9 +160,8 @@ define('Classify.Singleton',['Trinity/Classify', 'Utils/Object/mixIn', 'require'
     return function (params) {
         Classify = require('Trinity/Classify');
         Singleton(params);
-        ClassDef = Classify(params);
-        return ClassDef;
-    }
+        return Classify(params);
+    };
 });
 
 /*jslint sloppy: true*/

@@ -1,9 +1,12 @@
-define(function(){
+/*jslint sloppy: true*/
+/*global define*/
 
-    function Interface (methods) {
+define(function () {
+
+    function Interface(methods) {
 
         if (!methods) {
-            throw new Error("Classify.Interface constructor called with no arguments, but expects at least 1")
+            throw new Error("Classify.Interface constructor called with no arguments, but expects at least 1");
         }
 
         if (!methods.Name) {
@@ -11,7 +14,7 @@ define(function(){
         }
 
         if (methods.Name && typeof methods.Name !== "string") {
-            throw new Error("Classify.Interface's property 'Name' must be a String")
+            throw new Error("Classify.Interface's property 'Name' must be a String");
         }
 
         function extend(target, source) {
@@ -23,7 +26,7 @@ define(function(){
             }
         }
 
-        function Interface () {
+        function InterfaceConstructor() {
             extend(this, methods);
         }
 
@@ -31,8 +34,8 @@ define(function(){
             Interface.prototype = methods.Extends;
         }
 
-        return new Interface();
-    };
+        return new InterfaceConstructor();
+    }
 
     return Interface;
 });
