@@ -34,8 +34,20 @@ define(['Trinity/Classify', 'Utils/Object/mixIn', 'require'], function (Classify
             getInstance: function () {
 
                 if (this.__instance === null) {
+
+                    var params = [],
+                        length = arguments.length,
+                        x,
+                        that = this;
+
+                    for (x = 0; x < length; x += 1) {
+                        params.push("arguments[" + x + "]");
+                    }
+
                     this.prototype.$initializing = true;
-                    this.__instance = new this;
+                    // TODO: We are using eval here.. I couldn't make this work with new Function
+                    //       Think of a better way to curry the params of getInstance to the constructor
+                    eval("that.__instance = new that(" + params.join() + ");")
                     this.prototype.$initializing = false;
                 }
 
@@ -56,7 +68,7 @@ define(['Trinity/Classify', 'Utils/Object/mixIn', 'require'], function (Classify
 
     // We need to make a closure in order to solve the circular reference of requirejs
     return function (params) {
-        var Classify = require('Trinity/Classify');
+        Classify = require('Trinity/Classify');
         Singleton(params);
         ClassDef = Classify(params);
         return ClassDef;
