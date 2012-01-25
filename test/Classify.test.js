@@ -210,8 +210,8 @@ requirejs(['Trinity/Classify'], function (Classify) {
     describe('Singleton usage', function () {
 
         var Singleton = Classify.Singleton({
-            initialize: function () {
-                this._some = 'property';
+            initialize: function (property) {
+                this._some = property || 'property';
             },
             Statics: {
                 someMethod: function () {}
@@ -240,7 +240,7 @@ requirejs(['Trinity/Classify'], function (Classify) {
             expect(instance1._some).to.be.equal('property');
         });
 
-        it('should erase the instance when unsetInstance is called', function () {
+        it('should erase the instance when unsetInstance() is called', function () {
             var instance1 = Singleton.getInstance(),
                 instance2;
             Singleton.unsetInstance();
@@ -248,6 +248,12 @@ requirejs(['Trinity/Classify'], function (Classify) {
             instance2 = Singleton.getInstance();
             expect(instance2).to.be['instanceof'](Singleton);
             expect(instance1).to.be.not.equal(instance2);
+        });
+
+        it('should pass the arguments of getInstance() to the initialize()', function () {
+            Singleton.unsetInstance();
+            var instance = Singleton.getInstance('test');
+            expect(instance._some).to.be.equal('test');
         });
     });
 });

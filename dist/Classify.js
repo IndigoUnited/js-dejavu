@@ -96,8 +96,6 @@ define('Classify.Singleton',['Trinity/Classify', 'Utils/Object/mixIn', 'require'
         var originalInitialize = params.initialize,
             ClassDef;
 
-        // TODO: classify should be a dependency
-
         // Override the constructor
         function initialize() {
 
@@ -112,7 +110,7 @@ define('Classify.Singleton',['Trinity/Classify', 'Utils/Object/mixIn', 'require'
         // Add methods to the Statics object
         params.Statics = mixIn({
 
-            __instance: null,    // Privar variable that holds the instance
+            __instance: null,    // Private variable that holds the instance
 
             /**
              * Returns the instance.
@@ -124,8 +122,18 @@ define('Classify.Singleton',['Trinity/Classify', 'Utils/Object/mixIn', 'require'
             getInstance: function () {
 
                 if (this.__instance === null) {
+
+                    var params = [],
+                        length = arguments.length,
+                        x,
+                        that = this;
+
+                    for (x = 0; x < length; x += 1) {
+                        params.push("arguments[" + x + "]");
+                    }
+
                     this.prototype.$initializing = true;
-                    this.__instance = new this;
+                    eval("that.__instance = new that(" + params.join() + ");")
                     this.prototype.$initializing = false;
                 }
 
@@ -146,7 +154,7 @@ define('Classify.Singleton',['Trinity/Classify', 'Utils/Object/mixIn', 'require'
 
     // We need to make a closure in order to solve the circular reference of requirejs
     return function (params) {
-        var Classify = require('Trinity/Classify');
+        Classify = require('Trinity/Classify');
         Singleton(params);
         ClassDef = Classify(params);
         return ClassDef;
@@ -160,6 +168,7 @@ define('Classify.Singleton',['Trinity/Classify', 'Utils/Object/mixIn', 'require'
  * Classify - Sugar syntax for Prototypal Inheritance
  *
  * @author Luís Couto <lcouto87@gmail.com>
+ * @author André Cruz <andremiguelcruz@msn.com>
  * @version 1.0.0
  *
  * @example
@@ -367,7 +376,7 @@ define("Trinity/Classify", ["Classify.Abstract", "Classify.Interface", "Classify
             interfaces(params.Implements, classify);
             delete classify.prototype.Implements;
         }
-
+        
         delete classify.prototype.Statics;
 
         return classify;
