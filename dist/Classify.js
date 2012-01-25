@@ -338,7 +338,7 @@ define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface', 'Classify
 
         if (params.Extends) {
 
-            // If the user is not defining a singleton but extends from one..
+            // If the user is not defining a singleton but extends one..
             if ((!params.Statics || !params.Statics.$singleton) && params.Extends.$singleton) {
                 classify = function () {
                     this.$initializing = true;

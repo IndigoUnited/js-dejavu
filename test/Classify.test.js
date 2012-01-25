@@ -129,6 +129,25 @@ requirejs(['Trinity/Classify'], function (Classify) {
         });
     });
 
+    describe('Simple inheritance without constructor', function () {
+
+        var Person = Classify({
+            initialize: function () {
+                this._status = "alive";
+            }
+        }),
+            Andre = Classify({
+                Extends: Person,
+                _name: "André"
+            });
+
+        it('should invoke the parent constructor automatically', function () {
+            var andre = new Andre();
+
+            expect(andre._status).to.be.equal("alive");
+        });
+    });
+
     describe('Simple interface usage', function () {
 
         var SomeInterface = Classify.Interface({        // Simple interface
