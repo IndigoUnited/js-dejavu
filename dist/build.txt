@@ -3,5 +3,7 @@ Classify.js
 ----------------
 Classify.Abstract.js
 Classify.Interface.js
+C:/xampp/htdocs/trinity/Classify/vendor/amd-utils/src/Object/hasOwn.js
+C:/xampp/htdocs/trinity/Classify/vendor/amd-utils/src/Object/mixIn.js
 Classify.Singleton.js
 Classify.js
