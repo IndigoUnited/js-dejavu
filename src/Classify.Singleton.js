@@ -8,8 +8,6 @@ define(['Trinity/Classify', 'Utils/Object/mixIn', 'require'], function (Classify
         var originalInitialize = params.initialize,
             ClassDef;
 
-        // TODO: classify should be a dependency
-
         // Override the constructor
         function initialize() {
 
@@ -24,7 +22,7 @@ define(['Trinity/Classify', 'Utils/Object/mixIn', 'require'], function (Classify
         // Add methods to the Statics object
         params.Statics = mixIn({
 
-            __instance: null,    // Privar variable that holds the instance
+            __instance: null,    // Private variable that holds the instance
 
             /**
              * Returns the instance.
