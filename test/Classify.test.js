@@ -188,6 +188,18 @@ requirejs(['Trinity/Classify'], function (Classify) {
                     someMethod: function () {},
                     otherMethod: function () {},
                     Statics : {
+                        weirdStaticMethod : function () {}
+                    }
+                });
+            }).to.throw(Error);
+
+
+            expect(function(){
+                return Classify({
+                    Implements: SomeInterface,
+                    someMethod: function () {},
+                    otherMethod: function () {},
+                    Statics : {
                         staticMethod : function () {}
                     }
                 });
