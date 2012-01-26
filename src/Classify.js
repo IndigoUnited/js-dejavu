@@ -41,8 +41,8 @@ define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface', 'Classify
 
     function Classify(params) {
 
-        var initialize = params.initialize || function () {},
-            classify = initialize;
+        var classify = params.initialize,
+            oldInitialize;
 
         /**
          * Extends an object with another given object.
@@ -176,11 +176,14 @@ define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface', 'Classify
 
         if (params.Extends) {
 
+            classify = classify || params.Extends.prototype.initialize;
+
             // If the user is not defining a singleton but extends one..
             if ((!params.Statics || !params.Statics.$singleton) && params.Extends.$singleton) {
+                oldInitialize = classify;
                 classify = function () {
                     this.$initializing = true;
-                    initialize.apply(this, arguments);
+                    oldInitialize.apply(this, arguments);
                     delete this.$initializing;
                 };
             }
@@ -189,6 +192,7 @@ define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface', 'Classify
             classify.prototype = clone(classify.Super);
             extend(params, classify.prototype);
         } else {
+            classify = classify || function () {};
             classify.prototype = params;
         }
 

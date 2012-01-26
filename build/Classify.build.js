@@ -13,7 +13,7 @@
     modules: [{
         name: "Trinity/Classify"
     }],
-    optimize: "none",
+    optimize: "uglify",
     uglify: {
         beautify: false,
         unsafe : true
