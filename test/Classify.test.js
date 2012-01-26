@@ -1,4 +1,4 @@
-/*jslint sloppy:true nomen: true*/
+/*jslint sloppy:true nomen: true, newcap:true*/
 /*global require,describe,it,beforeEach,__dirname*/
 
 var requirejs = require('../vendor/r.js/dist/r.js'),
@@ -58,11 +58,11 @@ requirejs(['Trinity/Classify'], function (Classify) {
         });
 
         it('should not have Binds property', function () {
-            expect(example.Binds).to.be.not.ok;
+            return expect(example.Binds).to.be.not.ok;
         });
 
         it('should not have Statics property', function () {
-            expect(example.Statics).to.be.not.ok;
+            return expect(example.Statics).to.be.not.ok;
         });
     });
 
@@ -133,18 +133,18 @@ requirejs(['Trinity/Classify'], function (Classify) {
 
         var Person = Classify({
             initialize: function () {
-                this._status = "alive";
+                this._status = 'alive';
             }
         }),
             Andre = Classify({
                 Extends: Person,
-                _name: "André"
+                _name: 'André'
             });
 
         it('should invoke the parent constructor automatically', function () {
             var andre = new Andre();
 
-            expect(andre._status).to.be.equal("alive");
+            expect(andre._status).to.be.equal('alive');
         });
     });
 
@@ -163,7 +163,7 @@ requirejs(['Trinity/Classify'], function (Classify) {
                     extraStaticMethod: function () {}
                 }
             }),
-            ExtendInterface = Classify.Interface({      // Interface that extends another
+            ExtendedInterface = Classify.Interface({    // Interface that extends another
                 Extends: SomeInterface,
                 extraMethod: function () {},
                 Statics: {
@@ -189,7 +189,7 @@ requirejs(['Trinity/Classify'], function (Classify) {
             }),
                 someImplementation = new SomeImplementation();
 
-            expect(someImplementation.Implements).to.be.not.ok;
+            return expect(someImplementation.Implements).to.be.not.ok;
         });
 
         it('should throw error on incomplete implementations', function () {
@@ -198,7 +198,7 @@ requirejs(['Trinity/Classify'], function (Classify) {
                 return Classify({
                     Implements: [SomeInterface]
                 });
-            }).to["throw"](Error);
+            }).to['throw'](Error);
 
             expect(function () {
                 return Classify({
@@ -206,10 +206,10 @@ requirejs(['Trinity/Classify'], function (Classify) {
                     someMethod: function () {},
                     otherMethod: function () {},
                     Statics: {
-                        weirdStaticMethod : function () {}
+                        weirdStaticMethod: function () {}
                     }
                 });
-            }).to["throw"](Error);
+            }).to['throw'](Error);
 
             expect(function () {
                 return Classify({
@@ -217,11 +217,78 @@ requirejs(['Trinity/Classify'], function (Classify) {
                     someMethod: function () {},
                     otherMethod: function () {},
                     Statics: {
-                        staticMethod : function () {}
+                        staticMethod: function () {}
                     }
                 });
-            }).to.not["throw"](Error);
+            }).to.not['throw'](Error);
 
+            expect(function () {
+                return Classify({
+                    Implements: [ExtendedInterface],
+                    extraMethod: function () {},
+                    Statics: {
+                        extraStaticMethod: function () {}
+                    }
+                });
+            }).to['throw'](Error);
+
+            expect(function () {
+                return Classify({
+                    Implements: [ExtendedInterface],
+                    someMethod: function () {},
+                    otherMethod: function () {},
+                    Statics: {
+                        staticMethod: function () {}
+                    }
+                });
+            }).to['throw'](Error);
+
+            expect(function () {
+                return Classify({
+                    Implements: [SomeInterface, OtherInterface],
+                    someMethod: function () {},
+                    otherMethod: function () {},
+                    Statics: {
+                        staticMethod: function () {}
+                    }
+                });
+            }).to['throw'](Error);
+
+            expect(function () {
+                return Classify({
+                    Implements: [SomeInterface, OtherInterface],
+                    extraMethod: function () {},
+                    Statics: {
+                        extraStaticMethod: function () {}
+                    }
+                });
+            }).to['throw'](Error);
+
+            expect(function () {
+                return Classify({
+                    Implements: [ExtendedInterface],
+                    someMethod: function () {},
+                    otherMethod: function () {},
+                    extraMethod: function () {},
+                    Statics: {
+                        staticMethod: function () {},
+                        extraStaticMethod: function () {}
+                    }
+                });
+            }).to.not['throw'](Error);
+
+            expect(function () {
+                return Classify({
+                    Implements: [SomeInterface, OtherInterface],
+                    someMethod: function () {},
+                    otherMethod: function () {},
+                    extraMethod: function () {},
+                    Statics: {
+                        staticMethod: function () {},
+                        extraStaticMethod: function () {}
+                    }
+                });
+            }).to.not['throw'](Error);
         });
     });
 
@@ -276,7 +343,7 @@ requirejs(['Trinity/Classify'], function (Classify) {
             var instance1 = Singleton.getInstance(),
                 instance2;
             Singleton.unsetInstance();
-            expect(Singleton.__instance).to.be.not.ok;
+            (function () { return expect(Singleton.__instance).to.be.not.ok; }());
             instance2 = Singleton.getInstance();
             expect(instance2).to.be['instanceof'](Singleton);
             expect(instance1).to.be.not.equal(instance2);
