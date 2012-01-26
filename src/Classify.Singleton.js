@@ -1,4 +1,4 @@
-/*jslint sloppy: true nomen: true evil: true*/
+/*jslint sloppy: true nomen: true evil: true, newcap:true*/
 /*global define*/
 
 define(['Trinity/Classify', 'Utils/Object/mixIn', 'require'], function (Classify, mixIn, require) {
