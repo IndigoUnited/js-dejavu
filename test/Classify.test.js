@@ -139,12 +139,18 @@ requirejs(['Trinity/Classify'], function (Classify) {
             Andre = Classify({
                 Extends: Person,
                 _name: 'André'
+            }),
+            SuperAndre = Classify({
+                Extends: Andre,
+                _name: 'SuperAndre'
             });
 
         it('should invoke the parent constructor automatically', function () {
-            var andre = new Andre();
+            var andre = new Andre(),
+                superAndre = new SuperAndre();
 
             expect(andre._status).to.be.equal('alive');
+            expect(superAndre._status).to.be.equal('alive');
         });
     });
 
