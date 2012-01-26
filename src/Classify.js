@@ -28,7 +28,7 @@
  *          method3: function () {}
  *      });
  */
-define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface', 'Classify.Singleton'], function (Abstract, Interface, Singleton) {
+define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface'], function (Abstract, Interface) {
 
 
     /**
@@ -41,13 +41,10 @@ define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface', 'Classify
 
     function Classify(params) {
 
-        var classify = params.initialize,
-            oldInitialize;
+        var classify = params.initialize;
 
         /**
          * Extends an object with another given object.
-         *
-         * @private
          *
          * @param {Object} source The object to copy from
          * @param {Object} target The object that will get the source properties and methods
@@ -65,8 +62,6 @@ define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface', 'Classify
 
         /**
          * Borrows the properties and methods of various source objects to the target.
-         *
-         * @private
          *
          * @param {Array}  sources Array of objects that will give their methods
          * @param {Object} target  Target that will receive the methods
@@ -93,8 +88,6 @@ define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface', 'Classify
 
         /**
          * Fixes the context in given methods.
-         *
-         * @private
          *
          * @param {Array}  fns     The array of functions to be binded
          * @param {Object} context The context that will be bound
@@ -123,8 +116,6 @@ define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface', 'Classify
         /**
          * Copies the given object into a freshly created empty function's prototype.
          *
-         * @private
-         *
          * @param {Object} object Object
          *
          * @returns {Function} Thew new instance
@@ -139,7 +130,7 @@ define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface', 'Classify
 
         /**
          * Checks a target against interfaces methods.
-         *
+         * 
          * @param {Array} implementations The array of interfaces
          * @param {Object} target         The target that will be check
          */
@@ -177,16 +168,6 @@ define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface', 'Classify
         if (params.Extends) {
 
             classify = classify || params.Extends.prototype.initialize;
-
-            // If the user is not defining a singleton but extends one..
-            if ((!params.Statics || !params.Statics.$singleton) && params.Extends.$singleton) {
-                oldInitialize = classify;
-                classify = function () {
-                    this.$initializing = true;
-                    oldInitialize.apply(this, arguments);
-                    delete this.$initializing;
-                };
-            }
 
             classify.Super = params.Extends.prototype;
             classify.prototype = clone(classify.Super);
@@ -226,7 +207,6 @@ define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface', 'Classify
 
     Classify.Abstract = Abstract;
     Classify.Interface = Interface;
-    Classify.Singleton = Singleton;
 
     return Classify;
 });

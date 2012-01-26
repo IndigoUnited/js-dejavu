@@ -5,9 +5,7 @@ define(function () {
 
     function Interface(methods) {
 
-        if (!methods.Name) {
-            methods.Name = 'Unnamed';
-        }
+        methods.Name = methods.Name || 'Unnamed';
 
         function extend(target, source) {
 
