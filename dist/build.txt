@@ -2,5 +2,9 @@
 Classify.js
 ----------------
 Classify.Interface.js
+C:/xampp/htdocs/trinity/Classify/vendor/amd-utils/src/Lang/kindOf.js
+C:/xampp/htdocs/trinity/Classify/vendor/amd-utils/src/Lang/isKind.js
+C:/xampp/htdocs/trinity/Classify/vendor/amd-utils/src/Lang/isFunction.js
+C:/xampp/htdocs/trinity/Classify/vendor/amd-utils/src/Lang/isObject.js
 Classify.Abstract.js
 Classify.js
