@@ -344,18 +344,21 @@ requirejs(['Trinity/Classify'], function (Classify) {
         it('should throw an error while using new or its constructor', function () {
             expect(function () { return new AbstractExample(); }).to["throw"](Error);
             expect(function () { AbstractExample.prototype.initialize(); }).to["throw"](Error);
+            expect(function () { AbstractExample.prototype.initialize.apply(AbstractExample.prototype, []); }).to["throw"](Error);
+            expect(function () { AbstractExample.prototype.initialize.apply(AbstractExample, []); }).to["throw"](Error);
         });
 
         it('should let concrete implementations invoke it\'s contructor', function () {
 
             expect(function () {
-                return Classify({
+                var ConcreteClass = Classify({
                     Extends: AbstractExample,
                     initialize: function () {
-                        AbstractExample.Super.initialize.call(this);
+                        ConcreteClass.Super.initialize.call(this);
                     },
                     abstractMethod: function () {}
                 });
+                return new ConcreteClass();
             }).to.not["throw"](Error);
         });
     });
