@@ -8,4 +8,3 @@ Classify consists in:
 * __Classify__
 * __Classify.Abstract__
 * __Classify.Interface__
-* __Classify.Singleton__
