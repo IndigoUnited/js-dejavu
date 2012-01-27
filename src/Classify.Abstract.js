@@ -13,7 +13,7 @@ define(['Trinity/Classify', 'require'], function (Classify, require) {
             if (this.$initializing) {
                 originalInitialize.apply(this, arguments);
             } else {
-                throw new Error("An abstract class cannot be instantiated.");
+                throw new Error('An abstract class cannot be instantiated.');
             }
         }
         params.initialize = initialize;

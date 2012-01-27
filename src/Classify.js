@@ -1,4 +1,4 @@
-/*jslint sloppy: true*/
+/*jslint sloppy: true, forin: true*/
 /*global define*/
 
 /**
@@ -29,7 +29,6 @@
  *      });
  */
 define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface'], function (Abstract, Interface) {
-
 
     /**
      * Create a class definition.
@@ -130,7 +129,7 @@ define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface'], function
 
         /**
          * Checks a target against interfaces methods.
-         * 
+         *
          * @param {Array} implementations The array of interfaces
          * @param {Object} target         The target that will be check
          */
@@ -141,23 +140,20 @@ define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface'], function
             for (i = implementations.length - 1; i >= 0; i -= 1) {
                 curr = implementations[i];
 
-                for (k in curr) {
-                    if (curr.hasOwnProperty(k)) {
-                        if ((k !== 'Name' && k !== 'Statics') && !target.prototype.hasOwnProperty(k)) {
-                            throw new Error('Class does not implements Interface ' + curr.Name + ' correctly, ' + k + ' was not found');
+                for (k in curr.prototype) {
+
+                    if ((k !== 'Name' && k !== 'Statics') && !target.prototype.hasOwnProperty(k)) {
+                        throw new Error('Class does not implements Interface ' + curr.Name + ' correctly, ' + k + ' was not found.');
+                    }
+
+                    if (k === 'Statics') {
+                        if (!target.prototype.hasOwnProperty(k)) {
+                            throw new Error('Class does not implements Interface ' + curr.Name + ' correctly, static methods missing.');
                         }
 
-                        if (k === 'Statics') {
-                            if (!target.prototype.hasOwnProperty(k)) {
-                                throw new Error('Class does not implements Interface ' + curr.Name + ' correctly, ' + k + 'object was not found');
-                            }
-
-                            for (m in curr.Statics) {
-                                if (curr.Statics.hasOwnProperty(m)) {
-                                    if (!target.hasOwnProperty(m)) {
-                                        throw new Error('Class does not implements Interface ' + curr.Name + ' correctly, static method ' + k + '  was not found');
-                                    }
-                                }
+                        for (m in curr.prototype.Statics) {
+                            if (!target.prototype.Statics.hasOwnProperty(m)) {
+                                throw new Error('Class does not implements Interface ' + curr.Name + ' correctly, static method ' + m + ' was not found');
                             }
                         }
                     }
@@ -171,7 +167,9 @@ define('Trinity/Classify', ['Classify.Abstract', 'Classify.Interface'], function
 
             classify.Super = params.Extends.prototype;
             classify.prototype = clone(classify.Super);
+
             extend(params, classify.prototype);
+            delete classify.prototype.Extends;
         } else {
             classify = classify || function () {};
             classify.prototype = params;
