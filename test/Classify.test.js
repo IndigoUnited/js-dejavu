@@ -108,7 +108,7 @@ requirejs(['Trinity/Classify'], function (Classify) {
         pet.walk();
         cat.walk();
 
-        it('should not have the Extends property', function() {
+        it('should not have the Extends property', function () {
             return expect(cat.Extends).to.not.be.ok;
         });
 
@@ -182,7 +182,9 @@ requirejs(['Trinity/Classify'], function (Classify) {
             }),
             RepeatedInterface = Classify.Interface({    // Interface that repeats other ones methods
                 someMethod: function () {},
+                someProperty: 'test',
                 Statics: {
+                    someStaticProperty: 'test',
                     staticMethod: function () {}
                 }
             });
@@ -223,6 +225,51 @@ requirejs(['Trinity/Classify'], function (Classify) {
 
             expect(function () {
                 return Classify({
+                    Implements: [ExtendedInterface],
+                    extraMethod: function () {},
+                    Statics: {
+                        extraStaticMethod: function () {}
+                    }
+                });
+            }).to['throw'](Error);
+
+            expect(function () {
+                return Classify({
+                    Implements: [ExtendedInterface],
+                    someMethod: function () {},
+                    otherMethod: function () {},
+                    Statics: {
+                        staticMethod: function () {}
+                    }
+                });
+            }).to['throw'](Error);
+
+            expect(function () {
+                return Classify({
+                    Implements: [SomeInterface, OtherInterface],
+                    someMethod: function () {},
+                    otherMethod: function () {},
+                    Statics: {
+                        staticMethod: function () {}
+                    }
+                });
+            }).to['throw'](Error);
+
+            expect(function () {
+                return Classify({
+                    Implements: [SomeInterface, OtherInterface],
+                    extraMethod: function () {},
+                    Statics: {
+                        extraStaticMethod: function () {}
+                    }
+                });
+            }).to['throw'](Error);
+        });
+
+        it('should not throw error on complete implementations', function () {
+
+            expect(function () {
+                return Classify({
                     Implements: [SomeInterface],
                     someMethod: function () {},
                     otherMethod: function () {},
@@ -231,77 +278,6 @@ requirejs(['Trinity/Classify'], function (Classify) {
                     }
                 });
             }).to.not['throw'](Error);
-
-            expect(function () {
-                return Classify({
-                    Implements: [ExtendedInterface],
-                    extraMethod: function () {},
-                    Statics: {
-                        extraStaticMethod: function () {}
-                    }
-                });
-            }).to['throw'](Error);
-
-            expect(function () {
-                return Classify({
-                    Implements: [ExtendedInterface],
-                    someMethod: function () {},
-                    otherMethod: function () {},
-                    Statics: {
-                        staticMethod: function () {}
-                    }
-                });
-            }).to['throw'](Error);
-
-            expect(function () {
-                return Classify({
-                    Implements: [SomeInterface, OtherInterface],
-                    someMethod: function () {},
-                    otherMethod: function () {},
-                    Statics: {
-                        staticMethod: function () {}
-                    }
-                });
-            }).to['throw'](Error);
-
-            expect(function () {
-                return Classify({
-                    Implements: [SomeInterface, OtherInterface],
-                    extraMethod: function () {},
-                    Statics: {
-                        extraStaticMethod: function () {}
-                    }
-                });
-            }).to['throw'](Error);
-
-            expect(function () {
-                return Classify({
-                    Implements: [ExtendedInterface],
-                    someMethod: function () {},
-                    otherMethod: function () {},
-                    extraMethod: function () {},
-                    Statics: {
-                        staticMethod: function () {},
-                        extraStaticMethod: function () {}
-                    }
-                });
-            }).to.not['throw'](Error);
-
-            expect(function () {
-                return Classify({
-                    Implements: [SomeInterface, OtherInterface],
-                    someMethod: function () {},
-                    otherMethod: function () {},
-                    extraMethod: function () {},
-                    Statics: {
-                        staticMethod: function () {},
-                        extraStaticMethod: function () {}
-                    }
-                });
-            }).to.not['throw'](Error);
-        });
-
-        it('should not throw error on complete implementations', function () {
 
             expect(function () {
                 return Classify({
@@ -328,6 +304,89 @@ requirejs(['Trinity/Classify'], function (Classify) {
                     }
                 });
             }).to.not['throw'](Error);
+        });
+    });
+
+    describe('Abstract classes', function () {
+
+        var AbstractExample = Classify.Abstract({
+            initialize: function () {},
+            Abstracts: {
+                abstractMethod: function () {}
+            }
+        });
+
+        it('should throw an error if no abstract methods are defined', function () {
+
+            expect(function () {
+                return Classify.Abstract({
+                    initialize: function () {}
+                });
+            }).to["throw"](Error);
+
+            expect(function () {
+                return Classify.Abstract({
+                    initialize: function () {},
+                    Abstracts: {}
+                });
+            }).to["throw"](Error);
+
+            expect(function () {
+                return Classify.Abstract({
+                    initialize: function () {},
+                    Abstracts: {
+                        dummy: "property"
+                    }
+                });
+            }).to["throw"](Error);
+        });
+
+        it('should throw an error while using new or its constructor', function () {
+            expect(function () { return new AbstractExample(); }).to["throw"](Error);
+            expect(function () { AbstractExample.prototype.initialize(); }).to["throw"](Error);
+        });
+
+        it('should let concrete implementations invoke it\'s contructor', function () {
+
+            expect(function () {
+                return Classify({
+                    Extends: AbstractExample,
+                    initialize: function () {
+                        AbstractExample.Super.initialize.call(this);
+                    },
+                    abstractMethod: function () {}
+                });
+            }).to.not["throw"](Error);
+        });
+    });
+
+    describe('Concrete classes', function () {
+
+        it('should throw error if they define abstract methods', function () {
+
+            expect(function () {
+                return Classify({
+                    Abstracts: {}
+                });
+            }).to["throw"](Error);
+
+            expect(function () {
+                return Classify({
+                    Abstracts: {
+                        method1: function () {}
+                    }
+                });
+            }).to["throw"](Error);
+        });
+
+        it('should not have Abstracts property while extending an abstract class', function () {
+
+//             expect(function () {
+//                return Classify({
+//                    Extends: AbstractExample,
+//                    Abstracts: {}
+//                });
+//            }).to.not["throw"](Error);
         });
     });
 });

@@ -26,6 +26,13 @@ define(function () {
             }
         }
 
+        /**
+         * Copies the given object into a freshly created empty function's prototype.
+         *
+         * @param {Object} object Object
+         *
+         * @returns {Function} Thew new instance
+         */
         function clone(object) {
 
             function F() {}
