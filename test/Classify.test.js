@@ -300,5 +300,34 @@ requirejs(['Trinity/Classify'], function (Classify) {
                 });
             }).to.not['throw'](Error);
         });
+
+        it('should not throw error on complete implementations', function () {
+
+            expect(function () {
+                return Classify({
+                    Implements: [ExtendedInterface],
+                    someMethod: function () {},
+                    otherMethod: function () {},
+                    extraMethod: function () {},
+                    Statics: {
+                        staticMethod: function () {},
+                        extraStaticMethod: function () {}
+                    }
+                });
+            }).to.not['throw'](Error);
+
+            expect(function () {
+                return Classify({
+                    Implements: [SomeInterface, OtherInterface, RepeatedInterface],
+                    someMethod: function () {},
+                    otherMethod: function () {},
+                    extraMethod: function () {},
+                    Statics: {
+                        staticMethod: function () {},
+                        extraStaticMethod: function () {}
+                    }
+                });
+            }).to.not['throw'](Error);
+        });
     });
 });
