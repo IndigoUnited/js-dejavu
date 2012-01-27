@@ -170,7 +170,7 @@ define('Trinity/Classify', [
 
                         for (m in curr.prototype.Statics) {
                             if (isFunction(curr.prototype.Statics[m]) && !target.prototype.Statics.hasOwnProperty(m)) {
-                                throw new Error('Class does not implements Interface ' + curr.Name + ' correctly, static method "' + m + '"() was not found');
+                                throw new Error('Class does not implements Interface ' + curr.Name + ' correctly, static method "' + m + '()" was not found.');
                             }
                         }
                     }
