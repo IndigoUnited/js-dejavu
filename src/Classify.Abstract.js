@@ -47,7 +47,7 @@ define([
         // Override the constructor
         function initialize() {
 
-            if (!(initialize.caller instanceof this.$constructor)) {
+            if (initialize.caller !== this.$constructor) {
                 throw new Error('An abstract class cannot be instantiated.');
             }
 
