@@ -3,11 +3,19 @@
 
 define(function () {
 
-    function Interface(methods) {
+    function Interface(params) {
 
-        methods.Name = methods.Name || 'Unnamed';
+        var interf = function () {};
 
-        function extend(target, source) {
+        params.Name = params.Name || 'Unnamed';
+
+        /**
+         * Extends an object with another given object.
+         *
+         * @param {Object} source The object to copy from
+         * @param {Object} target The object that will get the source properties and methods
+         */
+        function extend(source, target) {
 
             var k;
 
@@ -18,16 +26,30 @@ define(function () {
             }
         }
 
-        function InterfaceConstructor() {
-            extend(this, methods);
+        function clone(object) {
+
+            function F() {}
+            F.prototype = object;
+
+            return new F();
         }
 
-        if (methods.Extends) {
-            Interface.prototype = methods.Extends;
+        if (params.Extends) {
+            interf.Super = params.Extends.prototype;
+            //console.log(interf.Super);
+            interf.prototype = clone(interf.Super);
+                        //console.log(interf);
+            extend(params, interf.prototype);
+            delete interf.prototype.Extends;
+            //console.log(interf.prototype.extraMethod);
+
+            //delete interf.prototype.Extends;
+        } else {
+            interf.prototype = params;
         }
 
         // TODO: Make a way to test if a class implements an interface
-        return new InterfaceConstructor();
+        return interf;
     }
 
     return Interface;

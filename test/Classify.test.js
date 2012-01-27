@@ -58,11 +58,11 @@ requirejs(['Trinity/Classify'], function (Classify) {
         });
 
         it('should not have Binds property', function () {
-            return expect(example.Binds).to.be.not.ok;
+            return expect(example.Binds).to.not.be.ok;
         });
 
         it('should not have Statics property', function () {
-            return expect(example.Statics).to.be.not.ok;
+            return expect(example.Statics).to.not.be.ok;
         });
     });
 
@@ -107,6 +107,10 @@ requirejs(['Trinity/Classify'], function (Classify) {
 
         pet.walk();
         cat.walk();
+
+        it('should not have the Extends property', function() {
+            return expect(cat.Extends).to.not.be.ok;
+        });
 
         it('should be an instance of Pet', function () {
             expect(pet).to.be['instanceof'](Pet);
@@ -195,7 +199,7 @@ requirejs(['Trinity/Classify'], function (Classify) {
             }),
                 someImplementation = new SomeImplementation();
 
-            return expect(someImplementation.Implements).to.be.not.ok;
+            return expect(someImplementation.Implements).to.not.be.ok;
         });
 
         it('should throw error on incomplete implementations', function () {
