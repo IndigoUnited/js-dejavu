@@ -38,7 +38,7 @@ function removeOtherFiles() {
         ignoreList = ['Classify.js', 'Classify.min.js', 'Classify.no-checks.js', 'Classify.no-checks.min.js'];
 
     files.forEach(function (file) {
-        if (file.substr(file.length - 3) === '.js' && ignoreList.indexOf(file) === -1) {
+        if ((file.substr(file.length - 3) === '.js' || file === 'build.txt') && ignoreList.indexOf(file) === -1) {
             fs.unlinkSync(distDir + file);
         }
     });
