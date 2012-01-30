@@ -6,7 +6,8 @@ var cp = require('child_process'),
     command,
     exitCode = 0,
     distDir = __dirname + '/../dist/',
-    files;
+    files,
+    withChecks = process.argv[2] !== '--no-checks';
 
 // Delete previous files
 files = fs.readdirSync(distDir);
@@ -15,7 +16,7 @@ files.forEach(function (file) {
 });
 
 // Execute requirejs optimizer
-cp.exec('node ' + __dirname + '/../vendor/r.js/dist/r.js -o ' + __dirname + '/Classify.build.js', function (error, stdout, stderr) {
+cp.exec('node ' + __dirname + '/../vendor/r.js/dist/r.js -o ' + __dirname + '/Classify.' + (withChecks ? '' : 'no-checks.') + 'build.js', function (error, stdout, stderr) {
 
     // Print success or error
     if (error !== null) {
@@ -41,7 +42,10 @@ cp.exec('node ' + __dirname + '/../vendor/r.js/dist/r.js -o ' + __dirname + '/Cl
     }
 
     // Run tests
-    command = 'mocha -R list ' + __dirname + '/../test/Classify.test.js';
+    command = 'mocha -R list ' + __dirname + '/../test/Classify.functional.js';
+    if (withChecks) {
+        command += ' && mocha -R list ' + __dirname + '/../test/Classify.verifications.js';
+    }
 
     if (process.platform === 'win32') {
         tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
