@@ -27,7 +27,6 @@ if (!(typeof window !== 'undefined' && navigator && document)) { // Test if we a
 
 define(modules, function (Classify, expect) {
 
-    console.log(modules, expect);
     if (expectAlias) {
         expect = expectAlias;
     }
