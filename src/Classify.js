@@ -122,7 +122,7 @@ define('Trinity/Classify', [
                 current = isObject(current) ? current : current.prototype;
 
                 for (key in current) {
-                    if (isUndefined(target.prototype[key])) {    // Besides ignoring already defined, also reserved words like $constructor are also preserved
+                    if (isUndefined(target.prototype[key])) {    // Besides ignoring already defined members, reserved words like $constructor are also preserved
                         target.prototype[key] = current[key];
                     }
                 }
@@ -285,7 +285,7 @@ define('Trinity/Classify', [
                 }
 
                 forEach(parent.$statics, function (value) {
-                    if (isUndefined(constructor[value])) {    // Besides ignoring already defined, also reserved words like $abstract are also preserved
+                    if (isUndefined(constructor[value])) {    // Besides ignoring already defined members, reserved words like $abstract are also preserved
                         constructor[value] = parent[value];
                         constructor.$statics.push(value);
                     }
