@@ -37,6 +37,7 @@ define('Trinity/Classify', [
     //>>includeEnd('checks');
     'Utils/lang/isObject',
     'Utils/lang/isArray',
+    'Utils/lang/isUndefined',
     'Utils/lang/createObject',
     'Utils/object/mixIn',
     'Utils/object/keys',
@@ -54,6 +55,7 @@ define('Trinity/Classify', [
     //>>includeEnd('checks');
     isObject,
     isArray,
+    isUndefined,
     createObject,
     mixIn,
     keys,
@@ -103,27 +105,26 @@ define('Trinity/Classify', [
             sources = toArray(sources);
 
             var i, length = sources.length,
-                constructorBck, current, currentPrototype;
+                current,
+                key;
 
             for (i = 0; i < length; i += 1) {
 
                 current = sources[i];
 
                 //>>includeStart('checks', pragmas.checks);
-                if (!isFunction(current) && !isObject(current)) {
-                    throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + params.Name + '" is not a valid class/object.');
+                if ((!isFunction(current) || !current.$class) && !isObject(current)) {
+                    throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + target.prototype.Name + '" is not a valid class/object.');
                 }
                 //>>includeEnd('checks');
 
-                currentPrototype = sources[i].prototype;
+                // Do the mixin manually because we need to ignore already defined methods
+                current = isObject(current) ? current : current.prototype;
 
-                if (currentPrototype && currentPrototype.$constructor) {
-                    constructorBck = currentPrototype.$constructor;
-                    delete currentPrototype.constructor;
-                    mixIn(target.prototype, currentPrototype);
-                    currentPrototype.$constructor = constructorBck;
-                } else {
-                    mixIn(target.prototype, currentPrototype || current);
+                for (key in current) {
+                    if (isUndefined(target.prototype[key])) {    // Besides ignoring already defined, also reserved words like $constructor are also preserved
+                        target.prototype[key] = current[key];
+                    }
                 }
             }
         }
@@ -284,7 +285,7 @@ define('Trinity/Classify', [
                 }
 
                 forEach(parent.$statics, function (value) {
-                    if (!constructor[value]) {
+                    if (isUndefined(constructor[value])) {    // Besides ignoring already defined, also reserved words like $abstract are also preserved
                         constructor[value] = parent[value];
                         constructor.$statics.push(value);
                     }
@@ -331,8 +332,8 @@ define('Trinity/Classify', [
                     binds(this.$constructor.$binds, this, this);
                 }
 
-                // Call initialize
                 //>>includeStart('checks', pragmas.checks);
+                // Call initialize
                 if (!this.$constructor.$abstract) {
                     this.$initializing = true;
                 }
