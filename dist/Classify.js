@@ -899,7 +899,7 @@ define('Classify.Abstract',[
             forEach(toArray(params.Implements), function (value, x) {
 
                 if (!isFunction(value) || !value.$interface) {
-                    throw new TypeError('Unexpected class at index ' + x + ' for abstract class "' + value.prototype.Name + "'.");
+                    throw new TypeError('Unexpected interface at index ' + x + ' for abstract class "' + value.prototype.Name + "'.");
                 }
 
                 grabAbstracts(value.prototype, abstractMethods, params.Name);

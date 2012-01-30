@@ -18,7 +18,7 @@ if (!(typeof window !== 'undefined' && navigator && document)) { // Test if we a
     });
 
     var define = requirejs;
-    modules.push('../vendor/expect.js/expect.js');
+    modules.push('../vendor/expect.js/');
 } else {
     /*jslint undef:true*/
     expectAlias = expect;
