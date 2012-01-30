@@ -96,7 +96,7 @@ define([
         grabStatics(interf);
         delete interf.prototype.Statics;
 
-        // TODO: Make a way to validate a class
+        // TODO: Make a way to validate an interface
         interf.$interface = true;   // Mark it as an interface
 
         //>>includeEnd('checks');
