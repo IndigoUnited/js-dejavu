@@ -324,4 +324,81 @@ define(modules, function (Classify, expect) {
 
     });
 
+    describe('Defining a Concrete/Abstract Classes that use Borrows (mixins)', function () {
+
+        it('should grab the borrowed members to their own', function () {
+
+            var SomeImplementation = Classify({
+                Borrows: {
+                    method1: function () {},
+                    method2: function () {},
+                    some: 'property'
+                }
+            }),
+                OtherImplementation = Classify({
+                    Borrows: [Classify({
+                        method1: function () {},
+                        method2: function () {},
+                        some: 'property'
+                    }), { method3: function () {}} ]
+                }),
+                EvenOtherImplementation = Classify({
+                    Borrows: new Classify({
+                        method1: function () {},
+                        method2: function () {},
+                        some: 'property'
+                    })
+                }),
+                someImplementation = new SomeImplementation(),
+                otherImplementation = new OtherImplementation(),
+                evenOtherImplementation = new EvenOtherImplementation();
+
+            expect(SomeImplementation.prototype.method1).to.be.a('function');
+            expect(SomeImplementation.prototype.method2).to.be.a('function');
+            expect(SomeImplementation.prototype.some).to.be.equal('property');
+            expect(OtherImplementation.prototype.method1).to.be.a('function');
+            expect(OtherImplementation.prototype.method2).to.be.a('function');
+            expect(OtherImplementation.prototype.method3).to.be.a('function');
+            expect(OtherImplementation.prototype.some).to.be.equal('property');
+            expect(EvenOtherImplementation.prototype.method1).to.be.a('function');
+            expect(EvenOtherImplementation.prototype.method2).to.be.a('function');
+            expect(EvenOtherImplementation.prototype.some).to.be.equal('property');
+
+            expect(someImplementation.method1).to.be.a('function');
+            expect(someImplementation.method2).to.be.a('function');
+            expect(someImplementation.some).to.be.equal('property');
+            expect(otherImplementation.method1).to.be.a('function');
+            expect(otherImplementation.method2).to.be.a('function');
+            expect(otherImplementation.method3).to.be.a('function');
+            expect(otherImplementation.some).to.be.equal('property');
+            expect(evenOtherImplementation.method1).to.be.a('function');
+            expect(evenOtherImplementation.method2).to.be.a('function');
+            expect(evenOtherImplementation.some).to.be.equal('property');
+        });
+
+        it('should not grab the initialize method of any class/object', function () {
+
+            var initialize = function () {
+                this.some = 'test';
+            },
+                SomeImplementation = Classify({
+                    Borrows: { initialize: function () { }, method1: function () {}},
+                    some: 'property',
+                    initialize: initialize
+                }),
+                OtherImplementation = Classify({
+                    Borrows: new Classify({ initialize: function () {} }),
+                    some: 'property',
+                    initialize: initialize
+                }),
+                someImplementation = new SomeImplementation(),
+                otherImplementation = new OtherImplementation();
+
+            expect(someImplementation.some).to.be.equal('test');
+            expect(SomeImplementation.prototype.initialize).to.be.equal(initialize);
+            expect(otherImplementation.some).to.be.equal('test');
+            expect(OtherImplementation.prototype.initialize).to.be.equal(initialize);
+        });
+    });
+
 });

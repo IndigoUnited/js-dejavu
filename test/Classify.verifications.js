@@ -162,11 +162,18 @@ define(modules, function (Classify, expect) {
 
         });
 
-        it('should throw an error if Binds is not an array/string', function () {
+        it('should throw an error if Binds is not an string or an array of strings', function () {
 
             expect(function () {
                 return Classify({
                     Binds: {}
+                });
+            }).to.throwException(TypeError);
+
+            expect(function () {
+                return Classify({
+                    Binds: [{}, 'method1'],
+                    'method1': function () {}
                 });
             }).to.throwException(TypeError);
 
@@ -183,6 +190,57 @@ define(modules, function (Classify, expect) {
                 });
             }).to.not.throwException();
 
+        });
+
+        it('should throw an error if Borrows is not an object/class or an array of objects/classes', function () {
+
+            expect(function () {
+                return Classify({
+                    Borrows: function () {}
+                });
+            }).to.throwException(TypeError);
+
+            expect(function () {
+                return Classify({
+                    Borrows: 'wtf'
+                });
+            }).to.throwException(TypeError);
+
+            expect(function () {
+                return Classify({
+                    Borrows: ['wtf']
+                });
+            }).to.throwException(TypeError);
+
+            expect(function () {
+                return Classify({
+                    Borrows: [function () {}]
+                });
+            }).to.throwException(TypeError);
+
+            expect(function () {
+                return Classify({
+                    Borrows: {}
+                });
+            }).to.not.throwException();
+
+            expect(function () {
+                return Classify({
+                    Borrows: Classify({})
+                });
+            }).to.not.throwException();
+
+            expect(function () {
+                return Classify({
+                    Borrows: [{}]
+                });
+            }).to.not.throwException();
+
+            expect(function () {
+                return Classify({
+                    Borrows: [Classify({})]
+                });
+            }).to.not.throwException();
         });
     });
 
