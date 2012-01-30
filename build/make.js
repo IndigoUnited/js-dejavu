@@ -19,13 +19,13 @@ files.forEach(function (file) {
 
 // Create temp directory
 try {
-    stat = fs.statSync(distDir + '_temp');
+    stat = fs.statSync(distDir + '../_temp');
     if (!stat.isDirectory()) {
-        fs.unlinkSync(distDir + '_temp');
-        fs.mkdirSync(distDir + '_temp');
+        fs.unlinkSync(distDir + '../_temp');
+        fs.mkdirSync(distDir + '../_temp');
     }
 } catch (e) {
-    fs.mkdirSync(distDir + '_temp');
+    fs.mkdirSync(distDir + '../_temp');
 }
 
 
@@ -57,7 +57,7 @@ cp.exec(command + ' pragmas=checks:false optimize=uglify', function (error, stdo
     }
 
     // Rename file to minified one
-    fs.renameSync(distDir + 'Classify.js', distDir + '_temp/Classify.no-checks.min.js');
+    fs.renameSync(distDir + 'Classify.js', distDir + '../_temp/Classify.no-checks.min.js');
 
     removeOtherFiles();
 
@@ -73,7 +73,7 @@ cp.exec(command + ' pragmas=checks:false optimize=uglify', function (error, stdo
         }
 
         // Rename file to minified one
-        fs.renameSync(distDir + 'Classify.js', distDir + '_temp/Classify.no-checks.js');
+        fs.renameSync(distDir + 'Classify.js', distDir + '../_temp/Classify.no-checks.js');
 
         removeOtherFiles();
 
@@ -89,7 +89,7 @@ cp.exec(command + ' pragmas=checks:false optimize=uglify', function (error, stdo
             }
 
             // Rename file to minified one
-            fs.renameSync(distDir + 'Classify.js', distDir + '_temp/Classify.min.js');
+            fs.renameSync(distDir + 'Classify.js', distDir + '../_temp/Classify.min.js');
 
             removeOtherFiles();
 
@@ -106,18 +106,18 @@ cp.exec(command + ' pragmas=checks:false optimize=uglify', function (error, stdo
 
 
                 // Rename file to minified one
-                fs.renameSync(distDir + 'Classify.js', distDir + '_temp/Classify.js');
+                fs.renameSync(distDir + 'Classify.js', distDir + '../_temp/Classify.js');
 
                 removeOtherFiles();
 
                 // Rename all files back..
-                fs.renameSync(distDir + '_temp/Classify.js', distDir + 'Classify.js');
-                fs.renameSync(distDir + '_temp/Classify.min.js', distDir + 'Classify.min.js');
-                fs.renameSync(distDir + '_temp/Classify.no-checks.js', distDir + 'Classify.no-checks.js');
-                fs.renameSync(distDir + '_temp/Classify.no-checks.min.js', distDir + 'Classify.no-checks.min.js');
+                fs.renameSync(distDir + '../_temp/Classify.js', distDir + 'Classify.js');
+                fs.renameSync(distDir + '../_temp/Classify.min.js', distDir + 'Classify.min.js');
+                fs.renameSync(distDir + '../_temp/Classify.no-checks.js', distDir + 'Classify.no-checks.js');
+                fs.renameSync(distDir + '../_temp/Classify.no-checks.min.js', distDir + 'Classify.no-checks.min.js');
 
                 // Remove temp directory
-                fs.rmdirSync(distDir + '_temp');
+                fs.rmdirSync(distDir + '../_temp');
 
                 // Run tests
                 cwd = process.cwd();
