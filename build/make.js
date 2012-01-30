@@ -28,7 +28,6 @@ try {
     fs.mkdirSync(distDir + '../_temp');
 }
 
-
 /**
  * Removes all files from dist folder except the final ones
  */
