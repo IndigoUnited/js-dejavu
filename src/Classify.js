@@ -139,7 +139,7 @@ define('Trinity/Classify', [
 
             var i = fns.length - 1;
 
-            for (i; i >= 0; i -= 1) {
+            for (i; i >= 0; i -= 1) {    // We don't use forEach here due to performance
                 target[fns[i]] = bind(target[fns[i]], context);
             }
         }
@@ -264,6 +264,7 @@ define('Trinity/Classify', [
 
             var parent = constructor.Super ? constructor.Super.$constructor : null;
 
+            // TODO: Shall we improve this function due to performance?
             if (constructor.prototype.Statics) {
 
                 //>>includeStart('checks', pragmas.checks);
