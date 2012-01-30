@@ -7,7 +7,7 @@ To build Classify you:
 
 * Need to install nodejs (http://nodejs.org)
 * Need to install mocha (npm install -g mocha)
-* Run build/make.js
+* Run build/make.js (node build/make.js)
 
 This will produce two kind of builds in the dist folder: a normal build and a no-checks build.
 
