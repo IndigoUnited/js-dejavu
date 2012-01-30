@@ -294,7 +294,7 @@ define(modules, function (Classify, expect) {
             });
         }
 
-        it('should throw error if they are incomplete', function () {
+        it('should throw error if it is incomplete', function () {
 
             expect(function () {
                 createSomeInterface();
@@ -467,7 +467,7 @@ define(modules, function (Classify, expect) {
             }).to.throwException();
         });
 
-        it('should not throw error when they are complete', function () {
+        it('should not throw error when it is complete', function () {
 
             expect(function () {
                 createSomeInterface();
