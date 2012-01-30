@@ -5,11 +5,12 @@
         <link rel="stylesheet" href="../vendor/mocha/mocha.css" />
         <script src="jquery.min.js"></script>
         <script src="../vendor/mocha/mocha.js"></script>
-        <script src="../vendor/r.js/require.js" type="text/javascript"></script>
+        <script src="../vendor/expect.js/expect.js"></script>
+        <script src="../vendor/r.js/require.js"></script>
         <script>
-            
+
             mocha.setup('bdd');
-            
+
             require({
                 baseUrl : './',
                 paths: {
@@ -18,7 +19,7 @@
                 waitSeconds : (location.protocol === 'file:' || location.href.indexOf('://localhost') !== -1) ? 5 : 45, //fail early locally
                 urlArgs : 'bust='+ (+new Date)
             });
-            
+
             require(['Classify.functional.js'], function() {
                 mocha
                 .run();

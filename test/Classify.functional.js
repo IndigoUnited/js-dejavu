@@ -2,7 +2,8 @@
 /*global require,describe,it,navigator,document,__dirname,window*/
 
 var requirejs,
-    chai;
+    modules = ['Trinity/Classify'],
+    expectAlias;
 
 if (!(typeof window !== 'undefined' && navigator && document)) { // Test if we are at command line
 
@@ -17,14 +18,18 @@ if (!(typeof window !== 'undefined' && navigator && document)) { // Test if we a
     });
 
     var define = requirejs;
-    chai = '../vendor/chai';
+    modules.push('../vendor/expect.js/expect.js');
 } else {
-    chai = '../vendor/chai/chai.js';
+    /*jslint undef:true*/
+    expectAlias = expect;
+    /*jslint undef:false*/
 }
 
-define(['Trinity/Classify', chai], function (Classify, chai) {
+define(modules, function (Classify, expect) {
 
-    var expect = chai.expect;
+    if (expectAlias) {
+        expect = expectAlias;
+    }
 
     describe('Simple instantiation of a Class', function () {
 
@@ -62,7 +67,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
 
         it('should return a valid instance', function () {
 
-            expect(example).to.be['instanceof'](Example);
+            expect(example).to.be.an(Example);
             expect(example).to.be.a('object');
 
         });
@@ -70,33 +75,33 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
         it('should have 4 methods', function () {
 
             expect(example.method1).to.be.a('function');
-            expect(example).to.have.ownProperty('method1');    // Because it was bound
+            expect(example.method1).to.not.be.equal(Example.prototype.method1);    // Because it was bound
             expect(example.method2).to.be.a('function');
-            expect(example).to.have.ownProperty('method2');    // Because it was bound
+            expect(example.method2).to.not.be.equal(Example.prototype.method);    // Because it was bound
             expect(example.method3).to.be.a('function');
-            expect(example).to.have.ownProperty('method3');    // Because it was bound
+            expect(example.method3).to.not.be.equal(Example.prototype.method3);    // Because it was bound
             expect(example.test).to.be.a('function');
-            expect(example).to.not.have.ownProperty('test');
+            expect(example.test).to.be.equal(Example.prototype.test);
 
         });
 
         it('should have 3 properties', function () {
 
             expect(example.some).to.be.equal('property');
-            expect(example).to.not.have.ownProperty('some');
+            expect(example.some).to.be.equal(Example.prototype.some);
             expect(example.options).to.be.a('object');
-            expect(example).to.have.ownProperty('options');     // Because it was reseted to be independent
-            expect(example.someArray).to.be['instanceof'](Array);
-            expect(example).to.have.ownProperty('someArray');   // Because it was reseted to be independent
+            expect(example.options).to.not.be.equal(Example.prototype.options);       // Because it was reseted to be independent
+            expect(example.someArray).to.be.an('array');
+            expect(example.someArray).to.not.be.equal(Example.prototype.someArray);   // Because it was reseted to be independent
 
         });
 
         it('should have 1 static methods and 1 static property', function () {
 
             expect(Example.staticMethod).to.be.a('function');
-            expect(Example).to.have.ownProperty('staticMethod');
+            expect(Example).to.have.property('staticMethod');
             expect(Example.staticSome).to.be.equal('property');
-            expect(Example).to.have.ownProperty('staticSome');
+            expect(Example).to.have.property('staticSome');
 
         });
 
@@ -243,9 +248,9 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
 
         it('should be an instance of Pet', function () {
 
-            expect(pet).to.be['instanceof'](Pet);
-            expect(cat).to.be['instanceof'](Pet);
-            expect(cat).to.be['instanceof'](Cat);
+            expect(pet).to.be.a(Pet);
+            expect(cat).to.be.a(Pet);
+            expect(cat).to.be.a(Cat);
 
         });
 

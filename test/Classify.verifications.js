@@ -2,7 +2,8 @@
 /*global require,describe,it,navigator,document,__dirname,window*/
 
 var requirejs,
-    chai;
+    modules = ['Trinity/Classify'],
+    expectAlias;
 
 if (!(typeof window !== 'undefined' && navigator && document)) { // Test if we are at command line
 
@@ -17,14 +18,18 @@ if (!(typeof window !== 'undefined' && navigator && document)) { // Test if we a
     });
 
     var define = requirejs;
-    chai = '../vendor/chai';
+    modules.push('../vendor/expect.js/expect.js');
 } else {
-    chai = '../vendor/chai/chai.js';
+    /*jslint undef:true*/
+    expectAlias = expect;
+    /*jslint undef:false*/
 }
 
-define(['Trinity/Classify', chai], function (Classify, chai) {
+define(modules, function (Classify, expect) {
 
-    var expect = chai.expect;
+    if (expectAlias) {
+        expect = expectAlias;
+    }
 
     describe('Defining an Interface', function () {
 
@@ -32,7 +37,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
 
             expect(function () {
                 return Classify.Interface('some');
-            }).to['throw'](TypeError);
+            }).to.throwException(TypeError);
 
         });
 
@@ -42,25 +47,25 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                 return Classify.Interface({
                     Extends: 'wtf'
                 });
-            }).to['throw'](TypeError);
+            }).to.throwException(TypeError);
 
             expect(function () {
                 return Classify.Interface({
                     Extends: function () {}
                 });
-            }).to['throw'](TypeError);
+            }).to.throwException(TypeError);
 
             expect(function () {
                 return Classify.Interface({
                     Extends: Classify({})
                 });
-            }).to['throw'](TypeError);
+            }).to.throwException(TypeError);
 
             expect(function () {
                 return Classify.Interface({
                     Extends: Classify.Interface({})
                 });
-            }).to.not['throw']();
+            }).to.not.throwException();
 
         });
 
@@ -70,13 +75,13 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                 return Classify.Interface({
                     Extends: Classify({})
                 });
-            }).to['throw'](TypeError);
+            }).to.throwException(TypeError);
 
             expect(function () {
                 return Classify.Interface({
                     Extends: Classify.Abstract({})
                 });
-            }).to['throw'](TypeError);
+            }).to.throwException(TypeError);
 
         });
 
@@ -86,13 +91,13 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                 return Classify.Interface({
                     Statics: 'wtf'
                 });
-            }).to['throw'](TypeError);
+            }).to.throwException(TypeError);
 
             expect(function () {
                 return Classify.Interface({
                     Statics: {}
                 });
-            }).to.not['throw']();
+            }).to.not.throwException();
 
         });
     });
@@ -103,7 +108,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
 
             expect(function () {
                 return Classify('some');
-            }).to['throw'](TypeError);
+            }).to.throwException(TypeError);
 
         });
 
@@ -113,19 +118,19 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                 return Classify({
                     Extends: 'wtf'
                 });
-            }).to['throw'](TypeError);
+            }).to.throwException(TypeError);
 
             expect(function () {
                 return Classify({
                     Extends: function () {}
                 });
-            }).to['throw'](TypeError);
+            }).to.throwException(TypeError);
 
             expect(function () {
                 return Classify({
                     Extends: Classify({})
                 });
-            }).to.not['throw']();
+            }).to.not.throwException();
 
         });
 
@@ -137,7 +142,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                 return Classify({
                     Extends: SomeInterface
                 });
-            }).to['throw'](TypeError);
+            }).to.throwException(TypeError);
 
         });
 
@@ -147,13 +152,13 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                 return Classify({
                     Statics: 'wtf'
                 });
-            }).to['throw'](TypeError);
+            }).to.throwException(TypeError);
 
             expect(function () {
                 return Classify({
                     Statics: {}
                 });
-            }).to.not['throw']();
+            }).to.not.throwException();
 
         });
 
@@ -163,20 +168,20 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                 return Classify({
                     Binds: {}
                 });
-            }).to['throw'](TypeError);
+            }).to.throwException(TypeError);
 
             expect(function () {
                 return Classify({
                     Binds: []
                 });
-            }).to.not['throw']();
+            }).to.not.throwException();
 
             expect(function () {
                 return Classify({
                     Binds: ['method1'],
                     'method1': function () {}
                 });
-            }).to.not['throw']();
+            }).to.not.throwException();
 
         });
     });
@@ -189,13 +194,13 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                 return Classify.Abstract({
                     Abstracts: 'wtf'
                 });
-            }).to['throw'](TypeError);
+            }).to.throwException(TypeError);
 
             expect(function () {
                 return Classify.Abstract({
                     Abstracts: {}
                 });
-            }).to.not['throw']();
+            }).to.not.throwException();
 
         });
 
@@ -207,7 +212,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         Statics: 'wtf'
                     }
                 });
-            }).to['throw'](TypeError);
+            }).to.throwException(TypeError);
 
             expect(function () {
                 return Classify.Abstract({
@@ -215,7 +220,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         Statics: {}
                     }
                 });
-            }).to.not['throw']();
+            }).to.not.throwException();
 
         });
 
@@ -231,7 +236,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                 return Classify.Abstract({
                     Implements: [SomeInterface]
                 });
-            }).to.not['throw']();
+            }).to.not.throwException();
 
         });
 
@@ -249,7 +254,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                 return Classify.Abstract({
                     Extends: AbstractExample
                 });
-            }).to.not['throw']();
+            }).to.not.throwException();
 
         });
     });
@@ -298,7 +303,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                     // miss all methods
                     // miss all static methods
                 });
-            }).to['throw']();
+            }).to.throwException();
 
             expect(function () {
                 createSomeInterface();
@@ -307,7 +312,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                     someMethod: function () {}
                     // miss all static methods
                 });
-            }).to['throw']();
+            }).to.throwException();
 
             expect(function () {
                 createSomeInterface();
@@ -319,7 +324,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         // miss staticMethod()
                     }
                 });
-            }).to['throw']();
+            }).to.throwException();
 
             expect(function () {
                 createExtendedInterface();
@@ -332,7 +337,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         otherStaticMethod: function () {}
                     }
                 });
-            }).to['throw']();
+            }).to.throwException();
 
             expect(function () {
                 createExtendedInterface();
@@ -345,7 +350,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         otherStaticMethod: function () {}
                     }
                 });
-            }).to['throw']();
+            }).to.throwException();
 
             expect(function () {
                 createExtendedInterface();
@@ -358,7 +363,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         // miss staticMethod()
                     }
                 });
-            }).to['throw']();
+            }).to.throwException();
 
             expect(function () {
                 createExtendedInterface();
@@ -371,7 +376,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         // miss otherStaticMethod()
                     }
                 });
-            }).to['throw']();
+            }).to.throwException();
 
             expect(function () {
                 createSomeInterface();
@@ -385,7 +390,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         // missing extraStaticMethod()
                     }
                 });
-            }).to['throw']();
+            }).to.throwException();
 
             expect(function () {
                 createSomeInterface();
@@ -399,7 +404,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         extraStaticMethod: function () {}
                     }
                 });
-            }).to['throw']();
+            }).to.throwException();
 
             expect(function () {
                 createSomeInterface();
@@ -413,7 +418,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         extraStaticMethod: function () {}
                     }
                 });
-            }).to['throw']();
+            }).to.throwException();
 
             expect(function () {
                 createSomeInterface();
@@ -427,7 +432,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         extraStaticMethod: function () {}
                     }
                 });
-            }).to['throw']();
+            }).to.throwException();
 
             expect(function () {
                 createExtendedInterface();
@@ -443,7 +448,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         extraStaticMethod: function () {}
                     }
                 });
-            }).to['throw']();
+            }).to.throwException();
 
             expect(function () {
                 createExtendedInterface();
@@ -459,7 +464,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         extraStaticMethod: function () {}
                     }
                 });
-            }).to['throw']();
+            }).to.throwException();
         });
 
         it('should not throw error when they are complete', function () {
@@ -474,7 +479,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         staticMethod: function () {}
                     }
                 });
-            }).to.not['throw']();
+            }).to.not.throwException();
 
             expect(function () {
                 createExtendedInterface();
@@ -487,7 +492,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         otherStaticMethod: function () {}
                     }
                 });
-            }).to.not['throw']();
+            }).to.not.throwException();
 
             expect(function () {
                 createSomeInterface();
@@ -501,7 +506,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         extraStaticMethod: function () {}
                     }
                 });
-            }).to.not['throw']();
+            }).to.not.throwException();
 
             expect(function () {
                 createExtendedInterface();
@@ -517,7 +522,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         extraStaticMethod: function () {}
                     }
                 });
-            }).to.not['throw']();
+            }).to.not.throwException();
 
         });
 
@@ -528,7 +533,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                 return Classify({
                     Abstracts: {}
                 });
-            }).to['throw']();
+            }).to.throwException();
 
             expect(function () {
                 return Classify({
@@ -536,7 +541,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                         method1: function () {}
                     }
                 });
-            }).to['throw']();
+            }).to.throwException();
         });
 
         it('should throw an error when specifying binds poiting to non existent methods', function () {
@@ -545,7 +550,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                 return Classify({
                     Binds: ['method4']
                 });
-            }).to['throw']();
+            }).to.throwException();
 
             expect(function () {
                 return Classify({
@@ -555,7 +560,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                     }),
                     Binds: ['method2']
                 });
-            }).to['throw']();
+            }).to.throwException();
 
         });
 
@@ -566,7 +571,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                     Binds: ['method1', 'method1'],
                     method1: function () {}
                 });
-            }).to['throw']();
+            }).to.throwException();
 
         });
 
@@ -580,7 +585,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                     }),
                     Binds: ['method1']
                 });
-            }).to['throw']();
+            }).to.throwException();
 
         });
 
@@ -595,7 +600,7 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                     someMethod: function () {}
                 });
                 return new SomeInterface();
-            }).to['throw']();
+            }).to.throwException();
 
         });
     });
@@ -611,10 +616,10 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
 
         it('should throw an error while using new or its constructor', function () {
 
-            expect(function () { return new AbstractExample(); }).to['throw']();
-            expect(function () { AbstractExample.prototype.initialize(); }).to['throw']();
-            expect(function () { AbstractExample.prototype.initialize.apply(AbstractExample.prototype, []); }).to['throw']();
-            expect(function () { AbstractExample.prototype.initialize.apply(AbstractExample, []); }).to['throw']();
+            expect(function () { return new AbstractExample(); }).to.throwException();
+            expect(function () { AbstractExample.prototype.initialize(); }).to.throwException();
+            expect(function () { AbstractExample.prototype.initialize.apply(AbstractExample.prototype, []); }).to.throwException();
+            expect(function () { AbstractExample.prototype.initialize.apply(AbstractExample, []); }).to.throwException();
 
         });
 
@@ -632,14 +637,14 @@ define(['Trinity/Classify', chai], function (Classify, chai) {
                     }
                 });
                 return new SomeImplementation();
-            }).to.not['throw']();
+            }).to.not.throwException();
 
             expect(function () {
                 var SomeImplementation = Classify({
                     Extends: Classify.Abstract({ initialize: function () {} })
                 });
                 return new SomeImplementation();
-            }).to.not['throw']();
+            }).to.not.throwException();
 
         });
 
