@@ -16,7 +16,7 @@
     pragmas: {
         'checks': true
     },
-    optimize: 'uglify',
+    optimize: 'none',
     uglify: {
         beautify: false,
         unsafe : true
