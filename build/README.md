@@ -16,6 +16,6 @@ It has all the validations and checks enabled to ensure that your classes are st
 
 The build to be used in production should be the Classify.no-checks.js file.
 All the overhead introduced with the validations and checks from the normal build is removed.
-If all your classes are working fine in the normal build then its safe to use this build.
+If all your classes are working fine in the normal build then it's safe to use it.
 
 Note that both builds have also the correspondent minified file.
