@@ -224,7 +224,7 @@ define(modules, function (Classify, expect) {
 
         });
 
-        it('should not throw error when implementing an interface while not implementing the methods', function () {
+        it('should not throw error when implementing an interface while not implementing its methods', function () {
 
             expect(function () {
                 var SomeInterface = Classify.Interface({
@@ -240,7 +240,7 @@ define(modules, function (Classify, expect) {
 
         });
 
-        it('should not throw error while extending another abstract class while not implementing the methods', function () {
+        it('should not throw error while extending another abstract class while not implementing its methods', function () {
 
             expect(function () {
                 var AbstractExample = Classify.Abstract({
