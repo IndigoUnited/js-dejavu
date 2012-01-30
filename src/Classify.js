@@ -155,17 +155,15 @@ define('Trinity/Classify', [
 
             interfaces = toArray(interfaces);
 
-            var i, k,
-                curr,
-                checkStatic = function (value) {
+            var checkStatic = function (value) {
                     if (!isFunction(target[value])) {
-                        throw new Error('Class "' + target.prototype.Name + '" does not implement interface "' + curr.prototype.Name + '" correctly, static method "' + value + '()" was not found.');
+                        throw new Error('Class "' + target.prototype.Name + '" does not implement interface "' + this.prototype.Name + '" correctly, static method "' + value + '()" was not found.');
                     }
                 };
 
-            for (i = interfaces.length - 1; i >= 0; i -= 1) {
+            forEach(interfaces, function (curr, i) {
 
-                curr = interfaces[i];
+                var k;
 
                 if (!isFunction(curr) || !curr.$interface) {
                     throw new TypeError('Entry at index ' + i + ' in Implements of class "' + params.Name + '" is not a valid interface.');
@@ -180,9 +178,9 @@ define('Trinity/Classify', [
 
                 // Check static functions
                 if (curr.$statics) {
-                    forEach(curr.$statics, checkStatic);
+                    forEach(curr.$statics, checkStatic, curr);
                 }
-            }
+            });
         }
 
         /**
@@ -193,30 +191,19 @@ define('Trinity/Classify', [
          */
         function checkAbstract(abstractClass, target) {
 
-            var abstracts = abstractClass.$abstract,
-                length = abstracts.normal.length,
-                x,
-                func;
+            var abstracts = abstractClass.$abstract;
 
-            for (x = 0; x < length; x += 1) {
-
-                func = abstracts.normal[x];
-
+            forEach(abstracts.normal, function (func) {
                 if (!isFunction(target.prototype[func])) {
                     throw new Error('Class "' + target.prototype.Name + '" does not implement abstract class "' + abstractClass.prototype.Name + '" correctly, method "' + func + '()" was not found.');
                 }
-            }
+            });
 
-            length = abstracts.statics.length;
-
-            for (x = 0; x < length; x += 1) {
-
-                func = abstracts.statics[x];
-
+            forEach(abstracts.statics, function (func) {
                 if (!isFunction(target[func])) {
                     throw new Error('Class "' + target.prototype.Name + '" does not implement abstract class "' + abstractClass.prototype.Name + '" correctly, static method "' + func + '()" was not found.');
                 }
-            }
+            });
         }
         //>>includeEnd('checks');
 
