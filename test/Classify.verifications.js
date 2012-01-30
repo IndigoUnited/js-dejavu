@@ -224,7 +224,7 @@ define(modules, function (Classify, expect) {
 
         });
 
-        it('should not throw error when implementing an interface while not implementing its methods', function () {
+        it('should not throw an error when implementing an interface while not implementing its methods', function () {
 
             expect(function () {
                 var SomeInterface = Classify.Interface({
@@ -240,7 +240,7 @@ define(modules, function (Classify, expect) {
 
         });
 
-        it('should not throw error while extending another abstract class while not implementing its methods', function () {
+        it('should not throw an error while extending another abstract class while not implementing its methods', function () {
 
             expect(function () {
                 var AbstractExample = Classify.Abstract({
@@ -294,7 +294,7 @@ define(modules, function (Classify, expect) {
             });
         }
 
-        it('should throw error if it is incomplete', function () {
+        it('should throw an error if it is incomplete', function () {
 
             expect(function () {
                 createSomeInterface();
@@ -467,7 +467,7 @@ define(modules, function (Classify, expect) {
             }).to.throwException();
         });
 
-        it('should not throw error when it is complete', function () {
+        it('should not throw an error when it is complete', function () {
 
             expect(function () {
                 createSomeInterface();
@@ -527,7 +527,7 @@ define(modules, function (Classify, expect) {
         });
 
 
-        it('should throw error if they define abstract methods', function () {
+        it('should throw an error if they define abstract methods', function () {
 
             expect(function () {
                 return Classify({
@@ -627,7 +627,7 @@ define(modules, function (Classify, expect) {
 
     describe('Instantiation of Concrete Classes that extend Abstract Classes', function () {
 
-        it('should not throw error while invoking the the parent class constructor', function () {
+        it('should not throw an error while invoking the the parent class constructor', function () {
 
             expect(function () {
                 var SomeImplementation = Classify({
