@@ -6,8 +6,7 @@ var cp = require('child_process'),
     command,
     distDir = __dirname + '/../dist/',
     files,
-    stat,
-    cwd;
+    stat;
 
 // Remove all files
 files = fs.readdirSync(distDir);
@@ -103,7 +102,6 @@ cp.exec(command + ' pragmas=checks:false optimize=uglify', function (error, stdo
                     console.log(stdout);
                 }
 
-
                 // Rename file to minified one
                 fs.renameSync(distDir + 'Classify.js', distDir + '../_temp/Classify.js');
 
@@ -119,11 +117,12 @@ cp.exec(command + ' pragmas=checks:false optimize=uglify', function (error, stdo
                 fs.rmdirSync(distDir + '../_temp');
 
                 // Run tests
-                cwd = process.cwd();
                 process.chdir(__dirname + '/../test');
 
-                command = 'mocha -R list Classify.functional.js';
-                command += ' && mocha -R list Classify.verifications.js';
+                command = 'mocha -R list Classify.verifications.js';
+
+                console.log('Running verifications tests..');
+                console.log('-------------------------------------------------');
 
                 if (process.platform === 'win32') {
                     tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
@@ -132,13 +131,32 @@ cp.exec(command + ' pragmas=checks:false optimize=uglify', function (error, stdo
                 }
                 tests.on('exit', function (code) {
 
-                    process.chdir(cwd);
-
+                    var exitCode;
+                    
                     if (code !== 0) {
-                        process.exit(1);
+                        exitCode = 1;
                     } else {
-                        process.exit(0);
+                        exitCode = 0;
                     }
+
+                    command = 'mocha -R list Classify.functional.js';
+
+                    console.log('Running functional tests..');
+                    console.log('-------------------------------------------------');
+
+                    if (process.platform === 'win32') {
+                        tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
+                    } else {
+                        tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
+                    }
+                    tests.on('exit', function (code) {
+
+                        if (code !== 0) {
+                            process.exit(1);
+                        } else {
+                            process.exit(exitCode);
+                        }
+                    });
                 });
             });
         });

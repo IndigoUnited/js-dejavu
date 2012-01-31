@@ -20,7 +20,7 @@
                 urlArgs : 'bust='+ (+new Date)
             });
             
-            require(['Classify.functional.js', 'Classify.verifications.js'], function() {
+            require(['Classify.verifications.js', 'Classify.functional.js'], function() {
                 mocha
                 .run();
             });

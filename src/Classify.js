@@ -1,4 +1,4 @@
-/*jslint sloppy: true, forin: true*/
+/*jslint sloppy: true, forin: true, newcap:true*/
 /*global define*/
 
 /**
@@ -42,6 +42,8 @@ define('Trinity/Classify', [
     'Utils/object/mixIn',
     'Utils/object/keys',
     'Utils/array/forEach',
+    'Utils/array/combine',
+    'Utils/array/append',
     'Utils/lang/bind',
     'Utils/lang/toArray',
     'Classify.Abstract',
@@ -60,6 +62,8 @@ define('Trinity/Classify', [
     mixIn,
     keys,
     forEach,
+    combine,
+    append,
     bind,
     toArray,
     Abstract,
@@ -94,6 +98,34 @@ define('Trinity/Classify', [
         var classify,
             parent;
 
+
+        /**
+         *  Inherits source classic methods if not defined in target
+         *
+         *  @param {Function} source The source
+         *  @param {Function} target The target
+         */
+        function inheritStatics(source, target) {
+
+            if (source.$statics) {
+
+                if (!target.$statics) {
+                    target.$statics = [];
+                }
+
+                forEach(source.$statics, function (value) {
+                    if (isUndefined(target[value])) {    // Already defined members are not overwritten
+                        target[value] = source[value];
+                        target.$statics.push(value);
+                    }
+                });
+
+                if (!target.$statics.length) {
+                    delete target.$statics;
+                }
+            }
+        }
+
         /**
          * Borrows the properties and methods of various source objects to the target.
          *
@@ -104,27 +136,38 @@ define('Trinity/Classify', [
 
             sources = toArray(sources);
 
-            var i, length = sources.length,
+            //>>includeStart('checks', pragmas.checks);
+            if (sources.length !== unique(sources).length) {
+                throw new Error('There are duplicate entries defined in Borrows of "' + target.prototype.Name + '".');
+            }
+            //>>includeEnd('checks');
+            var i,
                 current,
                 key;
 
-            for (i = 0; i < length; i += 1) {
-
-                current = sources[i];
+            for (i = sources.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
 
                 //>>includeStart('checks', pragmas.checks);
-                if ((!isFunction(current) || !current.$class) && !isObject(current)) {
-                    throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + target.prototype.Name + '" is not a valid class/object.');
+                if ((!isFunction(sources[i]) || !sources[i].$class || sources[i].$abstract) && (!isObject(sources[i]) || sources[i].$constructor)) {
+                    throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + target.prototype.Name + '" is not a valid class/object (abstract classes and instances of classes are not supported). ');
                 }
                 //>>includeEnd('checks');
 
-                // Do the mixin manually because we need to ignore already defined methods
-                current = isObject(current) ? current : current.prototype;
+                // Do the mixin manually because we need to ignore already defined methods and handle statics
+                current = isObject(sources[i]) ? Classify(mixIn({}, sources[i])).prototype : sources[i].prototype;
 
                 for (key in current) {
                     if (isUndefined(target.prototype[key])) {    // Besides ignoring already defined members, reserved words like $constructor are also preserved
                         target.prototype[key] = current[key];
                     }
+                }
+
+                // Merge the statics and binds
+                inheritStatics(current.$constructor, target);
+
+                if (current.$constructor.$binds) {
+                    target.$binds = target.$binds || [];
+                    combine(target.$binds, current.$constructor.$binds);
                 }
             }
         }
@@ -138,9 +181,9 @@ define('Trinity/Classify', [
          */
         function binds(fns, context, target) {
 
-            var i = fns.length - 1;
+            var i;
 
-            for (i; i >= 0; i -= 1) {    // We don't use forEach here due to performance
+            for (i = fns.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
                 target[fns[i]] = bind(target[fns[i]], context);
             }
         }
@@ -222,19 +265,27 @@ define('Trinity/Classify', [
             if ((prototype.Binds || []).length !== unique(prototype.Binds || []).length) {
                 throw new Error('There are duplicate binds in "' + prototype.Name + '".');
             }
+            if (intersection(constructor.$binds || [], prototype.Binds || []).length > 0) {
+                throw new Error('There are binds in "' + prototype.Name + '" that are already being bound by a mixin (used in Borrows).');
+            }
             //>>includeEnd('checks');
+
+            if (!constructor.$binds) {
+                constructor.$binds = prototype.Binds || [];
+            } else if (prototype.Binds) {
+                append(constructor.$binds, prototype.Binds);
+            }
+
 
             if (parent && parent.$binds) {
 
                 //>>includeStart('checks', pragmas.checks);
-                if (intersection(prototype.Binds || [], parent.$binds).length > 0) {
+                if (intersection(constructor.$binds, parent.$binds).length > 0) {
                     throw new Error('There are binds in "' + prototype.Name + '" that are already being bound in the parent class.');
                 }
                 //>>includeEnd('checks');
 
-                constructor.$binds = (prototype.Binds || []).concat(parent.$binds);
-            } else if (params.Binds) {
-                constructor.$binds = prototype.Binds;
+                Array.prototype.push.apply(constructor.$binds, parent.$binds);
             }
 
             //>>includeStart('checks', pragmas.checks);
@@ -253,7 +304,9 @@ define('Trinity/Classify', [
             }
             //>>includeEnd('checks');
 
-            delete prototype.Binds;
+            if (!constructor.$binds.length) {
+                delete constructor.$binds;
+            }
         }
 
         /**
@@ -262,8 +315,6 @@ define('Trinity/Classify', [
          * @param {Function} constructor The constructor
          */
         function grabStatics(constructor) {
-
-            var parent = constructor.Super ? constructor.Super.$constructor : null;
 
             // TODO: Shall we improve this function due to performance?
             if (constructor.prototype.Statics) {
@@ -278,18 +329,9 @@ define('Trinity/Classify', [
                 constructor.$statics = keys(constructor.prototype.Statics);
             }
 
-            if (parent && parent.$statics) {
-
-                if (!constructor.$statics) {
-                    constructor.$statics = [];
-                }
-
-                forEach(parent.$statics, function (value) {
-                    if (isUndefined(constructor[value])) {    // Besides ignoring already defined members, reserved words like $abstract are also preserved
-                        constructor[value] = parent[value];
-                        constructor.$statics.push(value);
-                    }
-                });
+            // Inherit statics from parent
+            if (constructor.Super) {
+                inheritStatics(constructor.Super.$constructor, constructor);
             }
         }
 
@@ -338,7 +380,9 @@ define('Trinity/Classify', [
                     this.$initializing = true;
                 }
                 //>>includeEnd('checks');
+
                 initialize.apply(this, arguments);
+
                 //>>includeStart('checks', pragmas.checks);
                 delete this.$initializing;
                 //>>includeEnd('checks');
@@ -371,6 +415,14 @@ define('Trinity/Classify', [
         classify.$class = true;
         //>>includeEnd('checks');
 
+        // Grab static methods from the parent and itself
+        grabStatics(classify);
+        //>>excludeStart('checks', pragmas.checks);
+        if (params.Statics) {
+            delete classify.prototype.Statics;  // If we got checks enabled, we can't delete the Statics yet (see bellow)
+        }
+        //>>excludeEnd('checks');
+
         // Grab all the defined mixins
         if (params.Borrows) {
             borrows(params.Borrows, classify);
@@ -382,14 +434,6 @@ define('Trinity/Classify', [
             grabBinds(classify);
             delete classify.prototype.Binds;
         }
-
-        // Grab static methods from the parent and itself
-        grabStatics(classify);
-        //>>excludeStart('checks', pragmas.checks);
-        if (params.Statics) {
-            delete classify.prototype.Statics;  // If we got checks enabled, we can't delete the Statics yet (see bellow)
-        }
-        //>>excludeEnd('checks');
 
         //>>includeStart('checks', pragmas.checks);
         // If we are a concrete class that extends an abstract class, we need to verify the methods existence
