@@ -238,6 +238,70 @@ define('Utils/array/forEach',[],function () {
 
 });
 
+define('Utils/array/indexOf',[],function () {
+
+    /**
+     * ES5 Array.indexOf
+     * @author Miller Medeiros
+     * @version 0.2.1 (2011/11/25)
+     */
+    var indexOf = Array.prototype.indexOf?
+                    function (arr, item, fromIndex) {
+                        return arr.indexOf(item, fromIndex);
+                    } :
+                    function (arr, item, fromIndex) {
+                        fromIndex = fromIndex || 0;
+                        var n = arr.length >>> 0,
+                            i = fromIndex < 0? n + fromIndex : fromIndex;
+                        for (; i < n; i++) {
+                            if (arr[i] === item) {
+                                return i;
+                            }
+                        }
+                        return -1;
+                    };
+
+    return indexOf;
+});
+
+define('Utils/array/combine',['./indexOf'], function (indexOf) {
+
+    /**
+     * Combines an array with all the items of another.
+     * Does not allow duplicates and is case and type sensitive.
+     * @author André Cruz
+     * @version 0.1.0 (2012/01/28)
+     */
+    function combine(arr1, arr2) {
+
+        var x, length = arr2.length;
+
+        for (x = 0; x < length; x++) {
+            if (indexOf(arr1, arr2[x]) === -1) {
+                arr1.push(arr2[x]);
+            }
+        }
+
+        return arr1;
+    }
+    return combine;
+});
+
+define('Utils/array/append',[],function () {
+
+    /**
+     * Appends an array to the end of another.
+     * The first array will be modified.
+     * @author André Cruz
+     * @version 0.1.0 (2012/01/31)
+     */
+    function append(arr1, arr2) {
+        Array.prototype.push.apply(arr1, arr2);
+        return arr1;
+    }
+    return append;
+});
+
 define('Utils/lang/bind',[],function(){
 
     function slice(arr, offset){
@@ -365,7 +429,7 @@ define('Classify.Abstract',[
         return def;
     };
 });
-/*jslint sloppy: true, forin: true*/
+/*jslint sloppy: true, forin: true, newcap:true*/
 /*global define*/
 
 /**
@@ -403,6 +467,8 @@ define('Trinity/Classify', [
     'Utils/object/mixIn',
     'Utils/object/keys',
     'Utils/array/forEach',
+    'Utils/array/combine',
+    'Utils/array/append',
     'Utils/lang/bind',
     'Utils/lang/toArray',
     'Classify.Abstract',
@@ -415,6 +481,8 @@ define('Trinity/Classify', [
     mixIn,
     keys,
     forEach,
+    combine,
+    append,
     bind,
     toArray,
     Abstract,
@@ -436,6 +504,34 @@ define('Trinity/Classify', [
         var classify,
             parent;
 
+
+        /**
+         *  Inherits source classic methods if not defined in target
+         *
+         *  @param {Function} source The source
+         *  @param {Function} target The target
+         */
+        function inheritStatics(source, target) {
+
+            if (source.$statics) {
+
+                if (!target.$statics) {
+                    target.$statics = [];
+                }
+
+                forEach(source.$statics, function (value) {
+                    if (isUndefined(target[value])) {    // Already defined members are not overwritten
+                        target[value] = source[value];
+                        target.$statics.push(value);
+                    }
+                });
+
+                if (!target.$statics.length) {
+                    delete target.$statics;
+                }
+            }
+        }
+
         /**
          * Borrows the properties and methods of various source objects to the target.
          *
@@ -446,22 +542,28 @@ define('Trinity/Classify', [
 
             sources = toArray(sources);
 
-            var i, length = sources.length,
+                        var i,
                 current,
                 key;
 
-            for (i = 0; i < length; i += 1) {
-
-                current = sources[i];
+            for (i = sources.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
 
                 
-                // Do the mixin manually because we need to ignore already defined methods
-                current = isObject(current) ? current : current.prototype;
+                // Do the mixin manually because we need to ignore already defined methods and handle statics
+                current = isObject(sources[i]) ? Classify(mixIn({}, sources[i])).prototype : sources[i].prototype;
 
                 for (key in current) {
-                    if (isUndefined(target.prototype[key])) {    // Besides ignoring already defined, also reserved words like $constructor are also preserved
+                    if (isUndefined(target.prototype[key])) {    // Besides ignoring already defined members, reserved words like $constructor are also preserved
                         target.prototype[key] = current[key];
                     }
+                }
+
+                // Merge the statics and binds
+                inheritStatics(current.$constructor, target);
+
+                if (current.$constructor.$binds) {
+                    target.$binds = target.$binds || [];
+                    combine(target.$binds, current.$constructor.$binds);
                 }
             }
         }
@@ -475,9 +577,9 @@ define('Trinity/Classify', [
          */
         function binds(fns, context, target) {
 
-            var i = fns.length - 1;
+            var i;
 
-            for (i; i >= 0; i -= 1) {    // We don't use forEach here due to performance
+            for (i = fns.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
                 target[fns[i]] = bind(target[fns[i]], context);
             }
         }
@@ -494,16 +596,23 @@ define('Trinity/Classify', [
                 prototype = constructor.prototype;
 
             
+            if (!constructor.$binds) {
+                constructor.$binds = prototype.Binds || [];
+            } else if (prototype.Binds) {
+                append(constructor.$binds, prototype.Binds);
+            }
+
+
             if (parent && parent.$binds) {
 
                 
-                constructor.$binds = (prototype.Binds || []).concat(parent.$binds);
-            } else if (params.Binds) {
-                constructor.$binds = prototype.Binds;
+                Array.prototype.push.apply(constructor.$binds, parent.$binds);
             }
 
             
-            delete prototype.Binds;
+            if (!constructor.$binds.length) {
+                delete constructor.$binds;
+            }
         }
 
         /**
@@ -513,8 +622,6 @@ define('Trinity/Classify', [
          */
         function grabStatics(constructor) {
 
-            var parent = constructor.Super ? constructor.Super.$constructor : null;
-
             // TODO: Shall we improve this function due to performance?
             if (constructor.prototype.Statics) {
 
@@ -523,18 +630,9 @@ define('Trinity/Classify', [
                 constructor.$statics = keys(constructor.prototype.Statics);
             }
 
-            if (parent && parent.$statics) {
-
-                if (!constructor.$statics) {
-                    constructor.$statics = [];
-                }
-
-                forEach(parent.$statics, function (value) {
-                    if (isUndefined(constructor[value])) {    // Besides ignoring already defined, also reserved words like $abstract are also preserved
-                        constructor[value] = parent[value];
-                        constructor.$statics.push(value);
-                    }
-                });
+            // Inherit statics from parent
+            if (constructor.Super) {
+                inheritStatics(constructor.Super.$constructor, constructor);
             }
         }
 
@@ -577,7 +675,9 @@ define('Trinity/Classify', [
                     binds(this.$constructor.$binds, this, this);
                 }
 
-                                initialize.apply(this, arguments);
+                
+                initialize.apply(this, arguments);
+
                             };
         }
 
@@ -599,6 +699,12 @@ define('Trinity/Classify', [
 
         classify.prototype.$constructor = classify;
         
+        // Grab static methods from the parent and itself
+        grabStatics(classify);
+                if (params.Statics) {
+            delete classify.prototype.Statics;  // If we got checks enabled, we can't delete the Statics yet (see bellow)
+        }
+        
         // Grab all the defined mixins
         if (params.Borrows) {
             borrows(params.Borrows, classify);
@@ -611,12 +717,6 @@ define('Trinity/Classify', [
             delete classify.prototype.Binds;
         }
 
-        // Grab static methods from the parent and itself
-        grabStatics(classify);
-                if (params.Statics) {
-            delete classify.prototype.Statics;  // If we got checks enabled, we can't delete the Statics yet (see bellow)
-        }
-        
         
         // If the class implement some interfaces and is not abstract then
         if (params.Implements) {
