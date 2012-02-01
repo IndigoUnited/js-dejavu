@@ -140,6 +140,7 @@ define('Trinity/Classify', [
                 throw new Error('There are duplicate entries defined in Borrows of "' + target.prototype.Name + '".');
             }
             //>>includeEnd('checks');
+
             var i,
                 current,
                 key;
@@ -161,9 +162,10 @@ define('Trinity/Classify', [
                     }
                 }
 
-                // Merge the statics and binds
+                // Merge the statics
                 inheritStatics(current.$constructor, target);
 
+                // Merge the binds
                 if (current.$constructor.$binds) {
                     target.$binds = target.$binds || [];
                     combine(target.$binds, current.$constructor.$binds);
