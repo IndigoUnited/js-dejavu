@@ -1003,7 +1003,6 @@ define('Classify.Abstract',[
 /**
  * Classify - Sugar syntax for Prototypal Inheritance
  *
- * @author Luís Couto <lcouto87@gmail.com>
  * @author André Cruz <andremiguelcruz@msn.com>
  * @version 1.0.0
  *
@@ -1129,7 +1128,8 @@ define('Trinity/Classify', [
                         if (sources.length !== unique(sources).length) {
                 throw new Error('There are duplicate entries defined in Borrows of "' + target.prototype.Name + '".');
             }
-                        var i,
+            
+            var i,
                 current,
                 key;
 
@@ -1148,9 +1148,10 @@ define('Trinity/Classify', [
                     }
                 }
 
-                // Merge the statics and binds
+                // Merge the statics
                 inheritStatics(current.$constructor, target);
 
+                // Merge the binds
                 if (current.$constructor.$binds) {
                     target.$binds = target.$binds || [];
                     combine(target.$binds, current.$constructor.$binds);
