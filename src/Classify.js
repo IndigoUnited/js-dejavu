@@ -286,7 +286,7 @@ define('Trinity/Classify', [
                 }
                 //>>includeEnd('checks');
 
-                Array.prototype.push.apply(constructor.$binds, parent.$binds);
+                append(constructor.$binds, parent.$binds);
             }
 
             //>>includeStart('checks', pragmas.checks);
