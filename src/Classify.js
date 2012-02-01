@@ -277,7 +277,6 @@ define('Trinity/Classify', [
                 append(constructor.$binds, prototype.Binds);
             }
 
-
             if (parent && parent.$binds) {
 
                 //>>includeStart('checks', pragmas.checks);
@@ -287,6 +286,8 @@ define('Trinity/Classify', [
                 //>>includeEnd('checks');
 
                 append(constructor.$binds, parent.$binds);
+            } else if (!constructor.$binds.length) {
+                delete constructor.$binds;
             }
 
             //>>includeStart('checks', pragmas.checks);
@@ -304,10 +305,6 @@ define('Trinity/Classify', [
                 });
             }
             //>>includeEnd('checks');
-
-            if (!constructor.$binds.length) {
-                delete constructor.$binds;
-            }
         }
 
         /**
