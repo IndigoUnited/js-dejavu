@@ -1259,14 +1259,15 @@ define('Trinity/Classify', [
                 append(constructor.$binds, prototype.Binds);
             }
 
-
             if (parent && parent.$binds) {
 
                                 if (intersection(constructor.$binds, parent.$binds).length > 0) {
                     throw new Error('There are binds in "' + prototype.Name + '" that are already being bound in the parent class.');
                 }
                 
-                Array.prototype.push.apply(constructor.$binds, parent.$binds);
+                append(constructor.$binds, parent.$binds);
+            } else if (!constructor.$binds.length) {
+                delete constructor.$binds;
             }
 
                         if (constructor.$binds) {
@@ -1282,11 +1283,7 @@ define('Trinity/Classify', [
                     }
                 });
             }
-            
-            if (!constructor.$binds.length) {
-                delete constructor.$binds;
-            }
-        }
+                    }
 
         /**
          * Grabs the static methods from the constructor parent and itself and merges them.

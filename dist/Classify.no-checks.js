@@ -603,18 +603,15 @@ define('Trinity/Classify', [
                 append(constructor.$binds, prototype.Binds);
             }
 
-
             if (parent && parent.$binds) {
 
                 
-                Array.prototype.push.apply(constructor.$binds, parent.$binds);
-            }
-
-            
-            if (!constructor.$binds.length) {
+                append(constructor.$binds, parent.$binds);
+            } else if (!constructor.$binds.length) {
                 delete constructor.$binds;
             }
-        }
+
+                    }
 
         /**
          * Grabs the static methods from the constructor parent and itself and merges them.
