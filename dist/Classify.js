@@ -123,41 +123,6 @@ define('Utils/array/contains',['./indexOf'], function (indexOf) {
     return contains;
 });
 
-define('Utils/lang/isObject',['./isKind'], function (isKind) {
-    /**
-     * @author Miller Medeiros
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isObject(val) {
-        return isKind(val, 'Object');
-    }
-    return isObject;
-});
-
-define('Utils/lang/isArray',['./isKind'], function (isKind) {
-    /**
-     * @author Miller Medeiros
-     * @version 0.2.0 (2011/12/06)
-     */
-    var isArray = Array.isArray || function (val) {
-        return isKind(val, 'Array');
-    };
-    return isArray;
-});
-
-define('Utils/lang/isUndefined',[],function () {
-    var UNDEF;
-
-    /**
-     * @author Miller Medeiros
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isUndef(val){
-        return val === UNDEF;
-    }
-    return isUndef;
-});
-
 define('Utils/object/hasOwn',[],function () {
 
     /**
@@ -173,54 +138,16 @@ define('Utils/object/hasOwn',[],function () {
 
 });
 
-define('Utils/object/mixIn',['./hasOwn'], function(hasOwn){
-
+define('Utils/lang/isObject',['./isKind'], function (isKind) {
     /**
-    * Combine properties from all the objects into first one.
-    * - This method affects target object in place, if you want to create a new Object pass an empty object as first param.
-    * @param {object} target    Target Object
-    * @param {...object} objects    Objects to be combined (0...n objects).
-    * @return {object} Target Object.
-    * @version 0.1.1 (2012/01/19)
-    * @author Miller Medeiros
-    */
-    function mixIn(target, objects){
-        var i = 1,
-            n = arguments.length,
-            key, cur;
-        while(cur = arguments[i++]){
-            for(key in cur){
-                if(hasOwn(cur, key)){
-                    target[key] = cur[key];
-                }
-            }
-        }
-        return target;
-    }
-
-    return mixIn;
-});
-
-define('Utils/lang/createObject',['../object/mixIn'], function(mixIn){
-
-    /**
-     * Create Object using prototypal inheritance and setting custom properties.
-     * - Mix between Douglas Crockford Prototypal Inheritance <http://javascript.crockford.com/prototypal.html> and the EcmaScript 5 `Object.create()` method.
-     * @param {object} parent    Parent Object.
-     * @param {object} [props] Object properties.
-     * @return {object} Created object.
-     * @version 0.1.0 (2011/08/09)
      * @author Miller Medeiros
+     * @version 0.1.0 (2011/10/31)
      */
-    function createObject(parent, props){
-        function F(){}
-        F.prototype = parent;
-        return mixIn(new F(), props);
-
+    function isObject(val) {
+        return isKind(val, 'Object');
     }
-    return createObject;
+    return isObject;
 });
-
 
 define('Utils/object/forOwn',['../lang/isObject', './hasOwn'], function (isObject, hasOwn) {
 
@@ -282,6 +209,79 @@ define('Utils/object/forOwn',['../lang/isObject', './hasOwn'], function (isObjec
     return forOwn;
 
 });
+
+define('Utils/lang/isArray',['./isKind'], function (isKind) {
+    /**
+     * @author Miller Medeiros
+     * @version 0.2.0 (2011/12/06)
+     */
+    var isArray = Array.isArray || function (val) {
+        return isKind(val, 'Array');
+    };
+    return isArray;
+});
+
+define('Utils/lang/isUndefined',[],function () {
+    var UNDEF;
+
+    /**
+     * @author Miller Medeiros
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isUndef(val){
+        return val === UNDEF;
+    }
+    return isUndef;
+});
+
+define('Utils/object/mixIn',['./hasOwn'], function(hasOwn){
+
+    /**
+    * Combine properties from all the objects into first one.
+    * - This method affects target object in place, if you want to create a new Object pass an empty object as first param.
+    * @param {object} target    Target Object
+    * @param {...object} objects    Objects to be combined (0...n objects).
+    * @return {object} Target Object.
+    * @version 0.1.1 (2012/01/19)
+    * @author Miller Medeiros
+    */
+    function mixIn(target, objects){
+        var i = 1,
+            n = arguments.length,
+            key, cur;
+        while(cur = arguments[i++]){
+            for(key in cur){
+                if(hasOwn(cur, key)){
+                    target[key] = cur[key];
+                }
+            }
+        }
+        return target;
+    }
+
+    return mixIn;
+});
+
+define('Utils/lang/createObject',['../object/mixIn'], function(mixIn){
+
+    /**
+     * Create Object using prototypal inheritance and setting custom properties.
+     * - Mix between Douglas Crockford Prototypal Inheritance <http://javascript.crockford.com/prototypal.html> and the EcmaScript 5 `Object.create()` method.
+     * @param {object} parent    Parent Object.
+     * @param {object} [props] Object properties.
+     * @return {object} Created object.
+     * @version 0.1.0 (2011/08/09)
+     * @author Miller Medeiros
+     */
+    function createObject(parent, props){
+        function F(){}
+        F.prototype = parent;
+        return mixIn(new F(), props);
+
+    }
+    return createObject;
+});
+
 
 define('Utils/object/keys',['./forOwn'], function (forOwn) {
 
@@ -611,153 +611,27 @@ define('Utils/Array/indexOf',[],function () {
     return indexOf;
 });
 
-define('Utils/Array/forEach',[],function () {
+define('Utils/Array/combine',['./indexOf'], function (indexOf) {
 
     /**
-     * ES5 Array.forEach
-     * @author Miller Medeiros
-     * @version 0.3.1 (2011/11/25)
+     * Combines an array with all the items of another.
+     * Does not allow duplicates and is case and type sensitive.
+     * @author André Cruz
+     * @version 0.1.0 (2012/01/28)
      */
-    var forEach = Array.prototype.forEach?
-                    function (arr, callback, thisObj) {
-                        arr.forEach(callback, thisObj);
-                    } :
-                    function (arr, callback, thisObj) {
-                        for (var i = 0, n = arr.length >>> 0; i < n; i++) {
-                            //according to spec callback should only be called for
-                            //existing items
-                            if (i in arr) {
-                                callback.call(thisObj, arr[i], i, arr);
-                            }
-                        }
-                    };
+    function combine(arr1, arr2) {
 
-    return forEach;
+        var x, length = arr2.length;
 
-});
-
-define('Utils/Array/filter',['./forEach'], function (forEach) {
-
-    /**
-     * ES5 Array.filter
-     * @author Miller Medeiros
-     * @version 0.3.0 (2011/11/15)
-     */
-    var filter = Array.prototype.filter?
-                function (arr, callback, thisObj) {
-                    return arr.filter(callback, thisObj);
-                } :
-                function (arr, callback, thisObj) {
-                    var results = [];
-                    forEach(arr, function (val, i, arr) {
-                        if ( callback.call(thisObj, val, i, arr) ) {
-                            results.push(val);
-                        }
-                    });
-                    return results;
-                };
-
-    return filter;
-
-});
-
-define('Utils/Array/unique',['./indexOf', './filter'], function(indexOf, filter){
-
-    /**
-     * @return {array} Array of unique items
-     * @author Miller Medeiros
-     * @version 0.1.0 (2011/10/18)
-     */
-    function unique(arr){
-        return filter(arr, isUnique);
-    }
-
-    function isUnique(item, i, arr){
-        return indexOf(arr, item, i+1) === -1;
-    }
-
-    return unique;
-});
-
-
-define('Utils/Array/some',['require'],function (forEach) {
-
-    /**
-     * ES5 Array.some
-     * @author Miller Medeiros
-     * @version 0.2.1 (2011/11/25)
-     */
-    var some = Array.prototype.some?
-                function (arr, callback, thisObj) {
-                    return arr.some(callback, thisObj);
-                } :
-                function (arr, callback, thisObj) {
-                    var result = false,
-                        n = arr.length >>> 0;
-                    while (n--) {
-                        //according to spec callback should only be called for
-                        //existing items
-                        if ( n in arr && callback.call(thisObj, arr[n], n, arr) ) {
-                            result = true;
-                            break;
-                        }
-                    }
-                    return result;
-                };
-
-    return some;
-});
-
-define('Utils/Array/contains',['./indexOf'], function (indexOf) {
-
-    /**
-     * If array contains values.
-     * @author Miller Medeiros
-     * @version 0.1.0 (2011/10/31)
-     */
-    function contains(arr, val) {
-        return indexOf(arr, val) !== -1;
-    }
-    return contains;
-});
-
-define('Utils/Array/difference',['./unique', './filter', './some', './contains'], function (unique, filter, some, contains) {
-
-
-    /**
-     * Return a new Array with elements that aren't present in the other Arrays.
-     * @author Miller Medeiros
-     * @version 0.1.0 (2011/01/12)
-     */
-    function difference(arr) {
-        var arrs = Array.prototype.slice.call(arguments, 1),
-            result = filter(unique(arr), function(needle){
-                return !some(arrs, function(haystack){
-                    return contains(haystack, needle);
-                });
-            });
-        return result;
-    }
-
-    return difference;
-
-});
-
-define('Utils/Array/insert',['./difference', '../lang/toArray'], function (difference, toArray) {
-
-    /**
-     * Insert item into array if not already present.
-     * @author André Cruz, Miller Medeiros
-     * @version 0.2.0 (2012/01/28)
-     */
-    function insert(arr, rest_items) {
-        var diff = difference(toArray(arguments).slice(1), arr);
-        if (diff.length) {
-            Array.prototype.push.apply(arr, diff);
+        for (x = 0; x < length; x++) {
+            if (indexOf(arr1, arr2[x]) === -1) {
+                arr1.push(arr2[x]);
+            }
         }
-        return arr.length;
+
+        return arr1;
     }
-    return insert;
+    return combine;
 });
 
 /*jslint sloppy: true*/
@@ -767,25 +641,36 @@ define('Classify.Interface',[
         'Utils/lang/isObject',
     'Utils/lang/isFunction',
     'Utils/object/forOwn',
-    'Utils/Array/insert',
+    'Utils/Array/combine',
     'Utils/lang/createObject'
     ], function (
         isObject,
     isFunction,
     forOwn,
-    insert,
+    combine,
     createObject
     ) {
-
     /**
      *
      */
     function Interface(params) {
 
-                if (!isObject(params)) {
+                // Validate params as an object
+        if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');
         }
+
+        // Verify reserved words
+        (function (params) {
+            var reserved = ['$constructor', '$initializing'];
+            forOwn(params, function (value, key) {
+                if (reserved.indexOf(key) !== -1) {
+                    throw new TypeError('Class "' + params.Name + '" is using a reserved word: ' + key);
+                }
+            });
+        }(params));
         
+
         var interf = function () {
                         throw new Error('Interfaces cannot be instantiated.');
                     };
@@ -805,9 +690,20 @@ define('Classify.Interface',[
 
             if (constructor.prototype.Statics) {
 
+                // Verify if statics is an object
                 if (!isObject(constructor.prototype.Statics)) {
                     throw new TypeError('Statics definition for "' + params.Name + '" must be an object.');
                 }
+
+                // Verify reserved words
+                (function (params) {
+                    var reserved = ['$class', '$abstract', '$interface', '$binds', '$statics'];
+                    forOwn(params, function (value, key) {
+                        if (reserved.indexOf(key) !== -1) {
+                            throw new TypeError('Class "' + params.Name + '" is using a reserved static word: ' + key);
+                        }
+                    });
+                }(constructor.prototype.Statics));
 
                 forOwn(constructor.prototype.Statics, function (value, key) {
                     if (isFunction(value)) {
@@ -817,19 +713,15 @@ define('Classify.Interface',[
             }
 
             if (parent && parent.$statics) {
-
-                parent.$statics.forEach(function (value) {
-                    insert(constructor.$statics, value);
-                });
-            }
-
-            if (!constructor.$statics.length) {
+                combine(constructor.$statics, parent.$statics);
+            } else if (!constructor.$statics.length) {
                 delete constructor.$statics;
             }
         }
 
         if (params.Extends) {
 
+            // Verify if parent is a valid interface
             if (!isFunction(params.Extends) || !params.Extends.$interface) {
                 throw new TypeError('The parent interface of "' + params.Name + '" is not a valid interface (defined in Extends).');
             }
@@ -851,7 +743,6 @@ define('Classify.Interface',[
 
         // TODO: Make a way to validate an interface
         interf.$interface = true;   // Mark it as an interface
-
         
         return interf;
     }
@@ -1031,6 +922,7 @@ define('Trinity/Classify', [
     'Utils/lang/isString',
     'Utils/array/intersection',
     'Utils/array/unique',
+    'Utils/object/forOwn',
         'Utils/lang/isObject',
     'Utils/lang/isArray',
     'Utils/lang/isUndefined',
@@ -1049,6 +941,7 @@ define('Trinity/Classify', [
     isString,
     intersection,
     unique,
+    forOwn,
         isObject,
     isArray,
     isUndefined,
@@ -1063,7 +956,6 @@ define('Trinity/Classify', [
     Abstract,
     Interface
 ) {
-
     /**
      * Create a class definition.
      *
@@ -1073,12 +965,25 @@ define('Trinity/Classify', [
      */
     function Classify(params) {
 
-                if (!isObject(params)) {
+                // Validate params as an object
+        if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');
         }
 
+        // Give the class a default name
         params.Name = params.Name || 'Unnamed';
 
+        // Verify reserved words
+        (function (params) {
+            var reserved = ['$constructor', '$initializing'];
+            forOwn(params, function (value, key) {
+                if (reserved.indexOf(key) !== -1) {
+                    throw new TypeError('Class "' + params.Name + '" is using a reserved word: ' + key);
+                }
+            });
+        }(params));
+
+        // Verify if the class has abstract methods but is not defined as abstract
         if (params.Abstracts && !params.$abstract) {
             throw new Error('Class "' + params.Name + '" has abstract methods, therefore it must be defined as abstract.');
         }
@@ -1086,7 +991,6 @@ define('Trinity/Classify', [
         
         var classify,
             parent;
-
 
         /**
          *  Inherits source classic methods if not defined in target
@@ -1125,7 +1029,8 @@ define('Trinity/Classify', [
 
             sources = toArray(sources);
 
-                        if (sources.length !== unique(sources).length) {
+                        // Verify duplicate entries
+            if (sources.length !== unique(sources).length) {
                 throw new Error('There are duplicate entries defined in Borrows of "' + target.prototype.Name + '".');
             }
             
@@ -1135,13 +1040,23 @@ define('Trinity/Classify', [
 
             for (i = sources.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
 
-                                if ((!isFunction(sources[i]) || !sources[i].$class || sources[i].$abstract) && (!isObject(sources[i]) || sources[i].$constructor)) {
+                                // Verify each mixin
+                if ((!isFunction(sources[i]) || !sources[i].$class || sources[i].$abstract) && (!isObject(sources[i]) || sources[i].$constructor)) {
                     throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + target.prototype.Name + '" is not a valid class/object (abstract classes and instances of classes are not supported). ');
                 }
                 
                 // Do the mixin manually because we need to ignore already defined methods and handle statics
-                current = isObject(sources[i]) ? Classify(mixIn({}, sources[i])).prototype : sources[i].prototype;
-
+                                if (isObject(sources[i])) {
+                    try {
+                        current = Classify(mixIn({}, sources[i])).prototype;
+                    } catch (e) {
+                        // When an object is being used, throw a more friend message if an error occurs
+                        throw new Error('Unable to define object as class at index ' + i + ' in Borrows of class "' + target.prototype.Name + '": ' + e.message);
+                    }
+                } else {
+                    current = sources[i].prototype;
+                }
+                                
                 for (key in current) {
                     if (isUndefined(target.prototype[key])) {    // Besides ignoring already defined members, reserved words like $constructor are also preserved
                         target.prototype[key] = current[key];
@@ -1195,6 +1110,7 @@ define('Trinity/Classify', [
 
                 var k;
 
+                // Verify if it's a valid interface
                 if (!isFunction(curr) || !curr.$interface) {
                     throw new TypeError('Entry at index ' + i + ' in Implements of class "' + params.Name + '" is not a valid interface.');
                 }
@@ -1223,12 +1139,14 @@ define('Trinity/Classify', [
 
             var abstracts = abstractClass.$abstract;
 
+            // Check normal functions
             forEach(abstracts.normal, function (func) {
                 if (!isFunction(target.prototype[func])) {
                     throw new Error('Class "' + target.prototype.Name + '" does not implement abstract class "' + abstractClass.prototype.Name + '" correctly, method "' + func + '()" was not found.');
                 }
             });
 
+            // Check static functions
             forEach(abstracts.statics, function (func) {
                 if (!isFunction(target[func])) {
                     throw new Error('Class "' + target.prototype.Name + '" does not implement abstract class "' + abstractClass.prototype.Name + '" correctly, static method "' + func + '()" was not found.');
@@ -1246,9 +1164,11 @@ define('Trinity/Classify', [
             var parent = constructor.Super ? constructor.Super.$constructor : null,
                 prototype = constructor.prototype;
 
-                        if ((prototype.Binds || []).length !== unique(prototype.Binds || []).length) {
+                        // Verify duplicate binds
+            if ((prototype.Binds || []).length !== unique(prototype.Binds || []).length) {
                 throw new Error('There are duplicate binds in "' + prototype.Name + '".');
             }
+            // Verify duplicate binds already proved in mixins
             if (intersection(constructor.$binds || [], prototype.Binds || []).length > 0) {
                 throw new Error('There are binds in "' + prototype.Name + '" that are already being bound by a mixin (used in Borrows).');
             }
@@ -1261,7 +1181,8 @@ define('Trinity/Classify', [
 
             if (parent && parent.$binds) {
 
-                                if (intersection(constructor.$binds, parent.$binds).length > 0) {
+                                // Verify duplicate binds already provided by the parent
+                if (intersection(constructor.$binds, parent.$binds).length > 0) {
                     throw new Error('There are binds in "' + prototype.Name + '" that are already being bound in the parent class.');
                 }
                 
@@ -1270,14 +1191,12 @@ define('Trinity/Classify', [
                 delete constructor.$binds;
             }
 
-                        if (constructor.$binds) {
-
+                        // Finnaly verify if all binds are strings and reference existent methods
+            if (constructor.$binds) {
                 forEach(constructor.$binds, function (value) {
-
                     if (!isString(value)) {
                         throw new TypeError('All bind entries of "' + prototype.Name + '" must be a string.');
                     }
-
                     if (!isFunction(prototype[value])) {
                         throw new Error('Method "' + value + '()" referenced in "' + prototype.Name + '" binds does not exist.');
                     }
@@ -1295,9 +1214,20 @@ define('Trinity/Classify', [
             // TODO: Shall we improve this function due to performance?
             if (constructor.prototype.Statics) {
 
-                                if (!isObject(constructor.prototype.Statics)) {
+                                // Verify if statics is an object
+                if (!isObject(constructor.prototype.Statics)) {
                     throw new TypeError('Statics definition for "' + params.Name + '" must be an object.');
                 }
+
+                // Verify reserved words
+                (function (params) {
+                    var reserved = ['$class', '$abstract', '$interface', '$binds', '$statics'];
+                    forOwn(params, function (value, key) {
+                        if (reserved.indexOf(key) !== -1) {
+                            throw new TypeError('Class "' + params.Name + '" is using a reserved static word: ' + key);
+                        }
+                    });
+                }(constructor.prototype.Statics));
                 
                 mixIn(constructor, constructor.prototype.Statics);
                 constructor.$statics = keys(constructor.prototype.Statics);
@@ -1361,7 +1291,8 @@ define('Trinity/Classify', [
 
         if (params.Extends) {
 
-                        if (!isFunction(params.Extends) || !params.Extends.$class) {
+                        // Verify if parent is a valid class
+            if (!isFunction(params.Extends) || !params.Extends.$class) {
                 throw new TypeError('Specified parent class in Extends of "' + params.Name + '" is not a valid class.');
             }
             

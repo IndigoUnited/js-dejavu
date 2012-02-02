@@ -18,17 +18,28 @@ define([
     createObject
     //>>includeEnd('checks');
 ) {
-
     /**
      *
      */
     function Interface(params) {
 
         //>>includeStart('checks', pragmas.checks);
+        // Validate params as an object
         if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');
         }
+
+        // Verify reserved words
+        (function (params) {
+            var reserved = ['$constructor', '$initializing'];
+            forOwn(params, function (value, key) {
+                if (reserved.indexOf(key) !== -1) {
+                    throw new TypeError('Class "' + params.Name + '" is using a reserved word: ' + key);
+                }
+            });
+        }(params));
         //>>includeEnd('checks');
+
 
         var interf = function () {
             //>>includeStart('checks', pragmas.checks);
@@ -52,9 +63,20 @@ define([
 
             if (constructor.prototype.Statics) {
 
+                // Verify if statics is an object
                 if (!isObject(constructor.prototype.Statics)) {
                     throw new TypeError('Statics definition for "' + params.Name + '" must be an object.');
                 }
+
+                // Verify reserved words
+                (function (params) {
+                    var reserved = ['$class', '$abstract', '$interface', '$binds', '$statics'];
+                    forOwn(params, function (value, key) {
+                        if (reserved.indexOf(key) !== -1) {
+                            throw new TypeError('Class "' + params.Name + '" is using a reserved static word: ' + key);
+                        }
+                    });
+                }(constructor.prototype.Statics));
 
                 forOwn(constructor.prototype.Statics, function (value, key) {
                     if (isFunction(value)) {
@@ -72,6 +94,7 @@ define([
 
         if (params.Extends) {
 
+            // Verify if parent is a valid interface
             if (!isFunction(params.Extends) || !params.Extends.$interface) {
                 throw new TypeError('The parent interface of "' + params.Name + '" is not a valid interface (defined in Extends).');
             }

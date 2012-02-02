@@ -379,13 +379,13 @@ define('Utils/lang/toArray',['./isArray', './isObject', './isArguments'], functi
 define('Classify.Interface',[
     ], function (
     ) {
-
     /**
      *
      */
     function Interface(params) {
 
         
+
         var interf = function () {
                     };
 
@@ -487,7 +487,6 @@ define('Trinity/Classify', [
     Abstract,
     Interface
 ) {
-
     /**
      * Create a class definition.
      *
@@ -502,7 +501,6 @@ define('Trinity/Classify', [
         
         var classify,
             parent;
-
 
         /**
          *  Inherits source classic methods if not defined in target
@@ -550,8 +548,8 @@ define('Trinity/Classify', [
 
                 
                 // Do the mixin manually because we need to ignore already defined methods and handle statics
-                current = isObject(sources[i]) ? Classify(mixIn({}, sources[i])).prototype : sources[i].prototype;
-
+                                                current = isObject(sources[i]) ? Classify(mixIn({}, sources[i])).prototype : sources[i].prototype;
+                
                 for (key in current) {
                     if (isUndefined(target.prototype[key])) {    // Besides ignoring already defined members, reserved words like $constructor are also preserved
                         target.prototype[key] = current[key];
