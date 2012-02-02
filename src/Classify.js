@@ -33,6 +33,7 @@ define('Trinity/Classify', [
     'Utils/lang/isString',
     'Utils/array/intersection',
     'Utils/array/unique',
+    'Utils/object/forOwn',
     //>>includeEnd('checks');
     'Utils/lang/isObject',
     'Utils/lang/isArray',
@@ -53,6 +54,7 @@ define('Trinity/Classify', [
     isString,
     intersection,
     unique,
+    forOwn,
     //>>includeEnd('checks');
     isObject,
     isArray,
@@ -79,12 +81,25 @@ define('Trinity/Classify', [
     function Classify(params) {
 
         //>>includeStart('checks', pragmas.checks);
+        // Validate params as an object
         if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');
         }
 
+        // Give the class a default name
         params.Name = params.Name || 'Unnamed';
 
+        // Verify reserved words
+        (function (params) {
+            var reserved = ["$constructor", "$initializing"];
+            forOwn(params, function (value, key) {
+                if (reserved.indexOf(key) !== -1) {
+                    throw new TypeError('Class "' + params.Name + '" is using a reserved word: ' + key);
+                }
+            });
+        }(params));
+
+        // Verify if the class has abstract methods but not defined as abstract
         if (params.Abstracts && !params.$abstract) {
             throw new Error('Class "' + params.Name + '" has abstract methods, therefore it must be defined as abstract.');
         }
@@ -96,7 +111,6 @@ define('Trinity/Classify', [
 
         var classify,
             parent;
-
 
         /**
          *  Inherits source classic methods if not defined in target
@@ -154,7 +168,21 @@ define('Trinity/Classify', [
                 //>>includeEnd('checks');
 
                 // Do the mixin manually because we need to ignore already defined methods and handle statics
+                //>>includeStart('checks', pragmas.checks);
+                if (isObject(sources[i])) {
+                    try {
+                        current = Classify(mixIn({}, sources[i])).prototype;
+                    } catch (e) {
+                        throw new Error('Unable to define object at index ' + i + ' in Borrows of class "' + target.prototype.Name + '": ' + e.message);
+                    }
+                } else {
+                    current = sources[i].prototype;
+                }
+                //>>includeEnd('checks');
+                //>>excludeStart('checks', pragmas.checks);
                 current = isObject(sources[i]) ? Classify(mixIn({}, sources[i])).prototype : sources[i].prototype;
+                //>>excludeEnd('checks');
+
 
                 for (key in current) {
                     if (isUndefined(target.prototype[key])) {    // Besides ignoring already defined members, reserved words like $constructor are also preserved
