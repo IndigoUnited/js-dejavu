@@ -5,6 +5,7 @@ define([
     //>>includeStart('checks', pragmas.checks);
     'Utils/lang/isObject',
     'Utils/lang/isFunction',
+    'Utils/object/hasOwn',
     'Utils/object/forOwn',
     'Utils/array/contains',
     'Utils/array/combine',
@@ -14,6 +15,7 @@ define([
     //>>includeStart('checks', pragmas.checks);
     isObject,
     isFunction,
+    hasOwn,
     forOwn,
     contains,
     combine,
@@ -63,7 +65,7 @@ define([
 
             constructor.$statics = [];
 
-            if (constructor.prototype.Statics) {
+            if (hasOwn(constructor.prototype, 'Statics')) {
 
                 // Verify if statics is an object
                 if (!isObject(constructor.prototype.Statics)) {
@@ -94,7 +96,7 @@ define([
             }
         }
 
-        if (params.Extends) {
+        if (hasOwn(params, 'Extends')) {
 
             // Verify if parent is a valid interface
             if (!isFunction(params.Extends) || !params.Extends.$interface) {
