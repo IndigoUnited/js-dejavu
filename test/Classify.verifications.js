@@ -102,6 +102,39 @@ define(modules, function (Classify, expect) {
                 }).to.not.throwException();
 
             });
+
+            it('should throw an error when using reserved keywords', function () {
+
+                var reserved = ['$constructor', '$initializing'],
+                    reservedStatic = ['$class', '$abstract', '$interface', '$binds', '$statics'],
+                    x,
+                    checkNormal = function (key, isAbstract) {
+                        return function () {
+                            var obj = {};
+                            obj[key] = 'bla';
+                            return (!!isAbstract) ? Classify.Abstract(obj) : Classify(obj);
+                        };
+                    },
+                    checkStatic = function (key, isAbstract) {
+                        return function () {
+                            var obj = { Statics: {} };
+                            obj.Statics[key] = 'bla';
+                            return (!!isAbstract) ? Classify.Abstract(obj) : Classify(obj);
+                        };
+                    };
+
+                for (x = 0; x < reserved.length; x += 1) {
+                    expect(checkNormal(reserved[x])).to.throwException(TypeError);
+                    expect(checkNormal(reserved[x], true)).to.throwException(TypeError);
+                }
+
+                for (x = 0; x < reservedStatic.length; x += 1) {
+                    expect(checkStatic(reservedStatic[x])).to.throwException(TypeError);
+                    expect(checkStatic(reservedStatic[x], true)).to.throwException(TypeError);
+                }
+
+            });
+
         });
 
         describe('Defining a Concrete/Abstract Class', function () {
@@ -287,6 +320,7 @@ define(modules, function (Classify, expect) {
                 }).to.throwException();
 
             });
+
         });
 
         describe('Defining an Abstract Class', function () {
@@ -360,6 +394,39 @@ define(modules, function (Classify, expect) {
                 }).to.not.throwException();
 
             });
+
+            it('should throw an error when using reserved keywords', function () {
+
+                var reserved = ['$constructor', '$initializing'],
+                    reservedStatic = ['$class', '$abstract', '$interface', '$binds', '$statics'],
+                    x,
+                    checkNormal = function (key) {
+                        return function () {
+                            var obj = {};
+                            obj[key] = 'bla';
+                            return Classify.Interface(obj);
+                        };
+                    },
+                    checkStatic = function (key) {
+                        return function () {
+                            var obj = { Statics: {} };
+                            obj.Statics[key] = 'bla';
+                            return Classify.Interface(obj);
+                        };
+                    };
+
+                for (x = 0; x < reserved.length; x += 1) {
+                    expect(checkNormal(reserved[x])).to.throwException(TypeError);
+                    expect(checkNormal(reserved[x], true)).to.throwException(TypeError);
+                }
+
+                for (x = 0; x < reservedStatic.length; x += 1) {
+                    expect(checkStatic(reservedStatic[x])).to.throwException(TypeError);
+                    expect(checkStatic(reservedStatic[x], true)).to.throwException(TypeError);
+                }
+
+            });
+
         });
 
         describe('Defining a Concrete Class', function () {
@@ -746,6 +813,7 @@ define(modules, function (Classify, expect) {
                 }).to.throwException(Error);
 
             });
+            
         });
 
         describe('Instantiation of Interfaces', function () {
@@ -760,6 +828,7 @@ define(modules, function (Classify, expect) {
                 }).to.throwException();
 
             });
+            
         });
 
         describe('Instantiation of Abstract Classes', function () {

@@ -197,6 +197,7 @@ define(modules, function (Classify, expect) {
                 expect(superAndre2.status).to.be.equal('alive');
 
             });
+
         });
 
         describe('Instantiation of inheritance Cat -> Pet', function () {
@@ -520,9 +521,11 @@ define(modules, function (Classify, expect) {
                 expect(someOtherImplementation.some).to.be.equal('test');
                 someOtherImplementation.method2();
                 expect(someOtherImplementation.some).to.be.equal('test2');
+
             });
 
         });
 
     });
+
 });

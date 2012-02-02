@@ -70,7 +70,6 @@ define('Trinity/Classify', [
     Abstract,
     Interface
 ) {
-
     /**
      * Create a class definition.
      *
@@ -91,7 +90,7 @@ define('Trinity/Classify', [
 
         // Verify reserved words
         (function (params) {
-            var reserved = ["$constructor", "$initializing"];
+            var reserved = ['$constructor', '$initializing'];
             forOwn(params, function (value, key) {
                 if (reserved.indexOf(key) !== -1) {
                     throw new TypeError('Class "' + params.Name + '" is using a reserved word: ' + key);
@@ -99,7 +98,7 @@ define('Trinity/Classify', [
             });
         }(params));
 
-        // Verify if the class has abstract methods but not defined as abstract
+        // Verify if the class has abstract methods but is not defined as abstract
         if (params.Abstracts && !params.$abstract) {
             throw new Error('Class "' + params.Name + '" has abstract methods, therefore it must be defined as abstract.');
         }
@@ -150,6 +149,7 @@ define('Trinity/Classify', [
             sources = toArray(sources);
 
             //>>includeStart('checks', pragmas.checks);
+            // Verify duplicate entries
             if (sources.length !== unique(sources).length) {
                 throw new Error('There are duplicate entries defined in Borrows of "' + target.prototype.Name + '".');
             }
@@ -162,6 +162,7 @@ define('Trinity/Classify', [
             for (i = sources.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
 
                 //>>includeStart('checks', pragmas.checks);
+                // Verify each mixin
                 if ((!isFunction(sources[i]) || !sources[i].$class || sources[i].$abstract) && (!isObject(sources[i]) || sources[i].$constructor)) {
                     throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + target.prototype.Name + '" is not a valid class/object (abstract classes and instances of classes are not supported). ');
                 }
@@ -173,7 +174,8 @@ define('Trinity/Classify', [
                     try {
                         current = Classify(mixIn({}, sources[i])).prototype;
                     } catch (e) {
-                        throw new Error('Unable to define object at index ' + i + ' in Borrows of class "' + target.prototype.Name + '": ' + e.message);
+                        // When an object is being used, throw a more friend message if an error occurs
+                        throw new Error('Unable to define object as class at index ' + i + ' in Borrows of class "' + target.prototype.Name + '": ' + e.message);
                     }
                 } else {
                     current = sources[i].prototype;
@@ -182,7 +184,6 @@ define('Trinity/Classify', [
                 //>>excludeStart('checks', pragmas.checks);
                 current = isObject(sources[i]) ? Classify(mixIn({}, sources[i])).prototype : sources[i].prototype;
                 //>>excludeEnd('checks');
-
 
                 for (key in current) {
                     if (isUndefined(target.prototype[key])) {    // Besides ignoring already defined members, reserved words like $constructor are also preserved
@@ -238,6 +239,7 @@ define('Trinity/Classify', [
 
                 var k;
 
+                // Verify if it's a valid interface
                 if (!isFunction(curr) || !curr.$interface) {
                     throw new TypeError('Entry at index ' + i + ' in Implements of class "' + params.Name + '" is not a valid interface.');
                 }
@@ -266,12 +268,14 @@ define('Trinity/Classify', [
 
             var abstracts = abstractClass.$abstract;
 
+            // Check normal functions
             forEach(abstracts.normal, function (func) {
                 if (!isFunction(target.prototype[func])) {
                     throw new Error('Class "' + target.prototype.Name + '" does not implement abstract class "' + abstractClass.prototype.Name + '" correctly, method "' + func + '()" was not found.');
                 }
             });
 
+            // Check static functions
             forEach(abstracts.statics, function (func) {
                 if (!isFunction(target[func])) {
                     throw new Error('Class "' + target.prototype.Name + '" does not implement abstract class "' + abstractClass.prototype.Name + '" correctly, static method "' + func + '()" was not found.');
@@ -291,9 +295,11 @@ define('Trinity/Classify', [
                 prototype = constructor.prototype;
 
             //>>includeStart('checks', pragmas.checks);
+            // Verify duplicate binds
             if ((prototype.Binds || []).length !== unique(prototype.Binds || []).length) {
                 throw new Error('There are duplicate binds in "' + prototype.Name + '".');
             }
+            // Verify duplicate binds already proved in mixins
             if (intersection(constructor.$binds || [], prototype.Binds || []).length > 0) {
                 throw new Error('There are binds in "' + prototype.Name + '" that are already being bound by a mixin (used in Borrows).');
             }
@@ -308,6 +314,7 @@ define('Trinity/Classify', [
             if (parent && parent.$binds) {
 
                 //>>includeStart('checks', pragmas.checks);
+                // Verify duplicate binds already provided by the parent
                 if (intersection(constructor.$binds, parent.$binds).length > 0) {
                     throw new Error('There are binds in "' + prototype.Name + '" that are already being bound in the parent class.');
                 }
@@ -319,14 +326,12 @@ define('Trinity/Classify', [
             }
 
             //>>includeStart('checks', pragmas.checks);
+            // Finnaly verify if all binds are strings and reference existent methods
             if (constructor.$binds) {
-
                 forEach(constructor.$binds, function (value) {
-
                     if (!isString(value)) {
                         throw new TypeError('All bind entries of "' + prototype.Name + '" must be a string.');
                     }
-
                     if (!isFunction(prototype[value])) {
                         throw new Error('Method "' + value + '()" referenced in "' + prototype.Name + '" binds does not exist.');
                     }
@@ -346,9 +351,20 @@ define('Trinity/Classify', [
             if (constructor.prototype.Statics) {
 
                 //>>includeStart('checks', pragmas.checks);
+                // Verify if statics is an object
                 if (!isObject(constructor.prototype.Statics)) {
                     throw new TypeError('Statics definition for "' + params.Name + '" must be an object.');
                 }
+
+                // Verify reserved words
+                (function (params) {
+                    var reserved = ['$class', '$abstract', '$interface', '$binds', '$statics'];
+                    forOwn(params, function (value, key) {
+                        if (reserved.indexOf(key) !== -1) {
+                            throw new TypeError('Class "' + params.Name + '" is using a reserved static word: ' + key);
+                        }
+                    });
+                }(constructor.prototype.Statics));
                 //>>includeEnd('checks');
 
                 mixIn(constructor, constructor.prototype.Statics);
@@ -418,6 +434,7 @@ define('Trinity/Classify', [
         if (params.Extends) {
 
             //>>includeStart('checks', pragmas.checks);
+            // Verify if parent is a valid class
             if (!isFunction(params.Extends) || !params.Extends.$class) {
                 throw new TypeError('Specified parent class in Extends of "' + params.Name + '" is not a valid class.');
             }
