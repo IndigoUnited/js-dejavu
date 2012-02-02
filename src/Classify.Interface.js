@@ -6,7 +6,8 @@ define([
     'Utils/lang/isObject',
     'Utils/lang/isFunction',
     'Utils/object/forOwn',
-    'Utils/Array/combine',
+    'Utils/array/contains',
+    'Utils/array/combine',
     'Utils/lang/createObject'
     //>>includeEnd('checks');
 ], function (
@@ -14,6 +15,7 @@ define([
     isObject,
     isFunction,
     forOwn,
+    contains,
     combine,
     createObject
     //>>includeEnd('checks');
@@ -33,7 +35,7 @@ define([
         (function (params) {
             var reserved = ['$constructor', '$initializing'];
             forOwn(params, function (value, key) {
-                if (reserved.indexOf(key) !== -1) {
+                if (contains(reserved, key)) {
                     throw new TypeError('Class "' + params.Name + '" is using a reserved word: ' + key);
                 }
             });

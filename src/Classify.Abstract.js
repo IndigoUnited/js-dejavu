@@ -48,7 +48,7 @@ define([
         /*jslint vars:false*/
 
         /**
-         * Grab the source abstrac methods and append them to the target arrays
+         * Grab the source abstract methods and append them to the target arrays.
          *
          * @param {Object} source The source
          * @param {Object} target An object container normal and statics array
@@ -67,7 +67,6 @@ define([
                     }
 
                     forOwn(source.Statics, function (value, key) {
-
                         if (isFunction(value)) {
                             insert(target.statics, key);
                         }
