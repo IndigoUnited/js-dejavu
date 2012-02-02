@@ -35,7 +35,6 @@ define('Trinity/Classify', [
     'Utils/array/intersection',
     'Utils/array/unique',
     'Utils/object/forOwn',
-    'Utils/object/hasOwn',
     //>>includeEnd('checks');
     'Utils/lang/isObject',
     'Utils/lang/isArray',
@@ -43,6 +42,7 @@ define('Trinity/Classify', [
     'Utils/lang/createObject',
     'Utils/object/mixIn',
     'Utils/object/keys',
+    'Utils/object/hasOwn',
     'Utils/array/forEach',
     'Utils/array/combine',
     'Utils/array/append',
@@ -58,7 +58,6 @@ define('Trinity/Classify', [
     intersection,
     unique,
     forOwn,
-    hasOwn,
     //>>includeEnd('checks');
     isObject,
     isArray,
@@ -66,6 +65,7 @@ define('Trinity/Classify', [
     createObject,
     mixIn,
     keys,
+    hasOwn,
     forEach,
     combine,
     append,
@@ -190,7 +190,7 @@ define('Trinity/Classify', [
                 //>>excludeEnd('checks');
 
                 for (key in current) {
-                    if (isUndefined(target.prototype[key])) {    // Already defined members are not overwritten
+                    if (!hasOwn(target.prototype, key) || isUndefined(target.prototype[key])) {    // Already defined members are not overwritten
                         target.prototype[key] = current[key];
                     }
                 }
