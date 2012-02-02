@@ -53,6 +53,18 @@ define(modules, function (Classify, expect) {
 
                 expect(function () {
                     return Classify.Interface({
+                        Extends: undefined
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify.Interface({
+                        Extends: null
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify.Interface({
                         Extends: function () {}
                     });
                 }).to.throwException(TypeError);
@@ -66,6 +78,34 @@ define(modules, function (Classify, expect) {
                 expect(function () {
                     return Classify.Interface({
                         Extends: Classify.Interface({})
+                    });
+                }).to.not.throwException();
+
+            });
+
+            it('should throw an error when Statics is not an object', function () {
+
+                expect(function () {
+                    return Classify.Interface({
+                        Statics: 'wtf'
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify.Interface({
+                        Statics: undefined
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify.Interface({
+                        Statics: null
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify.Interface({
+                        Statics: {}
                     });
                 }).to.not.throwException();
 
@@ -145,6 +185,14 @@ define(modules, function (Classify, expect) {
                     return Classify('some');
                 }).to.throwException(TypeError);
 
+                expect(function () {
+                    return Classify(undefined);
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify(null);
+                }).to.throwException(TypeError);
+
             });
 
             it('should throw an error when extending an invalid class', function () {
@@ -152,6 +200,18 @@ define(modules, function (Classify, expect) {
                 expect(function () {
                     return Classify({
                         Extends: 'wtf'
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify({
+                        Extends: undefined
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify({
+                        Extends: null
                     });
                 }).to.throwException(TypeError);
 
@@ -191,17 +251,41 @@ define(modules, function (Classify, expect) {
 
                 expect(function () {
                     return Classify({
+                        Statics: undefined
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify({
+                        Statics: null
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify({
                         Statics: {}
                     });
                 }).to.not.throwException();
 
             });
 
-            it('should throw an error if Binds is not an string or an array of strings', function () {
+            it('should throw an error if Binds is not a string or an array of strings', function () {
 
                 expect(function () {
                     return Classify({
                         Binds: {}
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify({
+                        Binds: undefined
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify({
+                        Binds: null
                     });
                 }).to.throwException(TypeError);
 
@@ -232,6 +316,18 @@ define(modules, function (Classify, expect) {
                 expect(function () {
                     return Classify({
                         Borrows: function () {}
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify({
+                        Borrows: undefined
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify({
+                        Borrows: null
                     });
                 }).to.throwException(TypeError);
 
@@ -335,6 +431,18 @@ define(modules, function (Classify, expect) {
 
                 expect(function () {
                     return Classify.Abstract({
+                        Abstracts: undefined
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify.Abstract({
+                        Abstracts: null
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify.Abstract({
                         Abstracts: {}
                     });
                 }).to.not.throwException();
@@ -347,6 +455,22 @@ define(modules, function (Classify, expect) {
                     return Classify.Abstract({
                         Abstracts: {
                             Statics: 'wtf'
+                        }
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify.Abstract({
+                        Abstracts: {
+                            Statics: undefined
+                        }
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return Classify.Abstract({
+                        Abstracts: {
+                            Statics: null
                         }
                     });
                 }).to.throwException(TypeError);
@@ -433,7 +557,10 @@ define(modules, function (Classify, expect) {
 
             var SomeInterface,
                 OtherInterface,
-                ExtendedInterface;
+                ExtendedInterface,
+                AbstractClass,
+                OtherAbstractClass,
+                ExtendedAbstractClass;
 
             function createSomeInterface() {
                 SomeInterface = Classify.Interface({        // Simple interface
@@ -464,8 +591,35 @@ define(modules, function (Classify, expect) {
                 });
             }
 
+            function createAbstractClass() {
+                AbstractClass = Classify.Abstract({         // Simple abstract class
+                    Implements: SomeInterface
+                });
+            }
+
+            function createOtherAbstractClass() {
+                OtherAbstractClass = Classify.Abstract({    // Other abstract class with different methods
+                    extraMethod: function () {},
+                    Implements: SomeInterface
+                });
+            }
+
+            function createExtendedAbstractClass() {
+                createAbstractClass();
+                ExtendedAbstractClass = Classify.Abstract({    // Abstract class that extends another
+                    Extends: AbstractClass,
+                    Abstracts: {
+                        otherMethod: function () {},
+                        Statics: {
+                            otherStaticMethod: function () {}
+                        }
+                    }
+                });
+            }
+
             it('should throw an error when it is incomplete', function () {
 
+                // Interfaces
                 expect(function () {
                     createSomeInterface();
                     return Classify({
@@ -564,7 +718,7 @@ define(modules, function (Classify, expect) {
 
                 expect(function () {
                     createSomeInterface();
-                    OtherInterface();
+                    createOtherInterface();
                     return Classify({
                         Implements: [SomeInterface, OtherInterface],
                         extraMethod: function () {},
@@ -578,7 +732,7 @@ define(modules, function (Classify, expect) {
 
                 expect(function () {
                     createSomeInterface();
-                    OtherInterface();
+                    createOtherInterface();
                     return Classify({
                         Implements: [SomeInterface, OtherInterface],
                         extraMethod: function () {},
@@ -592,7 +746,7 @@ define(modules, function (Classify, expect) {
 
                 expect(function () {
                     createSomeInterface();
-                    OtherInterface();
+                    createOtherInterface();
                     return Classify({
                         Implements: [SomeInterface, OtherInterface],
                         someMethod: function () {},
@@ -606,7 +760,7 @@ define(modules, function (Classify, expect) {
 
                 expect(function () {
                     createExtendedInterface();
-                    OtherInterface();
+                    createOtherInterface();
                     return Classify({
                         Implements: [ExtendedInterface, OtherInterface],
                         extraMethod: function () {},
@@ -622,7 +776,7 @@ define(modules, function (Classify, expect) {
 
                 expect(function () {
                     createExtendedInterface();
-                    OtherInterface();
+                    createOtherInterface();
                     return Classify({
                         Implements: [ExtendedInterface, OtherInterface],
                         otherMethod: function () {},
@@ -636,11 +790,210 @@ define(modules, function (Classify, expect) {
                     });
                 }).to.throwException();
 
-                // TODO: Add tests for abstract classes
+                // Abstract Classes
+                expect(function () {
+                    createAbstractClass();
+                    return Classify({
+                        Extends: AbstractClass
+                        // miss all methods
+                        // miss all static methods
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    createAbstractClass();
+                    return Classify({
+                        Extends: AbstractClass,
+                        someMethod: function () {}
+                        // miss all static methods
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    createAbstractClass();
+                    return Classify({
+                        Implements: AbstractClass,
+                        someMethod: function () {},
+                        Statics: {
+                            weirdStaticMethod: function () {}
+                            // miss staticMethod()
+                        }
+                    });
+                }).to.throwException();
+
+                expect(function () {
+
+                    createExtendedAbstractClass();
+                    return Classify({
+                        Extends: ExtendedAbstractClass,
+                        otherMethod: function () {},
+                        // miss someMethod()
+                        Statics: {
+                            staticMethod: function () {},
+                            otherStaticMethod: function () {}
+                        }
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    createExtendedAbstractClass();
+                    return Classify({
+                        Extends: ExtendedAbstractClass,
+                        someMethod: function () {},
+                        // miss otherMethod()
+                        Statics: {
+                            staticMethod: function () {},
+                            otherStaticMethod: function () {}
+                        }
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    createExtendedAbstractClass();
+                    return Classify({
+                        Extends: ExtendedAbstractClass,
+                        someMethod: function () {},
+                        otherMethod: function () {},
+                        Statics: {
+                            otherStaticMethod: function () {}
+                            // miss staticMethod()
+                        }
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    createExtendedAbstractClass();
+                    return Classify({
+                        Extends: ExtendedAbstractClass,
+                        someMethod: function () {},
+                        otherMethod: function () {},
+                        Statics: {
+                            staticMethod: function () {}
+                            // miss otherStaticMethod()
+                        }
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    createAbstractClass();
+                    createOtherInterface();
+                    return Classify({
+                        Extends: AbstractClass,
+                        Implements: [OtherInterface],
+                        someMethod: function () {},
+                        extraMethod: function () {},
+                        Statics: {
+                            staticMethod: function () {}
+                            // missing extraStaticMethod()
+                        }
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    createAbstractClass();
+                    createOtherInterface();
+                    return Classify({
+                        Extends: AbstractClass,
+                        Implements: [OtherInterface],
+                        extraMethod: function () {},
+                        someMethod: function () {},
+                        Statics: {
+                            // missing staticMethod()
+                            extraStaticMethod: function () {}
+                        }
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    createAbstractClass();
+                    createOtherInterface();
+                    return Classify({
+                        Extends: AbstractClass,
+                        Implements: [OtherInterface],
+                        extraMethod: function () {},
+                        // missing someMethod()
+                        Statics: {
+                            staticMethod: function () {},
+                            extraStaticMethod: function () {}
+                        }
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    createAbstractClass();
+                    createOtherInterface();
+                    return Classify({
+                        Extends: AbstractClass,
+                        Implements: [OtherInterface],
+                        someMethod: function () {},
+                        // missing extraMethod()
+                        Statics: {
+                            staticMethod: function () {},
+                            extraStaticMethod: function () {}
+                        }
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    createExtendedAbstractClass();
+                    createOtherInterface();
+                    return Classify({
+                        Extends: ExtendedAbstractClass,
+                        Implements: [OtherInterface],
+                        extraMethod: function () {},
+                        otherMethod: function () {},
+                        someMethod: function () {},
+                        Statics: {
+                            // missing staticMethod()
+                            otherStaticMethod: function () {},
+                            extraStaticMethod: function () {}
+                        }
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    createExtendedAbstractClass();
+                    createOtherInterface();
+                    return Classify({
+                        Extends: ExtendedAbstractClass,
+                        Implements: [OtherInterface],
+                        otherMethod: function () {},
+                        someMethod: function () {},
+                        // missing extraMethod()
+                        Statics: {
+                            staticMethod: function () {},
+                            otherStaticMethod: function () {},
+                            extraStaticMethod: function () {}
+                        }
+                    });
+                }).to.throwException();
+            });
+
+            it('should throw an error when it is incomplete, even using certain prototype keywords', function () {
+
+                expect(function () {
+                    return Classify({
+                        Implements: Classify.Interface({
+                            hasOwnProperty: function () {}
+                        })
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    return Classify({
+                        Extends: Classify.Abstract({
+                            Abstracts: {
+                                hasOwnProperty: function () {}
+                            }
+                        })
+                    });
+                }).to.throwException();
+
             });
 
             it('should not throw an error when it is complete', function () {
 
+                // Interfaces
                 expect(function () {
                     createSomeInterface();
                     return Classify({
@@ -695,7 +1048,74 @@ define(modules, function (Classify, expect) {
                     });
                 }).to.not.throwException();
 
-                // TODO: add tests for abstract classes
+                // Abstract Classes
+                expect(function () {
+                    createAbstractClass();
+                    return Classify({
+                        Extends: AbstractClass,
+                        someMethod: function () {},
+                        Statics: {
+                            staticMethod: function () {}
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    createExtendedAbstractClass();
+                    return Classify({
+                        Extends: ExtendedAbstractClass,
+                        someMethod: function () {},
+                        otherMethod: function () {},
+                        Statics: {
+                            staticMethod: function () {},
+                            otherStaticMethod: function () {}
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    createAbstractClass();
+                    createOtherInterface();
+                    return Classify({
+                        Extends: AbstractClass,
+                        Implements: [OtherInterface],
+                        someMethod: function () {},
+                        extraMethod: function () {},
+                        Statics: {
+                            staticMethod: function () {},
+                            extraStaticMethod: function () {}
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    createExtendedAbstractClass();
+                    createOtherInterface();
+                    return Classify({
+                        Extends: ExtendedAbstractClass,
+                        Implements: [OtherInterface],
+                        someMethod: function () {},
+                        otherMethod: function () {},
+                        extraMethod: function () {},
+                        Statics: {
+                            staticMethod: function () {},
+                            otherStaticMethod: function () {},
+                            extraStaticMethod: function () {}
+                        }
+                    });
+                }).to.not.throwException();
+            });
+
+            it('should not throw an error when it is complete, even using certain prototype keywords', function () {
+
+                expect(function () {
+                    return Classify({
+                        Implements: Classify.Interface({
+                            hasOwnProperty: function () {}
+                        }),
+                        hasOwnProperty: function () {}
+                    });
+                }).to.not.throwException();
 
             });
 

@@ -56,34 +56,6 @@ define('Utils/lang/isString',['./isKind'], function (isKind) {
     return isString;
 });
 
-define('Utils/array/every',[],function () {
-
-    /**
-     * ES5 Array.every
-     * @author Miller Medeiros
-     * @version 0.2.1 (2011/11/25)
-     */
-    var every = Array.prototype.every?
-                function (arr, callback, thisObj) {
-                    return arr.every(callback, thisObj);
-                } :
-                function (arr, callback, thisObj) {
-                    var result = true,
-                        n = arr.length >>> 0;
-                    while (n--) {
-                        //according to spec callback should only be called for
-                        //existing items
-                        if ( n in arr && !callback.call(thisObj, arr[n], n, arr) ) {
-                            result = false;
-                            break;
-                        }
-                    }
-                    return result;
-                };
-
-    return every;
-});
-
 define('Utils/array/indexOf',[],function () {
 
     /**
@@ -123,6 +95,69 @@ define('Utils/array/contains',['./indexOf'], function (indexOf) {
     return contains;
 });
 
+define('Utils/array/every',[],function () {
+
+    /**
+     * ES5 Array.every
+     * @author Miller Medeiros
+     * @version 0.2.1 (2011/11/25)
+     */
+    var every = Array.prototype.every?
+                function (arr, callback, thisObj) {
+                    return arr.every(callback, thisObj);
+                } :
+                function (arr, callback, thisObj) {
+                    var result = true,
+                        n = arr.length >>> 0;
+                    while (n--) {
+                        //according to spec callback should only be called for
+                        //existing items
+                        if ( n in arr && !callback.call(thisObj, arr[n], n, arr) ) {
+                            result = false;
+                            break;
+                        }
+                    }
+                    return result;
+                };
+
+    return every;
+});
+
+define('Utils/lang/isObject',['./isKind'], function (isKind) {
+    /**
+     * @author Miller Medeiros
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isObject(val) {
+        return isKind(val, 'Object');
+    }
+    return isObject;
+});
+
+define('Utils/lang/isArray',['./isKind'], function (isKind) {
+    /**
+     * @author Miller Medeiros
+     * @version 0.2.0 (2011/12/06)
+     */
+    var isArray = Array.isArray || function (val) {
+        return isKind(val, 'Array');
+    };
+    return isArray;
+});
+
+define('Utils/lang/isUndefined',[],function () {
+    var UNDEF;
+
+    /**
+     * @author Miller Medeiros
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isUndef(val){
+        return val === UNDEF;
+    }
+    return isUndef;
+});
+
 define('Utils/object/hasOwn',[],function () {
 
     /**
@@ -136,17 +171,6 @@ define('Utils/object/hasOwn',[],function () {
 
      return hasOwn;
 
-});
-
-define('Utils/lang/isObject',['./isKind'], function (isKind) {
-    /**
-     * @author Miller Medeiros
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isObject(val) {
-        return isKind(val, 'Object');
-    }
-    return isObject;
 });
 
 define('Utils/object/forOwn',['../lang/isObject', './hasOwn'], function (isObject, hasOwn) {
@@ -210,28 +234,23 @@ define('Utils/object/forOwn',['../lang/isObject', './hasOwn'], function (isObjec
 
 });
 
-define('Utils/lang/isArray',['./isKind'], function (isKind) {
-    /**
-     * @author Miller Medeiros
-     * @version 0.2.0 (2011/12/06)
-     */
-    var isArray = Array.isArray || function (val) {
-        return isKind(val, 'Array');
-    };
-    return isArray;
-});
-
-define('Utils/lang/isUndefined',[],function () {
-    var UNDEF;
+define('Utils/object/keys',['./forOwn'], function (forOwn) {
 
     /**
+     * Get object keys
+     * @version 0.3.0 (2011/12/17)
      * @author Miller Medeiros
-     * @version 0.1.0 (2011/10/31)
      */
-    function isUndef(val){
-        return val === UNDEF;
-    }
-    return isUndef;
+     var keys = Object.keys || function (obj) {
+            var keys = [];
+            forOwn(obj, function(val, key){
+                keys.push(key);
+            });
+            return keys;
+        };
+
+    return keys;
+
 });
 
 define('Utils/object/mixIn',['./hasOwn'], function(hasOwn){
@@ -282,25 +301,6 @@ define('Utils/lang/createObject',['../object/mixIn'], function(mixIn){
     return createObject;
 });
 
-
-define('Utils/object/keys',['./forOwn'], function (forOwn) {
-
-    /**
-     * Get object keys
-     * @version 0.3.0 (2011/12/17)
-     * @author Miller Medeiros
-     */
-     var keys = Object.keys || function (obj) {
-            var keys = [];
-            forOwn(obj, function(val, key){
-                keys.push(key);
-            });
-            return keys;
-        };
-
-    return keys;
-
-});
 
 define('Utils/array/forEach',[],function () {
 
@@ -503,21 +503,6 @@ define('Utils/lang/toArray',['./isArray', './isObject', './isArguments'], functi
     return toArray;
 });
 
-define('Utils/array/union',['./unique'], function (unique) {
-
-    /**
-     * Concat multiple arrays and remove duplicates
-     * @author Miller Medeiros
-     * @version 0.1.0 (2011/01/12)
-     */
-    function union(arrs) {
-        return unique(Array.prototype.concat.apply([], arguments));
-    }
-
-    return union;
-
-});
-
 define('Utils/array/some',['require'],function (forEach) {
 
     /**
@@ -585,68 +570,23 @@ define('Utils/array/insert',['./difference', '../lang/toArray'], function (diffe
     return insert;
 });
 
-define('Utils/Array/indexOf',[],function () {
-
-    /**
-     * ES5 Array.indexOf
-     * @author Miller Medeiros
-     * @version 0.2.1 (2011/11/25)
-     */
-    var indexOf = Array.prototype.indexOf?
-                    function (arr, item, fromIndex) {
-                        return arr.indexOf(item, fromIndex);
-                    } :
-                    function (arr, item, fromIndex) {
-                        fromIndex = fromIndex || 0;
-                        var n = arr.length >>> 0,
-                            i = fromIndex < 0? n + fromIndex : fromIndex;
-                        for (; i < n; i++) {
-                            if (arr[i] === item) {
-                                return i;
-                            }
-                        }
-                        return -1;
-                    };
-
-    return indexOf;
-});
-
-define('Utils/Array/combine',['./indexOf'], function (indexOf) {
-
-    /**
-     * Combines an array with all the items of another.
-     * Does not allow duplicates and is case and type sensitive.
-     * @author André Cruz
-     * @version 0.1.0 (2012/01/28)
-     */
-    function combine(arr1, arr2) {
-
-        var x, length = arr2.length;
-
-        for (x = 0; x < length; x++) {
-            if (indexOf(arr1, arr2[x]) === -1) {
-                arr1.push(arr2[x]);
-            }
-        }
-
-        return arr1;
-    }
-    return combine;
-});
-
 /*jslint sloppy: true*/
 /*global define*/
 
 define('Classify.Interface',[
         'Utils/lang/isObject',
     'Utils/lang/isFunction',
+    'Utils/object/hasOwn',
     'Utils/object/forOwn',
-    'Utils/Array/combine',
+    'Utils/array/contains',
+    'Utils/array/combine',
     'Utils/lang/createObject'
     ], function (
         isObject,
     isFunction,
+    hasOwn,
     forOwn,
+    contains,
     combine,
     createObject
     ) {
@@ -664,7 +604,7 @@ define('Classify.Interface',[
         (function (params) {
             var reserved = ['$constructor', '$initializing'];
             forOwn(params, function (value, key) {
-                if (reserved.indexOf(key) !== -1) {
+                if (contains(reserved, key)) {
                     throw new TypeError('Class "' + params.Name + '" is using a reserved word: ' + key);
                 }
             });
@@ -688,7 +628,7 @@ define('Classify.Interface',[
 
             constructor.$statics = [];
 
-            if (constructor.prototype.Statics) {
+            if (hasOwn(constructor.prototype, 'Statics')) {
 
                 // Verify if statics is an object
                 if (!isObject(constructor.prototype.Statics)) {
@@ -699,7 +639,7 @@ define('Classify.Interface',[
                 (function (params) {
                     var reserved = ['$class', '$abstract', '$interface', '$binds', '$statics'];
                     forOwn(params, function (value, key) {
-                        if (reserved.indexOf(key) !== -1) {
+                        if (contains(reserved, key)) {
                             throw new TypeError('Class "' + params.Name + '" is using a reserved static word: ' + key);
                         }
                     });
@@ -719,7 +659,7 @@ define('Classify.Interface',[
             }
         }
 
-        if (params.Extends) {
+        if (hasOwn(params, 'Extends')) {
 
             // Verify if parent is a valid interface
             if (!isFunction(params.Extends) || !params.Extends.$interface) {
@@ -756,9 +696,10 @@ define('Classify.Abstract',[
         'Utils/lang/isObject',
     'Utils/lang/isFunction',
     'Utils/object/forOwn',
+    'Utils/object/hasOwn',
     'Utils/array/forEach',
     'Utils/lang/toArray',
-    'Utils/array/union',
+    'Utils/array/combine',
     'Utils/array/insert',
         'Trinity/Classify',
     'require'
@@ -766,9 +707,10 @@ define('Classify.Abstract',[
         isObject,
     isFunction,
     forOwn,
+    hasOwn,
     forEach,
     toArray,
-    union,
+    combine,
     insert,
         Classify,
     require
@@ -794,7 +736,7 @@ define('Classify.Abstract',[
         /*jslint vars:false*/
 
         /**
-         * Grab the source abstrac methods and append them to the target arrays
+         * Grab the source abstract methods and append them to the target arrays.
          *
          * @param {Object} source The source
          * @param {Object} target An object container normal and statics array
@@ -804,26 +746,33 @@ define('Classify.Abstract',[
 
             forOwn(source, function (value, key) {
 
-                if (key !== 'Statics') {
-                    insert(target.normal, key);
-                } else {
+                if (key !== 'Name' && key !== '$constructor') {    // Ignore some reserved words
 
-                    if (!isObject(source.Statics)) {
-                        throw new TypeError('Statics definition for abstract class "' + name + '" must be an object.');
-                    }
+                    if (key !== 'Statics') {
+                        insert(target.normal, key);
+                    } else {
 
-                    forOwn(source.Statics, function (value, key) {
-
-                        if (isFunction(value)) {
-                            insert(target.statics, key);
+                        if (!isObject(source.Statics)) {
+                            throw new TypeError('Statics definition for abstract class "' + name + '" must be an object.');
                         }
-                    });
+
+                        forOwn(source.Statics, function (value, key) {
+                            if (isFunction(value)) {
+                                insert(target.statics, key);
+                            }
+                        });
+                    }
                 }
             });
+
+            // Merge also the static methods if they are referenced in $statics (e.g.: interfaces)
+            if (source.$constructor && source.$constructor.$statics) {
+                combine(target.statics, source.$constructor.$statics);
+            }
         }
         
         // Grab all the abstract methods
-        if (params.Abstracts) {
+        if (hasOwn(params, 'Abstracts')) {
 
                         if (!isObject(params.Abstracts)) {
                 throw new TypeError('Abstracts defined in abstract class "' + params.Name + "' must be an object.");
@@ -835,8 +784,7 @@ define('Classify.Abstract',[
         }
 
                 // Automatically grab not implemented interface methods
-        if (params.Implements) {
-
+        if (hasOwn(params, 'Implements')) {
 
             forEach(toArray(params.Implements), function (value, x) {
 
@@ -851,7 +799,7 @@ define('Classify.Abstract',[
         }
 
         // If we are extending an abstract class also, merge the abstract methods
-        if (params.Extends && isFunction(params.Extends)) {
+        if (isFunction(params.Extends)) {
 
             parent = params.Extends;
 
@@ -860,8 +808,8 @@ define('Classify.Abstract',[
             }
 
             if (params.Extends.$abstract) {
-                abstractMethods.normal = union(abstractMethods.normal, params.Extends.$abstract.normal);
-                abstractMethods.statics = union(abstractMethods.statics, params.Extends.$abstract.statics);
+                combine(abstractMethods.normal, params.Extends.$abstract.normal);
+                combine(abstractMethods.statics, params.Extends.$abstract.statics);
             }
         } else {
             originalInitialize = originalInitialize || function () {};
@@ -920,6 +868,7 @@ define('Classify.Abstract',[
 define('Trinity/Classify', [
         'Utils/lang/isFunction',
     'Utils/lang/isString',
+    'Utils/array/contains',
     'Utils/array/intersection',
     'Utils/array/unique',
     'Utils/object/forOwn',
@@ -929,6 +878,7 @@ define('Trinity/Classify', [
     'Utils/lang/createObject',
     'Utils/object/mixIn',
     'Utils/object/keys',
+    'Utils/object/hasOwn',
     'Utils/array/forEach',
     'Utils/array/combine',
     'Utils/array/append',
@@ -939,6 +889,7 @@ define('Trinity/Classify', [
 ], function (
         isFunction,
     isString,
+    contains,
     intersection,
     unique,
     forOwn,
@@ -948,6 +899,7 @@ define('Trinity/Classify', [
     createObject,
     mixIn,
     keys,
+    hasOwn,
     forEach,
     combine,
     append,
@@ -977,14 +929,14 @@ define('Trinity/Classify', [
         (function (params) {
             var reserved = ['$constructor', '$initializing'];
             forOwn(params, function (value, key) {
-                if (reserved.indexOf(key) !== -1) {
+                if (contains(reserved, key)) {
                     throw new TypeError('Class "' + params.Name + '" is using a reserved word: ' + key);
                 }
             });
         }(params));
 
         // Verify if the class has abstract methods but is not defined as abstract
-        if (params.Abstracts && !params.$abstract) {
+        if (hasOwn(params, 'Abstracts') && !params.$abstract) {
             throw new Error('Class "' + params.Name + '" has abstract methods, therefore it must be defined as abstract.');
         }
         
@@ -993,7 +945,7 @@ define('Trinity/Classify', [
             parent;
 
         /**
-         *  Inherits source classic methods if not defined in target
+         *  Inherits source classic methods if not defined in target.
          *
          *  @param {Function} source The source
          *  @param {Function} target The target
@@ -1027,38 +979,44 @@ define('Trinity/Classify', [
          */
         function borrows(sources, target) {
 
-            sources = toArray(sources);
+            var i,
+                current,
+                key,
+                mixins;
 
-                        // Verify duplicate entries
-            if (sources.length !== unique(sources).length) {
+            mixins = toArray(sources);
+
+                        // Verify argument type
+            if (!mixins.length && !isArray(sources)) {
+                throw new TypeError('Borrows of "' + target.prototype.Name + '" must be a class/object or an array of classes/objects.');
+            }
+            // Verify duplicate entries
+            if (mixins.length !== unique(mixins).length) {
                 throw new Error('There are duplicate entries defined in Borrows of "' + target.prototype.Name + '".');
             }
             
-            var i,
-                current,
-                key;
 
-            for (i = sources.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
+            for (i = mixins.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
 
                                 // Verify each mixin
-                if ((!isFunction(sources[i]) || !sources[i].$class || sources[i].$abstract) && (!isObject(sources[i]) || sources[i].$constructor)) {
-                    throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + target.prototype.Name + '" is not a valid class/object (abstract classes and instances of classes are not supported). ');
+                if ((!isFunction(mixins[i]) || !mixins[i].$class || mixins[i].$abstract) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
+                    throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + target.prototype.Name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
                 }
                 
                 // Do the mixin manually because we need to ignore already defined methods and handle statics
-                                if (isObject(sources[i])) {
+                                if (isObject(mixins[i])) {
                     try {
-                        current = Classify(mixIn({}, sources[i])).prototype;
+                        current = Classify(mixIn({}, mixins[i])).prototype;
                     } catch (e) {
                         // When an object is being used, throw a more friend message if an error occurs
                         throw new Error('Unable to define object as class at index ' + i + ' in Borrows of class "' + target.prototype.Name + '": ' + e.message);
                     }
                 } else {
-                    current = sources[i].prototype;
+                    current = mixins[i].prototype;
                 }
                                 
                 for (key in current) {
-                    if (isUndefined(target.prototype[key])) {    // Besides ignoring already defined members, reserved words like $constructor are also preserved
+                    if (!hasOwn(target.prototype, key) || isUndefined(target.prototype[key])) {    // Already defined members are not overwritten
                         target.prototype[key] = current[key];
                     }
                 }
@@ -1101,7 +1059,7 @@ define('Trinity/Classify', [
             interfaces = toArray(interfaces);
 
             var checkStatic = function (value) {
-                    if (!isFunction(target[value])) {
+                    if (!isFunction(target[value]) || !hasOwn(target, value)) {
                         throw new Error('Class "' + target.prototype.Name + '" does not implement interface "' + this.prototype.Name + '" correctly, static method "' + value + '()" was not found.');
                     }
                 };
@@ -1117,8 +1075,10 @@ define('Trinity/Classify', [
 
                 // Check normal functions
                 for (k in curr.prototype) {
-                    if (isFunction(curr.prototype[k]) && !isFunction(target.prototype[k])) {
-                        throw new Error('Class "' + target.prototype.Name + '" does not implement interface "' + curr.prototype.Name + '" correctly, method "' + k + '()" was not found.');
+                    if (k !== 'Name' && k !== '$constructor') {   // Ignore reserved keywords
+                        if (isFunction(curr.prototype[k]) && (!isFunction(target.prototype[k]) || !hasOwn(target.prototype, k))) {
+                            throw new Error('Class "' + target.prototype.Name + '" does not implement interface "' + curr.prototype.Name + '" correctly, method "' + k + '()" was not found.');
+                        }
                     }
                 }
 
@@ -1141,14 +1101,14 @@ define('Trinity/Classify', [
 
             // Check normal functions
             forEach(abstracts.normal, function (func) {
-                if (!isFunction(target.prototype[func])) {
+                if (!isFunction(target.prototype[func]) || !hasOwn(target.prototype, func)) {
                     throw new Error('Class "' + target.prototype.Name + '" does not implement abstract class "' + abstractClass.prototype.Name + '" correctly, method "' + func + '()" was not found.');
                 }
             });
 
             // Check static functions
             forEach(abstracts.statics, function (func) {
-                if (!isFunction(target[func])) {
+                if (!isFunction(target[func]) || !hasOwn(target, func)) {
                     throw new Error('Class "' + target.prototype.Name + '" does not implement abstract class "' + abstractClass.prototype.Name + '" correctly, static method "' + func + '()" was not found.');
                 }
             });
@@ -1162,28 +1122,32 @@ define('Trinity/Classify', [
         function grabBinds(constructor) {
 
             var parent = constructor.Super ? constructor.Super.$constructor : null,
-                prototype = constructor.prototype;
+                binds = toArray(constructor.prototype.Binds);
 
-                        // Verify duplicate binds
-            if ((prototype.Binds || []).length !== unique(prototype.Binds || []).length) {
-                throw new Error('There are duplicate binds in "' + prototype.Name + '".');
+                        // Verify arguments type
+            if (!binds.length && !isArray(constructor.prototype.Binds)) {
+                throw new TypeError('Binds of "' + constructor.prototype.Name + '" must be a string or an array of strings.');
+            }
+            // Verify duplicate binds
+            if (binds.length !== unique(binds).length) {
+                throw new Error('There are duplicate binds in "' + constructor.prototype.Name + '".');
             }
             // Verify duplicate binds already proved in mixins
-            if (intersection(constructor.$binds || [], prototype.Binds || []).length > 0) {
-                throw new Error('There are binds in "' + prototype.Name + '" that are already being bound by a mixin (used in Borrows).');
+            if (intersection(constructor.$binds || [], binds).length > 0) {
+                throw new Error('There are binds in "' + constructor.prototype.Name + '" that are already being bound by a mixin (used in Borrows).');
             }
             
             if (!constructor.$binds) {
-                constructor.$binds = prototype.Binds || [];
-            } else if (prototype.Binds) {
-                append(constructor.$binds, prototype.Binds);
+                constructor.$binds = binds;
+            } else {
+                append(constructor.$binds, binds);
             }
 
             if (parent && parent.$binds) {
 
                                 // Verify duplicate binds already provided by the parent
                 if (intersection(constructor.$binds, parent.$binds).length > 0) {
-                    throw new Error('There are binds in "' + prototype.Name + '" that are already being bound in the parent class.');
+                    throw new Error('There are binds in "' + constructor.prototype.Name + '" that are already being bound in the parent class.');
                 }
                 
                 append(constructor.$binds, parent.$binds);
@@ -1195,10 +1159,10 @@ define('Trinity/Classify', [
             if (constructor.$binds) {
                 forEach(constructor.$binds, function (value) {
                     if (!isString(value)) {
-                        throw new TypeError('All bind entries of "' + prototype.Name + '" must be a string.');
+                        throw new TypeError('All bind entries of "' + constructor.Name + '" must be a string.');
                     }
-                    if (!isFunction(prototype[value])) {
-                        throw new Error('Method "' + value + '()" referenced in "' + prototype.Name + '" binds does not exist.');
+                    if (!isFunction(constructor.prototype[value])) {
+                        throw new Error('Method "' + value + '()" referenced in "' + constructor.Name + '" binds does not exist.');
                     }
                 });
             }
@@ -1212,7 +1176,7 @@ define('Trinity/Classify', [
         function grabStatics(constructor) {
 
             // TODO: Shall we improve this function due to performance?
-            if (constructor.prototype.Statics) {
+            if (hasOwn(constructor.prototype, 'Statics')) {
 
                                 // Verify if statics is an object
                 if (!isObject(constructor.prototype.Statics)) {
@@ -1223,7 +1187,7 @@ define('Trinity/Classify', [
                 (function (params) {
                     var reserved = ['$class', '$abstract', '$interface', '$binds', '$statics'];
                     forOwn(params, function (value, key) {
-                        if (reserved.indexOf(key) !== -1) {
+                        if (contains(reserved, key)) {
                             throw new TypeError('Class "' + params.Name + '" is using a reserved static word: ' + key);
                         }
                     });
@@ -1289,7 +1253,7 @@ define('Trinity/Classify', [
                             };
         }
 
-        if (params.Extends) {
+        if (hasOwn(params, 'Extends')) {
 
                         // Verify if parent is a valid class
             if (!isFunction(params.Extends) || !params.Extends.$class) {
@@ -1316,13 +1280,13 @@ define('Trinity/Classify', [
         grabStatics(classify);
         
         // Grab all the defined mixins
-        if (params.Borrows) {
+        if (hasOwn(params, 'Borrows')) {
             borrows(params.Borrows, classify);
             delete classify.prototype.Borrows;
         }
 
         // Grab all the defined binds
-        if (params.Binds) {
+        if (hasOwn(params, 'Binds')) {
             grabBinds(classify);
             delete classify.prototype.Binds;
         }
@@ -1333,7 +1297,7 @@ define('Trinity/Classify', [
         }
         
         // If the class implement some interfaces and is not abstract then
-        if (params.Implements) {
+        if (hasOwn(params, 'Implements')) {
 
                         if (!params.$abstract) {
                 checkInterfaces(params.Implements, classify);
@@ -1342,7 +1306,7 @@ define('Trinity/Classify', [
             delete classify.prototype.Implements;
         }
 
-                if (params.Statics) {
+                if (hasOwn(params, 'Statics')) {
             delete classify.prototype.Statics;  // Delete statics now
         }
         

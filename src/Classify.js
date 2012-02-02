@@ -103,7 +103,7 @@ define('Trinity/Classify', [
         }(params));
 
         // Verify if the class has abstract methods but is not defined as abstract
-        if (params.Abstracts && !params.$abstract) {
+        if (hasOwn(params, 'Abstracts') && !params.$abstract) {
             throw new Error('Class "' + params.Name + '" has abstract methods, therefore it must be defined as abstract.');
         }
         //>>includeEnd('checks');
@@ -150,43 +150,49 @@ define('Trinity/Classify', [
          */
         function borrows(sources, target) {
 
-            sources = toArray(sources);
+            var i,
+                current,
+                key,
+                mixins;
+
+            mixins = toArray(sources);
 
             //>>includeStart('checks', pragmas.checks);
+            // Verify argument type
+            if (!mixins.length && !isArray(sources)) {
+                throw new TypeError('Borrows of "' + target.prototype.Name + '" must be a class/object or an array of classes/objects.');
+            }
             // Verify duplicate entries
-            if (sources.length !== unique(sources).length) {
+            if (mixins.length !== unique(mixins).length) {
                 throw new Error('There are duplicate entries defined in Borrows of "' + target.prototype.Name + '".');
             }
             //>>includeEnd('checks');
 
-            var i,
-                current,
-                key;
 
-            for (i = sources.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
+            for (i = mixins.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
 
                 //>>includeStart('checks', pragmas.checks);
                 // Verify each mixin
-                if ((!isFunction(sources[i]) || !sources[i].$class || sources[i].$abstract) && (!isObject(sources[i]) || sources[i].$constructor)) {
-                    throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + target.prototype.Name + '" is not a valid class/object (abstract classes and instances of classes are not supported). ');
+                if ((!isFunction(mixins[i]) || !mixins[i].$class || mixins[i].$abstract) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
+                    throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + target.prototype.Name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
                 }
                 //>>includeEnd('checks');
 
                 // Do the mixin manually because we need to ignore already defined methods and handle statics
                 //>>includeStart('checks', pragmas.checks);
-                if (isObject(sources[i])) {
+                if (isObject(mixins[i])) {
                     try {
-                        current = Classify(mixIn({}, sources[i])).prototype;
+                        current = Classify(mixIn({}, mixins[i])).prototype;
                     } catch (e) {
                         // When an object is being used, throw a more friend message if an error occurs
                         throw new Error('Unable to define object as class at index ' + i + ' in Borrows of class "' + target.prototype.Name + '": ' + e.message);
                     }
                 } else {
-                    current = sources[i].prototype;
+                    current = mixins[i].prototype;
                 }
                 //>>includeEnd('checks');
                 //>>excludeStart('checks', pragmas.checks);
-                current = isObject(sources[i]) ? Classify(mixIn({}, sources[i])).prototype : sources[i].prototype;
+                current = isObject(mixins[i]) ? Classify(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
                 //>>excludeEnd('checks');
 
                 for (key in current) {
@@ -298,23 +304,27 @@ define('Trinity/Classify', [
         function grabBinds(constructor) {
 
             var parent = constructor.Super ? constructor.Super.$constructor : null,
-                prototype = constructor.prototype;
+                binds = toArray(constructor.prototype.Binds);
 
             //>>includeStart('checks', pragmas.checks);
+            // Verify arguments type
+            if (!binds.length && !isArray(constructor.prototype.Binds)) {
+                throw new TypeError('Binds of "' + constructor.prototype.Name + '" must be a string or an array of strings.');
+            }
             // Verify duplicate binds
-            if ((prototype.Binds || []).length !== unique(prototype.Binds || []).length) {
-                throw new Error('There are duplicate binds in "' + prototype.Name + '".');
+            if (binds.length !== unique(binds).length) {
+                throw new Error('There are duplicate binds in "' + constructor.prototype.Name + '".');
             }
             // Verify duplicate binds already proved in mixins
-            if (intersection(constructor.$binds || [], prototype.Binds || []).length > 0) {
-                throw new Error('There are binds in "' + prototype.Name + '" that are already being bound by a mixin (used in Borrows).');
+            if (intersection(constructor.$binds || [], binds).length > 0) {
+                throw new Error('There are binds in "' + constructor.prototype.Name + '" that are already being bound by a mixin (used in Borrows).');
             }
             //>>includeEnd('checks');
 
             if (!constructor.$binds) {
-                constructor.$binds = prototype.Binds || [];
-            } else if (prototype.Binds) {
-                append(constructor.$binds, prototype.Binds);
+                constructor.$binds = binds;
+            } else {
+                append(constructor.$binds, binds);
             }
 
             if (parent && parent.$binds) {
@@ -322,7 +332,7 @@ define('Trinity/Classify', [
                 //>>includeStart('checks', pragmas.checks);
                 // Verify duplicate binds already provided by the parent
                 if (intersection(constructor.$binds, parent.$binds).length > 0) {
-                    throw new Error('There are binds in "' + prototype.Name + '" that are already being bound in the parent class.');
+                    throw new Error('There are binds in "' + constructor.prototype.Name + '" that are already being bound in the parent class.');
                 }
                 //>>includeEnd('checks');
 
@@ -336,10 +346,10 @@ define('Trinity/Classify', [
             if (constructor.$binds) {
                 forEach(constructor.$binds, function (value) {
                     if (!isString(value)) {
-                        throw new TypeError('All bind entries of "' + prototype.Name + '" must be a string.');
+                        throw new TypeError('All bind entries of "' + constructor.Name + '" must be a string.');
                     }
-                    if (!isFunction(prototype[value])) {
-                        throw new Error('Method "' + value + '()" referenced in "' + prototype.Name + '" binds does not exist.');
+                    if (!isFunction(constructor.prototype[value])) {
+                        throw new Error('Method "' + value + '()" referenced in "' + constructor.Name + '" binds does not exist.');
                     }
                 });
             }
@@ -354,7 +364,7 @@ define('Trinity/Classify', [
         function grabStatics(constructor) {
 
             // TODO: Shall we improve this function due to performance?
-            if (constructor.prototype.Statics) {
+            if (hasOwn(constructor.prototype, 'Statics')) {
 
                 //>>includeStart('checks', pragmas.checks);
                 // Verify if statics is an object
@@ -437,7 +447,7 @@ define('Trinity/Classify', [
             };
         }
 
-        if (params.Extends) {
+        if (hasOwn(params, 'Extends')) {
 
             //>>includeStart('checks', pragmas.checks);
             // Verify if parent is a valid class
@@ -467,19 +477,19 @@ define('Trinity/Classify', [
         // Grab static methods from the parent and itself
         grabStatics(classify);
         //>>excludeStart('checks', pragmas.checks);
-        if (params.Statics) {
+        if (hasOwn(params, 'Statics')) {
             delete classify.prototype.Statics;  // If we got checks enabled, we can't delete the Statics yet (see bellow)
         }
         //>>excludeEnd('checks');
 
         // Grab all the defined mixins
-        if (params.Borrows) {
+        if (hasOwn(params, 'Borrows')) {
             borrows(params.Borrows, classify);
             delete classify.prototype.Borrows;
         }
 
         // Grab all the defined binds
-        if (params.Binds) {
+        if (hasOwn(params, 'Binds')) {
             grabBinds(classify);
             delete classify.prototype.Binds;
         }
@@ -492,7 +502,7 @@ define('Trinity/Classify', [
         //>>includeEnd('checks');
 
         // If the class implement some interfaces and is not abstract then
-        if (params.Implements) {
+        if (hasOwn(params, 'Implements')) {
 
             //>>includeStart('checks', pragmas.checks);
             if (!params.$abstract) {
@@ -504,7 +514,7 @@ define('Trinity/Classify', [
         }
 
         //>>includeStart('checks', pragmas.checks);
-        if (params.Statics) {
+        if (hasOwn(params, 'Statics')) {
             delete classify.prototype.Statics;  // Delete statics now
         }
         //>>includeEnd('checks');

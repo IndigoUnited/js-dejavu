@@ -6,9 +6,10 @@ define([
     'Utils/lang/isObject',
     'Utils/lang/isFunction',
     'Utils/object/forOwn',
+    'Utils/object/hasOwn',
     'Utils/array/forEach',
     'Utils/lang/toArray',
-    'Utils/array/union',
+    'Utils/array/combine',
     'Utils/array/insert',
     //>>includeEnd('checks');
     'Trinity/Classify',
@@ -18,9 +19,10 @@ define([
     isObject,
     isFunction,
     forOwn,
+    hasOwn,
     forEach,
     toArray,
-    union,
+    combine,
     insert,
     //>>includeEnd('checks');
     Classify,
@@ -58,26 +60,34 @@ define([
 
             forOwn(source, function (value, key) {
 
-                if (key !== 'Statics') {
-                    insert(target.normal, key);
-                } else {
+                if (key !== 'Name' && key !== '$constructor') {    // Ignore some reserved words
 
-                    if (!isObject(source.Statics)) {
-                        throw new TypeError('Statics definition for abstract class "' + name + '" must be an object.');
-                    }
+                    if (key !== 'Statics') {
+                        insert(target.normal, key);
+                    } else {
 
-                    forOwn(source.Statics, function (value, key) {
-                        if (isFunction(value)) {
-                            insert(target.statics, key);
+                        if (!isObject(source.Statics)) {
+                            throw new TypeError('Statics definition for abstract class "' + name + '" must be an object.');
                         }
-                    });
+
+                        forOwn(source.Statics, function (value, key) {
+                            if (isFunction(value)) {
+                                insert(target.statics, key);
+                            }
+                        });
+                    }
                 }
             });
+
+            // Merge also the static methods if they are referenced in $statics (e.g.: interfaces)
+            if (source.$constructor && source.$constructor.$statics) {
+                combine(target.statics, source.$constructor.$statics);
+            }
         }
         //>>includeEnd('checks');
 
         // Grab all the abstract methods
-        if (params.Abstracts) {
+        if (hasOwn(params, 'Abstracts')) {
 
             //>>includeStart('checks', pragmas.checks);
             if (!isObject(params.Abstracts)) {
@@ -92,8 +102,7 @@ define([
 
         //>>includeStart('checks', pragmas.checks);
         // Automatically grab not implemented interface methods
-        if (params.Implements) {
-
+        if (hasOwn(params, 'Implements')) {
 
             forEach(toArray(params.Implements), function (value, x) {
 
@@ -108,7 +117,7 @@ define([
         }
 
         // If we are extending an abstract class also, merge the abstract methods
-        if (params.Extends && isFunction(params.Extends)) {
+        if (isFunction(params.Extends)) {
 
             parent = params.Extends;
 
@@ -117,8 +126,8 @@ define([
             }
 
             if (params.Extends.$abstract) {
-                abstractMethods.normal = union(abstractMethods.normal, params.Extends.$abstract.normal);
-                abstractMethods.statics = union(abstractMethods.statics, params.Extends.$abstract.statics);
+                combine(abstractMethods.normal, params.Extends.$abstract.normal);
+                combine(abstractMethods.statics, params.Extends.$abstract.statics);
             }
         } else {
             originalInitialize = originalInitialize || function () {};

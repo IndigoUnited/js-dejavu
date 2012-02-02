@@ -415,7 +415,7 @@ define('Classify.Abstract',[
 
         
         // Grab all the abstract methods
-        if (params.Abstracts) {
+        if (hasOwn(params, 'Abstracts')) {
 
             
             delete params.Abstracts;
@@ -465,6 +465,7 @@ define('Trinity/Classify', [
     'Utils/lang/createObject',
     'Utils/object/mixIn',
     'Utils/object/keys',
+    'Utils/object/hasOwn',
     'Utils/array/forEach',
     'Utils/array/combine',
     'Utils/array/append',
@@ -479,6 +480,7 @@ define('Trinity/Classify', [
     createObject,
     mixIn,
     keys,
+    hasOwn,
     forEach,
     combine,
     append,
@@ -503,7 +505,7 @@ define('Trinity/Classify', [
             parent;
 
         /**
-         *  Inherits source classic methods if not defined in target
+         *  Inherits source classic methods if not defined in target.
          *
          *  @param {Function} source The source
          *  @param {Function} target The target
@@ -537,21 +539,23 @@ define('Trinity/Classify', [
          */
         function borrows(sources, target) {
 
-            sources = toArray(sources);
-
-            
             var i,
                 current,
-                key;
+                key,
+                mixins;
 
-            for (i = sources.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
+            mixins = toArray(sources);
+
+            
+
+            for (i = mixins.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
 
                 
                 // Do the mixin manually because we need to ignore already defined methods and handle statics
-                                                current = isObject(sources[i]) ? Classify(mixIn({}, sources[i])).prototype : sources[i].prototype;
+                                                current = isObject(mixins[i]) ? Classify(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
                 
                 for (key in current) {
-                    if (isUndefined(target.prototype[key])) {    // Besides ignoring already defined members, reserved words like $constructor are also preserved
+                    if (!hasOwn(target.prototype, key) || isUndefined(target.prototype[key])) {    // Already defined members are not overwritten
                         target.prototype[key] = current[key];
                     }
                 }
@@ -592,13 +596,13 @@ define('Trinity/Classify', [
         function grabBinds(constructor) {
 
             var parent = constructor.Super ? constructor.Super.$constructor : null,
-                prototype = constructor.prototype;
+                binds = toArray(constructor.prototype.Binds);
 
             
             if (!constructor.$binds) {
-                constructor.$binds = prototype.Binds || [];
-            } else if (prototype.Binds) {
-                append(constructor.$binds, prototype.Binds);
+                constructor.$binds = binds;
+            } else {
+                append(constructor.$binds, binds);
             }
 
             if (parent && parent.$binds) {
@@ -619,7 +623,7 @@ define('Trinity/Classify', [
         function grabStatics(constructor) {
 
             // TODO: Shall we improve this function due to performance?
-            if (constructor.prototype.Statics) {
+            if (hasOwn(constructor.prototype, 'Statics')) {
 
                 
                 mixIn(constructor, constructor.prototype.Statics);
@@ -677,7 +681,7 @@ define('Trinity/Classify', [
                             };
         }
 
-        if (params.Extends) {
+        if (hasOwn(params, 'Extends')) {
 
             
             parent = params.Extends;
@@ -697,25 +701,25 @@ define('Trinity/Classify', [
         
         // Grab static methods from the parent and itself
         grabStatics(classify);
-                if (params.Statics) {
+                if (hasOwn(params, 'Statics')) {
             delete classify.prototype.Statics;  // If we got checks enabled, we can't delete the Statics yet (see bellow)
         }
         
         // Grab all the defined mixins
-        if (params.Borrows) {
+        if (hasOwn(params, 'Borrows')) {
             borrows(params.Borrows, classify);
             delete classify.prototype.Borrows;
         }
 
         // Grab all the defined binds
-        if (params.Binds) {
+        if (hasOwn(params, 'Binds')) {
             grabBinds(classify);
             delete classify.prototype.Binds;
         }
 
         
         // If the class implement some interfaces and is not abstract then
-        if (params.Implements) {
+        if (hasOwn(params, 'Implements')) {
 
             
             delete classify.prototype.Implements;
