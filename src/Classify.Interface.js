@@ -6,7 +6,7 @@ define([
     'Utils/lang/isObject',
     'Utils/lang/isFunction',
     'Utils/object/forOwn',
-    'Utils/Array/insert',
+    'Utils/Array/combine',
     'Utils/lang/createObject'
     //>>includeEnd('checks');
 ], function (
@@ -14,7 +14,7 @@ define([
     isObject,
     isFunction,
     forOwn,
-    insert,
+    combine,
     createObject
     //>>includeEnd('checks');
 ) {
@@ -64,13 +64,8 @@ define([
             }
 
             if (parent && parent.$statics) {
-
-                parent.$statics.forEach(function (value) {
-                    insert(constructor.$statics, value);
-                });
-            }
-
-            if (!constructor.$statics.length) {
+                combine(constructor.$statics, parent.$statics);
+            } else if (!constructor.$statics.length) {
                 delete constructor.$statics;
             }
         }
@@ -98,7 +93,6 @@ define([
 
         // TODO: Make a way to validate an interface
         interf.$interface = true;   // Mark it as an interface
-
         //>>includeEnd('checks');
 
         return interf;
