@@ -74,7 +74,7 @@ define([
                 (function (params) {
                     var reserved = ['$class', '$abstract', '$interface', '$binds', '$statics'];
                     forOwn(params, function (value, key) {
-                        if (reserved.indexOf(key) !== -1) {
+                        if (contains(reserved, key)) {
                             throw new TypeError('Class "' + params.Name + '" is using a reserved static word: ' + key);
                         }
                     });
