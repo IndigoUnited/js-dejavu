@@ -813,7 +813,7 @@ define(modules, function (Classify, expect) {
                 }).to.throwException(Error);
 
             });
-            
+
         });
 
         describe('Instantiation of Interfaces', function () {
@@ -828,7 +828,7 @@ define(modules, function (Classify, expect) {
                 }).to.throwException();
 
             });
-            
+
         });
 
         describe('Instantiation of Abstract Classes', function () {
