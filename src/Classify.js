@@ -31,9 +31,11 @@ define('Trinity/Classify', [
     //>>includeStart('checks', pragmas.checks);
     'Utils/lang/isFunction',
     'Utils/lang/isString',
+    'Utils/array/contains',
     'Utils/array/intersection',
     'Utils/array/unique',
     'Utils/object/forOwn',
+    'Utils/object/hasOwn',
     //>>includeEnd('checks');
     'Utils/lang/isObject',
     'Utils/lang/isArray',
@@ -52,9 +54,11 @@ define('Trinity/Classify', [
     //>>includeStart('checks', pragmas.checks);
     isFunction,
     isString,
+    contains,
     intersection,
     unique,
     forOwn,
+    hasOwn,
     //>>includeEnd('checks');
     isObject,
     isArray,
@@ -92,7 +96,7 @@ define('Trinity/Classify', [
         (function (params) {
             var reserved = ['$constructor', '$initializing'];
             forOwn(params, function (value, key) {
-                if (reserved.indexOf(key) !== -1) {
+                if (contains(reserved, key)) {
                     throw new TypeError('Class "' + params.Name + '" is using a reserved word: ' + key);
                 }
             });
@@ -112,7 +116,7 @@ define('Trinity/Classify', [
             parent;
 
         /**
-         *  Inherits source classic methods if not defined in target
+         *  Inherits source classic methods if not defined in target.
          *
          *  @param {Function} source The source
          *  @param {Function} target The target
@@ -186,7 +190,7 @@ define('Trinity/Classify', [
                 //>>excludeEnd('checks');
 
                 for (key in current) {
-                    if (isUndefined(target.prototype[key])) {    // Besides ignoring already defined members, reserved words like $constructor are also preserved
+                    if (isUndefined(target.prototype[key])) {    // Already defined members are not overwritten
                         target.prototype[key] = current[key];
                     }
                 }
@@ -230,7 +234,7 @@ define('Trinity/Classify', [
             interfaces = toArray(interfaces);
 
             var checkStatic = function (value) {
-                    if (!isFunction(target[value])) {
+                    if (!isFunction(target[value]) || !hasOwn(target, value)) {
                         throw new Error('Class "' + target.prototype.Name + '" does not implement interface "' + this.prototype.Name + '" correctly, static method "' + value + '()" was not found.');
                     }
                 };
@@ -246,8 +250,10 @@ define('Trinity/Classify', [
 
                 // Check normal functions
                 for (k in curr.prototype) {
-                    if (isFunction(curr.prototype[k]) && !isFunction(target.prototype[k])) {
-                        throw new Error('Class "' + target.prototype.Name + '" does not implement interface "' + curr.prototype.Name + '" correctly, method "' + k + '()" was not found.');
+                    if (k !== 'Name' && k !== '$constructor') {   // Ignore reserved keywords
+                        if (isFunction(curr.prototype[k]) && (!isFunction(target.prototype[k]) || !hasOwn(target.prototype, k))) {
+                            throw new Error('Class "' + target.prototype.Name + '" does not implement interface "' + curr.prototype.Name + '" correctly, method "' + k + '()" was not found.');
+                        }
                     }
                 }
 
@@ -270,14 +276,14 @@ define('Trinity/Classify', [
 
             // Check normal functions
             forEach(abstracts.normal, function (func) {
-                if (!isFunction(target.prototype[func])) {
+                if (!isFunction(target.prototype[func]) || !hasOwn(target.prototype, func)) {
                     throw new Error('Class "' + target.prototype.Name + '" does not implement abstract class "' + abstractClass.prototype.Name + '" correctly, method "' + func + '()" was not found.');
                 }
             });
 
             // Check static functions
             forEach(abstracts.statics, function (func) {
-                if (!isFunction(target[func])) {
+                if (!isFunction(target[func]) || !hasOwn(target, func)) {
                     throw new Error('Class "' + target.prototype.Name + '" does not implement abstract class "' + abstractClass.prototype.Name + '" correctly, static method "' + func + '()" was not found.');
                 }
             });
@@ -360,7 +366,7 @@ define('Trinity/Classify', [
                 (function (params) {
                     var reserved = ['$class', '$abstract', '$interface', '$binds', '$statics'];
                     forOwn(params, function (value, key) {
-                        if (reserved.indexOf(key) !== -1) {
+                        if (contains(reserved, key)) {
                             throw new TypeError('Class "' + params.Name + '" is using a reserved static word: ' + key);
                         }
                     });
