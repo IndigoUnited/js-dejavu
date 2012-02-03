@@ -11,23 +11,47 @@
         <script src="util/browser.js"></script>
         <script src="util/adapter.js"></script>
         <script>
-            
-            var build = getBuild();
-            mocha.setup('bdd');
+            $(function() {
+                var build = getBuild();
+                $('#' + build.replace(/\//g, '_')).addClass('active');
 
-            require(['./' + build], function() {
-                mocha
-                .run();
+                mocha.setup('bdd');
+
+                require(['./' + build], function() {
+                    mocha
+                    .run();
+                });
             });
         </script>
+        <style>
+            #build {
+                height: 50px;
+                position: absolute;
+                top: 0px;
+                left: 15px;
+                right: 350px;
+            }
+            #build li {
+                list-style: none;
+                float: left;
+                margin-left: 20px;
+            }
+            #build li a, #build li a:active, #build li a:visited {
+                color: #D00972;
+                text-decoration: none;
+            }
+            #build li.active a {
+                color: #FF17E8;
+                font-weight: bold;
+            }
+        </style>
     </head>
     <body>
-        
-        <ul>
-            <li><a href="?build=amd/strict">amd/strict build</a></li>
-            <li><a href="?build=amd/loose">amd/loose build</a></li>
+        <ul id="build">
+            <li id="amd_strict"><a href="?build=amd/strict">amd/strict build</a></li>
+            <li id="amd_loose"><a href="?build=amd/loose">amd/loose build</a></li>
         </ul>
-        
+
         <div id="mocha"></div>
     </body>
 </html>
