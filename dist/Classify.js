@@ -1227,7 +1227,7 @@ define('Trinity/Classify', [
                     throw new TypeError('All bind entries of "' + constructor.Name + '" must be a string.');
                 }
                 if (!isFunction(constructor.prototype[value]) && (!constructor.prototype.Abstracts || !constructor.prototype.Abstracts[value])) {
-                    throw new Error('Method "' + value + '()" referenced in "' + constructor.prototype.Name + '" binds does not exist.');
+                    throw new ReferenceError('Method "' + value + '()" referenced in "' + constructor.prototype.Name + '" binds does not exist.');
                 }
             });
         }
@@ -1308,7 +1308,7 @@ define('Trinity/Classify', [
             initialize.apply(this, arguments);
 
             if (!this.$constructor.$abstract) {
-                delete this.$initializing;  // Remove previous mark
+                delete this.$initializing;    // Remove previous mark
             }
         };
     }
