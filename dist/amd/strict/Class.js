@@ -92,7 +92,7 @@ define([
             throw new Error('There are duplicate entries defined in Borrows of "' + target.prototype.Name + '".');
         }
 
-        for (i = mixins.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
+        for (i = mixins.length - 1; i >= 0; i -= 1) {        // We don't use forEach here due to performance
 
             // Verify each mixin
             if ((!isFunction(mixins[i]) || !mixins[i].$class || mixins[i].$abstract) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
@@ -417,8 +417,9 @@ define([
             checkAbstract(parent, classify);
         }
 
-        // If the class implement some interfaces and is not abstract then verify if interfaces are well implemented
+        // Handle interfaces
         if (hasOwn(params, 'Implements')) {
+            // If the class is not abstract then verify if interfaces are well implemented
             if (!params.$abstract) {
                 checkInterfaces(params.Implements, classify);
             }

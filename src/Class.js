@@ -98,7 +98,7 @@ define([
         }
 
 //>>includeEnd('strict');
-        for (i = mixins.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
+        for (i = mixins.length - 1; i >= 0; i -= 1) {        // We don't use forEach here due to performance
 
 //>>includeStart('strict', pragmas.strict);
             // Verify each mixin
@@ -456,9 +456,10 @@ define([
         }
 
 //>>includeEnd('strict');
-        // If the class implement some interfaces and is not abstract then verify if interfaces are well implemented
+        // Handle interfaces
         if (hasOwn(params, 'Implements')) {
 //>>includeStart('strict', pragmas.strict);
+            // If the class is not abstract then verify if interfaces are well implemented
             if (!params.$abstract) {
                 checkInterfaces(params.Implements, classify);
             }

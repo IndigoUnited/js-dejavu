@@ -26,7 +26,7 @@ define([
 
         var def;
 
-        // Save abstract methods and delete them
+        // Handle abstract methods
         if (hasOwn(params, 'Abstracts')) {
             delete params.Abstracts;
         }
