@@ -1,6 +1,5 @@
 # Building Classify #
 
-In order to build Classify you need some tools.
 The build process will create two kind of builds: AMD and regular.
 
 ## Tools needed ##
