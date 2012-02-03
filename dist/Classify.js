@@ -1240,7 +1240,6 @@ define('Trinity/Classify', [
      */
     function grabStatics(constructor) {
 
-        // TODO: Shall we improve this function due to performance?
         if (hasOwn(constructor.prototype, 'Statics')) {
 
             // Verify if statics is an object
@@ -1301,14 +1300,16 @@ define('Trinity/Classify', [
                 binds(this.$constructor.$binds, this, this);
             }
 
-            // Call initialize
             if (!this.$constructor.$abstract) {
-                this.$initializing = true;
+                this.$initializing = true;    // Mark it in order to let abstract classes run their initialize
             }
 
+            // Call initialize
             initialize.apply(this, arguments);
 
-            delete this.$initializing;    // TODO: Check $abstract before deleting due to performance?
+            if (!this.$constructor.$abstract) {
+                delete this.$initializing;  // Remove previous mark
+            }
         };
     }
 
