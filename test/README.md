@@ -12,8 +12,8 @@ To test in the command line you:
 
 Then you can run all build tests individually:
 
-* Run mocha test/amd/scrict to test the [amd/strict](https://github.com/TrinityJS/Classify/tree/master/dist/amd/loose) build
-* Run test/amd/loose to test the [amd/loose](https://github.com/TrinityJS/Classify/tree/master/dist/amd/loose) build
+* Run mocha test/amd/scrict.js to test the [amd/strict](https://github.com/TrinityJS/Classify/tree/master/dist/amd/loose) build
+* Run test/amd/loose.js to test the [amd/loose](https://github.com/TrinityJS/Classify/tree/master/dist/amd/loose) build
 
 _Tip_: You can use mocha -R list [file] to give you a full list of the tests
 
