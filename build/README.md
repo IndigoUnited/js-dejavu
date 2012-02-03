@@ -3,13 +3,14 @@
 In order to build Classify you need some tools.
 The build process will create two kind of builds: AMD and regular.
 
-## Tools needed: ##
+## Tools needed ##
 
-1. Need to install [nodejs](http://nodejs.org)
-2. Need to install [mocha](http://visionmedia.github.com/mocha/) (npm install -g mocha)
-3. Run build/make.js (node build/make.js)
+1. [nodejs](http://nodejs.org)
+2. [mocha](http://visionmedia.github.com/mocha/) (npm install -g mocha)
 
+Then just run build/make.js on node (node build/make.js).
 This will create the builds described bellow in the [dist](https://github.com/TrinityJS/Classify/tree/master/dist) folder.
+Also the tests are automatically executed at the end of the build process.
 
 ## AMD Build ##
 
