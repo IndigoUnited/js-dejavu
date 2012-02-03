@@ -1,5 +1,5 @@
 
-## To build Classify you: ##
+## To build Classify you ##
 
 1. Need to install [nodejs](http://nodejs.org)
 2. Need to install [mocha](http://visionmedia.github.com/mocha/) (npm install -g mocha)
