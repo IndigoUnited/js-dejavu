@@ -148,18 +148,18 @@ define(modules, function (Classify, expect) {
                 var reserved = ['$constructor', '$initializing'],
                     reservedStatic = ['$class', '$abstract', '$interface', '$binds', '$statics'],
                     x,
-                    checkNormal = function (key, isAbstract) {
+                    checkNormal = function (key) {
                         return function () {
                             var obj = {};
                             obj[key] = 'bla';
-                            return (!!isAbstract) ? Classify.Abstract(obj) : Classify(obj);
+                            return Classify.Interface(obj);
                         };
                     },
-                    checkStatic = function (key, isAbstract) {
+                    checkStatic = function (key) {
                         return function () {
                             var obj = { Statics: {} };
                             obj.Statics[key] = 'bla';
-                            return (!!isAbstract) ? Classify.Abstract(obj) : Classify(obj);
+                            return Classify.Interface(obj);
                         };
                     };
 
@@ -172,6 +172,20 @@ define(modules, function (Classify, expect) {
                     expect(checkStatic(reservedStatic[x])).to.throwException(TypeError);
                     expect(checkStatic(reservedStatic[x], true)).to.throwException(TypeError);
                 }
+
+                expect(function () {
+                    return Classify.Interface({
+                        hasOwnProperty: function () {}
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    return Classify.Interface({
+                        Statics: {
+                            hasOwnProperty: function () {}
+                        }
+                    });
+                }).to.throwException();
 
             });
 
@@ -524,18 +538,18 @@ define(modules, function (Classify, expect) {
                 var reserved = ['$constructor', '$initializing'],
                     reservedStatic = ['$class', '$abstract', '$interface', '$binds', '$statics'],
                     x,
-                    checkNormal = function (key) {
+                    checkNormal = function (key, inAbstracts) {
                         return function () {
                             var obj = {};
                             obj[key] = 'bla';
-                            return Classify.Interface(obj);
+                            return Classify.Abstract(!!inAbstracts ? { Abstracts: obj } : obj);
                         };
                     },
-                    checkStatic = function (key) {
+                    checkStatic = function (key, inAbstracts) {
                         return function () {
                             var obj = { Statics: {} };
                             obj.Statics[key] = 'bla';
-                            return Classify.Interface(obj);
+                            return Classify.Abstract(!!inAbstracts ? { Abstracts: obj } : obj);
                         };
                     };
 
@@ -548,6 +562,38 @@ define(modules, function (Classify, expect) {
                     expect(checkStatic(reservedStatic[x])).to.throwException(TypeError);
                     expect(checkStatic(reservedStatic[x], true)).to.throwException(TypeError);
                 }
+
+                expect(function () {
+                    return Classify.Abstract({
+                        hasOwnProperty: function () {}
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    return Classify.Abstract({
+                        Statics: {
+                            hasOwnProperty: function () {}
+                        }
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    return Classify.Abstract({
+                        Abstracts: {
+                            hasOwnProperty: function () {}
+                        }
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    return Classify.Abstract({
+                        Abstracts: {
+                            Statics: {
+                                hasOwnProperty: function () {}
+                            }
+                        }
+                    });
+                }).to.throwException();
 
             });
 
@@ -616,6 +662,52 @@ define(modules, function (Classify, expect) {
                     }
                 });
             }
+
+            it('should throw an error when using reserved keywords', function () {
+
+                var reserved = ['$constructor', '$initializing'],
+                    reservedStatic = ['$class', '$abstract', '$interface', '$binds', '$statics'],
+                    x,
+                    checkNormal = function (key) {
+                        return function () {
+                            var obj = {};
+                            obj[key] = 'bla';
+                            return Classify(obj);
+                        };
+                    },
+                    checkStatic = function (key) {
+                        return function () {
+                            var obj = { Statics: {} };
+                            obj.Statics[key] = 'bla';
+                            return Classify(obj);
+                        };
+                    };
+
+                for (x = 0; x < reserved.length; x += 1) {
+                    expect(checkNormal(reserved[x])).to.throwException(TypeError);
+                    expect(checkNormal(reserved[x], true)).to.throwException(TypeError);
+                }
+
+                for (x = 0; x < reservedStatic.length; x += 1) {
+                    expect(checkStatic(reservedStatic[x])).to.throwException(TypeError);
+                    expect(checkStatic(reservedStatic[x], true)).to.throwException(TypeError);
+                }
+
+                expect(function () {
+                    return Classify({
+                        hasOwnProperty: function () {}
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    return Classify({
+                        Statics: {
+                            hasOwnProperty: function () {}
+                        }
+                    });
+                }).to.throwException();
+
+            });
 
             it('should throw an error when it is incomplete', function () {
 
@@ -969,28 +1061,6 @@ define(modules, function (Classify, expect) {
                 }).to.throwException();
             });
 
-            it('should throw an error when it is incomplete, even using certain prototype keywords', function () {
-
-                expect(function () {
-                    return Classify({
-                        Implements: Classify.Interface({
-                            hasOwnProperty: function () {}
-                        })
-                    });
-                }).to.throwException();
-
-                expect(function () {
-                    return Classify({
-                        Extends: Classify.Abstract({
-                            Abstracts: {
-                                hasOwnProperty: function () {}
-                            }
-                        })
-                    });
-                }).to.throwException();
-
-            });
-
             it('should not throw an error when it is complete', function () {
 
                 // Interfaces
@@ -1104,19 +1174,6 @@ define(modules, function (Classify, expect) {
                         }
                     });
                 }).to.not.throwException();
-            });
-
-            it('should not throw an error when it is complete, even using certain prototype keywords', function () {
-
-                expect(function () {
-                    return Classify({
-                        Implements: Classify.Interface({
-                            hasOwnProperty: function () {}
-                        }),
-                        hasOwnProperty: function () {}
-                    });
-                }).to.not.throwException();
-
             });
 
             it('should not throw an error if they are complete, even using borrowed methods to implement interfaces/abstract classes', function () {

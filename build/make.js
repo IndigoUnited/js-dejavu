@@ -28,16 +28,21 @@ try {
 }
 
 /**
- * Removes all files from dist folder except the final ones
+ * Removes all files from a folder.
+ *
+ * @param {String} [dir="dist"] The folder, default to the dist folder
  */
-function removeOtherFiles() {
+function emptyDir(dir) {
 
-    var files = fs.readdirSync(__dirname + '/../dist'),
-        ignoreList = ['Classify.js', 'Classify.min.js', 'Classify.no-checks.js', 'Classify.no-checks.min.js'];
+    dir = !!dir ? dir : distDir;
+    files = fs.readdirSync(dir);
 
     files.forEach(function (file) {
-        if ((file.substr(file.length - 3) === '.js' || file === 'build.txt') && ignoreList.indexOf(file) === -1) {
-            fs.unlinkSync(distDir + file);
+        if (fs.statSync(dir + file).isDirectory()) {
+            emptyDir(dir + file + '/');
+            fs.rmdirSync(dir + file);
+        } else {
+            fs.unlinkSync(dir + file);
         }
     });
 }
@@ -57,7 +62,7 @@ cp.exec(command + ' pragmas=checks:false optimize=uglify', function (error, stdo
     // Rename file to minified one
     fs.renameSync(distDir + 'Classify.js', distDir + '../_temp/Classify.no-checks.min.js');
 
-    removeOtherFiles();
+    emptyDir();
 
     // Build without checks minified
     cp.exec(command + ' pragmas=checks:false', function (error, stdout, stderr) {
@@ -73,7 +78,7 @@ cp.exec(command + ' pragmas=checks:false optimize=uglify', function (error, stdo
         // Rename file to minified one
         fs.renameSync(distDir + 'Classify.js', distDir + '../_temp/Classify.no-checks.js');
 
-        removeOtherFiles();
+        emptyDir();
 
         // Build with checks minified
         cp.exec(command + ' optimize=uglify', function (error, stdout, stderr) {
@@ -89,7 +94,7 @@ cp.exec(command + ' pragmas=checks:false optimize=uglify', function (error, stdo
             // Rename file to minified one
             fs.renameSync(distDir + 'Classify.js', distDir + '../_temp/Classify.min.js');
 
-            removeOtherFiles();
+            emptyDir();
 
             // Build with checks
             cp.exec(command, function (error, stdout, stderr) {
@@ -105,7 +110,7 @@ cp.exec(command + ' pragmas=checks:false optimize=uglify', function (error, stdo
                 // Rename file to minified one
                 fs.renameSync(distDir + 'Classify.js', distDir + '../_temp/Classify.js');
 
-                removeOtherFiles();
+                emptyDir();
 
                 // Rename all files back..
                 fs.renameSync(distDir + '../_temp/Classify.js', distDir + 'Classify.js');
@@ -132,7 +137,7 @@ cp.exec(command + ' pragmas=checks:false optimize=uglify', function (error, stdo
                 tests.on('exit', function (code) {
 
                     var exitCode;
-                    
+
                     if (code !== 0) {
                         exitCode = 1;
                     } else {

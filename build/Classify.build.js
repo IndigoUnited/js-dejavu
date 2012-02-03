@@ -7,7 +7,7 @@
     baseUrl: '../dist',
     dir : '../dist',
     paths : {
-        'Trinity/Classify': 'Classify',
+        'Trinity': './',
         'Utils': '../vendor/amd-utils/src'
     },
     modules: [{
