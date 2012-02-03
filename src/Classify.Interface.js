@@ -77,7 +77,6 @@ define([
         // Verify reserved words
         verifyReserved(params);
 //>>includeEnd('checks');
-
 //>>excludeStart('checks', pragmas.checks);
         delete params.Name;
 //>>excludeEnd('checks');
@@ -113,8 +112,8 @@ define([
 
         // TODO: Make a way to validate an interface
         interf.$interface = true;   // Mark it as an interface
-//>>includeEnd('checks');
 
+//>>includeEnd('checks');
         return interf;
     }
 
