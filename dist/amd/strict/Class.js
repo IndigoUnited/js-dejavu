@@ -1,40 +1,12 @@
 /*jslint sloppy: true, forin: true, newcap:true*/
 /*global define*/
 
-/**
- * Classify - Sugar syntax for Prototypal Inheritance
- *
- * @author André Cruz <andremiguelcruz@msn.com>
- * @version 1.0.0
- *
- * @example
- *
- *      var MyClass = Classify({
- *          Implements: [SomeInterface, OtherInterface],
- *          Extends: ParentClass,
- *          Borrows: [SomeMixin, OtherMixin],
- *          Binds: ['method1', 'method2'],
- *          Statics: {
- *              staticMethod1: function () {},
- *              staticMethod2: function () {},
- *              staticMethod3: function () {},
- *          },
- *          initialize: function () {
- *              MyClass.Super.initialize.call(this);
- *          },
- *          method1: function () {},
- *          method2: function () {},
- *          method3: function () {}
- *      });
- */
-define('Trinity/Classify', [
-//>>includeStart('checks', pragmas.checks);
+define([
     'Utils/lang/isFunction',
     'Utils/lang/isString',
     'Utils/array/intersection',
     'Utils/array/unique',
     './common/verifyReserved',
-//>>includeEnd('checks');
     'Utils/lang/isObject',
     'Utils/lang/isArray',
     'Utils/lang/isUndefined',
@@ -46,17 +18,13 @@ define('Trinity/Classify', [
     'Utils/array/combine',
     'Utils/array/append',
     'Utils/lang/bind',
-    'Utils/lang/toArray',
-    './Classify.Abstract',
-    './Classify.Interface'
+    'Utils/lang/toArray'
 ], function (
-//>>includeStart('checks', pragmas.checks);
     isFunction,
     isString,
     intersection,
     unique,
     verifyReserved,
-//>>includeEnd('checks');
     isObject,
     isArray,
     isUndefined,
@@ -68,9 +36,7 @@ define('Trinity/Classify', [
     combine,
     append,
     bind,
-    toArray,
-    Abstract,
-    Interface
+    toArray
 ) {
 
     var Classify;
@@ -117,7 +83,6 @@ define('Trinity/Classify', [
 
         mixins = toArray(sources);
 
-//>>includeStart('checks', pragmas.checks);
         // Verify argument type
         if (!mixins.length && !isArray(sources)) {
             throw new TypeError('Borrows of "' + target.prototype.Name + '" must be a class/object or an array of classes/objects.');
@@ -127,10 +92,8 @@ define('Trinity/Classify', [
             throw new Error('There are duplicate entries defined in Borrows of "' + target.prototype.Name + '".');
         }
 
-//>>includeEnd('checks');
         for (i = mixins.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
 
-//>>includeStart('checks', pragmas.checks);
             // Verify each mixin
             if ((!isFunction(mixins[i]) || !mixins[i].$class || mixins[i].$abstract) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
                 throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + target.prototype.Name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
@@ -146,10 +109,6 @@ define('Trinity/Classify', [
             } else {
                 current = mixins[i].prototype;
             }
-//>>includeEnd('checks');
-//>>excludeStart('checks', pragmas.checks);
-            current = isObject(mixins[i]) ? Classify(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
-//>>excludeEnd('checks');
 
             for (key in current) {
                 if (isUndefined(target.prototype[key])) {    // Already defined members are not overwritten
@@ -183,7 +142,6 @@ define('Trinity/Classify', [
             target[fns[i]] = bind(target[fns[i]], context);
         }
     }
-//>>includeStart('checks', pragmas.checks);
 
     /**
      * Checks a target against a interfaces definition.
@@ -254,7 +212,6 @@ define('Trinity/Classify', [
             }
         });
     }
-//>>includeEnd('checks');
 
     /**
      * Grab all the binds from the constructor parent and itself and merges them for later use.
@@ -270,7 +227,6 @@ define('Trinity/Classify', [
 
             binds = toArray(constructor.prototype.Binds);
 
-//>>includeStart('checks', pragmas.checks);
             // Verify arguments type
             if (!binds.length && !isArray(constructor.prototype.Binds)) {
                 throw new TypeError('Binds of "' + constructor.prototype.Name + '" must be a string or an array of strings.');
@@ -284,26 +240,22 @@ define('Trinity/Classify', [
                 throw new Error('There are binds in "' + constructor.prototype.Name + '" that are already being bound by a mixin (used in Borrows).');
             }
 
-//>>includeEnd('checks');
             constructor.$binds = append(constructor.$binds || [], binds);
             delete constructor.prototype.Binds;
         }
 
         if (parent && parent.$binds) {
-//>>includeStart('checks', pragmas.checks);
 
             // Verify duplicate binds already provided by the parent
             if (intersection(constructor.$binds || [], parent.$binds).length > 0) {
                 throw new Error('There are binds in "' + constructor.prototype.Name + '" that are already being bound in the parent class.');
             }
 
-//>>includeEnd('checks');
             constructor.$binds = append(constructor.$binds || [], parent.$binds);
         } else if (constructor.$binds && !constructor.$binds.length) {
             delete constructor.$binds;
         }
 
-//>>includeStart('checks', pragmas.checks);
         // Finnaly verify if all binds are strings and reference existent methods
         if (constructor.$binds) {
 
@@ -316,7 +268,6 @@ define('Trinity/Classify', [
                 }
             });
         }
-//>>includeEnd('checks');
     }
 
     /**
@@ -328,7 +279,6 @@ define('Trinity/Classify', [
 
         if (hasOwn(constructor.prototype, 'Statics')) {
 
-//>>includeStart('checks', pragmas.checks);
             // Verify if statics is an object
             if (!isObject(constructor.prototype.Statics)) {
                 throw new TypeError('Statics definition for "' + constructor.prototype.Name + '" must be an object.');
@@ -337,13 +287,9 @@ define('Trinity/Classify', [
             // Verify reserved words
             verifyReserved(constructor.prototype.Statics, 'statics');
 
-//>>includeEnd('checks');
             mixIn(constructor, constructor.prototype.Statics);
             constructor.$statics = keys(constructor.prototype.Statics);
 
-//>>excludeStart('checks', pragmas.checks);
-            delete constructor.prototype.Statics;  // If we got checks enabled, we can't delete the Statics yet (see bellow)
-//>>excludeEnd('checks');
         }
 
         // Inherit statics from parent
@@ -391,20 +337,16 @@ define('Trinity/Classify', [
                 binds(this.$constructor.$binds, this, this);
             }
 
-//>>includeStart('checks', pragmas.checks);
             if (!this.$constructor.$abstract) {
                 this.$initializing = true;    // Mark it in order to let abstract classes run their initialize
             }
 
-//>>includeEnd('checks');
             // Call initialize
             initialize.apply(this, arguments);
-//>>includeStart('checks', pragmas.checks);
 
             if (!this.$constructor.$abstract) {
                 delete this.$initializing;    // Remove previous mark
             }
-//>>includeEnd('checks');
         };
     }
 
@@ -413,11 +355,10 @@ define('Trinity/Classify', [
      *
      * @param {Object} params An object containing methods and properties
      *
-     * @returns {Function} The constructor
+     * @return {Function} The constructor
      */
     Classify = function (params) {
 
-//>>includeStart('checks', pragmas.checks);
         // Validate params as an object
         if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');
@@ -433,22 +374,16 @@ define('Trinity/Classify', [
         if (hasOwn(params, 'Abstracts') && !params.$abstract) {
             throw new Error('Class "' + params.Name + '" has abstract methods, therefore it must be defined as abstract.');
         }
-//>>includeEnd('checks');
-//>>excludeStart('checks', pragmas.checks);
-        delete params.Name;
-//>>excludeEnd('checks');
 
         var classify,
             parent;
 
         if (hasOwn(params, 'Extends')) {
-//>>includeStart('checks', pragmas.checks);
             // Verify if parent is a valid class
             if (!isFunction(params.Extends) || !params.Extends.$class) {
                 throw new TypeError('Specified parent class in Extends of "' + params.Name + '" is not a valid class.');
             }
 
-//>>includeEnd('checks');
             parent = params.Extends;
             delete params.Extends;
 
@@ -463,9 +398,7 @@ define('Trinity/Classify', [
         }
 
         classify.prototype.$constructor = classify;
-//>>includeStart('checks', pragmas.checks);
         classify.$class = true;
-//>>includeEnd('checks');
 
         // Grab static methods from the parent and itself
         grabStatics(classify);
@@ -479,34 +412,25 @@ define('Trinity/Classify', [
         // Grab binds from the parent and itself
         grabBinds(classify);
 
-//>>includeStart('checks', pragmas.checks);
         // If we are a concrete class that extends an abstract class, we need to verify the methods existence
         if (parent && parent.$abstract && !params.$abstract) {
             checkAbstract(parent, classify);
         }
 
-//>>includeEnd('checks');
-        // If the class implement some interfaces and is not abstract then
+        // If the class implement some interfaces and is not abstract then verify if interfaces are well implemented
         if (hasOwn(params, 'Implements')) {
-//>>includeStart('checks', pragmas.checks);
             if (!params.$abstract) {
                 checkInterfaces(params.Implements, classify);
             }
-//>>includeEnd('checks');
             delete classify.prototype.Implements;
         }
 
-//>>includeStart('checks', pragmas.checks);
         if (hasOwn(params, 'Statics')) {
-            delete classify.prototype.Statics;  // Delete statics now
+            delete classify.prototype.Statics;  // If strict where enabled, we can delete statics only now
         }
 
-//>>includeEnd('checks');
         return classify;
     };
-
-    Classify.Abstract = Abstract;
-    Classify.Interface = Interface;
 
     return Classify;
 });

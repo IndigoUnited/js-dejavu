@@ -1,41 +1,15 @@
-/*jslint sloppy:true nomen:true newcap:true*/
-/*global require,describe,it,navigator,document,__dirname,window*/
+/*jslint sloppy:true newcap:true*/
+/*global global,define,describe,it*/
 
-var requirejs,
-    modules = ['Trinity/Classify'],
-    expectAlias;
+define(global.modules, function (Class, AbstractClass, Interface) {
 
-if (!(typeof window !== 'undefined' && navigator && document)) { // Test if we are at command line
-
-    requirejs = require('../vendor/r.js/dist/r.js');
-
-    requirejs.config({
-        baseUrl: __dirname,
-        paths: {
-            'Trinity/Classify': '../dist/Classify'
-        },
-        nodeRequire: require
-    });
-
-    var define = requirejs;
-    modules.push('../vendor/expect.js/');
-} else {
-    /*jslint undef:true*/
-    expectAlias = expect;
-    /*jslint undef:false*/
-}
-
-define(modules, function (Classify, expect) {
-
-    if (expectAlias) {
-        expect = expectAlias;
-    }
+    var expect = global.expect;
 
     describe('Functional:', function () {
 
         describe('Instantiation of a simple Class', function () {
 
-            var Example = Classify({
+            var Example = Class({
                 Binds: ['method1', 'method2', 'method3'],
                 some: 'property',
                 options: {
@@ -159,29 +133,29 @@ define(modules, function (Classify, expect) {
 
         describe('Instantiation of inheritance without constructor', function () {
 
-            var Person = Classify({
+            var Person = Class({
                 initialize: function () {
                     this.status = 'alive';
                 }
             }),
-                Andre = Classify({
+                Andre = Class({
                     Extends: Person,
                     name: 'André'
                 }),
-                SuperAndre = Classify({
+                SuperAndre = Class({
                     Extends: Andre,
                     name: 'SuperAndre'
                 }),
-                PersonAbstract = Classify.Abstract({
+                PersonAbstract = AbstractClass({
                     initialize: function () {
                         this.status = 'alive';
                     }
                 }),
-                AndreAbstract = Classify.Abstract({
+                AndreAbstract = AbstractClass({
                     Extends: PersonAbstract,
                     name: 'André'
                 }),
-                SuperAndre2 = Classify({
+                SuperAndre2 = Class({
                     Extends: AndreAbstract,
                     name: 'SuperAndre'
                 });
@@ -202,7 +176,7 @@ define(modules, function (Classify, expect) {
 
         describe('Instantiation of inheritance Cat -> Pet', function () {
 
-            var Pet = Classify({
+            var Pet = Class({
                 name: 'Pet',
                 position: 0,
                 initialize: function () {
@@ -227,7 +201,7 @@ define(modules, function (Classify, expect) {
                     }
                 }
             }),
-                Cat = Classify({
+                Cat = Class({
                     Extends: Pet,
                     initialize: function () {
                         this.name = 'Cat';
@@ -302,8 +276,8 @@ define(modules, function (Classify, expect) {
 
             it('should not have the Implements property', function () {
 
-                var SomeImplementation = Classify({
-                    Implements: [Classify.Interface({ method1: function () {}})],
+                var SomeImplementation = Class({
+                    Implements: [Interface({ method1: function () {}})],
                     method1: function () {}
                 }),
                     someImplementation = new SomeImplementation();
@@ -317,8 +291,8 @@ define(modules, function (Classify, expect) {
 
             it('should not have the Abstracts property', function () {
 
-                var SomeImplementation = Classify({
-                    Extends: Classify.Abstract({ Abstracts: { method1: function () {} }}),
+                var SomeImplementation = Class({
+                    Extends: AbstractClass({ Abstracts: { method1: function () {} }}),
                     method1: function () {}
                 }),
                     someImplementation = new SomeImplementation();
@@ -332,22 +306,22 @@ define(modules, function (Classify, expect) {
 
             it('should grab the borrowed members to their own', function () {
 
-                var SomeImplementation = Classify({
+                var SomeImplementation = Class({
                     Borrows: {
                         method1: function () {},
                         method2: function () {},
                         some: 'property'
                     }
                 }),
-                    OtherImplementation = Classify({
-                        Borrows: [Classify({
+                    OtherImplementation = Class({
+                        Borrows: [Class({
                             method1: function () {},
                             method2: function () {},
                             some: 'property'
                         }), { method3: function () {} }]
                     }),
-                    EvenOtherImplementation = Classify({
-                        Borrows: new Classify({
+                    EvenOtherImplementation = Class({
+                        Borrows: new Class({
                             method1: function () {},
                             method2: function () {},
                             some: 'property'
@@ -389,20 +363,20 @@ define(modules, function (Classify, expect) {
                         staticMethod1: function () {}
                     }
                 },
-                    OtherMixin = Classify({
+                    OtherMixin = Class({
                         method1: function () {},
                         Statics: {
                             staticMethod1: function () {}
                         }
                     }),
-                    SomeClass = Classify({
+                    SomeClass = Class({
                         Borrows: [SomeMixin, OtherMixin]
                     }),
-                    OtherClass = Classify({
+                    OtherClass = Class({
                         Borrows: [OtherMixin, SomeMixin]
                     }),
                     method1 = function () {},
-                    SomeOtherClass = Classify({
+                    SomeOtherClass = Class({
                         Borrows: [SomeMixin, OtherMixin],
                         method1: method1,
                         Statics: {
@@ -427,13 +401,13 @@ define(modules, function (Classify, expect) {
                 var initialize = function () {
                     this.some = 'test';
                 },
-                    SomeImplementation = Classify({
+                    SomeImplementation = Class({
                         Borrows: { initialize: function () { }, method1: function () {} },
                         some: 'property',
                         initialize: initialize
                     }),
-                    OtherImplementation = Classify({
-                        Borrows: new Classify({ initialize: function () {} }),
+                    OtherImplementation = Class({
+                        Borrows: new Class({ initialize: function () {} }),
                         some: 'property',
                         initialize: initialize
                     }),
@@ -449,8 +423,8 @@ define(modules, function (Classify, expect) {
 
             it('should have passed the specified binds correctly', function () {
 
-                var SomeImplementation = Classify({
-                        Borrows: Classify({
+                var SomeImplementation = Class({
+                        Borrows: Class({
                             Binds: ['method1', 'method2'],
                             method1: function () {
                                 this.some = 'test';
@@ -461,9 +435,9 @@ define(modules, function (Classify, expect) {
                         }),
                         some: 'property'
                     }),
-                    OtherImplementation = Classify({
+                    OtherImplementation = Class({
                         Binds: ['method2'],
-                        Borrows: Classify({
+                        Borrows: Class({
                             Binds: ['method1'],
                             method1: function () {
                                 this.some = 'test';
@@ -474,12 +448,12 @@ define(modules, function (Classify, expect) {
                         },
                         some: 'property'
                     }),
-                    SomeOtherImplementation = Classify({
+                    SomeOtherImplementation = Class({
                         Binds: ['method1'],
-                        Borrows: [Classify({
+                        Borrows: [Class({
                             Binds: ['method2'],
                             method2: function () {}
-                        }), Classify({
+                        }), Class({
                             Binds: ['method2'],
                             method2: function () {}
                         })],
@@ -491,9 +465,9 @@ define(modules, function (Classify, expect) {
                         },
                         some: 'property'
                     }),
-                    AbstractUsageImplementation = Classify({
+                    AbstractUsageImplementation = Class({
                         Binds: ['method2'],
-                        Extends: Classify.Abstract({
+                        Extends: AbstractClass({
                             Binds: ['method1'],
                             Abstracts: {
                                 method1: function () {}
@@ -507,8 +481,8 @@ define(modules, function (Classify, expect) {
                         },
                         some: 'property'
                     }),
-                    OtherAbstractUsageImplementation = Classify({
-                        Extends: Classify.Abstract({
+                    OtherAbstractUsageImplementation = Class({
+                        Extends: AbstractClass({
                             Binds: ['method1', 'method2'],
                             Abstracts: {
                                 method1: function () {}

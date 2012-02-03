@@ -4,30 +4,30 @@
         <meta charset="utf-8">
         <title>Classify tests</title>
         <link rel="stylesheet" href="../vendor/mocha/mocha.css" />
-        <script src="jquery.min.js"></script>
+        <script src="../vendor/jquery/jquery.min.js"></script>
         <script src="../vendor/mocha/mocha.js"></script>
         <script src="../vendor/expect.js/expect.js"></script>
         <script src="../vendor/r.js/require.js"></script>
+        <script src="util/browser.js"></script>
+        <script src="util/adapter.js"></script>
         <script>
-
+            
+            var build = getBuild();
             mocha.setup('bdd');
 
-            require({
-                baseUrl : './',
-                paths: {
-                    'Trinity/Classify': '../dist/Classify'
-                },
-                waitSeconds : (location.protocol === 'file:' || location.href.indexOf('://localhost') !== -1) ? 5 : 45, //fail early locally
-                urlArgs : 'bust='+ (+new Date)
-            });
-
-            require(['Classify.functional.js'], function() {
+            require(['./' + build], function() {
                 mocha
                 .run();
             });
         </script>
     </head>
     <body>
+        
+        <ul>
+            <li><a href="?build=amd/strict">amd/strict build</a></li>
+            <li><a href="?build=amd/loose">amd/loose build</a></li>
+        </ul>
+        
         <div id="mocha"></div>
     </body>
 </html>

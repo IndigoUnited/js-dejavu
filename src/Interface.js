@@ -2,7 +2,7 @@
 /*global define*/
 
 define([
-//>>includeStart('checks', pragmas.checks);
+//>>includeStart('strict', pragmas.strict);
     'Utils/lang/isObject',
     'Utils/lang/isFunction',
     'Utils/object/hasOwn',
@@ -11,9 +11,9 @@ define([
     'Utils/array/insert',
     'Utils/lang/createObject',
     './common/verifyReserved'
-//>>includeEnd('checks');
+//>>includeEnd('strict');
 ], function (
-//>>includeStart('checks', pragmas.checks);
+//>>includeStart('strict', pragmas.strict);
     isObject,
     isFunction,
     hasOwn,
@@ -22,9 +22,9 @@ define([
     insert,
     createObject,
     verifyReserved
-//>>includeEnd('checks');
+//>>includeEnd('strict');
 ) {
-//>>includeStart('checks', pragmas.checks);
+//>>includeStart('strict', pragmas.strict);
     /**
      * Grabs the static methods from the constructor parent and itself and merges them.
      *
@@ -59,14 +59,18 @@ define([
             delete constructor.$statics;
         }
     }
-//>>includeEnd('checks');
+//>>includeEnd('strict');
 
     /**
+     * Create an interface definition.
      *
+     * @param {Object} params An object containing methods and properties
+     *
+     * @return {Function} The constructor
      */
     function Interface(params) {
 
-//>>includeStart('checks', pragmas.checks);
+//>>includeStart('strict', pragmas.strict);
         // Validate params as an object
         if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');
@@ -76,18 +80,18 @@ define([
 
         // Verify reserved words
         verifyReserved(params);
-//>>includeEnd('checks');
-//>>excludeStart('checks', pragmas.checks);
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
         delete params.Name;
-//>>excludeEnd('checks');
+//>>excludeEnd('strict');
 
         var interf = function () {
-//>>includeStart('checks', pragmas.checks);
+//>>includeStart('strict', pragmas.strict);
             throw new Error('Interfaces cannot be instantiated.');
-//>>includeEnd('checks');
+//>>includeEnd('strict');
         };
 
-//>>includeStart('checks', pragmas.checks);
+//>>includeStart('strict', pragmas.strict);
         if (hasOwn(params, 'Extends')) {
 
             // Verify if parent is a valid interface
@@ -113,7 +117,7 @@ define([
         // TODO: Make a way to validate an interface
         interf.$interface = true;   // Mark it as an interface
 
-//>>includeEnd('checks');
+//>>includeEnd('strict');
         return interf;
     }
 

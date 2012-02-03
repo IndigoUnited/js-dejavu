@@ -2,39 +2,40 @@
 /*global define*/
 
 define([
-//>>includeStart('checks', pragmas.checks);
+//>>includeStart('strict', pragmas.strict);
     'Utils/lang/isObject',
     'Utils/lang/isFunction',
     'Utils/lang/isArray',
     'Utils/lang/toArray',
     'Utils/object/forOwn',
-    'Utils/object/hasOwn',
     'Utils/array/forEach',
     'Utils/array/combine',
     'Utils/array/insert',
     'Utils/array/contains',
     './common/verifyReserved',
-//>>includeEnd('checks');
-    './Classify',
+//>>includeEnd('strict');
+    'Utils/object/hasOwn',
+    './Class',
     'require'
 ], function (
-//>>includeStart('checks', pragmas.checks);
+//>>includeStart('strict', pragmas.strict);
     isObject,
     isFunction,
     isArray,
     toArray,
     forOwn,
-    hasOwn,
     forEach,
     combine,
     insert,
     contains,
     verifyReserved,
-//>>includeEnd('checks');
-    Classify,
+//>>includeEnd('strict');
+    hasOwn,
+    Class,
     require
 ) {
-//>>includeStart('checks', pragmas.checks);
+//>>includeStart('strict', pragmas.strict);
+
     /**
      * Grab the source abstract methods and appends them to the abstract object array.
      *
@@ -133,16 +134,24 @@ define([
             }
         });
     }
-//>>includeEnd('checks');
+//>>includeEnd('strict');
 
     // We need to return a closure in order to solve the requirejs circular dependency
+
+    /**
+     * Create an abstract class definition.
+     *
+     * @param {Object} params An object containing methods and properties
+     *
+     * @return {Function} The constructor
+     */
     return function (params) {
 
-        Classify = require('./Classify');
+        Class = require('./Class');
 
         var def;
 
-//>>includeStart('checks', pragmas.checks);
+//>>includeStart('strict', pragmas.strict);
         if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');
         }
@@ -181,18 +190,18 @@ define([
             originalInitialize.apply(this, arguments);
         };
 
-//>>includeEnd('checks');
+//>>includeEnd('strict');
         // Save abstract methods and delete them
         if (hasOwn(params, 'Abstracts')) {
-//>>includeStart('checks', pragmas.checks);
+//>>includeStart('strict', pragmas.strict);
             saved.Abstracts = params.Abstracts;
-//>>includeEnd('checks');
-//>>excludeStart('checks', pragmas.checks)
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict)
             delete params.Abstracts;
-//>>excludeEnd('checks');
+//>>excludeEnd('strict');
         }
 
-//>>includeStart('checks', pragmas.checks);
+//>>includeStart('strict', pragmas.strict);
         // Save interfaces and delete them
         if (hasOwn(params, 'Implements')) {
             saved.Implements = params.Implements;
@@ -201,11 +210,11 @@ define([
 
         params.$abstract = true;    // Mark the instance as abstract
 
-//>>includeEnd('checks');
+//>>includeEnd('strict');
         // Create the class definition
-        def = Classify(params);
+        def = Class(params);
 
-//>>includeStart('checks', pragmas.checks);
+//>>includeStart('strict', pragmas.strict);
         // Delete the abstract mark and add it to the constructor
         delete def.prototype.$abstract;
         def.$abstract = abstractMethods;
@@ -221,7 +230,7 @@ define([
             grabInterfaces(saved.Implements, def);
         }
 
-//>>includeEnd('checks');
+//>>includeEnd('strict');
         return def;
     };
 });

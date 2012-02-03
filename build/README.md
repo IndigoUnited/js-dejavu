@@ -1,21 +1,19 @@
-Build Classify
-======================================================
+# To build Classify you: #
 
----
-
-To build Classify you:
-
-* Need to install nodejs (http://nodejs.org)
-* Need to install mocha (npm install -g mocha)
+* Need to install [nodejs](http://nodejs.org)
+* Need to install [mocha](http://visionmedia.github.com/mocha/) (npm install -g mocha)
 * Run build/make.js (node build/make.js)
 
-This will produce two kind of builds in the dist folder: a normal build and a no-checks build.
+# AMD Build #
 
-The build to be used while developing should be the Classify.js file.
-It has all the validations and checks enabled to ensure that your classes are well structured and working as expected.
+The [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD) build is located in the dist/amd folder.
+There are two versions available: __strict__ and __loose__.
 
-The build to be used in production should be the Classify.no-checks.js file.
-All the overhead introduced with the validations and checks is removed.
-If all your classes are working fine in the normal build then it's safe to use it.
+The __strict__ version has all kind of validations to ensure that your classes are well defined and obey all the common rules of classic inheritance.
+It should be used only while developing because all those validations degrade performance.
 
-Note that both builds have also the correspondent minified file.
+The __loose__ build has all the overhead of validations removed. If your classes work in the strict version, then they will work flawlessly in the loose build. This build should be used in production for maximum performance.
+
+# Regular Build #
+
+The regular build is a standalone file that has all the functionality built in (comming soon).

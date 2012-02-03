@@ -5,27 +5,9 @@ var cp = require('child_process'),
     tests,
     command,
     distDir = __dirname + '/../dist/',
+    currentDistDir,
     files,
     stat;
-
-// Remove all files
-files = fs.readdirSync(distDir);
-files.forEach(function (file) {
-    if (fs.statSync(distDir + file).isFile()) {
-        fs.unlinkSync(distDir + file);
-    }
-});
-
-// Create temp directory
-try {
-    stat = fs.statSync(distDir + '../_temp');
-    if (!stat.isDirectory()) {
-        fs.unlinkSync(distDir + '../_temp');
-        fs.mkdirSync(distDir + '../_temp');
-    }
-} catch (e) {
-    fs.mkdirSync(distDir + '../_temp');
-}
 
 /**
  * Removes all files from a folder.
@@ -47,9 +29,16 @@ function emptyDir(dir) {
     });
 }
 
-// Build without checks non minified
+// Clear directory
+emptyDir(distDir);
+
+// Create regular directory for later use..
+fs.mkdirSync(distDir + 'regular');    // TODO: Remove this later
+
+// Build amd strict
 command = 'node "' + __dirname + '/../vendor/r.js/dist/r.js" -o ' + __dirname + '/Classify.build.js';
-cp.exec(command + ' pragmas=checks:false optimize=uglify', function (error, stdout, stderr) {
+currentDistDir = distDir + 'amd/strict/';
+cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true', function (error, stdout, stderr) {
 
     // Print success or error
     if (error !== null) {
@@ -59,13 +48,11 @@ cp.exec(command + ' pragmas=checks:false optimize=uglify', function (error, stdo
         console.log(stdout);
     }
 
-    // Rename file to minified one
-    fs.renameSync(distDir + 'Classify.js', distDir + '../_temp/Classify.no-checks.min.js');
+    fs.unlinkSync(currentDistDir + 'build.txt');
 
-    emptyDir();
-
-    // Build without checks minified
-    cp.exec(command + ' pragmas=checks:false', function (error, stdout, stderr) {
+    // Build amd loose
+    currentDistDir = distDir + 'amd/loose/';
+    cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=false', function (error, stdout, stderr) {
 
         // Print success or error
         if (error !== null) {
@@ -75,94 +62,48 @@ cp.exec(command + ' pragmas=checks:false optimize=uglify', function (error, stdo
             console.log(stdout);
         }
 
-        // Rename file to minified one
-        fs.renameSync(distDir + 'Classify.js', distDir + '../_temp/Classify.no-checks.js');
+        fs.unlinkSync(currentDistDir + 'build.txt');
 
-        emptyDir();
+        // Run tests
+        process.chdir(__dirname + '/../test');
 
-        // Build with checks minified
-        cp.exec(command + ' optimize=uglify', function (error, stdout, stderr) {
+        command = 'mocha -R list amd/strict.js';
 
-            // Print success or error
-            if (error !== null) {
-                console.error(stderr);
-                process.exit(1);
+        console.log('Running amd/strict tests..');
+        console.log('-------------------------------------------------');
+
+        if (process.platform === 'win32') {
+            tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
+        } else {
+            tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
+        }
+        tests.on('exit', function (code) {
+
+            var exitCode;
+
+            if (code !== 0) {
+                exitCode = 1;
             } else {
-                console.log(stdout);
+                exitCode = 0;
             }
 
-            // Rename file to minified one
-            fs.renameSync(distDir + 'Classify.js', distDir + '../_temp/Classify.min.js');
+            command = 'mocha -R list amd/loose.js';
 
-            emptyDir();
+            console.log('Running amd/loose tests..');
+            console.log('-------------------------------------------------');
 
-            // Build with checks
-            cp.exec(command, function (error, stdout, stderr) {
+            if (process.platform === 'win32') {
+                tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
+            } else {
+                tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
+            }
+            tests.on('exit', function (code) {
 
-                // Print success or error
-                if (error !== null) {
-                    console.error(stderr);
+                if (code !== 0) {
                     process.exit(1);
                 } else {
-                    console.log(stdout);
+                    process.exit(exitCode);
                 }
-
-                // Rename file to minified one
-                fs.renameSync(distDir + 'Classify.js', distDir + '../_temp/Classify.js');
-
-                emptyDir();
-
-                // Rename all files back..
-                fs.renameSync(distDir + '../_temp/Classify.js', distDir + 'Classify.js');
-                fs.renameSync(distDir + '../_temp/Classify.min.js', distDir + 'Classify.min.js');
-                fs.renameSync(distDir + '../_temp/Classify.no-checks.js', distDir + 'Classify.no-checks.js');
-                fs.renameSync(distDir + '../_temp/Classify.no-checks.min.js', distDir + 'Classify.no-checks.min.js');
-
-                // Remove temp directory
-                fs.rmdirSync(distDir + '../_temp');
-
-                // Run tests
-                process.chdir(__dirname + '/../test');
-
-                command = 'mocha -R list Classify.verifications.js';
-
-                console.log('Running verifications tests..');
-                console.log('-------------------------------------------------');
-
-                if (process.platform === 'win32') {
-                    tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
-                } else {
-                    tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
-                }
-                tests.on('exit', function (code) {
-
-                    var exitCode;
-
-                    if (code !== 0) {
-                        exitCode = 1;
-                    } else {
-                        exitCode = 0;
-                    }
-
-                    command = 'mocha -R list Classify.functional.js';
-
-                    console.log('Running functional tests..');
-                    console.log('-------------------------------------------------');
-
-                    if (process.platform === 'win32') {
-                        tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
-                    } else {
-                        tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
-                    }
-                    tests.on('exit', function (code) {
-
-                        if (code !== 0) {
-                            process.exit(1);
-                        } else {
-                            process.exit(exitCode);
-                        }
-                    });
-                });
             });
         });
     });
