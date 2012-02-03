@@ -1,5 +1,9 @@
+# Building Classify #
 
-## To build Classify you ##
+In order to build Classify you need some tools.
+The build process will create two kind of builds: AMD and regular.
+
+## Tools needed: ##
 
 1. Need to install [nodejs](http://nodejs.org)
 2. Need to install [mocha](http://visionmedia.github.com/mocha/) (npm install -g mocha)
