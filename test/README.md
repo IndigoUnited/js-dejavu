@@ -1,4 +1,4 @@
-# To test Classify you: #
+## To test Classify you: ##
 
 * Need to install [nodejs](http://nodejs.org)
 * Need to install [mocha](http://visionmedia.github.com/mocha/) (npm install -g mocha)
@@ -7,6 +7,6 @@
 
 Tip: You can use mocha -R list [file] to give you a full list of the tests
 
-# Or you can: #
+## Or you can: ##
 
 * Run tester.html to test everything
