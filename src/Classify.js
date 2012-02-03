@@ -326,7 +326,6 @@ define('Trinity/Classify', [
      */
     function grabStatics(constructor) {
 
-        // TODO: Shall we improve this function due to performance?
         if (hasOwn(constructor.prototype, 'Statics')) {
 
 //>>includeStart('checks', pragmas.checks);
@@ -393,16 +392,18 @@ define('Trinity/Classify', [
             }
 
 //>>includeStart('checks', pragmas.checks);
-            // Call initialize
             if (!this.$constructor.$abstract) {
-                this.$initializing = true;
+                this.$initializing = true;    // Mark it in order to let abstract classes run their initialize
             }
 
 //>>includeEnd('checks');
+            // Call initialize
             initialize.apply(this, arguments);
 //>>includeStart('checks', pragmas.checks);
 
-            delete this.$initializing;    // TODO: Check $abstract before deleting due to performance?
+            if (!this.$constructor.$abstract) {
+                delete this.$initializing;  // Remove previous mark
+            }
 //>>includeEnd('checks');
         };
     }

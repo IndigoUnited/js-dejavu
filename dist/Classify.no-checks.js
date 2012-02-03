@@ -599,7 +599,6 @@ define('Trinity/Classify', [
      */
     function grabStatics(constructor) {
 
-        // TODO: Shall we improve this function due to performance?
         if (hasOwn(constructor.prototype, 'Statics')) {
 
             mixIn(constructor, constructor.prototype.Statics);
@@ -653,6 +652,7 @@ define('Trinity/Classify', [
                 binds(this.$constructor.$binds, this, this);
             }
 
+            // Call initialize
             initialize.apply(this, arguments);
         };
     }
