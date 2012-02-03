@@ -32,9 +32,6 @@ function emptyDir(dir) {
 // Clear directory
 emptyDir(distDir);
 
-// Create regular directory for later use..
-fs.mkdirSync(distDir + 'regular');    // TODO: Remove this later
-
 // Build amd strict
 command = 'node "' + __dirname + '/../vendor/r.js/dist/r.js" -o ' + __dirname + '/Classify.build.js';
 currentDistDir = distDir + 'amd/strict/';
