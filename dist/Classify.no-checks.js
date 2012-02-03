@@ -385,12 +385,10 @@ define('Trinity/Classify.Interface',[
      */
     function Interface(params) {
 
-
         delete params.Name;
 
         var interf = function () {
         };
-
 
         return interf;
     }
@@ -415,16 +413,13 @@ define('Trinity/Classify.Abstract',[
 
         var def;
 
-
         // Save abstract methods and delete them
         if (hasOwn(params, 'Abstracts')) {
-            //delete params.Abstracts;  // TODO!!!
+            delete params.Abstracts;
         }
-
 
         // Create the class definition
         def = Classify(params);
-
 
         return def;
     };

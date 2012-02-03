@@ -687,7 +687,6 @@ define('Trinity/Classify.Interface',[
         // Verify reserved words
         verifyReserved(params);
 
-
         var interf = function () {
             throw new Error('Interfaces cannot be instantiated.');
         };
@@ -901,7 +900,6 @@ define('Trinity/Classify.Abstract',[
         // Save abstract methods and delete them
         if (hasOwn(params, 'Abstracts')) {
             saved.Abstracts = params.Abstracts;
-            //delete params.Abstracts;  // TODO!!!
         }
 
         // Save interfaces and delete them
@@ -922,6 +920,7 @@ define('Trinity/Classify.Abstract',[
         // Process the saved abstract methods
         if (hasOwn(saved, 'Abstracts')) {
             grabAbstracts(saved.Abstracts, def);
+            delete def.prototype.Abstracts;
         }
 
         // Process the saved interfaces
@@ -1309,7 +1308,7 @@ define('Trinity/Classify', [
 
             initialize.apply(this, arguments);
 
-            delete this.$initializing;
+            delete this.$initializing;    // TODO: Check $abstract before deleting due to performance?
         };
     }
 

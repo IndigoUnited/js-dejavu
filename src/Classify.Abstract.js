@@ -180,14 +180,16 @@ define([
             }
             originalInitialize.apply(this, arguments);
         };
-//>>includeEnd('checks');
 
+//>>includeEnd('checks');
         // Save abstract methods and delete them
         if (hasOwn(params, 'Abstracts')) {
 //>>includeStart('checks', pragmas.checks);
             saved.Abstracts = params.Abstracts;
 //>>includeEnd('checks');
-            //delete params.Abstracts;  // TODO!!!
+//>>excludeStart('checks', pragmas.checks)
+            delete params.Abstracts;
+//>>excludeEnd('checks');
         }
 
 //>>includeStart('checks', pragmas.checks);
@@ -198,8 +200,8 @@ define([
         }
 
         params.$abstract = true;    // Mark the instance as abstract
-//>>includeEnd('checks');
 
+//>>includeEnd('checks');
         // Create the class definition
         def = Classify(params);
 
@@ -211,14 +213,15 @@ define([
         // Process the saved abstract methods
         if (hasOwn(saved, 'Abstracts')) {
             grabAbstracts(saved.Abstracts, def);
+            delete def.prototype.Abstracts;
         }
 
         // Process the saved interfaces
         if (hasOwn(saved, 'Implements')) {
             grabInterfaces(saved.Implements, def);
         }
-//>>includeEnd('checks');
 
+//>>includeEnd('checks');
         return def;
     };
 });
