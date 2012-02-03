@@ -4,9 +4,11 @@
 * Need to install [mocha](http://visionmedia.github.com/mocha/) (npm install -g mocha)
 * Run build/make.js (node build/make.js)
 
+This will create the builds described bellow in the [dist]((https://github.com/TrinityJS/Classify/tree/master/dist) folder.
+
 # AMD Build #
 
-The [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD) build is located in the dist/amd folder.
+The [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD) build is located in the [dist/amd](https://github.com/TrinityJS/Classify/tree/master/dist/amd) folder.
 There are two versions available: __strict__ and __loose__.
 
 The __strict__ version has all kind of validations to ensure that your classes are well defined and obey all the common rules of classic inheritance.
