@@ -1,4 +1,3 @@
-//>>includeStart('strict', pragmas.strict);
 /*jslint sloppy: true*/
 /*global define*/
 
@@ -43,4 +42,3 @@ define([
 
     return verifyReserved;
 });
-//>>includeEnd('strict');

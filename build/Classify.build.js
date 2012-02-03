@@ -4,18 +4,14 @@
  */
 ({
     appDir : '../src',
-    baseUrl: '../dist',
+    baseUrl: '../dist/',
     dir : '../dist',
     paths : {
-        'Trinity': './',
         'Utils': '../vendor/amd-utils/src'
     },
-    modules: [{
-        name: 'Trinity/Classify'
-    }],
-    pragmas: {
-        'checks': true
-    },
+    /*pragmas: {
+        'strict': true
+    },*/
     optimize: 'none',
     uglify: {
         beautify: false,
