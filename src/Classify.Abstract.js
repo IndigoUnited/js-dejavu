@@ -54,7 +54,7 @@ define([
             if (key !== 'Statics') {
 
                 if (!isFunction(value)) {
-                    throw new Error('Value for "' + key + '" in abstracts of abstract class "' + target.prototype.Name + "' must be a function.");
+                    throw new TypeError('Value for "' + key + '" in abstracts of abstract class "' + target.prototype.Name + "' must be a function.");
                 }
 
                 if (target.prototype[key]) {
@@ -73,9 +73,13 @@ define([
                 forOwn(source.Statics, function (value, key) {
 
                     if (!isFunction(value)) {
-                        throw new Error('Value for "' + key + '" in abstracts (statics) of abstract class "' + target.prototype.Name + "' must be a function.");
+                        throw new TypeError('Value for "' + key + '" in abstracts (statics) of abstract class "' + target.prototype.Name + "' must be a function.");
                     }
 
+                    if (target.$statics && contains(target.$statics, key)) {
+                        throw new Error('Abstract static method "' + key + '" of abstract class "' + target.prototype.Name + "' is already implemented and cannot be declared as abstract anymore.");
+                    }
+                
                     insert(target.$abstract.statics, key);
                 });
             }
