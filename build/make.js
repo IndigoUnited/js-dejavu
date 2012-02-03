@@ -62,9 +62,9 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true', function 
         fs.unlinkSync(currentDistDir + 'build.txt');
 
         // Run tests
-        process.chdir(__dirname + '/../test');
+        process.chdir(__dirname + '/..');
 
-        command = 'mocha -R list amd/strict.js';
+        command = 'mocha test/amd/strict.js';
 
         console.log('Running amd/strict tests..');
         console.log('-------------------------------------------------');
@@ -84,7 +84,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true', function 
                 exitCode = 0;
             }
 
-            command = 'mocha -R list amd/loose.js';
+            command = 'mocha test/amd/loose.js';
 
             console.log('Running amd/loose tests..');
             console.log('-------------------------------------------------');
