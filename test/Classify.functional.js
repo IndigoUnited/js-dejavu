@@ -121,7 +121,7 @@ define(modules, function (Classify, expect) {
 
             it('should not have Binds property', function () {
 
-                return expect(example.Statics).to.not.be.ok;
+                return expect(example.Binds).to.not.be.ok;
 
             });
 
@@ -303,7 +303,7 @@ define(modules, function (Classify, expect) {
             it('should not have the Implements property', function () {
 
                 var SomeImplementation = Classify({
-                    Implements: [Classify.Interface({ method1: function () {} })],
+                    Implements: [Classify.Interface({ method1: function () {}})],
                     method1: function () {}
                 }),
                     someImplementation = new SomeImplementation();
@@ -344,7 +344,7 @@ define(modules, function (Classify, expect) {
                             method1: function () {},
                             method2: function () {},
                             some: 'property'
-                        }), { method3: function () {}} ]
+                        }), { method3: function () {} }]
                     }),
                     EvenOtherImplementation = Classify({
                         Borrows: new Classify({
@@ -428,7 +428,7 @@ define(modules, function (Classify, expect) {
                     this.some = 'test';
                 },
                     SomeImplementation = Classify({
-                        Borrows: { initialize: function () { }, method1: function () {}},
+                        Borrows: { initialize: function () { }, method1: function () {} },
                         some: 'property',
                         initialize: initialize
                     }),
@@ -491,9 +491,42 @@ define(modules, function (Classify, expect) {
                         },
                         some: 'property'
                     }),
+                    AbstractUsageImplementation = Classify({
+                        Binds: ['method2'],
+                        Extends: Classify.Abstract({
+                            Binds: ['method1'],
+                            Abstracts: {
+                                method1: function () {}
+                            }
+                        }),
+                        method1: function () {
+                            this.some = 'test';
+                        },
+                        method2: function () {
+                            this.some = 'test2';
+                        },
+                        some: 'property'
+                    }),
+                    OtherAbstractUsageImplementation = Classify({
+                        Extends: Classify.Abstract({
+                            Binds: ['method1', 'method2'],
+                            Abstracts: {
+                                method1: function () {}
+                            },
+                            method2: function () {
+                                this.some = 'test2';
+                            }
+                        }),
+                        method1: function () {
+                            this.some = 'test';
+                        },
+                        some: 'property'
+                    }),
                     someImplementation = new SomeImplementation(),
                     otherImplementation = new OtherImplementation(),
-                    someOtherImplementation = new SomeOtherImplementation();
+                    someOtherImplementation = new SomeOtherImplementation(),
+                    abstractUsageImplementation = new AbstractUsageImplementation(),
+                    otherAbstractUsageImplementation = new OtherAbstractUsageImplementation();
 
                 someImplementation.method1.call(this);
                 expect(someImplementation.some).to.be.equal('test');
@@ -522,6 +555,23 @@ define(modules, function (Classify, expect) {
                 someOtherImplementation.method2();
                 expect(someOtherImplementation.some).to.be.equal('test2');
 
+                abstractUsageImplementation.method1.call(this);
+                expect(abstractUsageImplementation.some).to.be.equal('test');
+                abstractUsageImplementation.method2.call(this);
+                expect(abstractUsageImplementation.some).to.be.equal('test2');
+                abstractUsageImplementation.method1();
+                expect(abstractUsageImplementation.some).to.be.equal('test');
+                abstractUsageImplementation.method2();
+                expect(abstractUsageImplementation.some).to.be.equal('test2');
+
+                otherAbstractUsageImplementation.method1.call(this);
+                expect(otherAbstractUsageImplementation.some).to.be.equal('test');
+                otherAbstractUsageImplementation.method2.call(this);
+                expect(otherAbstractUsageImplementation.some).to.be.equal('test2');
+                otherAbstractUsageImplementation.method1();
+                expect(otherAbstractUsageImplementation.some).to.be.equal('test');
+                otherAbstractUsageImplementation.method2();
+                expect(otherAbstractUsageImplementation.some).to.be.equal('test2');
             });
 
         });

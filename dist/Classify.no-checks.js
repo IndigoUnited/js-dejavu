@@ -377,21 +377,21 @@ define('Utils/lang/toArray',['./isArray', './isObject', './isArguments'], functi
 /*global define*/
 
 define('Trinity/Classify.Interface',[
-    ], function (
-    ) {
-    
+], function (
+) {
+
     /**
      *
      */
     function Interface(params) {
 
-        
-                delete params.Name;
-        
-        var interf = function () {
-                    };
 
-        
+        delete params.Name;
+
+        var interf = function () {
+        };
+
+
         return interf;
     }
 
@@ -401,13 +401,13 @@ define('Trinity/Classify.Interface',[
 /*global define*/
 
 define('Trinity/Classify.Abstract',[
-        './Classify',
+    './Classify',
     'require'
 ], function (
-        Classify,
+    Classify,
     require
 ) {
-    
+
     // We need to return a closure in order to solve the requirejs circular dependency
     return function (params) {
 
@@ -415,17 +415,17 @@ define('Trinity/Classify.Abstract',[
 
         var def;
 
-        
+
         // Save abstract methods and delete them
         if (hasOwn(params, 'Abstracts')) {
-                        delete params.Abstracts;
+            //delete params.Abstracts;  // TODO!!!
         }
 
-        
+
         // Create the class definition
         def = Classify(params);
 
-        
+
         return def;
     };
 });
@@ -459,7 +459,7 @@ define('Trinity/Classify.Abstract',[
  *      });
  */
 define('Trinity/Classify', [
-        'Utils/lang/isObject',
+    'Utils/lang/isObject',
     'Utils/lang/isArray',
     'Utils/lang/isUndefined',
     'Utils/lang/createObject',
@@ -474,7 +474,7 @@ define('Trinity/Classify', [
     './Classify.Abstract',
     './Classify.Interface'
 ], function (
-        isObject,
+    isObject,
     isArray,
     isUndefined,
     createObject,
@@ -534,13 +534,10 @@ define('Trinity/Classify', [
 
         mixins = toArray(sources);
 
-        
         for (i = mixins.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
 
-            
-            // Do the mixin manually because we need to ignore already defined methods and handle statics
-                                    current = isObject(mixins[i]) ? Classify(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
-            
+            current = isObject(mixins[i]) ? Classify(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
+
             for (key in current) {
                 if (isUndefined(target.prototype[key])) {    // Already defined members are not overwritten
                     target.prototype[key] = current[key];
@@ -573,33 +570,32 @@ define('Trinity/Classify', [
             target[fns[i]] = bind(target[fns[i]], context);
         }
     }
-    
+
     /**
-     * Grab all the bound from the constructor parent and itself and merges them for later use.
+     * Grab all the binds from the constructor parent and itself and merges them for later use.
      *
      * @param {Function} constructor The constructor
      */
     function grabBinds(constructor) {
 
         var parent = constructor.Super ? constructor.Super.$constructor : null,
+            binds;
+
+        if (hasOwn(constructor.prototype, 'Binds')) {
+
             binds = toArray(constructor.prototype.Binds);
 
-        
-        if (!constructor.$binds) {
-            constructor.$binds = binds;
-        } else {
-            append(constructor.$binds, binds);
+            constructor.$binds = append(constructor.$binds || [], binds);
+            delete constructor.prototype.Binds;
         }
 
         if (parent && parent.$binds) {
-
-            
-            append(constructor.$binds, parent.$binds);
-        } else if (!constructor.$binds.length) {
+            constructor.$binds = append(constructor.$binds || [], parent.$binds);
+        } else if (constructor.$binds && !constructor.$binds.length) {
             delete constructor.$binds;
         }
 
-            }
+    }
 
     /**
      * Grabs the static methods from the constructor parent and itself and merges them.
@@ -611,9 +607,10 @@ define('Trinity/Classify', [
         // TODO: Shall we improve this function due to performance?
         if (hasOwn(constructor.prototype, 'Statics')) {
 
-            
             mixIn(constructor, constructor.prototype.Statics);
             constructor.$statics = keys(constructor.prototype.Statics);
+
+            delete constructor.prototype.Statics;  // If we got checks enabled, we can't delete the Statics yet (see bellow)
         }
 
         // Inherit statics from parent
@@ -661,10 +658,8 @@ define('Trinity/Classify', [
                 binds(this.$constructor.$binds, this, this);
             }
 
-            
             initialize.apply(this, arguments);
-
-                    };
+        };
     }
 
     /**
@@ -676,15 +671,12 @@ define('Trinity/Classify', [
      */
     Classify = function (params) {
 
-        
-                delete params.Name;
-        
+        delete params.Name;
+
         var classify,
             parent;
 
-
         if (hasOwn(params, 'Extends')) {
-            
             parent = params.Extends;
             delete params.Extends;
 
@@ -699,34 +691,24 @@ define('Trinity/Classify', [
         }
 
         classify.prototype.$constructor = classify;
-        
+
         // Grab static methods from the parent and itself
         grabStatics(classify);
-                if (hasOwn(params, 'Statics')) {
-            delete classify.prototype.Statics;  // If we got checks enabled, we can't delete the Statics yet (see bellow)
-        }
-        
+
         // Grab all the defined mixins
         if (hasOwn(params, 'Borrows')) {
             borrows(params.Borrows, classify);
             delete classify.prototype.Borrows;
         }
 
-        // Grab all the defined binds
-        if (hasOwn(params, 'Binds')) {
-            grabBinds(classify);
-            delete classify.prototype.Binds;
-        }
+        // Grab binds from the parent and itself
+        grabBinds(classify);
 
-        
         // If the class implement some interfaces and is not abstract then
         if (hasOwn(params, 'Implements')) {
-
-            
             delete classify.prototype.Implements;
         }
 
-        
         return classify;
     };
 
