@@ -1,4 +1,4 @@
-# To build Classify you: #
+## To build Classify you: ##
 
 * Need to install [nodejs](http://nodejs.org)
 * Need to install [mocha](http://visionmedia.github.com/mocha/) (npm install -g mocha)
@@ -6,7 +6,7 @@
 
 This will create the builds described bellow in the [dist]((https://github.com/TrinityJS/Classify/tree/master/dist) folder.
 
-# AMD Build #
+## AMD Build ##
 
 The [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD) build is located in the [dist/amd](https://github.com/TrinityJS/Classify/tree/master/dist/amd) folder.
 There are two versions available: __strict__ and __loose__.
@@ -16,6 +16,6 @@ It should be used only while developing because all those validations degrade pe
 
 The __loose__ build has all the overhead of validations removed. If your classes work in the strict version, then they will work flawlessly in the loose build. This build should be used in production for maximum performance.
 
-# Regular Build #
+## Regular Build ##
 
 The regular build is a standalone file that has all the functionality built in (comming soon).
