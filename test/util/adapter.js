@@ -5,7 +5,7 @@ if (!(typeof window !== 'undefined' && navigator && document)) { // Test if we a
 
     var requirejs = require('../../vendor/r.js/dist/r.js');
     requirejs.config({
-        baseUrl: __dirname + '/../../dist',
+        baseUrl: __dirname + '/../',
         paths: {
             'Utils': '../vendor/amd-utils/src'
         },
@@ -15,6 +15,9 @@ if (!(typeof window !== 'undefined' && navigator && document)) { // Test if we a
     define = requirejs;
     global.browser = false;
     global.expect = require('../../vendor/expect.js/expect.js');
+
+    // change working directory due to some issues related with requirejs
+    process.chdir(__dirname + '/..');
 
 } else {
 
