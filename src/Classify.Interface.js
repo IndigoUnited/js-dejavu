@@ -7,9 +7,10 @@ define([
     'Utils/lang/isFunction',
     'Utils/object/hasOwn',
     'Utils/object/forOwn',
-    'Utils/array/contains',
     'Utils/array/combine',
-    'Utils/lang/createObject'
+    'Utils/array/insert',
+    'Utils/lang/createObject',
+    './common/verifyReserved'
     //>>includeEnd('checks');
 ], function (
     //>>includeStart('checks', pragmas.checks);
@@ -17,11 +18,49 @@ define([
     isFunction,
     hasOwn,
     forOwn,
-    contains,
     combine,
-    createObject
+    insert,
+    createObject,
+    verifyReserved
     //>>includeEnd('checks');
 ) {
+    //>>includeStart('checks', pragmas.checks);
+    /**
+     * Grabs the static methods from the constructor parent and itself and merges them.
+     *
+     * @param {Function} constructor The constructor
+     */
+    function grabStatics(constructor) {
+
+        var parent = constructor.Super ? constructor.Super.$constructor : null;
+
+        constructor.$statics = [];
+
+        if (hasOwn(constructor.prototype, 'Statics')) {
+
+            // Verify if statics is an object
+            if (!isObject(constructor.prototype.Statics)) {
+                throw new TypeError('Statics definition for "' + constructor.prototype.Name + '" must be an object.');
+            }
+
+            // Verify reserved words
+            verifyReserved(constructor.prototype.Statics, 'statics');
+
+            forOwn(constructor.prototype.Statics, function (value, key) {
+                if (isFunction(value)) {
+                    insert(constructor.$statics, key);
+                }
+            });
+        }
+
+        if (parent && parent.$statics) {
+            combine(constructor.$statics, parent.$statics);
+        } else if (!constructor.$statics.length) {
+            delete constructor.$statics;
+        }
+    }
+    //>>includeEnd('checks');
+
     /**
      *
      */
@@ -33,17 +72,15 @@ define([
             throw new TypeError('Argument "params" must be an object.');
         }
 
+        params.Name = params.Name || 'Unnamed';
+
         // Verify reserved words
-        (function (params) {
-            var reserved = ['$constructor', '$initializing'];
-            forOwn(params, function (value, key) {
-                if (contains(reserved, key)) {
-                    throw new TypeError('Class "' + params.Name + '" is using a reserved word: ' + key);
-                }
-            });
-        }(params));
+        verifyReserved(params);
         //>>includeEnd('checks');
 
+        //>>excludeStart('checks', pragmas.checks);
+        delete params.Name;
+        //>>excludeEnd('checks');
 
         var interf = function () {
             //>>includeStart('checks', pragmas.checks);
@@ -52,50 +89,6 @@ define([
         };
 
         //>>includeStart('checks', pragmas.checks);
-        params.Name = params.Name || 'Unnamed';
-
-        /**
-         * Grabs the static methods from the constructor parent and itself and merges them.
-         *
-         * @param {Function} constructor The constructor
-         */
-        function grabStatics(constructor) {
-
-            var parent = constructor.Super ? constructor.Super.$constructor : null;
-
-            constructor.$statics = [];
-
-            if (hasOwn(constructor.prototype, 'Statics')) {
-
-                // Verify if statics is an object
-                if (!isObject(constructor.prototype.Statics)) {
-                    throw new TypeError('Statics definition for "' + params.Name + '" must be an object.');
-                }
-
-                // Verify reserved words
-                (function (params) {
-                    var reserved = ['$class', '$abstract', '$interface', '$binds', '$statics'];
-                    forOwn(params, function (value, key) {
-                        if (contains(reserved, key)) {
-                            throw new TypeError('Class "' + params.Name + '" is using a reserved static word: ' + key);
-                        }
-                    });
-                }(constructor.prototype.Statics));
-
-                forOwn(constructor.prototype.Statics, function (value, key) {
-                    if (isFunction(value)) {
-                        constructor.$statics.push(key);
-                    }
-                });
-            }
-
-            if (parent && parent.$statics) {
-                combine(constructor.$statics, parent.$statics);
-            } else if (!constructor.$statics.length) {
-                delete constructor.$statics;
-            }
-        }
-
         if (hasOwn(params, 'Extends')) {
 
             // Verify if parent is a valid interface

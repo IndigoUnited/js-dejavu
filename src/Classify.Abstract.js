@@ -5,34 +5,136 @@ define([
     //>>includeStart('checks', pragmas.checks);
     'Utils/lang/isObject',
     'Utils/lang/isFunction',
+    'Utils/lang/isArray',
+    'Utils/lang/toArray',
     'Utils/object/forOwn',
     'Utils/object/hasOwn',
     'Utils/array/forEach',
-    'Utils/lang/toArray',
     'Utils/array/combine',
     'Utils/array/insert',
+    'Utils/array/contains',
+    './common/verifyReserved',
     //>>includeEnd('checks');
-    'Trinity/Classify',
+    './Classify',
     'require'
 ], function (
     //>>includeStart('checks', pragmas.checks);
     isObject,
     isFunction,
+    isArray,
+    toArray,
     forOwn,
     hasOwn,
     forEach,
-    toArray,
     combine,
     insert,
+    contains,
+    verifyReserved,
     //>>includeEnd('checks');
     Classify,
     require
 ) {
+    //>>includeStart('checks', pragmas.checks);
+    /**
+     * Grab the source abstract methods and appends them to the abstract object array.
+     *
+     * @param {Object}   source The object that contains the methods
+     * @param {Function} target The target object
+     */
+    function grabAbstracts(source, target) {
+
+        if (!isObject(source)) {
+            throw new TypeError('Abstracts defined in abstract class "' + target.prototype.Name + "' must be an object.");
+        }
+
+        verifyReserved(source);
+
+        forOwn(source, function (value, key) {
+
+            if (key !== 'Statics') {
+
+                if (!isFunction(value)) {
+                    throw new Error('Value for "' + key + '" in abstracts of abstract class "' + target.prototype.Name + "' must be a function.");
+                }
+
+                if (target.prototype[key]) {
+                    throw new Error('Abstract method "' + key + '" of abstract class "' + target.prototype.Name + "' is already implemented and cannot be declared as abstract anymore.");
+                }
+
+                insert(target.$abstract.normal, key);
+            } else {
+
+                if (!isObject(source.Statics)) {
+                    throw new TypeError('Statics definition for abstract class of abstract class "' + target.prototype.Name + '" must be an object.');
+                }
+
+                verifyReserved(source.Statics, 'statics');
+
+                forOwn(source.Statics, function (value, key) {
+
+                    if (!isFunction(value)) {
+                        throw new Error('Value for "' + key + '" in abstracts (statics) of abstract class "' + target.prototype.Name + "' must be a function.");
+                    }
+
+                    insert(target.$abstract.statics, key);
+                });
+            }
+        });
+    }
+
+    /**
+     * Grab the interfaces methods and appends them to the abstract object arrays.
+     *
+     * @param {Array}    interfaces  The interfaces
+     * @param {Function} target      The target
+     */
+    function grabInterfaces(interfaces, target) {
+
+        var interfs = toArray(interfaces),
+            reserved = ['$constructor', '$initializing'];
+
+        // Verify argument type
+        if (!interfaces.length && !isArray(interfs)) {
+            throw new TypeError('Implements of abstract class "' + target.prototype.Name + '" must be an interface or an array of interfaces.');
+        }
+
+        forEach(interfs, function (interf, x) {
+
+            // Validate interfaces
+            if (!isFunction(interf) || !interf.$interface) {
+                throw new TypeError('Entry at index ' + x + ' in Implements of class "' + target.prototype.Name + '" is not a valid interface.');
+            }
+
+            verifyReserved(interf.prototype, 'normal', reserved);
+
+            forOwn(interf.prototype, function (value, key) {
+
+                if (!contains(reserved, key) && isFunction(value)) {
+
+                    if (target.prototype[key] && !isFunction(target[key])) {
+                        throw new Error('Abstract class "' + target.prototype.Name + '" does not implement interface "' + interf.prototype.Name + '" correctly, method "' + key + '()" was not found.');
+                    }
+
+                    insert(target.$abstract.normal, key);
+                }
+            });
+
+            // Merge static methods of interface
+            if (interf.$statics) {
+                forEach(interf.$statics, function (value) {
+                    if (!target.$statics || !contains(target.$statics, value)) {
+                        insert(target.$abstract.statics, value);
+                    }
+                });
+            }
+        });
+    }
+    //>>includeEnd('checks');
 
     // We need to return a closure in order to solve the requirejs circular dependency
     return function (params) {
 
-        Classify = require('Trinity/Classify');
+        Classify = require('./Classify');
 
         var def;
 
@@ -46,75 +148,9 @@ define([
         /*jslint vars:true*/
         var originalInitialize = params.initialize,
             parent,
+            saved = {},
             abstractMethods = { normal: [], statics: [] };
         /*jslint vars:false*/
-
-        /**
-         * Grab the source abstract methods and append them to the target arrays.
-         *
-         * @param {Object} source The source
-         * @param {Object} target An object container normal and statics array
-         * @param {String} name   The name of the class
-         */
-        function grabAbstracts(source, target, name) {
-
-            forOwn(source, function (value, key) {
-
-                if (key !== 'Name' && key !== '$constructor') {    // Ignore some reserved words
-
-                    if (key !== 'Statics') {
-                        insert(target.normal, key);
-                    } else {
-
-                        if (!isObject(source.Statics)) {
-                            throw new TypeError('Statics definition for abstract class "' + name + '" must be an object.');
-                        }
-
-                        forOwn(source.Statics, function (value, key) {
-                            if (isFunction(value)) {
-                                insert(target.statics, key);
-                            }
-                        });
-                    }
-                }
-            });
-
-            // Merge also the static methods if they are referenced in $statics (e.g.: interfaces)
-            if (source.$constructor && source.$constructor.$statics) {
-                combine(target.statics, source.$constructor.$statics);
-            }
-        }
-        //>>includeEnd('checks');
-
-        // Grab all the abstract methods
-        if (hasOwn(params, 'Abstracts')) {
-
-            //>>includeStart('checks', pragmas.checks);
-            if (!isObject(params.Abstracts)) {
-                throw new TypeError('Abstracts defined in abstract class "' + params.Name + "' must be an object.");
-            }
-
-            grabAbstracts(params.Abstracts, abstractMethods, params.Name);
-            //>>includeEnd('checks');
-
-            delete params.Abstracts;
-        }
-
-        //>>includeStart('checks', pragmas.checks);
-        // Automatically grab not implemented interface methods
-        if (hasOwn(params, 'Implements')) {
-
-            forEach(toArray(params.Implements), function (value, x) {
-
-                if (!isFunction(value) || !value.$interface) {
-                    throw new TypeError('Unexpected interface at index ' + x + ' for abstract class "' + value.prototype.Name + "'.");
-                }
-
-                grabAbstracts(value.prototype, abstractMethods, params.Name);
-            });
-
-            delete params.Implements;
-        }
 
         // If we are extending an abstract class also, merge the abstract methods
         if (isFunction(params.Extends)) {
@@ -135,13 +171,27 @@ define([
 
         // Override the constructor
         params.initialize = function () {
-
             if (!this.$initializing) {
                 throw new Error('An abstract class cannot be instantiated.');
             }
-
             originalInitialize.apply(this, arguments);
         };
+        //>>includeEnd('checks');
+
+        // Save abstract methods and delete them
+        if (hasOwn(params, 'Abstracts')) {
+            //>>includeStart('checks', pragmas.checks);
+            saved.Abstracts = params.Abstracts;
+            //>>includeEnd('checks');
+            delete params.Abstracts;
+        }
+
+        //>>includeStart('checks', pragmas.checks);
+        // Save interfaces and delete them
+        if (hasOwn(params, 'Implements')) {
+            saved.Implements = params.Implements;
+            delete params.Implements;
+        }
 
         params.$abstract = true;    // Mark the instance as abstract
         //>>includeEnd('checks');
@@ -150,8 +200,19 @@ define([
         def = Classify(params);
 
         //>>includeStart('checks', pragmas.checks);
-        delete def.prototype.$abstract;    // Delete the mark and add it to the constructor
+        // Delete the abstract mark and add it to the constructor
+        delete def.prototype.$abstract;
         def.$abstract = abstractMethods;
+
+        // Process the saved abstract methods
+        if (hasOwn(saved, 'Abstracts')) {
+            grabAbstracts(saved.Abstracts, def);
+        }
+
+        // Process the saved interfaces
+        if (hasOwn(saved, 'Implements')) {
+            grabInterfaces(saved.Implements, def);
+        }
         //>>includeEnd('checks');
 
         return def;

@@ -381,20 +381,6 @@ define(modules, function (Classify, expect) {
 
             });
 
-            it('should grab the borrowed members to their own, even using certain prototype keywords', function () {
-
-                var test = function () {},
-                    SomeClass = Classify({
-                        Borrows: {
-                            hasOwnProperty: test
-                        }
-                    });
-
-                expect(SomeClass.prototype.hasOwnProperty).to.be.equal(test);
-                expect((new SomeClass()).hasOwnProperty).to.be.equal(test);
-
-            });
-
             it('should grab the borrowed members respecting the precedence order and not replace methods', function () {
 
                 var SomeMixin = {
