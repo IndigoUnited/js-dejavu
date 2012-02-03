@@ -402,7 +402,7 @@ define('Trinity/Classify', [
 //>>includeStart('checks', pragmas.checks);
 
             if (!this.$constructor.$abstract) {
-                delete this.$initializing;  // Remove previous mark
+                delete this.$initializing;    // Remove previous mark
             }
 //>>includeEnd('checks');
         };
