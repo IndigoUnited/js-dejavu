@@ -321,6 +321,70 @@ define(modules, function (Classify, expect) {
 
             });
 
+            it('should throw an error when specifying binds poiting to non existent methods', function () {
+
+                expect(function () {
+                    return Classify({
+                        Binds: ['method4']
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    return Classify({
+                        Extends: Classify({
+                            Binds: ['method1'],
+                            method1: function () {}
+                        }),
+                        Binds: ['method2']
+                    });
+                }).to.throwException();
+
+            });
+
+            it('should throw an error when specifying duplicate binds', function () {
+
+                expect(function () {
+                    return Classify({
+                        Binds: ['method1', 'method1'],
+                        method1: function () {}
+                    });
+                }).to.throwException();
+
+            });
+
+            it('should throw an error when binds are also present in the parent class', function () {
+
+                expect(function () {
+                    return Classify({
+                        Extends: Classify({
+                            Binds: ['method1'],
+                            method1: function () {}
+                        }),
+                        Binds: ['method1']
+                    });
+                }).to.throwException();
+
+            });
+
+            it('should throw an error when binds are also present in a mixin (Borrows)', function () {
+
+                expect(function () {
+                    return Classify({
+                        Binds: ['method1'],
+                        Borrows: Classify({
+                            Binds: ['method1', 'method2'],
+                            method1: function () {
+                                this.some = 'test';
+                            },
+                            method2: function () {
+                                this.some = 'test2';
+                            }
+                        })
+                    });
+                }).to.throwException(Error);
+
+            });
+
             it('should throw an error if Borrows is not an object/class or an array of objects/classes', function () {
 
                 expect(function () {
@@ -653,7 +717,7 @@ define(modules, function (Classify, expect) {
 
             });
 
-            it('should throw if declared abstract functions in Abstracts are already defined', function () {
+            it('should throw an error if declared abstract functions in Abstracts are already defined', function () {
 
                 expect(function () {
                     return Classify.Abstract({
@@ -744,6 +808,19 @@ define(modules, function (Classify, expect) {
                     });
                     return Classify.Abstract({
                         Extends: AbstractExample
+                    });
+                }).to.not.throwException();
+
+            });
+
+            it('should not throw an error when specifying binds poiting abstract methods', function () {
+
+                expect(function () {
+                    return Classify.Abstract({
+                        Binds: ['method1'],
+                        Abstracts: {
+                            method1: function () {}
+                        }
                     });
                 }).to.not.throwException();
 
@@ -1275,6 +1352,7 @@ define(modules, function (Classify, expect) {
                         }
                     });
                 }).to.throwException();
+                
             });
 
             it('should not throw an error when it is complete', function () {
@@ -1441,70 +1519,6 @@ define(modules, function (Classify, expect) {
                         }
                     });
                 }).to.throwException();
-            });
-
-            it('should throw an error when specifying binds poiting to non existent methods', function () {
-
-                expect(function () {
-                    return Classify({
-                        Binds: ['method4']
-                    });
-                }).to.throwException();
-
-                expect(function () {
-                    return Classify({
-                        Extends: Classify({
-                            Binds: ['method1'],
-                            method1: function () {}
-                        }),
-                        Binds: ['method2']
-                    });
-                }).to.throwException();
-
-            });
-
-            it('should throw an error when specifying duplicate binds', function () {
-
-                expect(function () {
-                    return Classify({
-                        Binds: ['method1', 'method1'],
-                        method1: function () {}
-                    });
-                }).to.throwException();
-
-            });
-
-            it('should throw an error when binds are also present in the parent class', function () {
-
-                expect(function () {
-                    return Classify({
-                        Extends: Classify({
-                            Binds: ['method1'],
-                            method1: function () {}
-                        }),
-                        Binds: ['method1']
-                    });
-                }).to.throwException();
-
-            });
-
-            it('should throw an error when binds are also present in a mixin (Borrows)', function () {
-
-                expect(function () {
-                    return Classify({
-                        Binds: ['method1'],
-                        Borrows: Classify({
-                            Binds: ['method1', 'method2'],
-                            method1: function () {
-                                this.some = 'test';
-                            },
-                            method2: function () {
-                                this.some = 'test2';
-                            }
-                        })
-                    });
-                }).to.throwException(Error);
-
             });
 
         });
