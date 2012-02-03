@@ -73,7 +73,7 @@ define([
 
         mixins = toArray(sources);
 
-        for (i = mixins.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
+        for (i = mixins.length - 1; i >= 0; i -= 1) {        // We don't use forEach here due to performance
 
             current = isObject(mixins[i]) ? Classify(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
 
@@ -243,7 +243,7 @@ define([
         // Grab binds from the parent and itself
         grabBinds(classify);
 
-        // If the class implement some interfaces and is not abstract then verify if interfaces are well implemented
+        // Handle interfaces
         if (hasOwn(params, 'Implements')) {
             delete classify.prototype.Implements;
         }

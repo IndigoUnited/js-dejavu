@@ -191,9 +191,10 @@ define([
         };
 
 //>>includeEnd('strict');
-        // Save abstract methods and delete them
+        // Handle abstract methods
         if (hasOwn(params, 'Abstracts')) {
 //>>includeStart('strict', pragmas.strict);
+            // Save them for later use
             saved.Abstracts = params.Abstracts;
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict)
@@ -202,8 +203,9 @@ define([
         }
 
 //>>includeStart('strict', pragmas.strict);
-        // Save interfaces and delete them
+        // Handle interfaces
         if (hasOwn(params, 'Implements')) {
+            // Save them for later use
             saved.Implements = params.Implements;
             delete params.Implements;
         }

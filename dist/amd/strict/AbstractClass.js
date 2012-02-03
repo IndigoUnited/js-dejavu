@@ -183,13 +183,15 @@ define([
             originalInitialize.apply(this, arguments);
         };
 
-        // Save abstract methods and delete them
+        // Handle abstract methods
         if (hasOwn(params, 'Abstracts')) {
+            // Save them for later use
             saved.Abstracts = params.Abstracts;
         }
 
-        // Save interfaces and delete them
+        // Handle interfaces
         if (hasOwn(params, 'Implements')) {
+            // Save them for later use
             saved.Implements = params.Implements;
             delete params.Implements;
         }
