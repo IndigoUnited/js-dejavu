@@ -14,8 +14,6 @@ define([
      */
     function Interface(params) {
 
-        delete params.Name;
-
         var interf = function () {
         };
 

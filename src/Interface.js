@@ -80,11 +80,8 @@ define([
 
         // Verify reserved words
         verifyReserved(params);
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
-        delete params.Name;
-//>>excludeEnd('strict');
 
+//>>includeEnd('strict');
         var interf = function () {
 //>>includeStart('strict', pragmas.strict);
             throw new Error('Interfaces cannot be instantiated.');
