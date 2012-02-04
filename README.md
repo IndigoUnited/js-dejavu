@@ -258,14 +258,14 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
 
 Concrete classes can extend other concrete classes or abstract classes as well as implement several interfaces.
 They differ from abstract classes in the way that they can't have abstract methods.
-Bellow is described the full syntax that can be used with Classify:
+Bellow is described the full syntax that can be used in concrete and abstract classes.
 
 ```js
 define([
     'path/to/some/class',
     'path/to/other/class',
     'path/to/some/interface',
-    'path/to/other/interfaces,
+    'path/to/other/interfaces',
     'path/to/classify/Class'
 ],
 function (SomeClass, OtherClass, SomeInterface, OtherInterface, AbstractClass) {
