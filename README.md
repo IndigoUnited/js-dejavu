@@ -352,6 +352,19 @@ The binds keyword allows you to specify functions that should be bound to the in
 This is useful if certain functions are meant to be used as callbacks or handlers.
 You don't need to bind the function manually, it will be bound for you automatically.
 
+## Dependencies ##
+
+Classify depends on [amd-utils](https://github.com/millermedeiros/amd-utils).
+If you use the regular build, you don't need to worry because all functions used from amd-utils are bundled for you.
+If you use the AMD build, you must specify the path to amd-utils.
+For example, if you use [RequireJS](http://requirejs.org/):
+
+```js
+    paths : {
+        'Utils': '../vendor/amd-utils/src'
+    },
+```
+
 ## Bulding Classify ##
 
 Please take a look at the [build](https://github.com/TrinityJS/Classify/tree/master/build) section.
