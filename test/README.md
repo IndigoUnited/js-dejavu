@@ -15,8 +15,8 @@ Then you can run all build tests individually:
 * Run mocha test/amd/scrict.js to test the [amd/strict](https://github.com/TrinityJS/Classify/tree/master/dist/amd/loose) build
 * Run test/amd/loose.js to test the [amd/loose](https://github.com/TrinityJS/Classify/tree/master/dist/amd/loose) build
 
-_Tip_: You can use mocha -R list [file] to give you a full list of the tests
+_Tip_: You can use mocha -R list [file] to give you a full list of the tests.
 
-## Browser: ##
+## Browser ##
 
-* Run tester.html to test the diferent builds
+To test directly in the browser, simply run tester.html and select the build you want to test at the too menu.
