@@ -138,7 +138,7 @@ define(['path/to/EventsInterface', 'path/to/classify/Class'], function (EventsIn
 
     var EventsEmitter = Class({
 
-        Implements: EventsInterface,   // The class must implement the EventsInterface interface
+        Implements: EventsInterface,   // The class implements the EventsInterface interface
                                        // You can specify multiple interfaces in an array
 
         /**
@@ -238,6 +238,15 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
         Extends: SomeClass,
         Implements: [SomeInterface, OtherInterface],
 
+        /**
+         *
+         */
+        initialize: function () {
+            // This is the constructor
+            // Calling new on an abstract will throw an error
+            // Though a class that extends this abstract class will run this constructor if called.
+        },
+
         Statics: {
             // Some class static members
         },
@@ -269,9 +278,9 @@ define([
     'path/to/other/interfaces',
     'path/to/classify/Class'
 ],
-function (SomeClass, OtherClass, SomeInterface, OtherInterface, AbstractClass) {
+function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
 
-    var ConcreteClass = AbstractClass({
+    var ConcreteClass = Class({
 
         Extends: SomeClass,
         Implements: [SomeInterface, OtherInterface],
@@ -282,19 +291,22 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, AbstractClass) {
                                                         // Useful for handlers/callbacks
                                                         // You can specify multiple Binds in an array
 
-        // Some handler
+        /**
+         * Class constructor.
+         */
+        initialize: function () {
+            // Do things here
+        },
+
+        /**
+         * Handles some click event.
+         */
         'handleClick': function () {
             // Handle click here
         },
 
         Statics: {
             // Some class static members
-        },
-        Abstracts: {
-            // Some abstract functions
-            Statics: {
-                // Some abstract static functions
-            }
         }
     });
 });
