@@ -19,20 +19,32 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 * Mixins (so you can get some sort of multiple inheritance)
 * Context binding for functions (useful for functions that will be used as callbacks/handlers)
 * Has two builds, one regular and one AMD based
-* Each of those two builds have a version for development and a version for production
 
-_NOTE_: Protected/private variables are not supported due to performance reasons.
-        Instead, they are prefixed with a  _ and an __ respectively.
+## Performance ##
+
+All kind of validations to ensure that your classes are well defined and obey all the common rules of classic inheritance degrade performance.
+Thats why there is a __strict__ and a __loose__ version for each build.
+The strict version throws an error when something is not right and therefor is suitable for development.
+The loose build has no overhead associated with verifications and therefore is suitable for production.
+If your classes schema work in the strict version then is safe to use them in the loose version.
+
+__NOTE__:
+
+Protected/private members are not yet supported, instead they are prefixed with an _ and an __ respectively.
+Private and protected functions could be made by creating wrappers around them.
+Still, there is no crossbrowser way to define private and protected variables.
+Those will be implemented soon using the [Object.defineProperty](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/defineProperty) only in environments that implement it.
+Stay tuned!
 
 ## Usage ##
 
-All examples bellow are using the AMD format.
+All examples bellow use the AMD format.
 
 * Interface definition
 
 Object interfaces allow you to create code which specifies which methods a class must implement, without having to define how these methods are handled.
 Also they can define some constants.
-Bellow there's an example of an EventsInterface, that has the role of adding event listeners and fire events.
+Bellow there's an example of an _EventsInterface_, that has the role of adding event listeners and fire events.
 
 ```js
 define(['path/to/classify/Interface'], function (Interface) {
@@ -73,9 +85,9 @@ define(['path/to/classify/Interface'], function (Interface) {
  * Interface usage example
 
 A class that implements an interface must define all the interface methods.
-You define that a class must implement an interface by specifying it in the Implements keyword.
+You define that a class implements an interface by specifying it in the Implements keyword.
 The Implements keyword can be an interface or an array of interfaces.
-If a class does not implement all the interface methods, then a friendly error is thrown.
+If a class does not implement all the interface(s) methods, then a friendly error is thrown.
 Bellow there is an example of an EventsEmitter class that implements the EventsInterface.
 
 ```js
