@@ -188,6 +188,15 @@ function (EventsInterface, AbstractClass) {
         Implements: EventsInterface,   // The class must implement the EventsInterface
 
         /**
+         * Class constructor.
+         */
+        initialize: function (argument1) {
+            // This is the constructor
+            // Calling new on an abstract class will throw an error
+            // Though a class that extends this abstract class will run this constructor if called
+        },
+
+        /**
          * @inheritDoc
          */
         'addListener': function (name, fn, context) {
@@ -246,12 +255,10 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
          * Class constructor.
          */
         initialize: function (argument1) {
-            // This is the constructor
-            // Calling new on an abstract class will throw an error
-            // Though a class that extends this abstract class will run this constructor if called
-
             // Call super
             ComplexAbstractClass.Super.initialize.call(this, argument1);
+
+            // Do some other things
         },
 
         Statics: {
@@ -302,7 +309,6 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
          * Class constructor.
          */
         initialize: function () {
-
             // Call super
             ConcreteClass.Super.initialize.call(this, argument1);
 
@@ -370,7 +376,6 @@ define(['path/to/classify/Class'], function (Class) {
          * foo method
          */
         'foo': function () {
-
             // Call super
             ComplexClass.Super.foo.call(this);
 
