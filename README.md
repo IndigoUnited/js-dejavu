@@ -23,6 +23,7 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 * Context binding for functions (useful for functions that will be used as callbacks/handlers)
 * Has two builds, one regular and one AMD based
 
+__NOTE__: Regular build will be made soon!
 
 
 ## Performance ##
@@ -326,6 +327,8 @@ Those wrappers obviously degrade performance (e.g.: if you call a instance metho
 Instead, you may use this syntax:
 
 ```js
+define(['path/to/classify/Class'], function (Class) {
+
     var SomeClass = Class{(
 
         /**
@@ -351,6 +354,10 @@ Instead, you may use this syntax:
             // Do other things
         }
     });
+
+    return ComplexClass;
+
+});
 ```
 
 Because the parent reference is attached statically there is no performance overhead.
