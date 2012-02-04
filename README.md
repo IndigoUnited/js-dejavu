@@ -115,7 +115,7 @@ define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Inte
              */
             getTotalListeners: function () {}
         }
-        
+
     });
 
     return SomeEventsInterface;
@@ -199,12 +199,12 @@ define(['path/to/EventsInterface', 'path/to/classify/AbstractClass'], function (
         // fireEvent() is not implemented, therefore is automatically declared as abstract
 
         Abstracts: {    // This how we defined abstract methods
-            
+
             /**
              * Removes all previously added listeners.
              */
             'removeAll': function () {},
-            
+
             Statics: {   // We can also define abstract static methods
 
                 /**
@@ -231,9 +231,9 @@ define([
     'path/to/classify/AbstractClass'
 ],
 function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
-    
+
     var ComplexAbstractClass = AbstractClass({
-        
+
         Extends: SomeClass,
         Implements: [SomeInterface, OtherInterface],
 
@@ -271,7 +271,7 @@ define([
 function (SomeClass, OtherClass, SomeInterface, OtherInterface, AbstractClass) {
 
     var ConcreteClass = AbstractClass({
-        
+
         Extends: SomeClass,
         Implements: [SomeInterface, OtherInterface],
         Borrows: OtherClass                             // We can add mixins by specifying them in here
@@ -285,7 +285,7 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, AbstractClass) {
         'handleClick': function () {
             // Handle click here
         },
-        
+
         Statics: {
             // Some class static members
         },
@@ -300,7 +300,43 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, AbstractClass) {
 
 ```
 
+### Calling the parent function ###
 
+As mentioned above, there is no super() or parent() inside of functions.
+Libraries that provide it are required to create wrappers to provide it.
+Those wrappers obviously degrade performance (e.g.: if you call a instance method 100 times, in reality there was at least 20 function calls).
+Instead, you may use this syntax:
+
+```js
+    var SomeClass = Class{(
+
+        /**
+         * foo method
+         */
+        'foo': function () {
+            // Do something here
+        }
+    });
+
+    var ComplexClass = Class({
+
+        Extends: SomeClass,
+
+        /**
+         * foo method
+         */
+        'foo': function () {
+
+            // Call super
+            ComplexClass.Super.foo.call(this);
+
+            // Do other things
+        }
+    });
+```
+
+Because the parent reference is attached statically there is no performance overhead.
+With this syntax it also gives you the flexibility to call other parent methods.
 
 ### Mixins ###
 
