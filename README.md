@@ -29,7 +29,7 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 
 All kind of validations to ensure that your classes are well defined and obey all the common rules of classic inheritance degrade performance.
 Thats why there is a __strict__ and a __loose__ version for each build.
-The strict version throws an error when something is not right and therefor is suitable for development.
+The strict version throws an error when something is not right and therefore is suitable for development.
 The loose build has no overhead associated with verifications and therefore is suitable for production.
 If your classes schema work in the strict version then is safe to use them in the loose version.
 
