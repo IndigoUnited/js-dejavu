@@ -38,7 +38,7 @@ Instead, we provide an alternative syntax that performs much better (see usage b
 
 ## Known limitations ##
 
-* Protected/private members are not yet supported, instead they are prefixed with an _ and an __ respectively.
+* Protected/private members are not yet supported, instead they should prefixed with an _ and an __ respectively.
 Private and protected functions could be made by creating wrappers around them.
 Still, there is no crossbrowser way to define private and protected variables.
 Those will be implemented soon using the [Object.defineProperty](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/defineProperty) in the strict version only in environments that implement it.
