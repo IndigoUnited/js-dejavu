@@ -44,7 +44,7 @@ Still, there is no crossbrowser way to define private and protected variables.
 Those will be implemented soon using the [Object.defineProperty](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/defineProperty) in the strict version only in environments that implement it.
 * There is no support for constants, in the sense that once defined they cannot be overwritten.
 Those will probably won't be implemented. If anyone is willing to take an effort to do so, please make a pull request.
-* Interfaces does not validate the function arguments yet. It will be implemented soon.
+* Interfaces does not validate function arguments presence yet. It will be implemented soon.
 
 Stay tuned!
 
