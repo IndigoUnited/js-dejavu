@@ -323,3 +323,7 @@ Please take a look at the [build](https://github.com/TrinityJS/Classify/tree/mas
 ## Testing Classify ##
 
 Please take a look at the [test](https://github.com/TrinityJS/Classify/tree/master/test) section.
+
+## License ##
+
+Released under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
