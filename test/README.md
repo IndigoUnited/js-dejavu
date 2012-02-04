@@ -19,4 +19,4 @@ _Tip_: You can use mocha -R list [file] to give you a full list of the tests.
 
 ## Browser ##
 
-To test directly in the browser, simply run tester.html and select the build you want to test at the too menu.
+To test directly in the browser, simply run tester.html and select the build you want to test at the top menu.
