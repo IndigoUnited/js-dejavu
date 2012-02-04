@@ -57,6 +57,43 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
+            it('should throw an error if it does not contain only functions', function () {
+
+                expect(function () {
+                    return Interface({
+                        some: 'property'
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    return Interface({
+                        some: undefined
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    return Interface({
+                        some: undefined
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    return Interface({
+                        some: function () {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        Statics: {
+                            some: 'property',
+                            method: function () {}
+                        }
+                    });
+                }).to.not.throwException();
+
+            });
+
             it('should throw an error when extending a class or abstract class', function () {
 
                 expect(function () {
@@ -115,7 +152,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     },
                     checkStatic = function (key) {
                         return function () {
-                            var obj = { Statics: {} };
+                            var obj = {Statics: {}};
                             obj.Statics[key] = 'bla';
                             return Interface(obj);
                         };
@@ -682,8 +719,44 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         Abstracts: {
+                            some: undefined
+                        }
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            some: null
+                        }
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
                             Statics: {
                                 some: 'wtf'
+                            }
+                        }
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            Statics: {
+                                some: undefined
+                            }
+                        }
+                    });
+                }).to.throwException(TypeError);
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            Statics: {
+                                some: null
                             }
                         }
                     });
@@ -809,14 +882,14 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         return function () {
                             var obj = {};
                             obj[key] = 'bla';
-                            return AbstractClass(!!inAbstracts ? { Abstracts: obj } : obj);
+                            return AbstractClass(!!inAbstracts ? {Abstracts: obj} : obj);
                         };
                     },
                     checkStatic = function (key, inAbstracts) {
                         return function () {
-                            var obj = { Statics: {} };
+                            var obj = {Statics: {}};
                             obj.Statics[key] = 'bla';
-                            return AbstractClass(!!inAbstracts ? { Abstracts: obj } : obj);
+                            return AbstractClass(!!inAbstracts ? {Abstracts: obj} : obj);
                         };
                     };
 
@@ -1413,7 +1486,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     },
                     checkStatic = function (key) {
                         return function () {
-                            var obj = { Statics: {} };
+                            var obj = {Statics: {}};
                             obj.Statics[key] = 'bla';
                             return Class(obj);
                         };
