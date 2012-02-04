@@ -346,7 +346,7 @@ You don't need to bind the function manually, it will be bound for you automatic
 
 As mentioned above, there is no super() or parent() inside of functions.
 Libraries that provide it are required to create wrappers to provide it.
-Those wrappers obviously degrade performance (e.g.: if you call a instance method 100 times, in reality there was at least 20 function calls).
+Those wrappers obviously degrade performance (e.g.: if you call a instance method 100 times, in reality there was at least 200 function calls).
 Instead, you may use this syntax:
 
 ```js
@@ -418,6 +418,8 @@ Please take a look at the [test](https://github.com/TrinityJS/Classify/tree/mast
 ## License ##
 
 Released under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
+
+
 
 ## Credits ##
 
