@@ -103,7 +103,7 @@ define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Inte
 
     var SomeEventsInteface = Interface({
 
-        Extends: EventsInterface,   // This interface extends EventInterface
+        Extends: EventsInterface,   // This interface extends EventsInterface
 
         Statics: {    // This is how we define static members
 
