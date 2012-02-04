@@ -300,6 +300,24 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, AbstractClass) {
 
 ```
 
+
+
+### Mixins ###
+
+A mixin is a class or object that provides a certain functionality to be reused by other classes.
+Mixins can be used like specified in the example above.
+If clashes occur with multiple mixins, that last one takes precedence.
+
+
+
+### Binds ###
+
+The binds keyword allows you to specify functions that should be bound to the instance.
+This is useful if certain functions are meant to be used as callbacks or handlers.
+You don't need to bind the function manually, it will be bound for you automatically.
+
+
+
 ### Calling the parent function ###
 
 As mentioned above, there is no super() or parent() inside of functions.
@@ -338,19 +356,7 @@ Instead, you may use this syntax:
 Because the parent reference is attached statically there is no performance overhead.
 With this syntax it also gives you the flexibility to call other parent methods.
 
-### Mixins ###
 
-A mixin is a class or object that provides a certain functionality to be reused by other classes.
-Mixins can be used like specified in the example above.
-If clashes occur with multiple mixins, that last one takes precedence.
-
-
-
-### Binds ###
-
-The binds keyword allows you to specify functions that should be bound to the instance.
-This is useful if certain functions are meant to be used as callbacks or handlers.
-You don't need to bind the function manually, it will be bound for you automatically.
 
 ## Dependencies ##
 
@@ -365,13 +371,19 @@ For example, if you use [RequireJS](http://requirejs.org/):
     },
 ```
 
+
+
 ## Bulding Classify ##
 
 Please take a look at the [build](https://github.com/TrinityJS/Classify/tree/master/build) section.
 
+
+
 ## Testing Classify ##
 
 Please take a look at the [test](https://github.com/TrinityJS/Classify/tree/master/test) section.
+
+
 
 ## License ##
 
