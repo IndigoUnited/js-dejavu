@@ -177,7 +177,11 @@ When an abstract class implements an interface and doesn't implement some of its
 Bellow there is an example of an abstract class - _AbstractEmitter_ - that implements all of the _EventsInterface_ interface methods, except the _fireEvent()_ method.
 
 ```js
-define(['path/to/EventsInterface', 'path/to/classify/AbstractClass'], function (EventsInterface, AbstractClass) {
+define([
+    'path/to/EventsInterface',
+    'path/to/classify/AbstractClass'
+],
+function (EventsInterface, AbstractClass) {
 
     var AbstractEventsEmitter = Class({
 
@@ -228,7 +232,7 @@ Abstract classes can extend other abstract classes or concrete classes while imp
 define([
     'path/to/some/class',
     'path/to/some/interface',
-    'path/to/other/interfaces,
+    'path/to/other/interfaces',
     'path/to/classify/AbstractClass'
 ],
 function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
