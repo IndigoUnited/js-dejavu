@@ -239,12 +239,15 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
         Implements: [SomeInterface, OtherInterface],
 
         /**
-         *
+         * Class constructor.
          */
-        initialize: function () {
+        initialize: function (argument1) {
             // This is the constructor
-            // Calling new on an abstract will throw an error
-            // Though a class that extends this abstract class will run this constructor if called.
+            // Calling new on an abstract class will throw an error
+            // Though a class that extends this abstract class will run this constructor if called
+
+            // Call super
+            ComplexAbstractClass.Super.initialize.call(this, argument1);
         },
 
         Statics: {
@@ -295,6 +298,10 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
          * Class constructor.
          */
         initialize: function () {
+
+            // Call super
+            ConcreteClass.Super.initialize.call(this, argument1);
+
             // Do things here
         },
 
