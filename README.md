@@ -418,3 +418,7 @@ Please take a look at the [test](https://github.com/TrinityJS/Classify/tree/mast
 ## License ##
 
 Released under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
+
+## Credits ##
+
+Thanks to [Luís Couto](https://github.com/Couto) for his initial contributions.
