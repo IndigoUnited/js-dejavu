@@ -72,7 +72,7 @@ define(['path/to/classify/Interface'], function (Interface) {
          * @param {Function} fn      The listener
          * @param {Object}   context The context
          */
-        'addListener': function (name, fn, context) {},
+        addListener: function (name, fn, context) {},
 
         /**
          * Remove a previously added listener.
@@ -80,7 +80,7 @@ define(['path/to/classify/Interface'], function (Interface) {
          * @param {String}   name The event name
          * @param {Function} fn   The listener
          */
-        'removeListener': function (name, fn) {},
+        removeListener: function (name, fn) {},
 
         /**
          * Fire an event, executing each of the attached listeners.
@@ -88,7 +88,7 @@ define(['path/to/classify/Interface'], function (Interface) {
          * @param {String} name The event name
          * @param {Array}  args The arguments to be passed to the listeners
          */
-        'fireEvent': function (name, args) {}
+        fireEvent: function (name, args) {}
 
     });
 
@@ -144,21 +144,21 @@ define(['path/to/EventsInterface', 'path/to/classify/Class'], function (EventsIn
         /**
          * @inheritDoc
          */
-        'addListener': function (name, fn, context) {
+        addListener: function (name, fn, context) {
             // Implementation goes here
         },
 
         /**
          * @inheritDoc
          */
-        'removeListener': function (name, fn) {
+        removeListener: function (name, fn) {
             // Implementation goes here
         },
 
         /**
          * @inheritDoc
          */
-        'fireEvent': function (name, args) {
+        fireEvent: function (name, args) {
             // Implementation goes here
         }
     });
@@ -199,14 +199,14 @@ function (EventsInterface, AbstractClass) {
         /**
          * @inheritDoc
          */
-        'addListener': function (name, fn, context) {
+        addListener: function (name, fn, context) {
             // Implementation goes here
         },
 
         /**
          * @inheritDoc
          */
-        'removeListener': function (name, fn) {
+        removeListener: function (name, fn) {
             // Implementation goes here
         },
 
@@ -217,7 +217,7 @@ function (EventsInterface, AbstractClass) {
             /**
              * Removes all previously added listeners.
              */
-            'removeAll': function () {},
+            removeAll: function () {},
 
             Statics: {   // We can also define abstract static methods
 
@@ -264,6 +264,7 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
         Statics: {
             // Some class static members
         },
+
         Abstracts: {
             // Some abstract functions
             Statics: {
@@ -318,7 +319,7 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
         /**
          * Handles some click event.
          */
-        'handleClick': function () {
+        handleClick: function () {
             // Handle click here
         },
 
@@ -375,7 +376,7 @@ define(['path/to/classify/Class'], function (Class) {
         /**
          * foo method
          */
-        'foo': function () {
+        foo: function () {
             // Call super
             ComplexClass.Super.foo.call(this);
 
