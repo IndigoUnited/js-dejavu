@@ -258,7 +258,7 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
             // Call super
             ComplexAbstractClass.Super.initialize.call(this, argument1);
 
-            // Do some other things
+            // Do other things here
         },
 
         Statics: {
@@ -312,7 +312,7 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
             // Call super
             ConcreteClass.Super.initialize.call(this, argument1);
 
-            // Do things here
+            // Do other things here
         },
 
         /**
