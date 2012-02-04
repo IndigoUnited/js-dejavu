@@ -9,6 +9,7 @@ define([
     'Utils/object/forOwn',
     'Utils/array/combine',
     'Utils/array/insert',
+    'Utils/array/contains',
     'Utils/lang/createObject',
     './common/verifyReserved'
 //>>includeEnd('strict');
@@ -20,6 +21,7 @@ define([
     forOwn,
     combine,
     insert,
+    contains,
     createObject,
     verifyReserved
 //>>includeEnd('strict');
@@ -59,6 +61,8 @@ define([
             delete constructor.$statics;
         }
     }
+
+    var ignoreKeys = ['Name', 'Extends', 'Statics'];
 //>>includeEnd('strict');
 
     /**
@@ -89,6 +93,13 @@ define([
         };
 
 //>>includeStart('strict', pragmas.strict);
+        // Verify if all params are functions
+        forOwn(params, function (value, key) {
+            if (!isFunction(value) && !contains(ignoreKeys, key)) {
+                throw new TypeError('All values of "' + params.Name + '" must be functions (except for Statics).');
+            }
+        });
+
         if (hasOwn(params, 'Extends')) {
 
             // Verify if parent is a valid interface
