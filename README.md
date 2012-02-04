@@ -173,7 +173,7 @@ define(['path/to/EventsInterface', 'path/to/classify/Class'], function (EventsIn
 Classes defined as abstract may not be instantiated, and any class that contains at least one abstract method must also be abstract.
 Methods defined as abstract simply declare the method's signature.
 When an abstract class implements an interface and doesn't implement some of its methods, those will be automatically declared as abstract.
-Bellow there is an example of an abstract class - _AbstractEmitter_ - that defines all of the _EventsInterface_ interface methods, except the _fireEvent()_ method.
+Bellow there is an example of an abstract class - _AbstractEmitter_ - that implements all of the _EventsInterface_ interface methods, except the _fireEvent()_ method.
 
 ```js
 define(['path/to/EventsInterface', 'path/to/classify/AbstractClass'], function (EventsInterface, AbstractClass) {
