@@ -95,7 +95,7 @@ define(['path/to/classify/Interface'], function (Interface) {
 });
 ```
 
-Interfaces can extend other interfaces. They can also define static properties and functions.
+Interfaces can extend other interfaces. They can also define static properties and functions signature.
 
 ```js
 define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Interface) {
