@@ -1,4 +1,4 @@
-Classify, a set of object-oriented tools for Javasacript
+Classify, a set of object-oriented tools for Javascript
 ======================================================
 
 ---
