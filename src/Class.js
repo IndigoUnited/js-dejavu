@@ -21,6 +21,7 @@ define([
     'Utils/array/combine',
     'Utils/array/append',
     'Utils/array/insert',
+    'Utils/array/compact',
     'Utils/lang/bind',
     'Utils/lang/toArray'
 ], function (
@@ -43,6 +44,7 @@ define([
     combine,
     append,
     insert,
+    compact,
     bind,
     toArray
 ) {
@@ -59,11 +61,11 @@ define([
         if (hasOwn(constructor.prototype, 'Borrows')) {
 
 //>>includeStart('strict', pragmas.strict);
-            var i,
-                current,
+            var current,
                 key,
                 k,
-                mixins,
+                mixins = toArray(constructor.prototype.Borrows),
+                i = mixins.length,
                 opts = { type: 'normal', defType: 'class', defName: constructor.prototype.Name },
                 optsStatic = { type: 'static', defType: opts.defType, defName: opts.defName },
                 grabMethods = function (value, key) {
@@ -82,11 +84,11 @@ define([
                 };
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-            var i,
-                current,
+            var current,
                 k,
                 key,
-                mixins,
+                mixins = toArray(constructor.prototype.Borrows),
+                i = mixins.length,
                 grabMethods = function (value, key) {
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
                         constructor.prototype[key] = value;
@@ -94,20 +96,18 @@ define([
                 };
 //>>excludeEnd('strict');
 
-            mixins = toArray(constructor.prototype.Borrows);
-
 //>>includeStart('strict', pragmas.strict);
             // Verify argument type
-            if (!mixins.length && !isArray(constructor.prototype.Borrows)) {
+            if (!i && !isArray(constructor.prototype.Borrows)) {
                 throw new TypeError('Borrows of "' + constructor.prototype.Name + '" must be a class/object or an array of classes/objects.');
             }
             // Verify duplicate entries
-            if (mixins.length !== unique(mixins).length) {
+            if (i !== unique(mixins).length && compact(mixins).length === i) {
                 throw new Error('There are duplicate entries defined in Borrows of "' + constructor.prototype.Name + '".');
             }
 
 //>>includeEnd('strict');
-            for (i = mixins.length - 1; i >= 0; i -= 1) {
+            for (i -= 1; i >= 0; i -= 1) {
 
 //>>includeStart('strict', pragmas.strict);
                 // Verify each mixin
@@ -197,7 +197,7 @@ define([
             throw new TypeError('Implements of class "' + target.prototype.Name + '" must be an interface or an array of interfaces.');
         }
         // Verify duplicate interfaces
-        if (x !== unique(interfaces).length) {
+        if (x !== unique(interfaces).length && compact(interfaces).length === x) {
             throw new Error('There are duplicate entries in Implements of "' + target.prototype.Name + '".');
         }
 
@@ -221,7 +221,6 @@ define([
 //>>excludeEnd('strict');
     }
 
-//>>includeEnd('strict');
     /**
      * Parse binds.
      *
@@ -245,7 +244,7 @@ define([
                 throw new TypeError('Binds of "' + constructor.prototype.Name + '" must be a string or an array of strings.');
             }
             // Verify duplicate binds
-            if (x !== unique(binds).length) {
+            if (x !== unique(binds).length && compact(binds).length === x) {
                 throw new Error('There are duplicate entries in Binds of "' + constructor.prototype.Name + '".');
             }
             // Verify duplicate binds already provided in mixins

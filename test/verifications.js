@@ -348,6 +348,12 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         Extends: [SomeInterface, SomeInterface]
                     });
                 }).to.throwException(/duplicate entries/);
+                
+                expect(function () {
+                    return Interface({
+                        Extends: [undefined, undefined]
+                    });
+                }).to.not.throwException(/duplicate entries/);
 
             });
 
@@ -671,7 +677,19 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Class({
+                        Binds: [undefined, undefined]
+                    });
+                }).to.throwException(/is not a string/);
+
+                expect(function () {
+                    return Class({
                         Binds: [null]
+                    });
+                }).to.throwException(/is not a string/);
+
+                expect(function () {
+                    return Class({
+                        Binds: [null, null]
                     });
                 }).to.throwException(/is not a string/);
 
@@ -726,6 +744,13 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     });
                 }).to.throwException(/duplicate entries/);
 
+                expect(function () {
+                    return Class({
+                        Binds: [undefined, undefined],
+                        method1: function () {}
+                    });
+                }).to.not.throwException(/duplicate entries/);
+
             });
 
             it('should throw an error when binds are also present in the parent class', function () {
@@ -776,6 +801,19 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         Implements: [SomeInterface, SomeInterface]
                     });
                 }).to.throwException(/duplicate entries/);
+
+                expect(function () {
+                    return Class({
+                        Implements: [undefined, undefined]
+                    });
+                }).to.not.throwException(/duplicate entries/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Implements: [undefined, undefined]
+                    });
+                }).to.not.throwException(/duplicate entries/);
+
             });
 
             it('should throw an error if Borrows is not an object/class or an array of objects/classes', function () {
@@ -818,7 +856,19 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Class({
-                        Borrows: [undefined]
+                        Borrows: [null]
+                    });
+                }).to.throwException(/not a valid class\/object/);
+
+                expect(function () {
+                    return Class({
+                        Borrows: [undefined, undefined]
+                    });
+                }).to.throwException(/not a valid class\/object/);
+
+                expect(function () {
+                    return Class({
+                        Borrows: [null, null]
                     });
                 }).to.throwException(/not a valid class\/object/);
 
@@ -894,6 +944,11 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     });
                 }).to.throwException(/duplicate entries/);
 
+                expect(function () {
+                    return Class({
+                        Borrows: [undefined, undefined]
+                    });
+                }).to.not.throwException(/duplicate entries/);
             });
 
             it('should throw an error if Implements is not an Interface or an array of Interfaces', function () {
@@ -931,6 +986,18 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Class({
                         Implements: [null]
+                    });
+                }).to.throwException(/not a valid interface/);
+
+                expect(function () {
+                    return Class({
+                        Implements: [undefined, undefined]
+                    });
+                }).to.throwException(/not a valid interface/);
+
+                expect(function () {
+                    return Class({
+                        Implements: [null, null]
                     });
                 }).to.throwException(/not a valid interface/);
 
@@ -991,6 +1058,18 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         Implements: [null]
+                    }).to.throwException(/not a valid interface/);
+                });
+
+                expect(function () {
+                    return AbstractClass({
+                        Implements: [undefined, undefined]
+                    }).to.throwException(/not a valid interface/);
+                });
+
+                expect(function () {
+                    return AbstractClass({
+                        Implements: [null, null]
                     }).to.throwException(/not a valid interface/);
                 });
 

@@ -10,6 +10,7 @@ define([
     'Utils/lang/bind',
     'Utils/array/intersection',
     'Utils/array/unique',
+    'Utils/array/compact',
     'Utils/object/mixIn',
     'Utils/object/keys',
     'Utils/object/forOwn',
@@ -28,6 +29,7 @@ define([
     bind,
     intersection,
     unique,
+    compact,
     mixIn,
     keys,
     forOwn,
@@ -132,7 +134,7 @@ define([
                 throw new TypeError('Extends of "' + params.Name + '" seems to point to an nonexistent interface.');
             }
             // Verify duplicate entries
-            if (k !== unique(parents).length) {
+            if (k !== unique(parents).length && compact(parents).length === k) {
                 throw new Error('There are duplicate entries defined in Extends of "' + params.Name + '".');
             }
 

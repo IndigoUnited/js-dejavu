@@ -13,6 +13,7 @@ define([
     'Utils/array/combine',
     'Utils/array/append',
     'Utils/array/insert',
+    'Utils/array/compact',
     'Utils/lang/bind',
     'Utils/lang/toArray'
 ], function (
@@ -27,6 +28,7 @@ define([
     combine,
     append,
     insert,
+    compact,
     bind,
     toArray
 ) {
@@ -42,20 +44,18 @@ define([
 
         if (hasOwn(constructor.prototype, 'Borrows')) {
 
-            var i,
-                current,
+            var current,
                 k,
                 key,
-                mixins,
+                mixins = toArray(constructor.prototype.Borrows),
+                i = mixins.length,
                 grabMethods = function (value, key) {
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
                         constructor.prototype[key] = value;
                     }
                 };
 
-            mixins = toArray(constructor.prototype.Borrows);
-
-            for (i = mixins.length - 1; i >= 0; i -= 1) {
+            for (i -= 1; i >= 0; i -= 1) {
 
                 current = isObject(mixins[i]) ? Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
 
@@ -120,7 +120,6 @@ define([
         }
     }
 
-//>>includeEnd('strict');
     /**
      * Parse binds.
      *
