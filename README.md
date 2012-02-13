@@ -46,7 +46,7 @@ Instead, we provide an alternative syntax that performs much better (see usage b
 Private and protected functions could be made by creating wrappers around them.
 Still, there is no crossbrowser way to define private and protected variables.
 Those will be implemented soon using the [Object.defineProperty](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/defineProperty) in the strict version only in environments that implement it.
-* There is no support for constants yet.
+* Support for constants/final.
 
 Stay tuned!
 
@@ -345,6 +345,7 @@ With this syntax it also gives you the flexibility to call other parent methods.
 
 All functions are virtual functions. A method can override another if they obey their signature, that means that
 they must be augmented only with optional arguments. Optional arguments are prefixed with a $ so they can be qualified as optional.
+The signature check are made for every class, abstract class and interface.
 
 ```js
     var SomeClass = Class{(
