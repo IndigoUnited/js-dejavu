@@ -30,7 +30,7 @@ __NOTE__: Regular build will be made soon!
 ## Performance ##
 
 All kind of validations to ensure that your classes are well defined and obey all the common rules of classic inheritance degrade performance.
-Thats why there is a __strict__ and a __loose__ version for each build.
+That's why there is a __strict__ and a __loose__ version for each build.
 
 The strict version throws an error when something is not right and therefore is suitable for development.
 The loose build has no overhead associated with verifications and therefore is suitable for production.
@@ -81,7 +81,7 @@ Interfaces can extend multiple interfaces. They can also define static functions
 Be aware that all functions must obey it's base signature (see explanation bellow).
 
 ```js
-define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Interface) {
+define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Events, Interface) {
 
     var SomeEventsInteface = Interface({
         Extends: EventsInterface,   // This interface extends EventsInterface
@@ -103,7 +103,7 @@ define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Inte
 A class that implements an interface must define all the interface methods and be compatible with their signature.
 You define that a class implements an interface by specifying it in the Implements keyword.
 The Implements keyword can be an interface or an array of interfaces.
-Following our previous example we can define a concrete class - _EventsEmitter_ - that implements the _EventsInterface_ interface.
+Following the previous example we can define a concrete class - _EventsEmitter_ - that implements the _EventsInterface_ interface.
 
 ```js
 define(['path/to/EventsInterface', 'path/to/classify/Class'], function (EventsInterface, Class) {
@@ -145,7 +145,7 @@ define([
 ],
 function (EventsInterface, AbstractClass) {
 
-    var AbstractEventsEmitter = Class({
+    var AbstractEventsEmitter = AbstractClass({
         Implements: EventsInterface,   // The class must implement the EventsInterface
 
         initialize: function (argument1) {
@@ -304,7 +304,7 @@ Instead, you may use this syntax:
 ```js
 define(['path/to/classify/Class'], function (Class) {
 
-    var SomeClass = Class{(
+    var SomeClass = Class({
         'foo': function () {
             // Do something here
         }
@@ -336,7 +336,7 @@ they must be equal or augmented with additional optional arguments. Optional arg
 The signature check are made for every class, abstract class and interface.
 
 ```js
-var SomeClass = Class{(
+var SomeClass = Class({
     'foo': function (param1) {
         // Do something here
     }
