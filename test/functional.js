@@ -603,6 +603,9 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                 expect(instanceOf(new Class7(), Interface2)).to.equal(true);
                 expect(instanceOf(new Class7(), Interface4)).to.equal(true);
                 expect(instanceOf(new Class7(), Interface1)).to.equal(true);
+
+                expect(instanceOf(new Class1(), Interface2)).to.equal(false);
+                expect(instanceOf(new Class6(), Interface4)).to.equal(false);
             });
 
         });
