@@ -1,10 +1,13 @@
-/*jslint sloppy:true newcap:true*/
+/*jslint sloppy:true newcap:true regexp:true*/
 /*global global,define,describe,it*/
 
 define(global.modules, function (Class, AbstractClass, Interface) {
 
     var expect = global.expect;
 
+    // Uncomment the lines bellow to test a modified object prototype
+    //Object.prototype.youShouldNotDoThis = function (a, b) {};
+    //Object.prototype.youShouldNotDoThisAlso = 'some';
     describe('Verifications:', function () {
 
         describe('Defining an Interface', function () {
@@ -13,7 +16,17 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface('some');
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
+
+            });
+
+            it('should throw an error when defining the initialize method', function () {
+
+                expect(function () {
+                    return Interface({
+                        initialize: function () {}
+                    });
+                }).to.throwException(/initialize method/i);
 
             });
 
@@ -23,31 +36,37 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Interface({
                         Extends: 'wtf'
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a valid interface/);
 
                 expect(function () {
                     return Interface({
                         Extends: undefined
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/nonexistent interface/);
+
+                expect(function () {
+                    return Interface({
+                        Extends: [undefined, Interface({})]
+                    });
+                }).to.throwException(/not a valid interface/);
 
                 expect(function () {
                     return Interface({
                         Extends: null
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/nonexistent interface/);
 
                 expect(function () {
                     return Interface({
                         Extends: function () {}
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a valid interface/);
 
                 expect(function () {
                     return Interface({
                         Extends: Class({})
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a valid interface/);
 
                 expect(function () {
                     return Interface({
@@ -55,58 +74,195 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     });
                 }).to.not.throwException();
 
+                expect(function () {
+                    return Interface({
+                        Extends: [Interface({})]
+                    });
+                }).to.not.throwException();
+
             });
 
-            it('should throw an error if it does not contain only functions', function () {
+            it('should throw an error if it does not contain only functions without implementation', function () {
 
                 expect(function () {
                     return Interface({
                         some: 'property'
                     });
-                }).to.throwException();
+                }).to.throwException(/not a function/);
 
                 expect(function () {
                     return Interface({
                         some: undefined
                     });
-                }).to.throwException();
+                }).to.throwException(/not a function/);
 
                 expect(function () {
                     return Interface({
-                        some: undefined
+                        some: null
                     });
-                }).to.throwException();
+                }).to.throwException(/not a function/);
 
                 expect(function () {
                     return Interface({
-                        some: function () {}
+                        Statics: {
+                            some: 'property'
+                        }
+                    });
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return Interface({
+                        Statics: {
+                            some: undefined
+                        }
+                    });
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return Interface({
+                        Statics: {
+                            some: null
+                        }
+                    });
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return Interface({
+                        some: function (a) {
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        some: function (a) {
+
+                            // Some code in here
+                            var x;
+
+                            for (x = 0; x < 5; x += 1) {
+                                if (x === 0) {
+                                    break;
+                                }
+                            }
+                        }
+                    });
+                }).to.throwException(/no implementation/);
+
+                expect(function () {
+                    return Interface({
+                        Statics: {
+                            some: function (b) {
+                            }
+                        }
                     });
                 }).to.not.throwException();
 
                 expect(function () {
                     return Interface({
                         Statics: {
-                            some: 'property',
-                            method: function () {}
+                            some: function (a) {
+
+                                // Some code in here
+                                var x;
+
+                                for (x = 0; x < 5; x += 1) {
+                                    if (x === 0) {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }).to.throwException(/no implementation/);
+
+                expect(function () {
+                    return Interface({
+                        some: new Class({})
+                    });
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return Interface({
+                        some: new AbstractClass({})
+                    });
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return Interface({
+                        some: new Interface({})
+                    });
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return Interface({
+                        Statics: {
+                            some: new Class({})
+                        }
+                    });
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return Interface({
+                        Statics: {
+                            some: new AbstractClass({})
+                        }
+                    });
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return Interface({
+                        Statics: {
+                            some: new Interface({})
+                        }
+                    });
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return Interface({
+                        method1: function (a) {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        method1: function (a) { }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        Statics: {
+                            method1: function (a) {}
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        Statics: {
+                            method1: function (a) { }
                         }
                     });
                 }).to.not.throwException();
 
             });
 
-            it('should throw an error when extending a class or abstract class', function () {
+            it('should throw an error if it any function is not well formed', function () {
 
                 expect(function () {
                     return Interface({
-                        Extends: Class({})
+                        method1: function ($a, b) {}
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/contains optional arguments before mandatory ones/);
 
                 expect(function () {
                     return Interface({
-                        Extends: AbstractClass({})
+                        Statics: {
+                            method1: function ($a, b) {}
+                        }
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/contains optional arguments before mandatory ones/);
 
             });
 
@@ -116,19 +272,19 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Interface({
                         Statics: 'wtf'
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return Interface({
                         Statics: undefined
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return Interface({
                         Statics: null
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return Interface({
@@ -141,7 +297,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
             it('should throw an error when using reserved keywords', function () {
 
                 var reserved = ['$constructor', '$initializing'],
-                    reservedStatic = ['$class', '$abstract', '$interface', '$binds', '$statics'],
+                    reservedStatic = ['$class', '$abstract', '$interface', 'Super'],
                     x,
                     checkNormal = function (key) {
                         return function () {
@@ -159,20 +315,20 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     };
 
                 for (x = 0; x < reserved.length; x += 1) {
-                    expect(checkNormal(reserved[x])).to.throwException(TypeError);
-                    expect(checkNormal(reserved[x], true)).to.throwException(TypeError);
+                    expect(checkNormal(reserved[x])).to.throwException(/using a reserved keyword/);
+                    expect(checkNormal(reserved[x], true)).to.throwException(/using a reserved keyword/);
                 }
 
                 for (x = 0; x < reservedStatic.length; x += 1) {
-                    expect(checkStatic(reservedStatic[x])).to.throwException(TypeError);
-                    expect(checkStatic(reservedStatic[x], true)).to.throwException(TypeError);
+                    expect(checkStatic(reservedStatic[x])).to.throwException(/using a reserved keyword/);
+                    expect(checkStatic(reservedStatic[x], true)).to.throwException(/using a reserved keyword/);
                 }
 
                 expect(function () {
                     return Interface({
                         hasOwnProperty: function () {}
                     });
-                }).to.throwException();
+                }).to.throwException(/using a reserved keyword/);
 
                 expect(function () {
                     return Interface({
@@ -180,7 +336,204 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             hasOwnProperty: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/using a reserved keyword/);
+
+            });
+
+            it('should throw an error when it extends duplicate interfaces', function () {
+
+                expect(function () {
+                    var SomeInterface = Interface({});
+                    return Interface({
+                        Extends: [SomeInterface, SomeInterface]
+                    });
+                }).to.throwException(/duplicate entries/);
+
+            });
+
+            it('should throw an error when it extends multiple ones with duplicate methods', function () {
+
+                expect(function () {
+                    return Interface({
+                        Extends: [
+                            new Interface({
+                                method1: function () {}
+                            }),
+                            new Interface({
+                                method1: function () {}
+                            })
+                        ]
+                    });
+                }).to.throwException(/from different parents/);
+
+                expect(function () {
+                    return Interface({
+                        Extends: [
+                            new Interface({
+                                method1: function () {}
+                            }),
+                            new Interface({
+                                method1: function () {}
+                            })
+                        ],
+                        method1: function () {}
+                    });
+                }).to.throwException(/from different parents/);
+
+                expect(function () {
+                    return Interface({
+                        Extends: [
+                            new Interface({
+                                Statics: {
+                                    method1: function () {}
+                                }
+                            }),
+                            new Interface({
+                                Statics: {
+                                    method1: function () {}
+                                }
+                            })
+                        ]
+                    });
+                }).to.throwException(/from different parents/);
+
+                expect(function () {
+                    return Interface({
+                        Extends: [
+                            new Interface({
+                                Statics: {
+                                    method1: function () {}
+                                }
+                            }),
+                            new Interface({
+                                Statics: {
+                                    method1: function () {}
+                                }
+                            })
+                        ],
+                        Statics: {
+                            method1: function () {}
+                        }
+                    });
+                }).to.throwException(/from different parents/);
+
+                expect(function () {
+                    return Interface({
+                        Extends: [
+                            new Interface({
+                                method1: function () {}
+                            })
+                        ],
+                        method1: function () {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        Extends: [
+                            new Interface({
+                                Statics: {
+                                    method1: function () {}
+                                }
+                            })
+                        ],
+                        Statics: {
+                            method1: function () {}
+                        }
+                    });
+                }).to.not.throwException();
+
+            });
+
+            it('should throw an error when defining incompatible methods compared to its base signature', function () {
+
+                expect(function () {
+                    return Interface({
+                        Extends: Interface({
+                            method1: function () {}
+                        }),
+                        method1: function (a) {}
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return Interface({
+                        Extends: Interface({
+                            Statics: {
+                                method1: function () {}
+                            }
+                        }),
+                        Statics: {
+                            method1: function (a) {}
+                        }
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return Interface({
+                        Extends: Interface({
+                            method1: function (a, $b) {}
+                        }),
+                        method1: function (a, b) {}
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return Interface({
+                        Extends: Interface({
+                            Statics: {
+                                method1: function (a, $b) {}
+                            }
+                        }),
+                        Statics: {
+                            method1: function (a, b) {}
+                        }
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return Interface({
+                        Extends: Interface({
+                            method1: function (a, $b) {}
+                        }),
+                        method1: function (a, $b) {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        Extends: Interface({
+                            Statics: {
+                                method1: function (a, $b) {}
+                            }
+                        }),
+                        Statics: {
+                            method1: function (a, $b) {}
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        Extends: Interface({
+                            method1: function (a, $b) {}
+                        }),
+                        method1: function (a, $b, $c) {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        Extends: Interface({
+                            Statics: {
+                                method1: function (a, $b) {}
+                            }
+                        }),
+                        Statics: {
+                            method1: function (a, $b, $c) {}
+                        }
+                    });
+                }).to.not.throwException();
 
             });
 
@@ -192,15 +545,15 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Class('some');
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return Class(undefined);
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return Class(null);
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
 
             });
 
@@ -210,25 +563,31 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         Extends: 'wtf'
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/is not a valid class/);
 
                 expect(function () {
                     return Class({
                         Extends: undefined
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/is not a valid class/);
 
                 expect(function () {
                     return Class({
                         Extends: null
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/is not a valid class/);
 
                 expect(function () {
                     return Class({
                         Extends: function () {}
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/is not a valid class/);
+
+                expect(function () {
+                    return Class({
+                        Extends: Interface({})
+                    });
+                }).to.throwException(/is not a valid class/);
 
                 expect(function () {
                     return Class({
@@ -238,37 +597,25 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
-            it('should throw an error when extending an interface', function () {
-
-                expect(function () {
-                    var SomeInterface = Interface({});
-
-                    return Class({
-                        Extends: SomeInterface
-                    });
-                }).to.throwException(TypeError);
-
-            });
-
             it('should throw an error if Statics is not an object', function () {
 
                 expect(function () {
                     return Class({
                         Statics: 'wtf'
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return Class({
                         Statics: undefined
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return Class({
                         Statics: null
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return Class({
@@ -278,44 +625,62 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
+            it('should throw an error if it any function is not well formed', function () {
+
+                expect(function () {
+                    return Class({
+                        method1: function ($a, b) {}
+                    });
+                }).to.throwException(/contains optional arguments before mandatory ones/);
+
+                expect(function () {
+                    return Class({
+                        Statics: {
+                            method1: function ($a, b) {}
+                        }
+                    });
+                }).to.throwException(/contains optional arguments before mandatory ones/);
+
+            });
+
             it('should throw an error if Binds is not a string or an array of strings', function () {
 
                 expect(function () {
                     return Class({
                         Binds: {}
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/is not a string/);
 
                 expect(function () {
                     return Class({
                         Binds: undefined
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be a string or an array of strings/);
 
                 expect(function () {
                     return Class({
                         Binds: null
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be a string or an array of strings/);
 
                 expect(function () {
                     return Class({
                         Binds: [undefined]
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/is not a string/);
 
                 expect(function () {
                     return Class({
                         Binds: [null]
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/is not a string/);
 
                 expect(function () {
                     return Class({
                         Binds: [{}, 'method1'],
                         'method1': function () {}
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/is not a string/);
 
                 expect(function () {
                     return Class({
@@ -338,7 +703,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         Binds: ['method4']
                     });
-                }).to.throwException();
+                }).to.throwException(/does not exist/);
 
                 expect(function () {
                     return Class({
@@ -348,7 +713,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }),
                         Binds: ['method2']
                     });
-                }).to.throwException();
+                }).to.throwException(/does not exist/);
 
             });
 
@@ -359,7 +724,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         Binds: ['method1', 'method1'],
                         method1: function () {}
                     });
-                }).to.throwException();
+                }).to.throwException(/duplicate entries/);
 
             });
 
@@ -373,7 +738,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }),
                         Binds: ['method1']
                     });
-                }).to.throwException();
+                }).to.throwException(/already being bound/);
 
             });
 
@@ -392,8 +757,25 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             }
                         })
                     });
-                }).to.throwException(Error);
+                }).to.throwException(/already being bound/);
 
+            });
+
+            it('should throw an error when specifying duplicate interfaces', function () {
+
+                var SomeInterface = Interface({});
+
+                expect(function () {
+                    return Class({
+                        Implements: [SomeInterface, SomeInterface]
+                    });
+                }).to.throwException(/duplicate entries/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Implements: [SomeInterface, SomeInterface]
+                    });
+                }).to.throwException(/duplicate entries/);
             });
 
             it('should throw an error if Borrows is not an object/class or an array of objects/classes', function () {
@@ -402,80 +784,80 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         Borrows: function () {}
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
                     return Class({
                         Borrows: undefined
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/a class\/object or an array of classes\/objects/);
 
                 expect(function () {
                     return Class({
                         Borrows: null
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/a class\/object or an array of classes\/objects/);
 
                 expect(function () {
                     return Class({
                         Borrows: 'wtf'
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
                     return Class({
                         Borrows: ['wtf']
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
                     return Class({
                         Borrows: [undefined]
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
                     return Class({
                         Borrows: [undefined]
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
                     return Class({
                         Borrows: [function () {}]
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
                     return Class({
                         Borrows: AbstractClass({})
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
                     return Class({
                         Borrows: [AbstractClass({})]
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
                     return Class({
                         Borrows: Interface({})
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
                     return Class({
                         Borrows: [Interface({})]
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
                     var SomeClass = Class({});
                     return Class({
                         Borrows: new SomeClass()
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
                     return Class({
@@ -510,7 +892,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         Borrows: [Mixin, Mixin]
                     });
-                }).to.throwException();
+                }).to.throwException(/duplicate entries/);
 
             });
 
@@ -520,121 +902,376 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         Implements: 'wtf'
                     });
-                });
+                }).to.throwException(/not a valid interface/);
 
                 expect(function () {
                     return Class({
                         Implements: undefined
                     });
-                });
+                }).to.throwException(/an interface or an array of interfaces/);
 
                 expect(function () {
                     return Class({
                         Implements: null
                     });
-                });
+                }).to.throwException(/an interface or an array of interfaces/);
 
                 expect(function () {
                     return Class({
                         Implements: ['wtf']
                     });
-                });
+                }).to.throwException(/not a valid interface/);
 
                 expect(function () {
                     return Class({
                         Implements: [undefined]
                     });
-                });
+                }).to.throwException(/not a valid interface/);
 
                 expect(function () {
                     return Class({
                         Implements: [null]
                     });
-                });
+                }).to.throwException(/not a valid interface/);
 
                 expect(function () {
                     return Class({
                         Implements: AbstractClass({})
                     });
-                });
+                }).to.throwException(/not a valid interface/);
 
                 expect(function () {
                     return Class({
                         Implements: [AbstractClass({})]
                     });
-                });
+                }).to.throwException(/not a valid interface/);
 
                 expect(function () {
                     return Class({
                         Implements: Class({})
                     });
-                });
+                }).to.throwException(/not a valid interface/);
 
                 expect(function () {
                     return Class({
                         Implements: [Class({})]
                     });
-                });
+                }).to.throwException(/not a valid interface/);
 
                 expect(function () {
                     return AbstractClass({
                         Implements: 'wtf'
                     });
-                });
+                }).to.throwException(/not a valid interface/);
 
                 expect(function () {
                     return AbstractClass({
                         Implements: undefined
                     });
-                });
+                }).to.throwException(/an interface or an array of interfaces/);
 
                 expect(function () {
                     return AbstractClass({
                         Implements: null
                     });
-                });
+                }).to.throwException(/an interface or an array of interfaces/);
 
                 expect(function () {
                     return AbstractClass({
                         Implements: ['wtf']
                     });
-                });
+                }).to.throwException(/not a valid interface/);
 
                 expect(function () {
                     return AbstractClass({
                         Implements: [undefined]
-                    });
+                    }).to.throwException(/not a valid interface/);
                 });
 
                 expect(function () {
                     return AbstractClass({
                         Implements: [null]
-                    });
+                    }).to.throwException(/not a valid interface/);
                 });
 
                 expect(function () {
                     return AbstractClass({
                         Implements: AbstractClass({})
-                    });
+                    }).to.throwException(/not a valid interface/);
                 });
 
                 expect(function () {
                     return AbstractClass({
                         Implements: [AbstractClass({})]
-                    });
+                    }).to.throwException(/not a valid interface/);
                 });
 
                 expect(function () {
                     return AbstractClass({
                         Implements: Class({})
-                    });
+                    }).to.throwException(/not a valid interface/);
                 });
 
                 expect(function () {
                     return AbstractClass({
                         Implements: [Class({})]
-                    });
+                    }).to.throwException(/not a valid interface/);
                 });
+
+            });
+
+            it('should throw an error when defining incompatible methods compared to its base signature', function () {
+
+                var Interface1 = Interface({
+                    method1: function (a) {}
+                }),
+                    Interface2 = Interface({
+                        method1: function (a) {}
+                    }),
+                    Interface3 = Interface({
+                        method1: function (a, b) {}
+                    }),
+                    Interface4 = Interface({
+                        method1: function (a, $b) {}
+                    }),
+                    Interface5 = Interface({
+                        Statics: {
+                            method1: function (a) {}
+                        }
+                    }),
+                    Interface6 = Interface({
+                        Statics: {
+                            method1: function (a) {}
+                        }
+                    }),
+                    Interface7 = Interface({
+                        Statics: {
+                            method1: function (a, b) {}
+                        }
+                    }),
+                    Interface8 = Interface({
+                        Statics: {
+                            method1: function (a, $b) {}
+                        }
+                    });
+
+                expect(function () {
+                    return Class({
+                        Implements: Interface1,
+                        method1: function () {}
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return Class({
+                        Implements: [Interface1, Interface3],
+                        method1: function (a) {}
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return Class({
+                        Implements: Interface4,
+                        method1: function (a) {}
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return Class({
+                        Implements: [Interface1, Interface2],
+                        method1: function (a) {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        Implements: Interface1,
+                        method1: function (a, $b) {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        Implements: Interface1,
+                        method1: function (a, $b, $c) {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        Implements: Interface5,
+                        Statics: {
+                            method1: function () {}
+                        }
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return Class({
+                        Implements: [Interface5, Interface7],
+                        Statics: {
+                            method1: function (a) {}
+                        }
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return Class({
+                        Implements: Interface8,
+                        Statics: {
+                            method1: function (a) {}
+                        }
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return Class({
+                        Implements: [Interface5, Interface6],
+                        Statics: {
+                            method1: function (a) {}
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        Implements: Interface5,
+                        Statics: {
+                            method1: function (a, $b) {}
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        Implements: Interface5,
+                        Statics: {
+                            method1: function (a, $b, $c) {}
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass({
+                        Implements: Interface1,
+                        Abstracts: {
+                            method1: function ($a) {}
+                        }
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Implements: [Interface1, Interface3],
+                        Abstracts: {
+                            method1: function (a) {}
+                        }
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Implements: Interface8,
+                        Abstracts: {
+                            Statics: {
+                                method1: function (a) {}
+                            }
+                        }
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Implements: Interface1,
+                        Abstracts: {
+                            method1: function (a) {}
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Implements: Interface1,
+                            Abstracts: {
+                                method1: function (a) {}
+                            }
+                        }),
+                        Implements: Interface3,
+                        method1: function (a, b) {}
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Implements: Interface1,
+                            Abstracts: {
+                                method1: function (a) {}
+                            }
+                        }),
+                        Implements: Interface1,
+                        method1: function () {}
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Implements: Interface1
+                        }),
+                        Implements: Interface1,
+                        method1: function (a) {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Implements: Interface1,
+                            initialize: function (a, $b) {}
+                        }),
+                        Implements: Interface1,
+                        initialize: function (a) {},
+                        method1: function (a) {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Implements: Interface1,
+                            initialize: function (a, $b) {}
+                        }),
+                        Implements: Interface1,
+                        initialize: function (a, b) {},
+                        method1: function (a) {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Implements: Interface1,
+                            initialize: function (a, $b) {}
+                        }),
+                        Implements: Interface1,
+                        initialize: function (a, $b) {},
+                        method1: function (a) {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Implements: Interface1,
+                            initialize: function (a, $b) {}
+                        }),
+                        Implements: Interface1,
+                        initialize: function (a, $b, $c) {},
+                        method1: function (a) {}
+                    });
+                }).to.not.throwException();
 
             });
 
@@ -648,19 +1285,19 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return AbstractClass({
                         Abstracts: 'wtf'
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return AbstractClass({
                         Abstracts: undefined
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return AbstractClass({
                         Abstracts: null
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return AbstractClass({
@@ -678,7 +1315,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             Statics: 'wtf'
                         }
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return AbstractClass({
@@ -686,7 +1323,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             Statics: undefined
                         }
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return AbstractClass({
@@ -694,7 +1331,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             Statics: null
                         }
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return AbstractClass({
@@ -706,7 +1343,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
-            it('should throw an error if all values of Abstracts are not functions', function () {
+            it('should throw an error if abstracts does not contain only functions without implementation', function () {
 
                 expect(function () {
                     return AbstractClass({
@@ -714,7 +1351,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             some: 'wtf'
                         }
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a function/);
 
                 expect(function () {
                     return AbstractClass({
@@ -722,7 +1359,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             some: undefined
                         }
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a function/);
 
                 expect(function () {
                     return AbstractClass({
@@ -730,7 +1367,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             some: null
                         }
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a function/);
 
                 expect(function () {
                     return AbstractClass({
@@ -740,7 +1377,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             }
                         }
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a function/);
 
                 expect(function () {
                     return AbstractClass({
@@ -750,7 +1387,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             }
                         }
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a function/);
 
                 expect(function () {
                     return AbstractClass({
@@ -760,7 +1397,301 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             }
                         }
                     });
-                }).to.throwException(TypeError);
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            some: function (a) {
+                            }
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            some: function (a) {
+
+                                // Some code in here
+                                var x;
+
+                                for (x = 0; x < 5; x += 1) {
+                                    if (x === 0) {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }).to.throwException(/no implementation/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            Statics: {
+                                some: function (b) {
+                                }
+                            }
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            Statics: {
+                                some: function (a) {
+
+                                    // Some code in here
+                                    var x;
+
+                                    for (x = 0; x < 5; x += 1) {
+                                        if (x === 0) {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }).to.throwException(/no implementation/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            some: new Class({})
+                        }
+                    });
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            some: new AbstractClass({})
+                        }
+                    });
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            some: new Interface({})
+                        }
+                    });
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            Statics: {
+                                some: new Class({})
+                            }
+                        }
+                    });
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            Statics: {
+                                some: new AbstractClass({})
+                            }
+                        }
+                    });
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            Statics: {
+                                some: new Interface({})
+                            }
+                        }
+                    });
+                }).to.throwException(/not a function/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            method1: function (a) {}
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            method1: function (a) { }
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            Statics: {
+                                method1: function (a) {}
+                            }
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            Statics: {
+                                method1: function (a) { }
+                            }
+                        }
+                    });
+                }).to.not.throwException();
+
+            });
+
+            it('should throw an error if it any function is not well formed', function () {
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            method1: function ($a, b) {}
+                        }
+                    });
+                }).to.throwException(/contains optional arguments before mandatory ones/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Abstracts: {
+                            Statics: {
+                                method1: function ($a, b) {}
+                            }
+                        }
+                    });
+                }).to.throwException(/contains optional arguments before mandatory ones/);
+
+            });
+
+            it('should throw an error when defining incompatible methods compared to its base signature', function () {
+
+                expect(function () {
+                    return AbstractClass({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                method1: function () {}
+                            }
+                        }),
+                        Abstracts: {
+                            method1: function (a) {}
+                        }
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                Statics: {
+                                    method1: function () {}
+                                }
+                            }
+                        }),
+                        Abstracts: {
+                            Statics: {
+                                method1: function (a) {}
+                            }
+                        }
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                method1: function (a, $b) {}
+                            }
+                        }),
+                        Abstracts: {
+                            method1: function (a, b) {}
+                        }
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                Statics: {
+                                    method1: function (a, $b) {}
+                                }
+                            }
+                        }),
+                        Abstracts: {
+                            Statics: {
+                                method1: function (a, b) {}
+                            }
+                        }
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                method1: function (a, $b) {}
+                            }
+                        }),
+                        Abstracts: {
+                            method1: function (a, $b) {}
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                Statics: {
+                                    method1: function (a, $b) {}
+                                }
+                            }
+                        }),
+                        Abstracts: {
+                            Statics: {
+                                method1: function (a, $b) {}
+                            }
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                method1: function (a, $b) {}
+                            }
+                        }),
+                        Abstracts: {
+                            method1: function (a, $b, $c) {}
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                Statics: {
+                                    method1: function (a, $b) {}
+                                }
+                            }
+                        }),
+                        Abstracts: {
+                            Statics: {
+                                method1: function (a, $b, $c) {}
+                            }
+                        }
+                    });
+                }).to.not.throwException();
 
             });
 
@@ -773,7 +1704,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             some: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/already implemented/);
 
                 expect(function () {
                     return AbstractClass({
@@ -786,7 +1717,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             }
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/already implemented/);
 
                 expect(function () {
                     return AbstractClass({
@@ -797,7 +1728,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             some: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/already implemented/);
 
                 expect(function () {
                     return AbstractClass({
@@ -808,7 +1739,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             some: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/already implemented/);
 
                 expect(function () {
                     return AbstractClass({
@@ -823,7 +1754,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             }
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/already implemented/);
 
                 expect(function () {
                     return AbstractClass({
@@ -838,7 +1769,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             }
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/already implemented/);
 
             });
 
@@ -860,7 +1791,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
-            it('should not throw an error when specifying binds poiting abstract methods', function () {
+            it('should not throw an error when specifying binds poiting to abstract methods', function () {
 
                 expect(function () {
                     return AbstractClass({
@@ -876,7 +1807,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
             it('should throw an error when using reserved keywords', function () {
 
                 var reserved = ['$constructor', '$initializing'],
-                    reservedStatic = ['$class', '$abstract', '$interface', '$binds', '$statics'],
+                    reservedStatic = ['$class', '$abstract', '$interface', 'Super'],
                     x,
                     checkNormal = function (key, inAbstracts) {
                         return function () {
@@ -894,20 +1825,20 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     };
 
                 for (x = 0; x < reserved.length; x += 1) {
-                    expect(checkNormal(reserved[x])).to.throwException(TypeError);
-                    expect(checkNormal(reserved[x], true)).to.throwException(TypeError);
+                    expect(checkNormal(reserved[x])).to.throwException(/using a reserved keyword/);
+                    expect(checkNormal(reserved[x], true)).to.throwException(/using a reserved keyword/);
                 }
 
                 for (x = 0; x < reservedStatic.length; x += 1) {
-                    expect(checkStatic(reservedStatic[x])).to.throwException(TypeError);
-                    expect(checkStatic(reservedStatic[x], true)).to.throwException(TypeError);
+                    expect(checkStatic(reservedStatic[x])).to.throwException(/using a reserved keyword/);
+                    expect(checkStatic(reservedStatic[x], true)).to.throwException(/using a reserved keyword/);
                 }
 
                 expect(function () {
                     return AbstractClass({
                         hasOwnProperty: function () {}
                     });
-                }).to.throwException();
+                }).to.throwException(/using a reserved keyword/);
 
                 expect(function () {
                     return AbstractClass({
@@ -915,7 +1846,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             hasOwnProperty: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/using a reserved keyword/);
 
                 expect(function () {
                     return AbstractClass({
@@ -923,7 +1854,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             hasOwnProperty: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/using a reserved keyword/);
 
                 expect(function () {
                     return AbstractClass({
@@ -933,7 +1864,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             }
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/using a reserved keyword/);
 
             });
 
@@ -945,7 +1876,6 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 OtherInterface,
                 ExtendedInterface,
                 SomeAbstractClass,
-                OtherAbstractClass,
                 ExtendedAbstractClass;
 
             function createSomeInterface() {
@@ -983,13 +1913,6 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 });
             }
 
-            function createOtherAbstractClass() {
-                OtherAbstractClass = AbstractClass({    // Other abstract class with different methods
-                    extraMethod: function () {},
-                    Implements: SomeInterface
-                });
-            }
-
             function createExtendedAbstractClass() {
                 createAbstractClass();
                 ExtendedAbstractClass = AbstractClass({    // Abstract class that extends another
@@ -1013,7 +1936,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         // miss all methods
                         // miss all static methods
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createSomeInterface();
@@ -1022,7 +1945,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         someMethod: function () {}
                         // miss all static methods
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createSomeInterface();
@@ -1034,7 +1957,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             // miss staticMethod()
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createExtendedInterface();
@@ -1047,7 +1970,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             otherStaticMethod: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createExtendedInterface();
@@ -1060,7 +1983,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             otherStaticMethod: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createExtendedInterface();
@@ -1073,7 +1996,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             // miss staticMethod()
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createExtendedInterface();
@@ -1086,7 +2009,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             // miss otherStaticMethod()
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createSomeInterface();
@@ -1100,7 +2023,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             // missing extraStaticMethod()
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createSomeInterface();
@@ -1114,7 +2037,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             extraStaticMethod: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createSomeInterface();
@@ -1128,7 +2051,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             extraStaticMethod: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createSomeInterface();
@@ -1142,7 +2065,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             extraStaticMethod: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createExtendedInterface();
@@ -1158,7 +2081,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             extraStaticMethod: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createExtendedInterface();
@@ -1174,7 +2097,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             extraStaticMethod: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 // Abstract Classes
                 expect(function () {
@@ -1184,7 +2107,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         // miss all methods
                         // miss all static methods
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createAbstractClass();
@@ -1193,7 +2116,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         someMethod: function () {}
                         // miss all static methods
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createAbstractClass();
@@ -1205,7 +2128,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             // miss staticMethod()
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
 
@@ -1219,7 +2142,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             otherStaticMethod: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createExtendedAbstractClass();
@@ -1232,7 +2155,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             otherStaticMethod: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createExtendedAbstractClass();
@@ -1245,7 +2168,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             // miss staticMethod()
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createExtendedAbstractClass();
@@ -1258,7 +2181,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             // miss otherStaticMethod()
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createAbstractClass();
@@ -1273,7 +2196,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             // missing extraStaticMethod()
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createAbstractClass();
@@ -1288,7 +2211,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             extraStaticMethod: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createAbstractClass();
@@ -1303,7 +2226,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             extraStaticMethod: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createAbstractClass();
@@ -1318,7 +2241,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             extraStaticMethod: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createExtendedAbstractClass();
@@ -1335,7 +2258,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             extraStaticMethod: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
                 expect(function () {
                     createExtendedAbstractClass();
@@ -1352,7 +2275,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             extraStaticMethod: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/was not found/);
 
             });
 
@@ -1475,7 +2398,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
             it('should throw an error when using reserved keywords', function () {
 
                 var reserved = ['$constructor', '$initializing'],
-                    reservedStatic = ['$class', '$abstract', '$interface', '$binds', '$statics'],
+                    reservedStatic = ['$class', '$abstract', '$interface', 'Super'],
                     x,
                     checkNormal = function (key) {
                         return function () {
@@ -1493,20 +2416,20 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     };
 
                 for (x = 0; x < reserved.length; x += 1) {
-                    expect(checkNormal(reserved[x])).to.throwException(TypeError);
-                    expect(checkNormal(reserved[x], true)).to.throwException(TypeError);
+                    expect(checkNormal(reserved[x])).to.throwException(/using a reserved keyword/);
+                    expect(checkNormal(reserved[x], true)).to.throwException(/using a reserved keyword/);
                 }
 
                 for (x = 0; x < reservedStatic.length; x += 1) {
-                    expect(checkStatic(reservedStatic[x])).to.throwException(TypeError);
-                    expect(checkStatic(reservedStatic[x], true)).to.throwException(TypeError);
+                    expect(checkStatic(reservedStatic[x])).to.throwException(/using a reserved keyword/);
+                    expect(checkStatic(reservedStatic[x], true)).to.throwException(/using a reserved keyword/);
                 }
 
                 expect(function () {
                     return Class({
                         hasOwnProperty: function () {}
                     });
-                }).to.throwException();
+                }).to.throwException(/using a reserved keyword/);
 
                 expect(function () {
                     return Class({
@@ -1514,7 +2437,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             hasOwnProperty: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/using a reserved keyword/);
 
             });
 
@@ -1558,7 +2481,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         Abstracts: {}
                     });
-                }).to.throwException();
+                }).to.throwException(/has abstract methods/);
 
                 expect(function () {
                     return Class({
@@ -1566,7 +2489,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             method1: function () {}
                         }
                     });
-                }).to.throwException();
+                }).to.throwException(/has abstract methods/);
             });
 
         });
@@ -1580,7 +2503,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         someMethod: function () {}
                     });
                     return new SomeInterface();
-                }).to.throwException();
+                }).to.throwException(/cannot be instantiated/);
 
             });
 
@@ -1597,10 +2520,10 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             it('should throw an error while using new or its constructor', function () {
 
-                expect(function () { return new AbstractExample(); }).to.throwException();
-                expect(function () { AbstractExample.prototype.initialize(); }).to.throwException();
-                expect(function () { AbstractExample.prototype.initialize.apply(AbstractExample.prototype, []); }).to.throwException();
-                expect(function () { AbstractExample.prototype.initialize.apply(AbstractExample, []); }).to.throwException();
+                expect(function () { return new AbstractExample(); }).to.throwException(/cannot be instantiated/);
+                expect(function () { AbstractExample.prototype.initialize(); }).to.throwException(/cannot be instantiated/);
+                expect(function () { AbstractExample.prototype.initialize.apply(AbstractExample.prototype, []); }).to.throwException(/cannot be instantiated/);
+                expect(function () { AbstractExample.prototype.initialize.apply(AbstractExample, []); }).to.throwException(/cannot be instantiated/);
 
             });
 

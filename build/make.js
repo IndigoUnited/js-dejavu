@@ -64,7 +64,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true', function 
         // Run tests
         process.chdir(__dirname + '/..');
 
-        command = 'mocha test/amd/strict.js';
+        command = 'mocha -R list test/amd/strict.js';
 
         console.log('Running amd/strict tests..');
         console.log('-------------------------------------------------');
@@ -84,7 +84,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true', function 
                 exitCode = 0;
             }
 
-            command = 'mocha test/amd/loose.js';
+            command = 'mocha -R list test/amd/loose.js';
 
             console.log('Running amd/loose tests..');
             console.log('-------------------------------------------------');

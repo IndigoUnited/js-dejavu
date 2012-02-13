@@ -1,4 +1,4 @@
-/*jslint sloppy: true nomen: true evil: true, newcap:true*/
+/*jslint sloppy:true nomen:true newcap:true*/
 /*global define*/
 
 define([
@@ -20,7 +20,7 @@ define([
      *
      * @return {Function} The constructor
      */
-    return function (params) {
+    return function AbstractClass(params) {
 
         Class = require('./Class');
 

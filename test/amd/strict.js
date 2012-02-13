@@ -1,4 +1,4 @@
-/*jslint node:true, sloppy:true*/
+/*jslint node:true sloppy:true*/
 /*globals define*/
 
 if (!global.evaluated) {
@@ -6,5 +6,5 @@ if (!global.evaluated) {
 }
 
 var path = '../dist/amd/strict';
-global.modules = [path + '/Class.js', path + '/AbstractClass', path + '/Interface'];
+global.modules = [path + '/Class.js', path + '/AbstractClass', path + '/Interface', path + '/instanceOf'];
 define(['../verifications', '../functional'], function () { });

@@ -1,9 +1,13 @@
 /*jslint sloppy:true newcap:true*/
 /*global global,define,describe,it*/
 
-define(global.modules, function (Class, AbstractClass, Interface) {
+define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
 
     var expect = global.expect;
+
+    // Uncomment the lines bellow to test a modified object prototype
+    //Object.prototype.youShouldNotDoThis = function (a, b) {};
+    //Object.prototype.youShouldNotDoThisAlso = 'some';
 
     describe('Functional:', function () {
 
@@ -257,9 +261,10 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
-            it('should have inherited the static methods', function () {
+            it('should have inherited the static members', function () {
 
                 expect(Cat.getNrPets).to.be.a('function');
+                return expect(Cat.nrPets).to.be.ok;
 
             });
 
@@ -550,6 +555,60 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
         });
 
+        describe('instanceOf', function () {
+
+            it('should work the same was as native instance of works (for normal classes)', function () {
+
+                var Class1 = Class({}),
+                    Class2 = AbstractClass({}),
+                    Class3 = Class({ Extends: Class1 }),
+                    Class4 = Class({ Extends: Class2 }),
+                    Class5 = AbstractClass({ Extends: Class1 }),
+                    Class6 = Class({ Extends: Class5 });
+
+                expect(instanceOf(new Class1(), Class1)).to.equal(true);
+                expect(instanceOf(new Class3(), Class3)).to.equal(true);
+                expect(instanceOf(new Class3(), Class1)).to.equal(true);
+                expect(instanceOf(new Class4(), Class4)).to.equal(true);
+                expect(instanceOf(new Class4(), Class2)).to.equal(true);
+                expect(instanceOf(new Class6(), Class6)).to.equal(true);
+                expect(instanceOf(new Class6(), Class5)).to.equal(true);
+                expect(instanceOf(new Class6(), Class1)).to.equal(true);
+
+                expect(instanceOf(new Class3(), Class2)).to.equal(false);
+                expect(instanceOf(new Class4(), Class1)).to.equal(false)
+                expect(instanceOf(new Class6(), Class2)).to.equal(false);
+
+            });
+
+            it('should work with interfaces as well', function () {
+
+                var Interface1 = Interface({}),
+                    Interface2 = Interface({}),
+                    Interface3 = Interface({}),
+                    Interface4 = Interface({}),
+                    Interface5 = Interface({ Extends: [Interface4, Interface1] }),
+                    Class1 = Class({ Implements: Interface1 }),
+                    Class2 = AbstractClass({ Implements: [Interface1, Interface2] }),
+                    Class3 = Class({ Extends: Class1 }),
+                    Class4 = Class({ Extends: Class2 }),
+                    Class5 = AbstractClass({ Extends: Class1, Implements: Interface3 }),
+                    Class6 = Class({ Extends: Class5 }),
+                    Class7 = Class({ Implements: [Interface2, Interface5] });
+
+                expect(instanceOf(new Class1(), Interface1)).to.equal(true);
+                expect(instanceOf(new Class3(), Interface1)).to.equal(true);
+                expect(instanceOf(new Class4(), Interface1)).to.equal(true);
+                expect(instanceOf(new Class4(), Interface2)).to.equal(true);
+                expect(instanceOf(new Class6(), Interface3)).to.equal(true);
+                expect(instanceOf(new Class6(), Interface1)).to.equal(true);
+                expect(instanceOf(new Class7(), Interface5)).to.equal(true);
+                expect(instanceOf(new Class7(), Interface2)).to.equal(true);
+                expect(instanceOf(new Class7(), Interface4)).to.equal(true);
+                expect(instanceOf(new Class7(), Interface1)).to.equal(true);
+            });
+
+        });
     });
 
 });
