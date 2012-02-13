@@ -332,7 +332,7 @@ With this syntax it also gives you the flexibility to call other parent methods.
 ## Signature check ##
 
 All functions are virtual functions. A method can override another if they obey their signature, that means that
-they must be equal or augmented with additional optional arguments. Optional arguments are prefixed with a $ so they can be qualified as optional.
+they must be equal or augmented with additional optional arguments. Arguments prefixed with a $ are evaluated as optional.
 The signature check are made for every class, abstract class and interface.
 
 ```js
