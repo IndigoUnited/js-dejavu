@@ -357,7 +357,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
-            it('should throw an error when it extends multiple ones with duplicate methods', function () {
+            it('should throw an error when it extends multiple ones with incopatible duplicate methods', function () {
 
                 expect(function () {
                     return Interface({
@@ -366,25 +366,25 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                                 method1: function () {}
                             }),
                             new Interface({
-                                method1: function () {}
+                                method1: function (a) {}
                             })
                         ]
                     });
-                }).to.throwException(/from different parents/);
+                }).to.throwException(/from different parents with incompatible signatures/);
 
                 expect(function () {
                     return Interface({
                         Extends: [
                             new Interface({
-                                method1: function () {}
+                                method1: function (a, b) {}
                             }),
                             new Interface({
-                                method1: function () {}
+                                method1: function (a) {}
                             })
                         ],
-                        method1: function () {}
+                        method1: function (a, b) {}
                     });
-                }).to.throwException(/from different parents/);
+                }).to.throwException(/from different parents with incompatible signatures/);
 
                 expect(function () {
                     return Interface({
@@ -396,32 +396,32 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             }),
                             new Interface({
                                 Statics: {
-                                    method1: function () {}
+                                    method1: function (a) {}
                                 }
                             })
                         ]
                     });
-                }).to.throwException(/from different parents/);
+                }).to.throwException(/from different parents with incompatible signatures/);
 
                 expect(function () {
                     return Interface({
                         Extends: [
                             new Interface({
                                 Statics: {
-                                    method1: function () {}
+                                    method1: function (a) {}
                                 }
                             }),
                             new Interface({
                                 Statics: {
-                                    method1: function () {}
+                                    method1: function (a, b) {}
                                 }
                             })
                         ],
                         Statics: {
-                            method1: function () {}
+                            method1: function (a, b) {}
                         }
                     });
-                }).to.throwException(/from different parents/);
+                }).to.throwException(/from different parents with incompatible signatures/);
 
                 expect(function () {
                     return Interface({
@@ -439,12 +439,17 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         Extends: [
                             new Interface({
                                 Statics: {
-                                    method1: function () {}
+                                    method1: function (a, $b) {}
+                                }
+                            }),
+                            new Interface({
+                                Statics: {
+                                    method1: function (a) {}
                                 }
                             })
                         ],
                         Statics: {
-                            method1: function () {}
+                            method1: function (a, $b) {}
                         }
                     });
                 }).to.not.throwException();

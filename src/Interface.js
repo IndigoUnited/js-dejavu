@@ -106,6 +106,7 @@ define([
         var parents,
             current,
             k,
+            i,
             duplicate,
             opts,
             optsStatic,
@@ -151,16 +152,29 @@ define([
 
                 // Merge methods
                 duplicate = intersection(keys(interf.$interface.methods), keys(current.$interface.methods));
-                if (duplicate.length > 0) {
-                    throw new Error('Interface "' + params.Name + '" is inheriting ' + (duplicate.length > 1 ? 'several methods' : 'a method') + ' from different parents ("' + duplicate.join('", "') + '").');
+                i = duplicate.length;
+                if (i > 0) {
+                    for (i -= 1; i >= 0; i -= 1) {
+                        if (!isFunctionCompatible(interf.$interface.methods[duplicate[i]], current.$interface.methods[duplicate[i]])
+                                && !isFunctionCompatible(current.$interface.methods[duplicate[i]], interf.$interface.methods[duplicate[i]])) {
+                            throw new Error('Interface "' + params.Name + '" is inheriting method "' + duplicate[i] + '" from different parents with incompatible signatures.');
+                        }
+                    }
                 }
                 mixIn(interf.$interface.methods, current.$interface.methods);
 
                 // Merge static methods
                 duplicate = intersection(keys(interf.$interface.staticMethods), keys(current.$interface.staticMethods));
-                if (duplicate.length > 0) {
-                    throw new Error('Interface "' + params.Name + '" is inheriting ' + (duplicate.length > 1 ? 'several static methods' : 'a static method') + ' from different parents ("' + duplicate.join('", "') + '").');
+                i = duplicate.length;
+                if (i > 0) {
+                    for (i -= 1; i >= 0; i -= 1) {
+                        if (!isFunctionCompatible(interf.$interface.staticMethods[duplicate[i]], current.$interface.staticMethods[duplicate[i]])
+                                && !isFunctionCompatible(current.$interface.staticMethods[duplicate[i]], interf.$interface.staticMethods[duplicate[i]])) {
+                            throw new Error('Interface "' + params.Name + '" is inheriting static method "' + duplicate[i] + '" from different parents with incompatible signatures.');
+                        }
+                    }
                 }
+
                 mixIn(interf.$interface.staticMethods, current.$interface.staticMethods);
 
                 // Add interface to the parents
