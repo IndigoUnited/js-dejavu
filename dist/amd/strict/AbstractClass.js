@@ -229,13 +229,12 @@ define([
 
         // Handle abstract methods
         if (hasOwn(params, 'Abstracts')) {
-            saved.Abstracts = params.Abstracts;
+            saved.Abstracts = params.Abstracts;     // Save them for later use
         }
 
         // Handle interfaces
         if (hasOwn(params, 'Implements')) {
-            // Save them for later use
-            saved.Interfaces = params.Implements;
+            saved.Interfaces = params.Implements;   // Save them for later use
         }
 
         // Create the class definition
