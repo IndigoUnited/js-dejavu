@@ -204,7 +204,7 @@ define([
     /**
      * Create a class definition.
      *
-     * @param {Object} params      An object containing methods and properties
+     * @param {Object} params An object containing methods and properties
      *
      * @return {Function} The constructor
      */

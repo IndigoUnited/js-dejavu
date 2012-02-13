@@ -6,7 +6,6 @@ define([
     'Utils/array/intersection',
     'Utils/array/unique',
     './common/checkKeywords',
-    './common/functionMeta',
     './common/addMethod',
     'Utils/lang/isFunction',
     'Utils/lang/isObject',
@@ -27,7 +26,6 @@ define([
     intersection,
     unique,
     checkKeywords,
-    functionMeta,
     addMethod,
     isFunction,
     isObject,
@@ -317,15 +315,15 @@ define([
     /**
      * Create a class definition.
      *
-     * @param {Object} params      An object containing methods and properties
+     * @param {Object}  params     An object containing methods and properties
+     * @param {Boolean} isAbstract Treat this class as abstract
      *
      * @return {Function} The constructor
      */
-    Class = function Class(params) {
+    Class = function Class(params, isAbstract) {
 
         var classify,
             parent,
-            isAbstract = functionMeta(Class.caller).name === 'AbstractClass',
             $class = { methods: {}, staticMethods: {}, staticProperties: [], interfaces: [], binds: [] },
             k;
 
