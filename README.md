@@ -297,7 +297,7 @@ You don't need to bind the function manually, it will be bound for you automatic
 ### Calling the parent function ###
 
 As mentioned above, there is no super() or parent() inside of functions.
-Libraries that provide it are required to create wrappers to provide it.
+Libraries that provide it are required to create wrappers to make it work.
 Those wrappers obviously degrade performance (e.g.: if you call a instance method 100 times, in reality there was at least 200 function calls).
 Instead, you may use this syntax:
 
