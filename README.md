@@ -38,7 +38,7 @@ If your classes schema work in the strict version then is safe to use them in th
 The loose version also has lower memory footprint and less size in bytes.
 
 There is no super() or parent() inside your functions. In order to do that, a wrapper must be created for each function, degrading performance.
-Instead, we provide an alternative syntax that performs much better (see usage bellow).
+Instead, we provide an alternative syntax that performs much better (see usage later in this document).
 
 ## To be done ##
 
@@ -78,7 +78,7 @@ define(['path/to/classify/Interface'], function (Interface) {
 ```
 
 Interfaces can extend multiple interfaces. They can also define static functions signature.
-Be aware that all functions must obey it's base signature (see explanation bellow).
+Be aware that all functions must obey it's base signature (see explanation later in this document).
 
 ```js
 define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Events, Interface) {
@@ -330,7 +330,7 @@ define(['path/to/classify/Class'], function (Class) {
 Because the parent reference is attached statically there is no performance overhead.
 With this syntax it also gives you the flexibility to call other parent methods.
 
-## Signature check ##
+### Signature check ###
 
 All functions are virtual functions. A method can override another if they obey their signature, that means that
 they must be equal or augmented with additional optional arguments. Arguments prefixed with a $ are evaluated as optional.
