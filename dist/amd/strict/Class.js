@@ -5,6 +5,7 @@ define([
     'Utils/lang/isString',
     'Utils/array/intersection',
     'Utils/array/unique',
+    'Utils/array/compact',
     './common/checkKeywords',
     './common/addMethod',
     'Utils/lang/isFunction',
@@ -18,13 +19,13 @@ define([
     'Utils/array/combine',
     'Utils/array/append',
     'Utils/array/insert',
-    'Utils/array/compact',
     'Utils/lang/bind',
     'Utils/lang/toArray'
 ], function (
     isString,
     intersection,
     unique,
+    compact,
     checkKeywords,
     addMethod,
     isFunction,
@@ -38,7 +39,6 @@ define([
     combine,
     append,
     insert,
-    compact,
     bind,
     toArray
 ) {
