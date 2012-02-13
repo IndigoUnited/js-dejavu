@@ -336,23 +336,23 @@ they must be equal or augmented with additional optional arguments. Optional arg
 The signature check are made for every class, abstract class and interface.
 
 ```js
-    var SomeClass = Class{(
-        'foo': function (param1) {
-            // Do something here
-        }
-    });
+var SomeClass = Class{(
+    'foo': function (param1) {
+        // Do something here
+    }
+});
 
-    var ComplexClass = Class({
-        Extends: SomeClass,
+var ComplexClass = Class({
+    Extends: SomeClass,
 
-        'foo': function (param1, $param2) { }   // It's ok, was augmented with an additional optional argument
-    });
+    'foo': function (param1, $param2) { }   // It's ok, was augmented with an additional optional argument
+});
 
-    var OtherComplexClass = Class({
-        Extends: SomeClass,
+var OtherComplexClass = Class({
+    Extends: SomeClass,
 
-        'foo': function (param1, param2) { }    // Will throw an error because foo(param1, param2) is not compatible with foo(param1, $param2)
-    });
+    'foo': function (param1, param2) { }    // Will throw an error because foo(param1, param2) is not compatible with foo(param1, $param2)
+});
 ```
 
 ## Dependencies ##
