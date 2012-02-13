@@ -13,7 +13,6 @@ define([
     'Utils/array/combine',
     'Utils/array/append',
     'Utils/array/insert',
-    'Utils/array/compact',
     'Utils/lang/bind',
     'Utils/lang/toArray'
 ], function (
@@ -28,7 +27,6 @@ define([
     combine,
     append,
     insert,
-    compact,
     bind,
     toArray
 ) {
