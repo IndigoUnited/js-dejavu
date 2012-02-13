@@ -1,18 +1,15 @@
-//>>includeStart('strict', pragmas.strict);
-/*jslint sloppy: true*/
+/*jslint sloppy:true*/
 /*global define*/
 
 define([
     'Utils/object/forOwn',
-    'Utils/array/contains',
-    'Utils/array/difference'
+    'Utils/array/contains'
 ], function (
     forOwn,
-    contains,
-    difference
+    contains
 ) {
     var reservedNormal = ['$constructor', '$initializing'],
-        reservedStatics = ['$class', '$abstract', '$interface', '$binds', '$statics'];
+        reservedStatics = ['$class', '$abstract', '$interface', 'Super'];
 
     /**
      * Verify reserved words found in classes/interfaces.
@@ -24,15 +21,10 @@ define([
      *
      * @param {Object} object            The object to verify
      * @param {String} [type="normal"]   The list of reserved word to test
-     * @param {Array}  [ignoreList="[]"] An array to ignore
      */
-    function verifyReserved(object, type, ignoreList) {
+    function checkKeywords(object, type) {
 
         var reserved = type === 'normal' || !type ? reservedNormal : reservedStatics;
-
-        if (ignoreList) {
-            reserved = difference(reserved, ignoreList);
-        }
 
         forOwn(object, function (value, key) {
             if (contains(reserved, key) || Object.prototype[key]) {
@@ -41,6 +33,5 @@ define([
         });
     }
 
-    return verifyReserved;
+    return checkKeywords;
 });
-//>>includeEnd('strict');

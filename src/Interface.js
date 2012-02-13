@@ -1,70 +1,75 @@
-/*jslint sloppy: true*/
+/*jslint sloppy:true*/
 /*global define*/
 
 define([
 //>>includeStart('strict', pragmas.strict);
     'Utils/lang/isObject',
     'Utils/lang/isFunction',
-    'Utils/object/hasOwn',
+    'Utils/lang/isArray',
+    'Utils/lang/isString',
+    'Utils/lang/bind',
+    'Utils/array/intersection',
+    'Utils/array/unique',
+    'Utils/object/mixIn',
+    'Utils/object/keys',
     'Utils/object/forOwn',
-    'Utils/array/combine',
-    'Utils/array/insert',
-    'Utils/array/contains',
-    'Utils/lang/createObject',
-    './common/verifyReserved'
+    './common/checkKeywords',
+    './common/addMethod',
+    './common/isFunctionCompatible',
 //>>includeEnd('strict');
+    'Utils/object/hasOwn',
+    'Utils/lang/toArray'
 ], function (
 //>>includeStart('strict', pragmas.strict);
     isObject,
     isFunction,
-    hasOwn,
+    isArray,
+    isString,
+    bind,
+    intersection,
+    unique,
+    mixIn,
+    keys,
     forOwn,
-    combine,
-    insert,
-    contains,
-    createObject,
-    verifyReserved
+    checkKeywords,
+    addMethod,
+    isFunctionCompatible,
 //>>includeEnd('strict');
+    hasOwn,
+    toArray
 ) {
+
 //>>includeStart('strict', pragmas.strict);
     /**
-     * Grabs the static methods from the constructor parent and itself and merges them.
+     * Checks if an interface is well implemented in a class.
+     * In order to this function to work, it must be bound to an interface definition.
      *
-     * @param {Function} constructor The constructor
+     * @param {Function} target The class to be checked
      */
-    function grabStatics(constructor) {
+    function checkClass(target) {
 
-        var parent = constructor.Super ? constructor.Super.$constructor : null;
-
-        constructor.$statics = [];
-
-        if (hasOwn(constructor.prototype, 'Statics')) {
-
-            // Verify if statics is an object
-            if (!isObject(constructor.prototype.Statics)) {
-                throw new TypeError('Statics definition for "' + constructor.prototype.Name + '" must be an object.');
+        // Check normal functions
+        forOwn(this.$interface.methods, function (value, k) {
+            if (!target.$class.methods[k]) {
+                throw new Error('Class "' + target.prototype.Name + '" does not implement interface "' + this.prototype.Name + '" correctly, method "' + k + '" was not found.');
             }
+            if (!isFunctionCompatible(target.$class.methods[k], value)) {
+                throw new Error('Method "' + k + '(' + target.$class.methods[k].signature + ')" defined in class "' + target.prototype.Name + '" is not compatible with the one found in interface "' + this.prototype.Name + '": "' + k + '(' + value.signature + ').');
+            }
+        }, this);
 
-            // Verify reserved words
-            verifyReserved(constructor.prototype.Statics, 'statics');
-
-            forOwn(constructor.prototype.Statics, function (value, key) {
-                if (isFunction(value)) {
-                    insert(constructor.$statics, key);
-                }
-            });
-        }
-
-        if (parent && parent.$statics) {
-            combine(constructor.$statics, parent.$statics);
-        } else if (!constructor.$statics.length) {
-            delete constructor.$statics;
-        }
+        // Check static functions
+        forOwn(this.$interface.staticMethods, function (value, k) {
+            if (!target.$class.staticMethods[k]) {
+                throw new Error('Class "' + target.prototype.Name + '" does not implement interface "' + this.prototype.Name + '" correctly, static method "' + k + '" was not found.');
+            }
+            if (!isFunctionCompatible(target.$class.staticMethods[k], value)) {
+                throw new Error('Static method "' + k + '(' + target.$class.staticMethods[k].signature + ')" defined in class "' + target.prototype.Name + '" is not compatible with the one found in interface "' + this.prototype.Name + '": "' + k + '(' + value.signature + ').');
+            }
+        }, this);
     }
 
-    var ignoreKeys = ['Name', 'Extends', 'Statics'];
 //>>includeEnd('strict');
-
     /**
      * Create an interface definition.
      *
@@ -79,53 +84,139 @@ define([
         if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');
         }
-
-        params.Name = params.Name || 'Unnamed';
-
-        // Verify reserved words
-        verifyReserved(params);
-
-//>>includeEnd('strict');
-        var interf = function () {
-//>>includeStart('strict', pragmas.strict);
-            throw new Error('Interfaces cannot be instantiated.');
-//>>includeEnd('strict');
-        };
-
-//>>includeStart('strict', pragmas.strict);
-        // Verify if all params are functions
-        forOwn(params, function (value, key) {
-            if (!isFunction(value) && !contains(ignoreKeys, key)) {
-                throw new TypeError('All values of "' + params.Name + '" must be functions (except for Statics).');
+        // Validate class name
+        if (hasOwn(params, 'Name')) {
+            if (!isString(params.Name)) {
+                throw new TypeError('Abstract class name must be a string.');
             }
-        });
+        } else {
+            params.Name = 'Unnamed';
+        }
+
+        checkKeywords(params, 'normal');
+
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+        delete params.Name;
+//>>excludeEnd('strict');
+
+//>>includeStart('strict', pragmas.strict);
+        var parents,
+            current,
+            k,
+            duplicate,
+            opts,
+            optsStatic,
+            interf = function () {
+                throw new Error('Interfaces cannot be instantiated.');
+            };
+
+        interf.$interface = { parents: [], methods: {}, staticMethods: {}, check: bind(checkClass, interf) };
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+        var parents,
+            k,
+            interf = function () {};
+
+        interf.$interface = { parents: [] };
+//>>excludeEnd('strict');
 
         if (hasOwn(params, 'Extends')) {
 
-            // Verify if parent is a valid interface
-            if (!isFunction(params.Extends) || !params.Extends.$interface) {
-                throw new TypeError('The parent interface of "' + params.Name + '" is not a valid interface (defined in Extends).');
+            parents = toArray(params.Extends);
+            k = parents.length;
+
+//>>includeStart('strict', pragmas.strict);
+            // Verify argument type
+            if (!k && !isArray(params.Extends)) {
+                throw new TypeError('Extends of "' + params.Name + '" seems to point to an nonexistent interface.');
+            }
+            // Verify duplicate entries
+            if (k !== unique(parents).length) {
+                throw new Error('There are duplicate entries defined in Extends of "' + params.Name + '".');
             }
 
-            interf.Super = params.Extends.prototype;
-            delete params.Extends;
+//>>includeEnd('strict');
+            for (k -= 1; k >= 0; k -= 1) {
+//>>includeStart('strict', pragmas.strict);
 
-            interf.prototype = createObject(interf.Super, params);
-            delete interf.prototype.Extends;
-        } else {
-            interf.prototype = params;
+                current = parents[k];
+
+                // Check if it is a valid interface
+                if (!isFunction(current) || !current.$interface) {
+                    throw new TypeError('Specified interface in Extends at index ' +  k + ' of "' + params.Name + '" is not a valid interface.');
+                }
+
+                // Merge methods
+                duplicate = intersection(keys(interf.$interface.methods), keys(current.$interface.methods));
+                if (duplicate.length > 0) {
+                    throw new Error('Interface "' + params.Name + '" is inheriting ' + (duplicate.length > 1 ? 'several methods' : 'a method') + ' from different parents ("' + duplicate.join('", "') + '").');
+                }
+                mixIn(interf.$interface.methods, current.$interface.methods);
+
+                // Merge static methods
+                duplicate = intersection(keys(interf.$interface.staticMethods), keys(current.$interface.staticMethods));
+                if (duplicate.length > 0) {
+                    throw new Error('Interface "' + params.Name + '" is inheriting ' + (duplicate.length > 1 ? 'several static methods' : 'a static method') + ' from different parents ("' + duplicate.join('", "') + '").');
+                }
+                mixIn(interf.$interface.staticMethods, current.$interface.staticMethods);
+
+                // Add interface to the parents
+                interf.$interface.parents.push(current);
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+                // Add interface to the parents
+                interf.$interface.parents.push(parents[k]);
+//>>excludeEnd('strict');
+            }
+
+            delete params.Extends;
         }
 
-        interf.prototype.$constructor = interf;
+//>>includeStart('strict', pragmas.strict);
+        opts = { type: 'normal', defType: 'interface', defName: params.Name, isInterface: true };
+        optsStatic = { type: 'static', defType: opts.defType, defName: params.Name, isInterface: true };
 
-        // Grab all statics from the parent and itself and references them for later use
-        grabStatics(interf);
-        delete interf.prototype.Statics;
+        // Check if the interface defines the initialize function
+        if (hasOwn(params, 'initialize')) {
+            throw new Error('Interface "' + params.Name + '" can\'t define the initialize method.');
+        }
 
-        // TODO: Make a way to validate an interface
-        interf.$interface = true;   // Mark it as an interface
+        forOwn(params, function (value, k) {
+
+            if (k === 'Statics') {
+
+                if (!isObject(params.Statics)) {
+                    throw new TypeError('Statics definition of interface "' + params.Name + '" must be an object.');
+                }
+
+                checkKeywords(params.Statics, 'statics');
+
+                forOwn(params.Statics, function (value, k) {
+
+                    // Check if it is not a function
+                    if (!isFunction(value) || value.$interface || value.$class) {
+                        throw new Error('Static member "' + k + '" found in interface "' + params.Name + '" is not a function.');
+                    }
+
+                    addMethod(k, value, interf.$interface.staticMethods, optsStatic);
+                });
+
+            } else if (k !== 'Name') {
+
+                // Check if it is not a function
+                if (!isFunction(value) || value.$interface || value.$class) {
+                    throw new Error('Member "' + k + '" found in interface "' + params.Name + '" is not a function.');
+                }
+
+                addMethod(k, value, interf.$interface.methods, opts);
+            }
+        });
+
+        interf.prototype.Name = params.Name;
 
 //>>includeEnd('strict');
+
         return interf;
     }
 

@@ -1,325 +1,328 @@
-/*jslint sloppy: true, forin: true, newcap:true*/
+/*jslint sloppy:true forin:true newcap:true*/
 /*global define*/
 
 define([
 //>>includeStart('strict', pragmas.strict);
-    'Utils/lang/isFunction',
     'Utils/lang/isString',
     'Utils/array/intersection',
     'Utils/array/unique',
-    './common/verifyReserved',
+    './common/checkKeywords',
+    './common/functionMeta',
+    './common/addMethod',
 //>>includeEnd('strict');
+    'Utils/lang/isFunction',
     'Utils/lang/isObject',
     'Utils/lang/isArray',
     'Utils/lang/isUndefined',
     'Utils/lang/createObject',
     'Utils/object/mixIn',
-    'Utils/object/keys',
     'Utils/object/hasOwn',
-    'Utils/array/forEach',
+    'Utils/object/forOwn',
     'Utils/array/combine',
     'Utils/array/append',
+    'Utils/array/insert',
     'Utils/lang/bind',
     'Utils/lang/toArray'
 ], function (
 //>>includeStart('strict', pragmas.strict);
-    isFunction,
     isString,
     intersection,
     unique,
-    verifyReserved,
+    checkKeywords,
+    functionMeta,
+    addMethod,
 //>>includeEnd('strict');
+    isFunction,
     isObject,
     isArray,
     isUndefined,
     createObject,
     mixIn,
-    keys,
     hasOwn,
-    forEach,
+    forOwn,
     combine,
     append,
+    insert,
     bind,
     toArray
 ) {
 
-    var Classify;
+    var Class;
 
     /**
-     *  Merges source static methods if not defined in target.
+     * Parse borrows (mixins).
      *
-     *  @param {Function} source The source
-     *  @param {Function} target The target
+     * @param {Function} constructor The constructor
      */
-    function mergeStatics(source, target) {
+    function parseBorrows(constructor) {
 
-        if (source.$statics) {
-
-            if (!target.$statics) {
-                target.$statics = [];
-            }
-
-            forEach(source.$statics, function (value) {
-                if (isUndefined(target[value])) {    // Already defined members are not overwritten
-                    target[value] = source[value];
-                    target.$statics.push(value);
-                }
-            });
-
-            if (!target.$statics.length) {
-                delete target.$statics;
-            }
-        }
-    }
-
-    /**
-     * Borrows the properties and methods of various source objects to the target.
-     *
-     * @param {Array}  sources Array of objects that will give their methods
-     * @param {Object} target  Target that will receive the methods
-     */
-    function borrows(sources, target) {
-
-        var i,
-            current,
-            key,
-            mixins;
-
-        mixins = toArray(sources);
+        if (hasOwn(constructor.prototype, 'Borrows')) {
 
 //>>includeStart('strict', pragmas.strict);
-        // Verify argument type
-        if (!mixins.length && !isArray(sources)) {
-            throw new TypeError('Borrows of "' + target.prototype.Name + '" must be a class/object or an array of classes/objects.');
-        }
-        // Verify duplicate entries
-        if (mixins.length !== unique(mixins).length) {
-            throw new Error('There are duplicate entries defined in Borrows of "' + target.prototype.Name + '".');
-        }
-
-//>>includeEnd('strict');
-        for (i = mixins.length - 1; i >= 0; i -= 1) {        // We don't use forEach here due to performance
-
-//>>includeStart('strict', pragmas.strict);
-            // Verify each mixin
-            if ((!isFunction(mixins[i]) || !mixins[i].$class || mixins[i].$abstract) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
-                throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + target.prototype.Name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
-            }
-
-            if (isObject(mixins[i])) {
-                try {
-                    current = Classify(mixIn({}, mixins[i])).prototype;
-                } catch (e) {
-                    // When an object is being used, throw a more friend message if an error occurs
-                    throw new Error('Unable to define object as class at index ' + i + ' in Borrows of class "' + target.prototype.Name + '" (' + e.message + ').');
-                }
-            } else {
-                current = mixins[i].prototype;
-            }
+            var i,
+                current,
+                key,
+                k,
+                mixins,
+                opts = { type: 'normal', defType: 'class', defName: constructor.prototype.Name },
+                optsStatic = { type: 'static', defType: opts.defType, defName: opts.defName },
+                grabMethods = function (value, key) {
+                    if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
+                        if (isFunction(value) && !value.$class && !value.$interface) {
+                            addMethod(key, value, constructor.$class.methods, opts);
+                        }
+                        constructor.prototype[key] = value;
+                    }
+                },
+                grabStaticMethods = function (value, key) {
+                    if (isUndefined(constructor[key])) {    // Already defined members are not overwritten
+                        addMethod(key, current.$constructor[key], constructor.$class.staticMethods, optsStatic);
+                        constructor[key] = current.$constructor[key];
+                    }
+                };
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-            current = isObject(mixins[i]) ? Classify(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
+            var i,
+                current,
+                k,
+                key,
+                mixins,
+                grabMethods = function (value, key) {
+                    if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
+                        constructor.prototype[key] = value;
+                    }
+                };
 //>>excludeEnd('strict');
 
-            for (key in current) {
-                if (isUndefined(target.prototype[key])) {    // Already defined members are not overwritten
-                    target.prototype[key] = current[key];
+            mixins = toArray(constructor.prototype.Borrows);
+
+//>>includeStart('strict', pragmas.strict);
+            // Verify argument type
+            if (!mixins.length && !isArray(constructor.prototype.Borrows)) {
+                throw new TypeError('Borrows of "' + constructor.prototype.Name + '" must be a class/object or an array of classes/objects.');
+            }
+            // Verify duplicate entries
+            if (mixins.length !== unique(mixins).length) {
+                throw new Error('There are duplicate entries defined in Borrows of "' + constructor.prototype.Name + '".');
+            }
+
+//>>includeEnd('strict');
+            for (i = mixins.length - 1; i >= 0; i -= 1) {
+
+//>>includeStart('strict', pragmas.strict);
+                // Verify each mixin
+                if ((!isFunction(mixins[i]) || !mixins[i].$class || mixins[i].$abstract) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
+                    throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + constructor.prototype.Name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
                 }
+
+                if (isObject(mixins[i])) {
+                    try {
+                        current = Class(mixIn({}, mixins[i])).prototype;
+                    } catch (e) {
+                        // When an object is being used, throw a more friend message if an error occurs
+                        throw new Error('Unable to define object as class at index ' + i + ' in Borrows of class "' + constructor.prototype.Name + '" (' + e.message + ').');
+                    }
+                } else {
+                    current = mixins[i].prototype;
+                }
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+                current = isObject(mixins[i]) ? Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
+//>>excludeEnd('strict');
+
+                // Grab mixin methods
+                forOwn(current, grabMethods);
+
+                // Grab mixin static methods
+//>>includeStart('strict', pragmas.strict);
+                forOwn(current.$constructor.$class.staticMethods, grabStaticMethods);
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+                for (k = current.$constructor.$class.staticMethods.length - 1; k >= 0; k -= 1) {
+                    key = current.$constructor.$class.staticMethods[k];
+                    if (isUndefined(constructor[key])) {    // Already defined members are not overwritten
+                        insert(constructor.$class.staticMethods, key);
+                        constructor[key] = current.$constructor[key];
+                    }
+                }
+//>>excludeEnd('strict');
+
+                // Grab mixin static properties
+                for (k = current.$constructor.$class.staticProperties.length - 1; k >= 0; k -= 1) {
+                    key = current.$constructor.$class.staticProperties[k];
+                    if (isUndefined(constructor[key])) {    // Already defined members are not overwritten
+                        insert(constructor.$class.staticProperties, key);
+                        constructor[key] = current.$constructor[key];
+                    }
+                }
+
+                // Merge the binds
+                combine(constructor.$class.binds, current.$constructor.$class.binds);
             }
 
-            // Merge the statics
-            mergeStatics(current.$constructor, target);
-
-            // Merge the binds
-            if (current.$constructor.$binds) {
-                target.$binds = target.$binds || [];
-                combine(target.$binds, current.$constructor.$binds);
-            }
+            delete constructor.prototype.Borrows;
         }
     }
 
     /**
-     * Fixes the context of given methods in the target.
+     * Applies the context of given methods in the target.
      *
      * @param {Array}  fns     The array of functions to be bound
      * @param {Object} context The context that will be bound
      * @param {Object} target  The target class that will have these methods
      */
-    function binds(fns, context, target) {
+    function applyBinds(fns, context, target) {
 
         var i;
 
-        for (i = fns.length - 1; i >= 0; i -= 1) {    // We don't use forEach here due to performance
+        for (i = fns.length - 1; i >= 0; i -= 1) {
             target[fns[i]] = bind(target[fns[i]], context);
         }
     }
-//>>includeStart('strict', pragmas.strict);
 
     /**
-     * Checks a target against a interfaces definition.
+     * Handle class interfaces.
      *
-     * @param {Array}  interfaces The array of interfaces
-     * @param {Object} target     The target that will be checked
+     * @param {Array}  interfs The array of interfaces
+     * @param {Object} target  The target that will be checked
      */
-    function checkInterfaces(interfaces, target) {
+    function handleInterfaces(interfs, target) {
 
-        var interf = toArray(interfaces),
-            checkStatic = function (value) {
-                if (!isFunction(target[value]) || !hasOwn(target, value)) {
-                    throw new Error('Class "' + target.prototype.Name + '" does not implement interface "' + this.prototype.Name + '" correctly, static method "' + value + '()" was not found.');
-                }
-            };
+        var interfaces = toArray(interfs),
+            x = interfaces.length;
 
+//>>includeStart('strict', pragmas.strict);
         // Verify argument type
-        if (!interf.length && !isArray(interfaces)) {
+        if (!x && !isArray(interfs)) {
             throw new TypeError('Implements of class "' + target.prototype.Name + '" must be an interface or an array of interfaces.');
         }
+        // Verify duplicate interfaces
+        if (x !== unique(interfaces).length) {
+            throw new Error('There are duplicate entries in Implements of "' + target.prototype.Name + '".');
+        }
 
-        forEach(interfaces, function (curr, i) {
-
-            var k;
+        for (x -= 1; x >= 0; x -= 1) {
 
             // Verify if it's a valid interface
-            if (!isFunction(curr) || !curr.$interface) {
-                throw new TypeError('Entry at index ' + i + ' in Implements of class "' + target.prototype.Name + '" is not a valid interface.');
+            if (!isFunction(interfaces[x]) || !interfaces[x].$interface) {
+                throw new TypeError('Entry at index ' + x + ' in Implements of class "' + target.prototype.Name + '" is not a valid interface.');
             }
 
-            // Check normal functions
-            for (k in curr.prototype) {
-                if (k !== 'Name' && k !== '$constructor') {   // Ignore reserved keywords
-                    if (isFunction(curr.prototype[k]) && !isFunction(target.prototype[k])) {
-                        throw new Error('Class "' + target.prototype.Name + '" does not implement interface "' + curr.prototype.Name + '" correctly, method "' + k + '()" was not found.');
-                    }
-                }
+            if (!target.$abstract) {
+                interfaces[x].$interface.check(target);
             }
-
-            // Check static functions
-            if (curr.$statics) {
-                forEach(curr.$statics, checkStatic, curr);
-            }
-        });
-    }
-
-    /**
-     * Checks a target against an abstract class.
-     *
-     * @param {Function} abstractClass The abstract class
-     * @param {Object}   target        The target that will be check
-     */
-    function checkAbstract(abstractClass, target) {
-
-        var abstracts = abstractClass.$abstract;
-
-        // Check normal functions
-        forEach(abstracts.normal, function (func) {
-            if (!isFunction(target.prototype[func])) {
-                throw new Error('Class "' + target.prototype.Name + '" does not implement abstract class "' + abstractClass.prototype.Name + '" correctly, method "' + func + '()" was not found.');
-            }
-        });
-
-        // Check static functions
-        forEach(abstracts.statics, function (func) {
-            if (!isFunction(target[func]) || !hasOwn(target, func)) {
-                throw new Error('Class "' + target.prototype.Name + '" does not implement abstract class "' + abstractClass.prototype.Name + '" correctly, static method "' + func + '()" was not found.');
-            }
-        });
-    }
+            target.$class.interfaces.push(interfaces[x]);
+        }
 //>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+        for (x -= 1; x >= 0; x -= 1) {
+            target.$class.interfaces.push(interfaces[x]);
+        }
+//>>excludeEnd('strict');
+    }
 
+//>>includeEnd('strict');
     /**
-     * Grab all the binds from the constructor parent and itself and merges them for later use.
+     * Parse binds.
      *
      * @param {Function} constructor The constructor
      */
-    function grabBinds(constructor) {
-
-        var parent = constructor.Super ? constructor.Super.$constructor : null,
-            binds;
+    function parseBinds(constructor) {
 
         if (hasOwn(constructor.prototype, 'Binds')) {
-
-            binds = toArray(constructor.prototype.Binds);
+//>>includeStart('strict', pragmas.strict);
+            var binds = toArray(constructor.prototype.Binds),
+                x = binds.length,
+                common;
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+            var binds = toArray(constructor.prototype.Binds);
+//>>excludeEnd('strict');
 
 //>>includeStart('strict', pragmas.strict);
             // Verify arguments type
-            if (!binds.length && !isArray(constructor.prototype.Binds)) {
+            if (!x && !isArray(constructor.prototype.Binds)) {
                 throw new TypeError('Binds of "' + constructor.prototype.Name + '" must be a string or an array of strings.');
             }
             // Verify duplicate binds
-            if (binds.length !== unique(binds).length) {
-                throw new Error('There are duplicate binds in "' + constructor.prototype.Name + '".');
+            if (x !== unique(binds).length) {
+                throw new Error('There are duplicate entries in Binds of "' + constructor.prototype.Name + '".');
             }
-            // Verify duplicate binds already proved in mixins
-            if (intersection(constructor.$binds || [], binds).length > 0) {
-                throw new Error('There are binds in "' + constructor.prototype.Name + '" that are already being bound by a mixin (used in Borrows).');
+            // Verify duplicate binds already provided in mixins
+            common = intersection(constructor.$class.binds, binds);
+            if (common.length > 0) {
+                throw new Error('There are binds in "' + constructor.prototype.Name + '" that are already being bound by the parent class and/or mixin: ' + common.join(', '));
+            }
+
+            // Verify if all binds are strings reference existent methods
+            for (x -= 1; x >= 0; x -= 1) {
+                if (!isString(binds[x])) {
+                    throw new TypeError('Entry at index ' + x + ' in Borrows of class "' + constructor.prototype.Name + '" is not a string.');
+                }
+                if (!isFunction(constructor.prototype[binds[x]]) && (!constructor.prototype.Abstracts || !constructor.prototype.Abstracts[binds[x]])) {
+                    throw new ReferenceError('Method "' + binds[x] + '" referenced in "' + constructor.prototype.Name + '" binds does not exist.');
+                }
             }
 
 //>>includeEnd('strict');
-            constructor.$binds = append(constructor.$binds || [], binds);
+            combine(constructor.$class.binds, binds);
             delete constructor.prototype.Binds;
         }
-
-        if (parent && parent.$binds) {
-//>>includeStart('strict', pragmas.strict);
-
-            // Verify duplicate binds already provided by the parent
-            if (intersection(constructor.$binds || [], parent.$binds).length > 0) {
-                throw new Error('There are binds in "' + constructor.prototype.Name + '" that are already being bound in the parent class.');
-            }
-
-//>>includeEnd('strict');
-            constructor.$binds = append(constructor.$binds || [], parent.$binds);
-        } else if (constructor.$binds && !constructor.$binds.length) {
-            delete constructor.$binds;
-        }
-
-//>>includeStart('strict', pragmas.strict);
-        // Finnaly verify if all binds are strings and reference existent methods
-        if (constructor.$binds) {
-
-            forEach(constructor.$binds, function (value) {
-                if (!isString(value)) {
-                    throw new TypeError('All bind entries of "' + constructor.Name + '" must be a string.');
-                }
-                if (!isFunction(constructor.prototype[value]) && (!constructor.prototype.Abstracts || !constructor.prototype.Abstracts[value])) {
-                    throw new ReferenceError('Method "' + value + '()" referenced in "' + constructor.prototype.Name + '" binds does not exist.');
-                }
-            });
-        }
-//>>includeEnd('strict');
     }
 
     /**
-     * Grabs the static methods from the constructor parent and itself and merges them.
+     * Parse all the methods, including static ones.
      *
+     * @param {Object}   params      The parameters
      * @param {Function} constructor The constructor
      */
-    function grabStatics(constructor) {
-
-        if (hasOwn(constructor.prototype, 'Statics')) {
+    function parseMethods(params, constructor) {
 
 //>>includeStart('strict', pragmas.strict);
-            // Verify if statics is an object
-            if (!isObject(constructor.prototype.Statics)) {
-                throw new TypeError('Statics definition for "' + constructor.prototype.Name + '" must be an object.');
+        var opts = { type: 'normal', defType: 'class', defName: params.Name },
+            optsStatic = { type: 'static', defType: opts.defType, defName: params.Name };
+
+        // Add each method metadata, verifying its signature
+        forOwn(params, function (value, key) {
+
+            if (key === 'Statics') {
+
+                if (!isObject(params.Statics)) {
+                    throw new TypeError('Statics definition of class "' + params.Name + '" must be an object.');
+                }
+
+                checkKeywords(params.Statics, 'statics');
+
+                forOwn(params.Statics, function (value, key) {
+
+                    if (isFunction(value) && !value.$class && !value.$interface) {
+                        addMethod(key, value, constructor.$class.staticMethods, optsStatic);
+                    } else {
+                        insert(constructor.$class.staticProperties, key);
+                    }
+
+                    constructor[key] = value;
+                });
+
+                delete constructor.prototype.Statics;
+
+            } else if (isFunction(value) && !value.$class && !value.$interface) {
+                addMethod(key, value, constructor.$class.methods, opts);
             }
-
-            // Verify reserved words
-            verifyReserved(constructor.prototype.Statics, 'statics');
-
+        });
 //>>includeEnd('strict');
-            mixIn(constructor, constructor.prototype.Statics);
-            constructor.$statics = keys(constructor.prototype.Statics);
-
 //>>excludeStart('strict', pragmas.strict);
-            delete constructor.prototype.Statics;  // If we got strict enabled, we can't delete the Statics yet (see bellow)
-//>>excludeEnd('strict');
-        }
+        // Parse static methods
+        if (hasOwn(params, 'Statics')) {
 
-        // Inherit statics from parent
-        if (constructor.Super) {
-            mergeStatics(constructor.Super.$constructor, constructor);
+            forOwn(params.Statics, function (value, key) {
+                insert(isFunction(value) && !value.$class && !value.$interface ? constructor.$class.staticMethods : constructor.$class.staticProperties, key);
+                constructor[key] = value;
+            });
+
+            delete constructor.prototype.Statics;
         }
+//>>excludeEnd('strict');
     }
 
     /**
@@ -345,20 +348,20 @@ define([
      * Builds the constructor function that calls the initialize and do
      * more things internally.
      *
-     * @param {Funciton} initialize The initialize function
+     * @param {Function} initialize The initialize function
      *
      * @return {Function} The constructor function
      */
-    function constructor(initialize) {
+    function createConstructor(initialize) {
 
-        return function initializer() {
+        var Instance = function () {
 
             // Reset some types of the object in order for each instance to have their variables
             reset(this);
 
             // Apply binds
-            if (this.$constructor.$binds) {
-                binds(this.$constructor.$binds, this, this);
+            if (this.$constructor.$class.binds) {
+                applyBinds(this.$constructor.$class.binds, this, this);
             }
 
 //>>includeStart('strict', pragmas.strict);
@@ -376,40 +379,53 @@ define([
             }
 //>>includeEnd('strict');
         };
+
+        return Instance;
     }
 
     /**
      * Create a class definition.
      *
-     * @param {Object} params An object containing methods and properties
+     * @param {Object} params      An object containing methods and properties
      *
      * @return {Function} The constructor
      */
-    Classify = function (params) {
+    Class = function Class(params) {
 
+//>>excludeStart('strict', pragmas.strict);
+        var classify,
+            parent,
+            $class = { staticMethods: [], staticProperties: [], interfaces: [], binds: [] },
+            k;
+//>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
+        var classify,
+            parent,
+            isAbstract = functionMeta(Class.caller).name === 'AbstractClass',
+            $class = { methods: {}, staticMethods: {}, staticProperties: [], interfaces: [], binds: [] },
+            k;
+
         // Validate params as an object
         if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');
         }
-
-        // Give the class a default name
-        params.Name = params.Name || 'Unnamed';
-
-        // Verify reserved words
-        verifyReserved(params);
+        // Validate class name
+        if (hasOwn(params, 'Name')) {
+            if (!isString(params.Name)) {
+                throw new TypeError('Class name must be a string.');
+            }
+        } else {
+            params.Name = 'Unnamed';
+        }
 
         // Verify if the class has abstract methods but is not defined as abstract
-        if (hasOwn(params, 'Abstracts') && !params.$abstract) {
+        if (hasOwn(params, 'Abstracts') && !isAbstract) {
             throw new Error('Class "' + params.Name + '" has abstract methods, therefore it must be defined as abstract.');
         }
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
-        delete params.Name;
-//>>excludeEnd('strict');
 
-        var classify,
-            parent;
+        // Verify reserved words
+        checkKeywords(params);
+//>>includeEnd('strict');
 
         if (hasOwn(params, 'Extends')) {
 //>>includeStart('strict', pragmas.strict);
@@ -423,58 +439,74 @@ define([
             delete params.Extends;
 
             params.initialize = params.initialize || function () { parent.prototype.initialize.apply(this, arguments); };
-            classify = constructor(params.initialize);
+            classify = createConstructor(params.initialize, params.Name);
             classify.Super = parent.prototype;
             classify.prototype = createObject(parent.prototype, params);
+
+            // Grab all the methods, static methods, static properties, binds and interfaces metadata from the parent
+//>>excludeStart('strict', pragmas.strict);
+            append($class.staticMethods, parent.$class.staticMethods);
+//>>excludeEnd('strict');
+//>>includeStart('strict', pragmas.strict);
+            mixIn($class.staticMethods, parent.$class.staticMethods);
+//>>includeEnd('strict');
+            append($class.staticProperties, parent.$class.staticProperties);
+            append($class.binds, parent.$class.binds);
+            append($class.interfaces, parent.$class.interfaces);
+
+            // Inherit static methods
+//>>includeStart('strict', pragmas.strict);
+            forOwn(parent.$class.staticMethods, function (value, k) {
+                classify[k] = parent[k];
+            });
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+            for (k =  parent.$class.staticMethods.length - 1; k >= 0; k -= 1) {
+                classify[parent.$class.staticMethods[k]] = parent[parent.$class.staticMethods[k]];
+            }
+//>>excludeEnd('strict');
         } else {
             params.initialize = params.initialize || function () {};
-            classify = constructor(params.initialize);
+            classify = createConstructor(params.initialize, params.Name);
             classify.prototype = params;
         }
 
+//>>excludeStart('strict', pragmas.strict);
+        delete classify.prototype.Name;
+
+//>>excludeEnd('strict');
         classify.prototype.$constructor = classify;
+        classify.$class = $class;
 //>>includeStart('strict', pragmas.strict);
-        classify.$class = true;
+        if (isAbstract) {
+            classify.$abstract = true;  // Signal it has abstract
+        }
 //>>includeEnd('strict');
 
-        // Grab static methods from the parent and itself
-        grabStatics(classify);
+        // Parse methods
+        parseMethods(params, classify);
 
-        // Grab all the defined mixins
-        if (hasOwn(params, 'Borrows')) {
-            borrows(params.Borrows, classify);
-            delete classify.prototype.Borrows;
-        }
+        // Parse mixins
+        parseBorrows(classify);
 
-        // Grab binds from the parent and itself
-        grabBinds(classify);
+        // Parse binds
+        parseBinds(classify);
 
 //>>includeStart('strict', pragmas.strict);
         // If we are a concrete class that extends an abstract class, we need to verify the methods existence
-        if (parent && parent.$abstract && !params.$abstract) {
-            checkAbstract(parent, classify);
+        if (parent && parent.$abstract && !isAbstract) {
+            parent.$abstract.check(classify);
         }
 
 //>>includeEnd('strict');
         // Handle interfaces
         if (hasOwn(params, 'Implements')) {
-//>>includeStart('strict', pragmas.strict);
-            // If the class is not abstract then verify if interfaces are well implemented
-            if (!params.$abstract) {
-                checkInterfaces(params.Implements, classify);
-            }
-//>>includeEnd('strict');
+            handleInterfaces(params.Implements, classify);
             delete classify.prototype.Implements;
         }
 
-//>>includeStart('strict', pragmas.strict);
-        if (hasOwn(params, 'Statics')) {
-            delete classify.prototype.Statics;  // If strict where enabled, we can delete statics only now
-        }
-
-//>>includeEnd('strict');
         return classify;
     };
 
-    return Classify;
+    return Class;
 });
