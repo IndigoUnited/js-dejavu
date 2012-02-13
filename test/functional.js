@@ -407,22 +407,19 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                     this.some = 'test';
                 },
                     SomeImplementation = Class({
-                        Borrows: { initialize: function () { }, method1: function () {} },
+                        Borrows: { initialize: function () { this.some = 'nooo'; }, method1: function () {} },
                         some: 'property',
                         initialize: initialize
                     }),
                     OtherImplementation = Class({
-                        Borrows: new Class({ initialize: function () {} }),
-                        some: 'property',
-                        initialize: initialize
+                        Borrows: new Class({ initialize: function () { this.some = 'nooo'; } }),
+                        some: 'property'
                     }),
                     someImplementation = new SomeImplementation(),
                     otherImplementation = new OtherImplementation();
 
                 expect(someImplementation.some).to.be.equal('test');
-                expect(SomeImplementation.prototype.initialize).to.be.equal(initialize);
-                expect(otherImplementation.some).to.be.equal('test');
-                expect(OtherImplementation.prototype.initialize).to.be.equal(initialize);
+                expect(otherImplementation.some).to.be.equal('property');
 
             });
 
@@ -576,7 +573,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                 expect(instanceOf(new Class6(), Class1)).to.equal(true);
 
                 expect(instanceOf(new Class3(), Class2)).to.equal(false);
-                expect(instanceOf(new Class4(), Class1)).to.equal(false)
+                expect(instanceOf(new Class4(), Class1)).to.equal(false);
                 expect(instanceOf(new Class6(), Class2)).to.equal(false);
 
             });

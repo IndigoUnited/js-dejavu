@@ -71,7 +71,6 @@ define(['path/to/classify/Interface'], function (Interface) {
         removeListener: function (name, fn) {},
 
         fireEvent: function (name, args) {}
-
     });
 
     return EventsInterface;
@@ -85,7 +84,6 @@ Be aware that all functions must obey it's base signature (see explanation bello
 define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Interface) {
 
     var SomeEventsInteface = Interface({
-
         Extends: EventsInterface,   // This interface extends EventsInterface
 
         Statics: {                  // This is how we define statics
@@ -111,7 +109,6 @@ Following our previous example we can define a concrete class - _EventsEmitter_ 
 define(['path/to/EventsInterface', 'path/to/classify/Class'], function (EventsInterface, Class) {
 
     var EventsEmitter = Class({
-
         Implements: EventsInterface,   // The class implements the EventsInterface interface
                                        // You can specify multiple interfaces in an array
 
@@ -149,7 +146,6 @@ define([
 function (EventsInterface, AbstractClass) {
 
     var AbstractEventsEmitter = Class({
-
         Implements: EventsInterface,   // The class must implement the EventsInterface
 
         initialize: function (argument1) {
@@ -173,7 +169,6 @@ function (EventsInterface, AbstractClass) {
             removeAll: function () {},
 
             Statics: {                 // We can also define abstract static methods
-
                 getTotalListeners: function () {}
             }
         }
@@ -215,7 +210,9 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
         },
 
         Abstracts: {
+
             // Some abstract functions
+
             Statics: {
                 // Some abstract static functions
             }
@@ -245,7 +242,6 @@ define([
 function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
 
     var ConcreteClass = Class({
-
         Extends: SomeClass,
         Implements: [SomeInterface, OtherInterface],
         Borrows: OtherClass                             // We can add mixins by specifying them in here
@@ -284,7 +280,7 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
 
 ### Mixins ###
 
-A mixin is a class or object that provides a certain functionality to be reused by other classes.
+A mixin is a class or object that provides a certain functionality to be reused by other classes, since all their members will be copied (expect for the initialize method).
 Mixins can be used like specified in the example above.
 If clashes occur with multiple mixins, that last one takes precedence.
 
@@ -309,22 +305,14 @@ Instead, you may use this syntax:
 define(['path/to/classify/Class'], function (Class) {
 
     var SomeClass = Class{(
-
-        /**
-         * foo method
-         */
         'foo': function () {
             // Do something here
         }
     });
 
     var ComplexClass = Class({
-
         Extends: SomeClass,
 
-        /**
-         * foo method
-         */
         foo: function () {
             // Call super
             ComplexClass.Super.foo.call(this);
@@ -344,26 +332,23 @@ With this syntax it also gives you the flexibility to call other parent methods.
 ## Signature check ##
 
 All functions are virtual functions. A method can override another if they obey their signature, that means that
-they must be augmented only with optional arguments. Optional arguments are prefixed with a $ so they can be qualified as optional.
+they must be equal or augmented with additional optional arguments. Optional arguments are prefixed with a $ so they can be qualified as optional.
 The signature check are made for every class, abstract class and interface.
 
 ```js
     var SomeClass = Class{(
-
         'foo': function (param1) {
             // Do something here
         }
     });
 
     var ComplexClass = Class({
-
         Extends: SomeClass,
 
-        'foo': function (param1, $param2) { }
+        'foo': function (param1, $param2) { }   // It's ok, was augmented with an additional optional argument
     });
 
     var OtherComplexClass = Class({
-
         Extends: SomeClass,
 
         'foo': function (param1, param2) { }    // Will throw an error because foo(param1, param2) is not compatible with foo(param1, $param2)
