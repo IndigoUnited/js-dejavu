@@ -16,11 +16,12 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 ## Features ##
 
 * Basic classical inheritance
-  - Definition of static members as well as their inheritance is supported
 * Abstract classes
 * Interfaces
 * Mixins (so you can get some sort of multiple inheritance)
 * Context binding for functions (useful for functions that will be used as callbacks/handlers)
+* Method signature checks
+* Custom instanceOf that also works with interfaces
 * Has two builds, one regular and one AMD based
 
 __NOTE__: Regular build will be made soon!
@@ -30,22 +31,22 @@ __NOTE__: Regular build will be made soon!
 
 All kind of validations to ensure that your classes are well defined and obey all the common rules of classic inheritance degrade performance.
 Thats why there is a __strict__ and a __loose__ version for each build.
+
 The strict version throws an error when something is not right and therefore is suitable for development.
 The loose build has no overhead associated with verifications and therefore is suitable for production.
 If your classes schema work in the strict version then is safe to use them in the loose version.
+The loose version also has lower memory footprint and less size in bytes.
 
-Also, there is no super() or parent() inside your functions. In order to do that, a wrapper must be created for each function, degrading performance.
+There is no super() or parent() inside your functions. In order to do that, a wrapper must be created for each function, degrading performance.
 Instead, we provide an alternative syntax that performs much better (see usage bellow).
 
-## Known limitations ##
+## To be done ##
 
 * Protected/private members are not yet supported, instead they should prefixed with an _ and an __ respectively.
 Private and protected functions could be made by creating wrappers around them.
 Still, there is no crossbrowser way to define private and protected variables.
 Those will be implemented soon using the [Object.defineProperty](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/defineProperty) in the strict version only in environments that implement it.
-* There is no support for constants, in the sense that once defined they cannot be overwritten.
-Those will probably won't be implemented. If anyone is willing to take an effort to do so, please make a pull request.
-* Interfaces does not validate function arguments presence yet. It will be implemented soon.
+* There is no support for constants yet.
 
 Stay tuned!
 
@@ -65,29 +66,10 @@ define(['path/to/classify/Interface'], function (Interface) {
 
     var EventsInterface = Interface({
 
-        /**
-         * Add a listener for a given event.
-         *
-         * @param {String}   name    The event name
-         * @param {Function} fn      The listener
-         * @param {Object}   context The context
-         */
         addListener: function (name, fn, context) {},
 
-        /**
-         * Remove a previously added listener.
-         *
-         * @param {String}   name The event name
-         * @param {Function} fn   The listener
-         */
         removeListener: function (name, fn) {},
 
-        /**
-         * Fire an event, executing each of the attached listeners.
-         *
-         * @param {String} name The event name
-         * @param {Array}  args The arguments to be passed to the listeners
-         */
         fireEvent: function (name, args) {}
 
     });
@@ -96,7 +78,8 @@ define(['path/to/classify/Interface'], function (Interface) {
 });
 ```
 
-Interfaces can extend other interfaces. They can also define static properties and functions signature.
+Interfaces can extend multiple interfaces. They can also define static functions signature.
+Be aware that all functions must obey it's base signature (see explanation bellow).
 
 ```js
 define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Interface) {
@@ -105,15 +88,7 @@ define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Inte
 
         Extends: EventsInterface,   // This interface extends EventsInterface
 
-        Statics: {    // This is how we define static members
-
-            Some: 'static property',
-
-            /**
-             * Return the total number of listeners.
-             *
-             * @return {Number} The number of listeners.
-             */
+        Statics: {                  // This is how we define statics
             getTotalListeners: function () {}
         }
 
@@ -127,10 +102,9 @@ define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Inte
 
 ### Interface usage example ###
 
-A class that implements an interface must define all the interface methods.
+A class that implements an interface must define all the interface methods and be compatible with their signature.
 You define that a class implements an interface by specifying it in the Implements keyword.
 The Implements keyword can be an interface or an array of interfaces.
-If a class does not implement all the interface(s) methods, then a friendly error is thrown.
 Following our previous example we can define a concrete class - _EventsEmitter_ - that implements the _EventsInterface_ interface.
 
 ```js
@@ -141,23 +115,14 @@ define(['path/to/EventsInterface', 'path/to/classify/Class'], function (EventsIn
         Implements: EventsInterface,   // The class implements the EventsInterface interface
                                        // You can specify multiple interfaces in an array
 
-        /**
-         * @inheritDoc
-         */
         addListener: function (name, fn, context) {
             // Implementation goes here
         },
 
-        /**
-         * @inheritDoc
-         */
         removeListener: function (name, fn) {
             // Implementation goes here
         },
 
-        /**
-         * @inheritDoc
-         */
         fireEvent: function (name, args) {
             // Implementation goes here
         }
@@ -187,45 +152,28 @@ function (EventsInterface, AbstractClass) {
 
         Implements: EventsInterface,   // The class must implement the EventsInterface
 
-        /**
-         * Class constructor.
-         */
         initialize: function (argument1) {
             // This is the constructor
             // Calling new on an abstract class will throw an error
             // Though a class that extends this abstract class will run this constructor if called
         },
 
-        /**
-         * @inheritDoc
-         */
         addListener: function (name, fn, context) {
             // Implementation goes here
         },
 
-        /**
-         * @inheritDoc
-         */
         removeListener: function (name, fn) {
             // Implementation goes here
         },
 
         // fireEvent() is not implemented, therefore is automatically declared as abstract
 
-        Abstracts: {    // This how we defined abstract methods
+        Abstracts: {                   // This how we defined abstract methods
 
-            /**
-             * Removes all previously added listeners.
-             */
             removeAll: function () {},
 
-            Statics: {   // We can also define abstract static methods
+            Statics: {                 // We can also define abstract static methods
 
-                /**
-                 * Return the total number of listeners.
-                 *
-                 * @return {Number} The number of listeners.
-                 */
                 getTotalListeners: function () {}
             }
         }
@@ -235,7 +183,8 @@ function (EventsInterface, AbstractClass) {
 });
 ```
 
-Abstract classes can extend other abstract classes or concrete classes while implementing other interfaces:
+Abstract classes can extend other abstract classes or concrete classes while implementing other interfaces.
+Be aware that they must obey their base signature.
 
 ```js
 define([
@@ -392,7 +341,33 @@ define(['path/to/classify/Class'], function (Class) {
 Because the parent reference is attached statically there is no performance overhead.
 With this syntax it also gives you the flexibility to call other parent methods.
 
+## Signature check ##
 
+All functions are virtual functions. A method can override another if they obey their signature, that means that
+they must be augmented only with optional arguments. Optional arguments are prefixed with a $ so they can be qualified as optional.
+
+```js
+    var SomeClass = Class{(
+
+        'foo': function (param1) {
+            // Do something here
+        }
+    });
+
+    var ComplexClass = Class({
+
+        Extends: SomeClass,
+
+        'foo': function (param1, $param2) { }
+    });
+
+    var OtherComplexClass = Class({
+
+        Extends: SomeClass,
+
+        'foo': function (param1, param2) { }    // Will throw an error because foo(param1, param2) is not compatible with foo(param1, $param2)
+    });
+```
 
 ## Dependencies ##
 
