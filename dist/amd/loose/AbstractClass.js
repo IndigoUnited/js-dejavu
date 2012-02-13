@@ -11,8 +11,6 @@ define([
     require
 ) {
 
-    // We need to return a closure in order to solve the requirejs circular dependency
-
     /**
      * Create an abstract class definition.
      *
@@ -20,7 +18,7 @@ define([
      *
      * @return {Function} The constructor
      */
-    return function AbstractClass(params) {
+    function AbstractClass(params) {
 
         Class = require('./Class');
 
@@ -35,5 +33,7 @@ define([
         def = Class(params);
 
         return def;
-    };
+    }
+
+    return AbstractClass;
 });

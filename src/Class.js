@@ -7,7 +7,6 @@ define([
     'Utils/array/intersection',
     'Utils/array/unique',
     './common/checkKeywords',
-    './common/functionMeta',
     './common/addMethod',
 //>>includeEnd('strict');
     'Utils/lang/isFunction',
@@ -30,7 +29,6 @@ define([
     intersection,
     unique,
     checkKeywords,
-    functionMeta,
     addMethod,
 //>>includeEnd('strict');
     isFunction,
@@ -382,25 +380,34 @@ define([
         return Instance;
     }
 
+//>>excludeStart('strict', pragmas.strict);
     /**
      * Create a class definition.
      *
-     * @param {Object} params      An object containing methods and properties
+     * @param {Object} params An object containing methods and properties
      *
      * @return {Function} The constructor
      */
     Class = function Class(params) {
 
-//>>excludeStart('strict', pragmas.strict);
         var classify,
             parent,
             $class = { staticMethods: [], staticProperties: [], interfaces: [], binds: [] },
             k;
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
+    /**
+     * Create a class definition.
+     *
+     * @param {Object}  params     An object containing methods and properties
+     * @param {Boolean} isAbstract Treat this class as abstract
+     *
+     * @return {Function} The constructor
+     */
+    Class = function Class(params, isAbstract) {
+
         var classify,
             parent,
-            isAbstract = functionMeta(Class.caller).name === 'AbstractClass',
             $class = { methods: {}, staticMethods: {}, staticProperties: [], interfaces: [], binds: [] },
             k;
 
