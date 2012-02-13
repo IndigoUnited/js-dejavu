@@ -19,6 +19,7 @@ define([
     'Utils/array/combine',
     'Utils/array/append',
     'Utils/array/insert',
+    'Utils/array/compact',
     'Utils/lang/bind',
     'Utils/lang/toArray'
 ], function (
@@ -39,6 +40,7 @@ define([
     combine,
     append,
     insert,
+    compact,
     bind,
     toArray
 ) {
@@ -54,11 +56,11 @@ define([
 
         if (hasOwn(constructor.prototype, 'Borrows')) {
 
-            var i,
-                current,
+            var current,
                 key,
                 k,
-                mixins,
+                mixins = toArray(constructor.prototype.Borrows),
+                i = mixins.length,
                 opts = { type: 'normal', defType: 'class', defName: constructor.prototype.Name },
                 optsStatic = { type: 'static', defType: opts.defType, defName: opts.defName },
                 grabMethods = function (value, key) {
@@ -76,18 +78,16 @@ define([
                     }
                 };
 
-            mixins = toArray(constructor.prototype.Borrows);
-
             // Verify argument type
-            if (!mixins.length && !isArray(constructor.prototype.Borrows)) {
+            if (!i && !isArray(constructor.prototype.Borrows)) {
                 throw new TypeError('Borrows of "' + constructor.prototype.Name + '" must be a class/object or an array of classes/objects.');
             }
             // Verify duplicate entries
-            if (mixins.length !== unique(mixins).length) {
+            if (i !== unique(mixins).length && compact(mixins).length === i) {
                 throw new Error('There are duplicate entries defined in Borrows of "' + constructor.prototype.Name + '".');
             }
 
-            for (i = mixins.length - 1; i >= 0; i -= 1) {
+            for (i -= 1; i >= 0; i -= 1) {
 
                 // Verify each mixin
                 if ((!isFunction(mixins[i]) || !mixins[i].$class || mixins[i].$abstract) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
@@ -160,7 +160,7 @@ define([
             throw new TypeError('Implements of class "' + target.prototype.Name + '" must be an interface or an array of interfaces.');
         }
         // Verify duplicate interfaces
-        if (x !== unique(interfaces).length) {
+        if (x !== unique(interfaces).length && compact(interfaces).length === x) {
             throw new Error('There are duplicate entries in Implements of "' + target.prototype.Name + '".');
         }
 
@@ -178,7 +178,6 @@ define([
         }
     }
 
-//>>includeEnd('strict');
     /**
      * Parse binds.
      *
@@ -196,7 +195,7 @@ define([
                 throw new TypeError('Binds of "' + constructor.prototype.Name + '" must be a string or an array of strings.');
             }
             // Verify duplicate binds
-            if (x !== unique(binds).length) {
+            if (x !== unique(binds).length && compact(binds).length === x) {
                 throw new Error('There are duplicate entries in Binds of "' + constructor.prototype.Name + '".');
             }
             // Verify duplicate binds already provided in mixins
