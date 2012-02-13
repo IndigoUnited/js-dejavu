@@ -554,7 +554,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
 
         describe('instanceOf', function () {
 
-            it('should work the same was as native instance of works (for normal classes)', function () {
+            it('should work the same was as native instanceof works (for normal classes)', function () {
 
                 var Class1 = Class({}),
                     Class2 = AbstractClass({}),
