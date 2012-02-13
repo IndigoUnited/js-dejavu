@@ -85,6 +85,7 @@ define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Even
 
     var SomeEventsInteface = Interface({
         Extends: EventsInterface,   // This interface extends EventsInterface
+                                    // Interfaces can extend multiple ones, just reference them in an array
 
         Statics: {                  // This is how we define statics
             getTotalListeners: function () {}
