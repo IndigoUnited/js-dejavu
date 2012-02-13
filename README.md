@@ -345,13 +345,17 @@ var SomeClass = Class{(
 var ComplexClass = Class({
     Extends: SomeClass,
 
-    'foo': function (param1, $param2) { }   // It's ok, was augmented with an additional optional argument
+    'foo': function (param1, $param2) {    // It's ok, was augmented with an additional optional argument
+        // Do something here
+    }
 });
 
 var OtherComplexClass = Class({
     Extends: SomeClass,
 
-    'foo': function (param1, param2) { }    // Will throw an error because foo(param1, param2) is not compatible with foo(param1, $param2)
+    'foo': function (param1, param2) {     // Will throw an error because foo(param1, param2) is not compatible with foo(param1, $param2)
+        // Do something here
+    }
 });
 ```
 
