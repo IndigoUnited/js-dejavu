@@ -348,7 +348,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         Extends: [SomeInterface, SomeInterface]
                     });
                 }).to.throwException(/duplicate entries/);
-                
+
                 expect(function () {
                     return Interface({
                         Extends: [undefined, undefined]
