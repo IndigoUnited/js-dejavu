@@ -274,7 +274,6 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
         }
     });
 });
-
 ```
 
 
@@ -323,7 +322,6 @@ define(['path/to/classify/Class'], function (Class) {
     });
 
     return ComplexClass;
-
 });
 ```
 
