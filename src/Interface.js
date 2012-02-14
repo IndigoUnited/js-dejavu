@@ -95,8 +95,7 @@ define([
             params.Name = 'Unnamed';
         }
 
-        checkKeywords(params, 'normal');
-
+        checkKeywords(params);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
         delete params.Name;

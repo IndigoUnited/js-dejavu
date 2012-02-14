@@ -88,8 +88,7 @@ define([
             params.Name = 'Unnamed';
         }
 
-        checkKeywords(params, 'normal');
-
+        checkKeywords(params);
 
         var parents,
             current,
