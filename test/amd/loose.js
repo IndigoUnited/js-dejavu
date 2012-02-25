@@ -7,4 +7,5 @@ if (!global.evaluated) {
 
 var path = '../dist/amd/loose';
 global.modules = [path + '/Class.js', path + '/AbstractClass', path + '/Interface', path + '/instanceOf'];
+global.build = 'amd/loose';
 define(['../functional'], function () { });

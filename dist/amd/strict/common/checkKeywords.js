@@ -8,8 +8,8 @@ define([
     forOwn,
     contains
 ) {
-    var reservedNormal = ['$constructor', '$initializing'],
-        reservedStatics = ['$class', '$abstract', '$interface', 'Super'];
+    var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
+        reservedStatics = ['$class', '$abstract', '$interface', 'Super', '$super', '$inheriting'];
 
     /**
      * Verify reserved words found in classes/interfaces.

@@ -1,4 +1,4 @@
-/*jslint sloppy:true newcap:true regexp:true*/
+/*jslint sloppy:true newcap:true regexp:true nomen:true*/
 /*global global,define,describe,it*/
 
 define(global.modules, function (Class, AbstractClass, Interface) {
@@ -548,6 +548,38 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
+            it('should throw an error if a protected/private methods are defined', function () {
+
+                expect(function () {
+                    return Interface({
+                        __privateMethod: function () {}
+                    });
+                }).to.throwException(/non public/);
+
+                expect(function () {
+                    return Interface({
+                        _protectedMethod: function () {}
+                    });
+                }).to.throwException(/non public/);
+
+                expect(function () {
+                    return Interface({
+                        Statics: {
+                            __privateMethod: function () {}
+                        }
+                    });
+                }).to.throwException(/non public/);
+
+                expect(function () {
+                    return Interface({
+                        Statics: {
+                            _protectedMethod: function () {}
+                        }
+                    });
+                }).to.throwException(/non public/);
+
+            });
+
         });
 
         describe('Defining a Concrete/Abstract Class', function () {
@@ -565,6 +597,28 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Class(null);
                 }).to.throwException(/must be an object/);
+
+            });
+
+            it('should throw an error when using an invalid initialize', function () {
+
+                expect(function () {
+                    return Class({
+                        initialize: undefined
+                    });
+                }).to.throwException(/must be a function/);
+
+                expect(function () {
+                    return Class({
+                        initialize: null
+                    });
+                }).to.throwException(/must be a function/);
+
+                expect(function () {
+                    return Class({
+                        initialize: 'some'
+                    });
+                }).to.throwException(/must be a function/);
 
             });
 
@@ -779,6 +833,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         Binds: ['method1'],
                         Borrows: Class({
                             Binds: ['method1', 'method2'],
+                            some: null,
                             method1: function () {
                                 this.some = 'test';
                             },
@@ -1104,6 +1159,41 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
+            it('should throw an error when overriding methods with properties and vice-versa', function () {
+
+                var SomeClass = Class({
+                    func: function () {},
+                    prop: 'some'
+                }),
+                    SomeAbstractClass = AbstractClass({
+                        Abstracts: {
+                            func: function () {}
+                        }
+                    });
+
+                expect(function () {
+                    return Class({
+                        Extends: SomeClass,
+                        func: 'some'
+                    })
+                }).to.throwException(/with the same name/);
+
+                expect(function () {
+                    return Class({
+                        Extends: SomeClass,
+                        prop: function () {}
+                    })
+                }).to.throwException(/with the same name/);
+
+                expect(function () {
+                    return Class({
+                        Extends: SomeAbstractClass,
+                        func: 'some'
+                    })
+                }).to.throwException(/(with the same name)|(was not found)/);
+
+            });
+
             it('should throw an error when defining incompatible methods compared to its base signature', function () {
 
                 var Interface1 = Interface({
@@ -1210,6 +1300,29 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Class({
+                        Implements: [Interface1],
+                        Borrows: {
+                            method1: function (a, b) {}
+                        }
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return Class({
+                        Implements: [Interface5, Interface7],
+                        Borrows: {
+                            Statics: {
+                                method1: function (a) {}
+                            }
+                        },
+                        Statics: {
+                            method1: function (a) {}
+                        }
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return Class({
                         Implements: [Interface5, Interface6],
                         Statics: {
                             method1: function (a) {}
@@ -1294,6 +1407,21 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                                 method1: function (a) {}
                             }
                         }),
+                        Implements: Interface3,
+                        Borrows: {
+                            method1: function (a, b) {}
+                        }
+                    });
+                }).to.throwException(/not compatible with/);
+
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Implements: Interface1,
+                            Abstracts: {
+                                method1: function (a) {}
+                            }
+                        }),
                         Implements: Interface1,
                         method1: function () {}
                     });
@@ -1319,7 +1447,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         initialize: function (a) {},
                         method1: function (a) {}
                     });
-                }).to.not.throwException();
+                }).to.throwException(/not compatible with/);
 
                 expect(function () {
                     return Class({
@@ -1331,7 +1459,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         initialize: function (a, b) {},
                         method1: function (a) {}
                     });
-                }).to.not.throwException();
+                }).to.throwException(/not compatible with/);
 
                 expect(function () {
                     return Class({
@@ -1357,6 +1485,16 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     });
                 }).to.not.throwException();
 
+                expect(function () {
+                    return Class({
+                        Extends: Class({
+                            Extends: Class({
+                                initialize: function (a, $b) {}
+                            })
+                        }),
+                        initialize: function (a, $b, $c) {}
+                    });
+                }).to.not.throwException();
             });
 
         });
@@ -2602,12 +2740,9 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 }
             });
 
-            it('should throw an error while using new or its constructor', function () {
+            it('should throw an error while using new', function () {
 
                 expect(function () { return new AbstractExample(); }).to.throwException(/cannot be instantiated/);
-                expect(function () { AbstractExample.prototype.initialize(); }).to.throwException(/cannot be instantiated/);
-                expect(function () { AbstractExample.prototype.initialize.apply(AbstractExample.prototype, []); }).to.throwException(/cannot be instantiated/);
-                expect(function () { AbstractExample.prototype.initialize.apply(AbstractExample, []); }).to.throwException(/cannot be instantiated/);
 
             });
 

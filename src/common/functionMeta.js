@@ -7,17 +7,18 @@ define(function () {
     /**
      * Extract meta data from a function.
      * It returns an object containing the number of normal arguments, the number
-     * of optional arguments, the function signature and the function name.
+     * of optional arguments, the function signature, the function name and the visibility.
      *
      * Will return null if the function arguments are invalid.
      *
      * @param {Function} func The function
+     * @param {String}   name The name of the function
      *
-     * @return {Object|null} An object containg the normal and optional counts
+     * @return {Object|null} An object containg the function metadata
      */
-    function functionMeta(func) {
+    function functionMeta(func, name) {
 
-        var matches = /^function\s+([a-zA-Z0-9_$]*)\s*\(([^\(]*)\)/m.exec(func.toString()),
+        var matches = /^function\s+[a-zA-Z0-9_$]*\s*\(([^\(]*)\)/m.exec(func.toString()),
             ret,
             split,
             optionalReached = false,
@@ -28,10 +29,10 @@ define(function () {
             return null;
         }
 
-        split = (matches[2] || '').split(/\s*,\s*/gm);
+        split = (matches[1] || '').split(/\s*,\s*/gm);
         length = split.length;
 
-        ret = { mandatory: 0, optional: 0, signature: '', name: matches[1] || '' };
+        ret = { mandatory: 0, optional: 0, signature: '' };
 
         if (split[0] !== '') {
 
@@ -49,6 +50,18 @@ define(function () {
             }
 
             ret.signature = ret.signature.substr(0, ret.signature.length - 2);
+        }
+
+        if (name) {
+            if (name[0] === '_') {
+                if (name[1] === '_') {
+                    ret.isPrivate = true;
+                } else {
+                    ret.isProtected = true;
+                }
+            } else {
+                ret.isPublic = true;
+            }
         }
 
         return ret;
