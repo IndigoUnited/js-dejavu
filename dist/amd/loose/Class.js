@@ -34,6 +34,25 @@ define([
     var Class;
 
     /**
+     * Clones a property in order to make them unique for the instance.
+     * This solves the shared properties for types like objects or arrays.
+     *
+     * @param {Mixed} prop The property
+     *
+     * @return {Mixed} The cloned property
+     */
+    function cloneProperty(prop) {
+
+        if (isArray(prop)) {
+            return [].concat(prop);
+        } else if (isObject(prop)) {
+            return mixIn({}, prop);
+        } else {
+            return prop;
+        }
+    }
+
+    /**
      * Parse borrows (mixins).
      *
      * @param {Function} constructor The constructor
@@ -47,9 +66,19 @@ define([
                 key,
                 mixins = toArray(constructor.prototype.Borrows),
                 i = mixins.length,
-                grabMethods = function (value, key) {
+                grabMember = function (value, key) {
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
                         constructor.prototype[key] = value;
+                        if (isFunction(value) && !value.$class && !value.$interface) {
+                            value['$prototype_' + constructor.$class.id] = constructor.prototype;
+                            value.$name = key;
+                        }
+                    }
+                },
+                grabStaticProperty = function (value, key) {
+                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
+                        constructor[key] = cloneProperty(value);
+                        constructor.$class.staticProperties[key] = value;
                     }
                 };
 
@@ -57,8 +86,8 @@ define([
 
                 current = isObject(mixins[i]) ? Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
 
-                // Grab mixin methods
-                forOwn(current, grabMethods);
+                // Grab mixin members
+                forOwn(current, grabMember);
 
                 // Grab mixin static methods
                 for (k = current.$constructor.$class.staticMethods.length - 1; k >= 0; k -= 1) {
@@ -66,39 +95,19 @@ define([
                     if (isUndefined(constructor[key])) {    // Already defined members are not overwritten
                         insert(constructor.$class.staticMethods, key);
                         constructor[key] = current.$constructor[key];
+                        constructor[key]['$constructor_' + constructor.$class.id] = constructor;
+                        constructor[key].$name = key;
                     }
                 }
 
                 // Grab mixin static properties
-                for (k = current.$constructor.$class.staticProperties.length - 1; k >= 0; k -= 1) {
-                    key = current.$constructor.$class.staticProperties[k];
-                    if (isUndefined(constructor[key])) {    // Already defined members are not overwritten
-                        insert(constructor.$class.staticProperties, key);
-                        constructor[key] = current.$constructor[key];
-                    }
-                }
+                forOwn(current.$constructor.$class.staticProperties, grabStaticProperty);
 
                 // Merge the binds
                 combine(constructor.$class.binds, current.$constructor.$class.binds);
             }
 
             delete constructor.prototype.Borrows;
-        }
-    }
-
-    /**
-     * Applies the context of given methods in the target.
-     *
-     * @param {Array}  fns     The array of functions to be bound
-     * @param {Object} context The context that will be bound
-     * @param {Object} target  The target class that will have these methods
-     */
-    function applyBinds(fns, context, target) {
-
-        var i;
-
-        for (i = fns.length - 1; i >= 0; i -= 1) {
-            target[fns[i]] = bind(target[fns[i]], context);
         }
     }
 
@@ -134,41 +143,55 @@ define([
     }
 
     /**
-     * Parse all the methods, including static ones.
+     * Parse all the members, including static ones.
      *
      * @param {Object}   params      The parameters
      * @param {Function} constructor The constructor
      */
-    function parseMethods(params, constructor) {
+    function parseMembers(params, constructor) {
 
-        // Parse static methods
-        if (hasOwn(params, 'Statics')) {
+        forOwn(params, function (value, key) {
 
-            forOwn(params.Statics, function (value, key) {
-                insert(isFunction(value) && !value.$class && !value.$interface ? constructor.$class.staticMethods : constructor.$class.staticProperties, key);
-                constructor[key] = value;
-            });
+            if (key === 'Statics') {
 
-            delete constructor.prototype.Statics;
-        }
+                forOwn(params.Statics, function (value, key) {
+                    if (isFunction(value) && !value.$class && !value.$interface) {
+                        insert(constructor.$class.staticMethods, key);
+                        value['$constructor_' + constructor.$class.id] = constructor;
+                        value.$name = key;
+                    } else {
+                        constructor.$class.staticProperties[key] = value;
+                    }
+
+                    constructor[key] = value;
+                });
+
+                delete constructor.prototype.Statics;
+
+            } else {
+                // TODO: Maybe we could improve this be storing this in the constructor itself and then deleting it
+                if (key !== '$constructor' && key !== '$self' && key !== '$static' && key !== 'Name' && key !== 'Binds' && key !== 'Borrows' && key !== 'Implements' && key !== 'Abstracts') {
+                    if (isFunction(value) && !value.$class && !value.$interface) {
+                        value['$prototype_' + constructor.$class.id] = constructor.prototype;
+                        value.$name = key;
+                    }
+                }
+            }
+        });
     }
 
     /**
-     * Reset some properties in order to make them unique for the instance.
-     * This solves the shared properties for types like objects or arrays.
+     * Applies the context of given methods in the target.
      *
-     * @param {Object} object The instance
+     * @param {Array}  fns      The array of functions to be bound
+     * @param {Object} instance The target instance
      */
-    function reset(object) {
+    function applyBinds(fns, instance) {
 
-        var key;
+        var i;
 
-        for (key in object) {
-            if (isArray(object[key])) {    // If is array, clone it
-                object[key] = [].concat(object[key]);
-            } else if (isObject(object[key])) {    // If is an object, clone it
-                object[key] = mixIn({}, object[key]);
-            }
+        for (i = fns.length - 1; i >= 0; i -= 1) {
+            instance[fns[i]] = bind(instance[fns[i]], instance);
         }
     }
 
@@ -184,19 +207,111 @@ define([
 
         var Instance = function () {
 
+            var key;
+
             // Reset some types of the object in order for each instance to have their variables
-            reset(this);
+            for (key in this) {
+                this[key] = cloneProperty(this[key]);
+            }
 
             // Apply binds
-            if (this.$constructor.$class.binds) {
-                applyBinds(this.$constructor.$class.binds, this, this);
-            }
+            applyBinds(this.$constructor.$class.binds, this, this);
 
             // Call initialize
             initialize.apply(this, arguments);
         };
 
+        Instance.$class = { staticMethods: [], staticProperties: {}, interfaces: [], binds: [] };
+
         return Instance;
+    }
+
+    /**
+     * Inherits aditional data from the parent, such as metadata, binds and static members.
+     *
+     * @param {Function} constructor The constructor
+     * @param {Function} parent      The parent
+     */
+    function inheritParent(constructor, parent) {
+
+        var x,
+            binds = parent.$class.binds;
+
+
+        // Inherit binds
+        for (x = binds.length - 1; x >= 0; x -= 1) {
+            if (binds[x].substr(0, 2) !== '__') {
+                constructor.$class.binds.push(binds[x]);
+            }
+        }
+
+        // Inherit static methods and properties
+        append(constructor.$class.staticMethods, parent.$class.staticMethods);
+
+        for (x =  parent.$class.staticMethods.length - 1; x >= 0; x -= 1) {
+            if (parent.$class.staticMethods[x].substr(0, 2) !== '__') {
+                constructor[parent.$class.staticMethods[x]] = parent[parent.$class.staticMethods[x]];
+            }
+        }
+
+        forOwn(parent.$class.staticProperties, function (value, k) {
+            if (k.substr(0, 2) !== '__') {
+                constructor.$class.staticProperties[k] = value;
+                constructor[k] = cloneProperty(constructor.$class.staticProperties[k]);
+            }
+        });
+    }
+
+    /**
+     * Creates a function that will be used to call a parent method.
+     *
+     * @param {String} classId The unique class id
+     *
+     * @return {Function} The function
+     */
+    function superAlias(classId) {
+
+        return function parent() {
+
+            return parent.caller['$prototype_' + classId].$constructor.Super[parent.caller.$name].apply(this, arguments);
+        };
+    }
+
+    /**
+     * Creates a function that will be used to access the static members of itself.
+     *
+     * @param {String} classId The unique class id
+     *
+     * @return {Function} The function
+     */
+    function selfAlias(classId) {
+
+        return function self() {
+            return self.caller['$prototype_' + classId].$constructor;
+        };
+    }
+
+    /**
+     * Creates a function that will be used to access the static methods of itself (with late binding).
+     *
+     * @return {Function} The function
+     */
+    function staticAlias() {
+        return this.$constructor;
+    }
+
+    /**
+     * Creates a function that will be used to call a parent static method.
+     *
+     * @param {String} classId The unique class id
+     *
+     * @return {Function} The function
+     */
+    function superStaticAlias(classId) {
+
+        return function parent() {
+            return parent.caller['$constructor_' + classId].Super.$constructor[parent.caller.$name].apply(this, arguments);
+        };
     }
 
     /**
@@ -209,42 +324,39 @@ define([
     Class = function Class(params) {
 
         var classify,
-            parent,
-            $class = { staticMethods: [], staticProperties: [], interfaces: [], binds: [] },
-            k;
+            parent;
 
         if (hasOwn(params, 'Extends')) {
             parent = params.Extends;
             delete params.Extends;
 
-            params.initialize = params.initialize || function () { parent.prototype.initialize.apply(this, arguments); };
-            classify = createConstructor(params.initialize, params.Name);
+            params.initialize = params.initialize || parent.prototype.initialize;
+            classify = createConstructor(params.initialize);
+            classify.$class.id = parent.$class.id;
             classify.Super = parent.prototype;
             classify.prototype = createObject(parent.prototype, params);
 
-            // Grab all the methods, static methods, static properties, binds and interfaces metadata from the parent
-            append($class.staticMethods, parent.$class.staticMethods);
-            append($class.staticProperties, parent.$class.staticProperties);
-            append($class.binds, parent.$class.binds);
-            append($class.interfaces, parent.$class.interfaces);
-
-            // Inherit static methods
-            for (k =  parent.$class.staticMethods.length - 1; k >= 0; k -= 1) {
-                classify[parent.$class.staticMethods[k]] = parent[parent.$class.staticMethods[k]];
-            }
+            inheritParent(classify, parent);
         } else {
             params.initialize = params.initialize || function () {};
-            classify = createConstructor(params.initialize, params.Name);
+            classify = createConstructor(params.initialize);
+            classify.$class.id = 'class_' + new Date().getTime() + '_' + Math.floor(Math.random() * 100000000 + 1);
             classify.prototype = params;
+
+            // Assign aliases
+            classify.prototype.$super = superAlias(classify.$class.id);
+            classify.prototype.$self = selfAlias(classify.$class.id);
+            classify.prototype.$static = staticAlias;
         }
 
         delete classify.prototype.Name;
 
+        // Assign constructor & static parent alias
         classify.prototype.$constructor = classify;
-        classify.$class = $class;
+        classify.$parent = superStaticAlias(classify.$class.id);
 
-        // Parse methods
-        parseMethods(params, classify);
+        // Parse members
+        parseMembers(params, classify);
 
         // Parse mixins
         parseBorrows(classify);

@@ -1,4 +1,4 @@
-/*jslint sloppy:true newcap:true*/
+/*jslint sloppy:true newcap:true nomen:true*/
 /*global global,define,describe,it*/
 
 define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
@@ -16,6 +16,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
             var Example = Class({
                 Binds: ['method1', 'method2', 'method3'],
                 some: 'property',
+                someOther: null,
                 options: {
                     option1: 'property'
                 },
@@ -138,6 +139,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
         describe('Instantiation of inheritance without constructor', function () {
 
             var Person = Class({
+                status: null,
                 initialize: function () {
                     this.status = 'alive';
                 }
@@ -151,6 +153,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                     name: 'SuperAndre'
                 }),
                 PersonAbstract = AbstractClass({
+                    status: null,
                     initialize: function () {
                         this.status = 'alive';
                     }
@@ -184,7 +187,8 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                 name: 'Pet',
                 position: 0,
                 initialize: function () {
-                    Pet.nrPets += 1;
+                    this.$self().nrPets += 1;
+                    this.$self().dummy = 'dummy';
                 },
                 walk: function () {
                     this.position += 1;
@@ -197,6 +201,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                 },
                 Statics: {
                     nrPets: 0,
+                    dummy: 'test',
                     getNrPets: function () {
                         return this.nrPets;
                     },
@@ -205,24 +210,28 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                     }
                 }
             }),
-                Cat = Class({
-                    Extends: Pet,
-                    initialize: function () {
-                        this.name = 'Cat';
-                        Cat.Super.initialize.call(this);
-                    },
-                    walk: function () {
-                        this.position += 1;
-                        Cat.Super.walk.call(this);
-                    },
-                    Statics: {
-                        getMaxAge: function () {
-                            return 20;
-                        }
-                    }
-                }),
+                Cat,
                 pet = new Pet(),
-                cat = new Cat();
+                cat;
+
+            Cat = Class({
+                Extends: Pet,
+                initialize: function () {
+                    this.name = 'Cat';
+                    this.$super();
+                },
+                walk: function () {
+                    this.position += 1;
+                    this.$super();
+                },
+                Statics: {
+                    getMaxAge: function () {
+                        return 20;
+                    }
+                }
+            });
+
+            cat = new Cat();
 
             pet.walk();
             cat.walk();
@@ -261,9 +270,10 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
 
             });
 
-            it('should have inherited the static members', function () {
+            it('should have inherited the static members correctly', function () {
 
                 expect(Cat.getNrPets).to.be.a('function');
+                expect(Cat.dummy).to.be.equal('test');
                 return expect(Cat.nrPets).to.be.ok;
 
             });
@@ -381,11 +391,12 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                         Borrows: [OtherMixin, SomeMixin]
                     }),
                     method1 = function () {},
+                    method2 = function () {},
                     SomeOtherClass = Class({
                         Borrows: [SomeMixin, OtherMixin],
                         method1: method1,
                         Statics: {
-                            staticMethod1: method1
+                            staticMethod1: method2
                         }
                     }),
                     someClass = new SomeClass(),
@@ -397,7 +408,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                 expect(otherClass.method1).to.be.equal(SomeMixin.method1);
                 expect(OtherClass.staticMethod1).to.be.equal(SomeMixin.Statics.staticMethod1);
                 expect(someOtherClass.method1).to.be.equal(method1);
-                expect(SomeOtherClass.staticMethod1).to.be.equal(method1);
+                expect(SomeOtherClass.staticMethod1).to.be.equal(method2);
 
             });
 
@@ -552,6 +563,629 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
 
         });
 
+        describe('Private members', function () {
+
+            var SomeClass = Class({
+                Binds: ['__privateMethod'],
+                __privateMethod: function () {
+                    this.__privateProperty = 'test';
+                },
+                __privateProperty: 'property',
+                setProp: function () {
+                    this.__privateMethod();
+                },
+                getProp: function () {
+                    return this.__privateProperty;
+                },
+                getProp2: function () {
+                    return this.__getProp();
+                },
+                getMethod: function () {
+                    return this.__privateMethod;
+                },
+                callTest: function () {
+                    this.__test();
+                },
+                accessTest: function () {
+                    return this.__test;
+                },
+                callStatic: function () {
+                    return SomeClass.__funcStatic();
+                },
+                accessStatic: function () {
+                    return SomeClass.__propStatic();
+                },
+                __getProp: function () {
+                    this.__privateMethod();
+                    return this.__privateProperty;
+                },
+                Statics: {
+                    callTest: function () {
+                        this.__test();
+                    },
+                    accessTest: function () {
+                        return this.__test;
+                    },
+                    __funcStatic: function () {},
+                    __propStatic: 'property'
+                }
+            });
+
+            if (/strict/.test(global.build)) {
+
+                it('should not be available in the prototype', function () {
+
+                    expect(SomeClass.prototype.__func).to.be.equal(undefined);
+                    expect(SomeClass.prototype.__prop).to.be.equal(undefined);
+
+                });
+
+            }
+
+            it('should not be copied to the constructor if they are static', function () {
+
+                expect((function () {
+                    var OtherClass = Class({
+                        Extends: SomeClass
+                    });
+                    return OtherClass.__funcStatic;
+                }())).to.be.equal(undefined);
+
+                expect((function () {
+                    var OtherClass = Class({
+                        Extends: SomeClass
+                    });
+                    return OtherClass.__propStatic;
+                }())).to.be.equal(undefined);
+
+            });
+
+            it('should work well with binds', function () {
+
+                var some = new SomeClass();
+                some.getMethod().call(this);
+                expect(some.getProp()).to.be.equal('test');
+
+
+            });
+
+            if (/strict/.test(global.build)) {
+
+                it('should only be available to self', function () {
+
+                    expect((function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass
+                        });
+                        return OtherClass.__funcStatic;
+                    }())).to.be.equal(undefined);
+
+                    expect((function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass
+                        });
+                        return OtherClass.__propStatic;
+                    }())).to.be.equal(undefined);
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            some: function () {
+                                this.__privateMethod();
+                            }
+                        });
+                        new OtherClass().some();
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            some: function () {
+                                SomeClass.__funcStatic();
+                            }
+                        });
+                        new OtherClass().some();
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            Statics: {
+                                some: function () {
+                                    this.__funcStatic();
+                                }
+                            }
+                        });
+                        OtherClass.some();
+                    }).to.throwException();
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            some: function () {
+                                return this.__privateProperty;
+                            }
+                        });
+                        new OtherClass().some();
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            some: function () {
+                                return SomeClass.__propStatic;
+                            }
+                        });
+                        new OtherClass().some();
+                    }).to.throwException(/access private/);
+
+                    expect((function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            Statics: {
+                                some: function () {
+                                    return this.__privateProperty;
+                                }
+                            }
+                        });
+                        return OtherClass.some();
+                    }())).to.be.equal(undefined);
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            __test: function () {}
+                        });
+                        return new OtherClass().callTest();
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            Statics: {
+                                __test: function () {}
+                            }
+                        });
+                        OtherClass.callTest();
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            __test: 'some'
+                        });
+                        return new OtherClass().accessTest();
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            Statics: {
+                                __test: 'some'
+                            }
+                        });
+                        return OtherClass.accessTest();
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: Class({
+                                initialize: function () {
+                                    this.__test();
+                                }
+                            }),
+                            __test: function () {}
+                        });
+
+                        return new OtherClass();
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: Class({
+                                initialize: function () {
+                                    this.__test = 'test';
+                                }
+                            }),
+                            __test: 'some'
+                        });
+                        return new OtherClass();
+                    }).to.throwException(/set private/);
+
+                    expect(function () {
+                        (new SomeClass()).__privateMethod();
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
+                        (new SomeClass()).__privateProperty();
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
+                        SomeClass.__funcStatic();
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
+                        return SomeClass.__propStatic;
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
+                        (new SomeClass()).getProp();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            getProp: function () {
+                                return this.$super();
+                            }
+                        });
+
+                        return (new OtherClass()).getProp();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        (new SomeClass()).getProp2();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            getProp2: function () {
+                                return this.$super();
+                            }
+                        });
+
+                        return (new OtherClass()).getProp2();
+                    }).to.not.throwException();
+
+                    expect((function () {
+                        var test = new SomeClass();
+                        test.setProp();
+                        return test.getProp();
+                    }())).to.be.equal('test');
+
+                });
+
+                it('cannot be overrided', function () {
+
+                    expect(function () {
+                        return Class({
+                            Extends: SomeClass,
+                            __getProp: function () {}
+                        });
+                    }).to.throwException(/override private/);
+
+                    expect(function () {
+                        return Class({
+                            Extends: SomeClass,
+                            __privateProperty: 'foo'
+                        });
+                    }).to.throwException(/override private/);
+
+                });
+
+            }
+
+            it('should work well with Borrows', function () {
+
+                var OtherClass = {
+                    __privateMethod: function () {
+                        return 'test';
+                    },
+                    __privateProperty: 'some',
+                    Statics: {
+                        __funcStatic: function () {
+                            return 'test';
+                        },
+                        __propStatic: 'property'
+                    }
+                },
+                    SomeClass = Class({
+                        Borrows: OtherClass,
+                        privateMethod: function () {
+                            return this.__privateMethod();
+                        },
+                        privateProperty: function () {
+                            return this.__privateProperty;
+                        },
+                        Statics: {
+                            privateMethod: function () {
+                                return this.__funcStatic();
+                            },
+                            privateProperty: function () {
+                                return this.__propStatic;
+                            }
+                        }
+                    }),
+                    someClass = new SomeClass();
+
+                expect(someClass.privateMethod()).to.be.equal('test');
+                expect(someClass.privateProperty()).to.be.equal('some');
+                expect(SomeClass.privateMethod()).to.be.equal('test');
+                expect(SomeClass.privateProperty()).to.be.equal('property');
+
+            });
+
+        });
+
+        describe('Protected members', function () {
+
+            var SomeClass = Class({
+                Binds: ['_protectedMethod'],
+                _protectedMethod: function () {
+                    this._protectedProperty = 'test';
+                },
+                _protectedProperty: 'property',
+                setProp: function () {
+                    this._protectedMethod();
+                },
+                getProp: function () {
+                    return this._protectedProperty;
+                },
+                getProp2: function () {
+                    return this._getProp();
+                },
+                getMethod: function () {
+                    return this._protectedMethod;
+                },
+                callTest: function () {
+                    this._test();
+                },
+                accessTest: function () {
+                    return this._test;
+                },
+                _getProp: function () {
+                    this._protectedMethod();
+                    return this._protectedProperty;
+                },
+                Statics: {
+                    callTest: function () {
+                        this._test();
+                    },
+                    accessTest: function () {
+                        return this._test;
+                    },
+                    _funcStatic: function () {},
+                    _propStatic: 'property'
+                }
+            });
+
+            if (/strict/.test(global.build)) {
+
+                it('should not be available in the prototype', function () {
+
+                    expect(SomeClass.prototype._func).to.be.equal(undefined);
+                    expect(SomeClass.prototype._prop).to.be.equal(undefined);
+
+                });
+
+            }
+
+            it('should work well with binds', function () {
+
+                var some = new SomeClass();
+                some.getMethod().call(this);
+                expect(some.getProp()).to.be.equal('test');
+
+            });
+
+            if (/strict/.test(global.build)) {
+
+                it('should only be available to derived classes', function () {
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            some: function () {
+                                this._protectedMethod();
+                            }
+                        });
+                        new OtherClass().some();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            some: function () {
+                                this.$self()._funcStatic();
+                            }
+                        });
+                        new OtherClass().some();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            Statics: {
+                                some: function () {
+                                    this._funcStatic();
+                                }
+                            }
+                        });
+                        OtherClass.some();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            some: function () {
+                                return this._protectedProperty;
+                            }
+                        });
+                        new OtherClass().some();
+                    }).to.not.throwException();
+
+                    expect((function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            Statics: {
+                                some: function () {
+                                    return this._protectedProperty;
+                                }
+                            }
+                        });
+                        return OtherClass.some();
+                    }())).to.be.equal(undefined);
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            _test: function () {}
+                        });
+                        return new OtherClass().callTest();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            Statics: {
+                                _test: function () {}
+                            }
+                        });
+                        OtherClass.callTest();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            _test: 'some'
+                        });
+                        return new OtherClass().accessTest();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            Statics: {
+                                _test: 'some'
+                            }
+                        });
+                        return OtherClass.accessTest();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: Class({
+                                initialize: function () {
+                                    this._test();
+                                }
+                            }),
+                            _test: function () {}
+                        });
+
+                        return new OtherClass();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: Class({
+                                initialize: function () {
+                                    this._test = 'test';
+                                }
+                            }),
+                            _test: 'some'
+                        });
+                        return new OtherClass();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        (new SomeClass())._protectedMethod();
+                    }).to.throwException(/access protected/);
+
+                    expect(function () {
+                        return (new SomeClass())._protectedProperty;
+                    }).to.throwException(/access protected/);
+
+                    expect(function () {
+                        SomeClass._funcStatic();
+                    }).to.throwException(/access protected/);
+
+                    expect(function () {
+                        return SomeClass._propStatic;
+                    }).to.throwException(/access protected/);
+
+                    expect(function () {
+                        (new SomeClass()).getProp();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            getProp: function () {
+                                return this.$super();
+                            }
+                        });
+
+                        return (new OtherClass()).getProp();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        (new SomeClass()).getProp2();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        var OtherClass = Class({
+                            Extends: SomeClass,
+                            getProp2: function () {
+                                return this.$super();
+                            }
+                        });
+
+                        return (new OtherClass()).getProp2();
+                    }).to.not.throwException();
+
+                    expect((function () {
+                        var test = new SomeClass();
+                        test.setProp();
+                        return test.getProp();
+                    }())).to.be.equal('test');
+
+                });
+
+            }
+
+            it('should work well with Borrows', function () {
+
+                var OtherClass = {
+                    _protectedMethod: function () {
+                        return 'test';
+                    },
+                    _protectedProperty: 'some',
+                    Statics: {
+                        _funcStatic: function () {
+                            return 'test';
+                        },
+                        _propStatic: 'property'
+                    }
+                },
+                    SomeClass = Class({
+                        Borrows: OtherClass,
+                        protectedMethod: function () {
+                            return this._protectedMethod();
+                        },
+                        protectedProperty: function () {
+                            return this._protectedProperty;
+                        },
+                        Statics: {
+                            protectedMethod: function () {
+                                return this._funcStatic();
+                            },
+                            protectedProperty: function () {
+                                return this._propStatic;
+                            }
+                        }
+                    }),
+                    someClass = new SomeClass();
+
+                expect(someClass.protectedMethod()).to.be.equal('test');
+                expect(someClass.protectedProperty()).to.be.equal('some');
+                expect(SomeClass.protectedMethod()).to.be.equal('test');
+                expect(SomeClass.protectedProperty()).to.be.equal('property');
+
+            });
+
+        });
+
         describe('instanceOf', function () {
 
             it('should work the same was as native instanceof works (for normal classes)', function () {
@@ -563,18 +1197,18 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                     Class5 = AbstractClass({ Extends: Class1 }),
                     Class6 = Class({ Extends: Class5 });
 
-                expect(instanceOf(new Class1(), Class1)).to.equal(true);
-                expect(instanceOf(new Class3(), Class3)).to.equal(true);
-                expect(instanceOf(new Class3(), Class1)).to.equal(true);
-                expect(instanceOf(new Class4(), Class4)).to.equal(true);
-                expect(instanceOf(new Class4(), Class2)).to.equal(true);
-                expect(instanceOf(new Class6(), Class6)).to.equal(true);
-                expect(instanceOf(new Class6(), Class5)).to.equal(true);
-                expect(instanceOf(new Class6(), Class1)).to.equal(true);
+                expect(instanceOf(new Class1(), Class1)).to.be.equal(true);
+                expect(instanceOf(new Class3(), Class3)).to.be.equal(true);
+                expect(instanceOf(new Class3(), Class1)).to.be.equal(true);
+                expect(instanceOf(new Class4(), Class4)).to.be.equal(true);
+                expect(instanceOf(new Class4(), Class2)).to.be.equal(true);
+                expect(instanceOf(new Class6(), Class6)).to.be.equal(true);
+                expect(instanceOf(new Class6(), Class5)).to.be.equal(true);
+                expect(instanceOf(new Class6(), Class1)).to.be.equal(true);
 
-                expect(instanceOf(new Class3(), Class2)).to.equal(false);
-                expect(instanceOf(new Class4(), Class1)).to.equal(false);
-                expect(instanceOf(new Class6(), Class2)).to.equal(false);
+                expect(instanceOf(new Class3(), Class2)).to.be.equal(false);
+                expect(instanceOf(new Class4(), Class1)).to.be.equal(false);
+                expect(instanceOf(new Class6(), Class2)).to.be.equal(false);
 
             });
 
@@ -593,19 +1227,20 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                     Class6 = Class({ Extends: Class5 }),
                     Class7 = Class({ Implements: [Interface2, Interface5] });
 
-                expect(instanceOf(new Class1(), Interface1)).to.equal(true);
-                expect(instanceOf(new Class3(), Interface1)).to.equal(true);
-                expect(instanceOf(new Class4(), Interface1)).to.equal(true);
-                expect(instanceOf(new Class4(), Interface2)).to.equal(true);
-                expect(instanceOf(new Class6(), Interface3)).to.equal(true);
-                expect(instanceOf(new Class6(), Interface1)).to.equal(true);
-                expect(instanceOf(new Class7(), Interface5)).to.equal(true);
-                expect(instanceOf(new Class7(), Interface2)).to.equal(true);
-                expect(instanceOf(new Class7(), Interface4)).to.equal(true);
-                expect(instanceOf(new Class7(), Interface1)).to.equal(true);
+                expect(instanceOf(new Class1(), Interface1)).to.be.equal(true);
+                expect(instanceOf(new Class3(), Interface1)).to.be.equal(true);
+                expect(instanceOf(new Class4(), Interface1)).to.be.equal(true);
+                expect(instanceOf(new Class4(), Interface2)).to.be.equal(true);
+                expect(instanceOf(new Class6(), Interface3)).to.be.equal(true);
+                expect(instanceOf(new Class6(), Interface1)).to.be.equal(true);
+                expect(instanceOf(new Class7(), Interface5)).to.be.equal(true);
+                expect(instanceOf(new Class7(), Interface2)).to.be.equal(true);
+                expect(instanceOf(new Class7(), Interface4)).to.be.equal(true);
+                expect(instanceOf(new Class7(), Interface1)).to.be.equal(true);
 
-                expect(instanceOf(new Class1(), Interface2)).to.equal(false);
-                expect(instanceOf(new Class6(), Interface4)).to.equal(false);
+                expect(instanceOf(new Class1(), Interface2)).to.be.equal(false);
+                expect(instanceOf(new Class6(), Interface4)).to.be.equal(false);
+
             });
 
         });

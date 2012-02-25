@@ -11,9 +11,10 @@ define([
     'Utils/object/mixIn',
     'Utils/object/forOwn',
     'Utils/array/combine',
-    './common/addMethod',
-    './common/checkKeywords',
+    './common/functionMeta',
+    './common/isFunctionEmpty',
     './common/isFunctionCompatible',
+    './common/checkKeywords',
     'Utils/object/hasOwn',
     './Class',
     'require'
@@ -27,13 +28,67 @@ define([
     mixIn,
     forOwn,
     combine,
-    addMethod,
-    checkKeywords,
+    functionMeta,
+    isFunctionEmpty,
     isFunctionCompatible,
+    checkKeywords,
     hasOwn,
     Class,
     require
 ) {
+
+    /**
+     * Add an abstract method to an abstract class.
+     * This method will throw an error if something is not right.
+     * Valid options:
+     *   - isStatic: true|false Defaults to false
+     *
+     * @param {String}   name        The method name
+     * @param {Function} method      The method itself
+     * @param {Object}   constructor The class constructor
+     * @param {Object}   [opts="{}"] The options
+     */
+    function addMethod(name, method, constructor, opts) {
+
+        var metadata,
+            isStatic = opts && opts.isStatic,
+            target;
+
+        // Check if it is a private member
+        if (name.substr(0, 2) === '__') {
+            throw new Error('Abstract class "' + constructor.prototype.Name + '" contains an unallowed abstract ' + (isStatic ? 'static ' : '') + 'private method: "' + name + '".');
+        }
+        // Check if it contains implementation
+        if (!isFunctionEmpty(method)) {
+            throw new TypeError((isStatic ? 'Static method' : 'Method') + ' "' + name + '" must be anonymous and contain no implementation in abstract class "' + constructor.prototype.Name + '".');
+        }
+
+        target = isStatic ? constructor : constructor.prototype;
+
+        // Check if function is ok
+        metadata = functionMeta(method, name);
+        if (metadata === null) {
+            throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in abstract class "' + constructor.prototype.Name + '".');
+        }
+
+        target = isStatic ? constructor.$class.staticMethods : constructor.$class.methods;
+
+        // Check if it is already implemented
+        if (isObject(target[name])) {
+            throw new Error('Abstract method "' + name + '" defined in abstract class "' + constructor.prototype.Name + "' seems to be already implemented and cannot be declared as abstract anymore.");
+        }
+
+        target = isStatic ? constructor.$abstract.staticMethods : constructor.$abstract.methods;
+
+        // Check if the method already exists and if it's compatible
+        if (isObject(target[name])) {
+            if (!isFunctionCompatible(metadata, target[name])) {
+                throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '(' + metadata.signature + ')" defined in abstract class "' + constructor.prototype.Name + '" overrides its ancestor but it is not compatible with its signature: "' + name + '(' + target[name].signature + ')".');
+            }
+        }
+
+        target[name] = metadata;
+    }
 
     /**
      * Checks if an abstract class is well implemented in a class.
@@ -78,8 +133,7 @@ define([
 
         checkKeywords(abstracts);
 
-        var opts = { type: 'normal', defType: 'abstract class', defName: constructor.prototype.Name, defConstructor: constructor, isAbstract: true },
-            optsStatic = { type: 'static', defType: opts.defType, defName: opts.defName, defConstructor: constructor, isAbstract: true };
+        var optsStatic = { isStatic: true };
 
         forOwn(abstracts, function (value, key) {
 
@@ -98,7 +152,7 @@ define([
                         throw new Error('Abstract member "' + key + '" found in abstract class "' + constructor.prototype.Name + '" is not a function.');
                     }
 
-                    addMethod(key, value, constructor.$abstract.staticMethods, optsStatic);
+                    addMethod(key, value, constructor, optsStatic);
                 });
 
             } else {
@@ -108,7 +162,7 @@ define([
                     throw new Error('Abstract member "' + key + '" found in abstract class "' + constructor.prototype.Name + '" is not a function.');
                 }
 
-                addMethod(key, value, constructor.$abstract.methods, opts);
+                addMethod(key, value, constructor);
             }
         });
     }
@@ -196,36 +250,19 @@ define([
         }
 
         var def,
-            originalInitialize = params.initialize,
-            parent,
             $abstract = { methods: {}, staticMethods: {}, interfaces: [] },
             saved = {};
 
         // If we are extending an abstract class also, inherit the abstract methods
         if (isFunction(params.Extends)) {
 
-            parent = params.Extends;
-
-            if (params.Extends.$class) {
-                originalInitialize = originalInitialize || function () { parent.prototype.initialize.apply(this, arguments); };
-            }
-
             if (params.Extends.$abstract) {
                 mixIn($abstract.methods, params.Extends.$abstract.methods);
                 mixIn($abstract.staticMethods, params.Extends.$abstract.staticMethods);
                 combine($abstract.interfaces, params.Extends.$abstract.interfaces);
             }
-        } else {
-            originalInitialize = originalInitialize || function () {};
         }
 
-        // Override the constructor
-        params.initialize = function () {
-            if (!this.$initializing) {
-                throw new Error('An abstract class cannot be instantiated.');
-            }
-            originalInitialize.apply(this, arguments);
-        };
 
         // Handle abstract methods
         if (hasOwn(params, 'Abstracts')) {

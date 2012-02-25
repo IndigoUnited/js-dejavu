@@ -14,7 +14,8 @@ define([
     'Utils/object/keys',
     'Utils/object/forOwn',
     './common/checkKeywords',
-    './common/addMethod',
+    './common/functionMeta',
+    './common/isFunctionEmpty',
     './common/isFunctionCompatible',
     'Utils/object/hasOwn',
     'Utils/lang/toArray'
@@ -31,7 +32,8 @@ define([
     keys,
     forOwn,
     checkKeywords,
-    addMethod,
+    functionMeta,
+    isFunctionEmpty,
     isFunctionCompatible,
     hasOwn,
     toArray
@@ -67,6 +69,49 @@ define([
     }
 
     /**
+     * Add a method to an interface.
+     * This method will throw an error if something is not right.
+     * Valid options:
+     *   - isStatic: true|false Defaults to false
+     *
+     * @param {String}   name        The method name
+     * @param {Function} method      The method itself
+     * @param {Function} interf      The interface in which the method metadata will be saved
+     * @param {Object}   [opts="{}"] The options
+     */
+    function addMethod(name, method, interf, opts) {
+
+        var metadata,
+            isStatic = opts && opts.isStatic,
+            target;
+
+        // Check if it is public
+        if (name[0] === '_') {
+            throw new Error('Interface "' + interf.prototype.Name + '" contains an unallowed non public method: "' + name + '".');
+        }
+        // Check if it contains no implementation
+        if (!isFunctionEmpty(method)) {
+            throw new TypeError((isStatic ? 'Static method' : 'Method') + ' "' + name + '" must be anonymous and contain no implementation in interface "' + interf.prototype.Name + '".');
+        }
+        // Check if function is ok
+        metadata = functionMeta(method, name);
+        if (metadata === null) {
+            throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in interface "' + interf.prototype.Name + '".');
+        }
+
+        target = isStatic ? interf.$interface.staticMethods : interf.$interface.methods;
+
+        // Check if the method already exists and it's compatible
+        if (isObject(target[name])) {
+            if (!isFunctionCompatible(metadata, target[name])) {
+                throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '(' + metadata.signature + ')" defined in interface "' + interf.prototype.Name + '" overrides its ancestor but it is not compatible with its signature: "' + name + '(' + target[name].signature + ')".');
+            }
+        }
+
+        target[name] = metadata;
+    }
+
+    /**
      * Create an interface definition.
      *
      * @param {Object} params An object containing methods and properties
@@ -95,13 +140,13 @@ define([
             k,
             i,
             duplicate,
-            opts,
             optsStatic,
             interf = function () {
                 throw new Error('Interfaces cannot be instantiated.');
             };
 
         interf.$interface = { parents: [], methods: {}, staticMethods: {}, check: bind(checkClass, interf) };
+        interf.prototype.Name = params.Name;
 
         if (hasOwn(params, 'Extends')) {
 
@@ -160,8 +205,7 @@ define([
             delete params.Extends;
         }
 
-        opts = { type: 'normal', defType: 'interface', defName: params.Name, isInterface: true };
-        optsStatic = { type: 'static', defType: opts.defType, defName: params.Name, isInterface: true };
+        optsStatic = { isStatic: true };
 
         // Check if the interface defines the initialize function
         if (hasOwn(params, 'initialize')) {
@@ -185,7 +229,7 @@ define([
                         throw new Error('Static member "' + k + '" found in interface "' + params.Name + '" is not a function.');
                     }
 
-                    addMethod(k, value, interf.$interface.staticMethods, optsStatic);
+                    addMethod(k, value, interf, optsStatic);
                 });
 
             } else if (k !== 'Name') {
@@ -195,11 +239,9 @@ define([
                     throw new Error('Member "' + k + '" found in interface "' + params.Name + '" is not a function.');
                 }
 
-                addMethod(k, value, interf.$interface.methods, opts);
+                addMethod(k, value, interf);
             }
         });
-
-        interf.prototype.Name = params.Name;
 
 
         return interf;

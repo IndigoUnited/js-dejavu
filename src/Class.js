@@ -7,8 +7,10 @@ define([
     'Utils/array/intersection',
     'Utils/array/unique',
     'Utils/array/compact',
+    './common/functionMeta',
+    './common/propertyMeta',
+    './common/isFunctionCompatible',
     './common/checkKeywords',
-    './common/addMethod',
 //>>includeEnd('strict');
     'Utils/lang/isFunction',
     'Utils/lang/isObject',
@@ -19,8 +21,10 @@ define([
     'Utils/object/hasOwn',
     'Utils/object/forOwn',
     'Utils/array/combine',
+//>>excludeStart('strict', pragmas.strict);
     'Utils/array/append',
     'Utils/array/insert',
+//>>excludeEnd('strict');
     'Utils/lang/bind',
     'Utils/lang/toArray'
 ], function (
@@ -29,8 +33,10 @@ define([
     intersection,
     unique,
     compact,
+    functionMeta,
+    propertyMeta,
+    isFunctionCompatible,
     checkKeywords,
-    addMethod,
 //>>includeEnd('strict');
     isFunction,
     isObject,
@@ -41,14 +47,197 @@ define([
     hasOwn,
     forOwn,
     combine,
+//>>excludeStart('strict', pragmas.strict);
     append,
     insert,
+//>>excludeEnd('strict');
     bind,
     toArray
 ) {
 
+//>>includeStart('strict', pragmas.strict);
+    var Class,
+        random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
+        cacheKeyword = 'cache_' + random;
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
     var Class;
+//>>excludeEnd('strict');
 
+    /**
+     * Clones a property in order to make them unique for the instance.
+     * This solves the shared properties for types like objects or arrays.
+     *
+     * @param {Mixed} prop The property
+     *
+     * @return {Mixed} The cloned property
+     */
+    function cloneProperty(prop) {
+
+        if (isArray(prop)) {
+            return [].concat(prop);
+        } else if (isObject(prop)) {
+            return mixIn({}, prop);
+        } else {
+            return prop;
+        }
+    }
+
+//>>includeStart('strict', pragmas.strict);
+    /**
+     * Adds a method to a class.
+     * This method will throw an error if something is not right.
+     * Valid options:
+     *   - isStatic: true|false Defaults to false
+     *   - isFinal:  true|false Defaults to false
+     *
+     * @param {String}   name        The method name
+     * @param {Function} method      The method itself
+     * @param {Function} constructor The class constructor in which the method metadata will be saved
+     * @param {Object}   [opts="{}"] The options
+     */
+    function addMethod(name, method, constructor, opts) {
+
+        var metadata,
+            isStatic = opts && opts.isStatic,
+            target;
+
+        // Check if function is ok
+        if (method.$name) {
+            if (method.$name !== name) {
+                throw new Error('Method "' + name + '" of class "' + constructor.prototype.Name + '" seems to be used by several times by the same or another class.');
+            }
+        } else {
+            Object.defineProperty(method, '$name', {
+                value: name,
+                writable: false,
+                configurable: false,
+                enumerable: false
+            });
+        }
+
+        if (!isStatic && name === 'initialize' && method.$inherited) {
+            metadata = mixIn({}, constructor.Super.$constructor.$class.methods[name]);
+            metadata.implementation = method;
+        } else {
+            metadata = functionMeta(method, name);
+            if (metadata === null) {
+                throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in class "' + constructor.prototype.Name + '".');
+            }
+        }
+
+        // Check if a property with the same name exists
+        target = isStatic ? constructor.$class.staticProperties : constructor.$class.properties;
+        if (isObject(target[name])) {
+            throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'property with the same name in class "' + constructor.prototype.Name + '".');
+        }
+
+        target = isStatic ? constructor.$class.staticMethods : constructor.$class.methods;
+
+        // Check if the method already exists
+        if (isObject(target[name])) {
+            // Are we overriding a private method?
+            if (target[name].isPrivate) {
+                throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' method "' + name + ' in class "' + constructor.prototype.Name + '".');
+            }
+            // Are they compatible?
+            if (!isFunctionCompatible(metadata, target[name])) {
+                throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '(' + metadata.signature + ')" defined in abstract class "' + constructor.prototype.Name + '" overrides its ancestor but it is not compatible with its signature: "' + name + '(' + target[name].signature + ')".');
+            }
+        }
+
+        target[name] = metadata;
+
+        // Store visibility flags
+        if (!metadata.isPublic) {
+
+            if (!isStatic) {
+                delete constructor.prototype[name];
+            }
+
+            metadata.implementation = method;
+        } else {
+            target = isStatic ? constructor : constructor.prototype;
+            target[name] = method;
+        }
+
+       // Store a reference to the prototype/constructor
+        if (!isStatic) {
+            Object.defineProperty(method, '$prototype_' + constructor.$class.id, {
+                value: constructor.prototype,
+                writable: false,
+                configurable: false,
+                enumerable: false
+            });
+        } else {
+            Object.defineProperty(method, '$constructor_' + constructor.$class.id, {
+                value: constructor,
+                writable: false,
+                configurable: false,
+                enumerable: false
+            });
+        }
+
+    }
+
+    /**
+     * Adds a property to the class methods metadata.
+     * This method will throw an error if something is not right.
+     * Valid options:
+     *   - isStatic: true|false Defaults to false
+     *   - isFinal:  true|false Defaults to false
+     *
+     * @param {String}   name        The property name
+     * @param {Function} value       The property itself
+     * @param {Function} constructor The class constructor in which the method metadata will be saved
+     * @param {Object}   [opts="{}"] The options
+     */
+    function addProperty(name, value, constructor, opts) {
+
+        var metadata = propertyMeta(value, name),
+            isStatic = opts && opts.isStatic,
+            target;
+
+        // Only protected and private properties are stored
+        if (!metadata.isPublic) {
+            if (!isStatic) {
+                delete constructor.prototype[name];
+            } else {
+                delete constructor[name];
+            }
+        } else if (isStatic) {
+            constructor[name] = cloneProperty(value);
+        } else {
+            constructor.prototype[name] = value;
+        }
+
+        // Check if a property with the same name exists
+        target = isStatic ? constructor.$class.staticMethods : constructor.$class.methods;
+
+        if (isObject(target[name])) {
+            throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.Name + '".');
+        }
+
+        target = isStatic ? constructor.$class.staticProperties : constructor.$class.properties;
+
+        if (isObject(target[name])) {
+            // Are we overriding a private property?
+            if (target[name].isPrivate) {
+                throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' property "' + name + ' in class "' + constructor.prototype.Name + '".');
+            }
+        }
+
+        target[name] = metadata;
+
+        // Store a reference to the prototype/constructor
+        if (!isStatic) {
+            metadata['$prototype_' + constructor.$class.id] = constructor.prototype;
+        } else {
+            metadata['$constructor_' + constructor.$class.id] = constructor;
+        }
+    }
+
+//>>includeEnd('strict');
     /**
      * Parse borrows (mixins).
      *
@@ -61,23 +250,27 @@ define([
 //>>includeStart('strict', pragmas.strict);
             var current,
                 key,
-                k,
                 mixins = toArray(constructor.prototype.Borrows),
                 i = mixins.length,
-                opts = { type: 'normal', defType: 'class', defName: constructor.prototype.Name },
-                optsStatic = { type: 'static', defType: opts.defType, defName: opts.defName },
-                grabMethods = function (value, key) {
+                optsStatic = { isStatic: true },
+                grabMethod = function (value, key) {
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
-                        if (isFunction(value) && !value.$class && !value.$interface) {
-                            addMethod(key, value, constructor.$class.methods, opts);
-                        }
-                        constructor.prototype[key] = value;
+                        addMethod(key, value.implementation || current[key], constructor);
                     }
                 },
-                grabStaticMethods = function (value, key) {
-                    if (isUndefined(constructor[key])) {    // Already defined members are not overwritten
-                        addMethod(key, current.$constructor[key], constructor.$class.staticMethods, optsStatic);
-                        constructor[key] = current.$constructor[key];
+                grabProperty = function (value, key) {
+                    if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
+                        addProperty(key, value.value, constructor);
+                    }
+                },
+                grabStaticMethod = function (value, key) {
+                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
+                        addMethod(key, value.implementation || current.$constructor[key], constructor, optsStatic);
+                    }
+                },
+                grabStaticProperty = function (value, key) {
+                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
+                        addProperty(key, value.value, constructor, optsStatic);
                     }
                 };
 //>>includeEnd('strict');
@@ -87,9 +280,19 @@ define([
                 key,
                 mixins = toArray(constructor.prototype.Borrows),
                 i = mixins.length,
-                grabMethods = function (value, key) {
+                grabMember = function (value, key) {
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
                         constructor.prototype[key] = value;
+                        if (isFunction(value) && !value.$class && !value.$interface) {
+                            value['$prototype_' + constructor.$class.id] = constructor.prototype;
+                            value.$name = key;
+                        }
+                    }
+                },
+                grabStaticProperty = function (value, key) {
+                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
+                        constructor[key] = cloneProperty(value);
+                        constructor.$class.staticProperties[key] = value;
                     }
                 };
 //>>excludeEnd('strict');
@@ -126,14 +329,21 @@ define([
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
                 current = isObject(mixins[i]) ? Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
-//>>excludeEnd('strict');
 
-                // Grab mixin methods
-                forOwn(current, grabMethods);
+                // Grab mixin members
+                forOwn(current, grabMember);
+//>>excludeEnd('strict');
 
                 // Grab mixin static methods
 //>>includeStart('strict', pragmas.strict);
-                forOwn(current.$constructor.$class.staticMethods, grabStaticMethods);
+                forOwn(current.$constructor.$class.methods, grabMethod);
+
+                forOwn(current.$constructor.$class.properties, grabProperty);
+
+                // Grab mixin static methods
+                forOwn(current.$constructor.$class.staticMethods, grabStaticMethod);
+
+                forOwn(current.$constructor.$class.staticProperties, grabStaticProperty);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
                 for (k = current.$constructor.$class.staticMethods.length - 1; k >= 0; k -= 1) {
@@ -141,40 +351,20 @@ define([
                     if (isUndefined(constructor[key])) {    // Already defined members are not overwritten
                         insert(constructor.$class.staticMethods, key);
                         constructor[key] = current.$constructor[key];
+                        constructor[key]['$constructor_' + constructor.$class.id] = constructor;
+                        constructor[key].$name = key;
                     }
                 }
-//>>excludeEnd('strict');
 
                 // Grab mixin static properties
-                for (k = current.$constructor.$class.staticProperties.length - 1; k >= 0; k -= 1) {
-                    key = current.$constructor.$class.staticProperties[k];
-                    if (isUndefined(constructor[key])) {    // Already defined members are not overwritten
-                        insert(constructor.$class.staticProperties, key);
-                        constructor[key] = current.$constructor[key];
-                    }
-                }
+                forOwn(current.$constructor.$class.staticProperties, grabStaticProperty);
+//>>excludeEnd('strict');
 
                 // Merge the binds
                 combine(constructor.$class.binds, current.$constructor.$class.binds);
             }
 
             delete constructor.prototype.Borrows;
-        }
-    }
-
-    /**
-     * Applies the context of given methods in the target.
-     *
-     * @param {Array}  fns     The array of functions to be bound
-     * @param {Object} context The context that will be bound
-     * @param {Object} target  The target class that will have these methods
-     */
-    function applyBinds(fns, context, target) {
-
-        var i;
-
-        for (i = fns.length - 1; i >= 0; i -= 1) {
-            target[fns[i]] = bind(target[fns[i]], context);
         }
     }
 
@@ -256,7 +446,7 @@ define([
                 if (!isString(binds[x])) {
                     throw new TypeError('Entry at index ' + x + ' in Borrows of class "' + constructor.prototype.Name + '" is not a string.');
                 }
-                if (!isFunction(constructor.prototype[binds[x]]) && (!constructor.prototype.Abstracts || !constructor.prototype.Abstracts[binds[x]])) {
+                if (!constructor.$class.methods[binds[x]] && (!constructor.prototype.Abstracts || !constructor.prototype.Abstracts[binds[x]])) {
                     throw new ReferenceError('Method "' + binds[x] + '" referenced in "' + constructor.prototype.Name + '" binds does not exist.');
                 }
             }
@@ -268,79 +458,439 @@ define([
     }
 
     /**
-     * Parse all the methods, including static ones.
+     * Parse all the members, including static ones.
      *
      * @param {Object}   params      The parameters
      * @param {Function} constructor The constructor
      */
-    function parseMethods(params, constructor) {
+    function parseMembers(params, constructor) {
 
 //>>includeStart('strict', pragmas.strict);
-        var opts = { type: 'normal', defType: 'class', defName: params.Name },
-            optsStatic = { type: 'static', defType: opts.defType, defName: params.Name };
+        var optsStatic = { isStatic: true };
 
         // Add each method metadata, verifying its signature
+//>>includeEnd('strict');
         forOwn(params, function (value, key) {
 
             if (key === 'Statics') {
 
+//>>includeStart('strict', pragmas.strict);
                 if (!isObject(params.Statics)) {
                     throw new TypeError('Statics definition of class "' + params.Name + '" must be an object.');
                 }
 
                 checkKeywords(params.Statics, 'statics');
 
+//>>includeEnd('strict');
                 forOwn(params.Statics, function (value, key) {
-
+//>>includeStart('strict', pragmas.strict);
                     if (isFunction(value) && !value.$class && !value.$interface) {
-                        addMethod(key, value, constructor.$class.staticMethods, optsStatic);
+                        addMethod(key, value, constructor, optsStatic);
                     } else {
-                        insert(constructor.$class.staticProperties, key);
+                        addProperty(key, value, constructor, optsStatic);
+                    }
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+                    if (isFunction(value) && !value.$class && !value.$interface) {
+                        insert(constructor.$class.staticMethods, key);
+                        value['$constructor_' + constructor.$class.id] = constructor;
+                        value.$name = key;
+                    } else {
+                        constructor.$class.staticProperties[key] = value;
                     }
 
                     constructor[key] = value;
+//>>excludeEnd('strict');
                 });
 
                 delete constructor.prototype.Statics;
 
-            } else if (isFunction(value) && !value.$class && !value.$interface) {
-                addMethod(key, value, constructor.$class.methods, opts);
-            }
-        });
+            } else {
+                // TODO: Maybe we could improve this be storing this in the constructor itself and then deleting it
+                if (key !== '$constructor' && key !== '$self' && key !== '$static' && key !== 'Name' && key !== 'Binds' && key !== 'Borrows' && key !== 'Implements' && key !== 'Abstracts') {
+//>>includeStart('strict', pragmas.strict);
+                    if (isFunction(value) && !value.$class && !value.$interface) {
+                        addMethod(key, value, constructor);
+                    } else {
+                        addProperty(key, value, constructor);
+                    }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-        // Parse static methods
-        if (hasOwn(params, 'Statics')) {
+                    if (isFunction(value) && !value.$class && !value.$interface) {
+                        value['$prototype_' + constructor.$class.id] = constructor.prototype;
+                        value.$name = key;
+                    }
+//>>excludeEnd('strict');
+                }
+            }
+        });
+    }
 
-            forOwn(params.Statics, function (value, key) {
-                insert(isFunction(value) && !value.$class && !value.$interface ? constructor.$class.staticMethods : constructor.$class.staticProperties, key);
-                constructor[key] = value;
-            });
+    /**
+     * Applies the context of given methods in the target.
+     *
+     * @param {Array}  fns      The array of functions to be bound
+     * @param {Object} instance The target instance
+     */
+    function applyBinds(fns, instance) {
 
-            delete constructor.prototype.Statics;
+//>>includeStart('strict', pragmas.strict);
+        var i,
+            current;
+
+        for (i = fns.length - 1; i >= 0; i -= 1) {
+            current = instance[fns[i]];
+            instance[fns[i]] = bind(current, instance);
+            instance[fns[i]]['$prototype_' + instance.$constructor.$class.id] = current['$prototype_' + instance.$constructor.$class.id];
+        }
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+        var i;
+
+        for (i = fns.length - 1; i >= 0; i -= 1) {
+            instance[fns[i]] = bind(instance[fns[i]], instance);
         }
 //>>excludeEnd('strict');
     }
 
+//>>includeStart('strict', pragmas.strict);
     /**
-     * Reset some properties in order to make them unique for the instance.
-     * This solves the shared properties for types like objects or arrays.
+     * Protects a method according to its visibility.
      *
-     * @param {Object} object The instance
+     * @param {String} name     The method name
+     * @param {Object} meta     The function meta
+     * @param {Object} instance The instance that will have the method
      */
-    function reset(object) {
+    function protectMethod(name, meta, instance) {
 
-        var key;
+        if (meta.isPrivate) {
 
-        for (key in object) {
-            if (isArray(object[key])) {    // If is array, clone it
-                object[key] = [].concat(object[key]);
-            } else if (isObject(object[key])) {    // If is an object, clone it
-                object[key] = mixIn({}, object[key]);
-            }
+            instance[cacheKeyword].methods[name] = meta.implementation;
+
+            Object.defineProperty(instance, name, {
+                get: function get() {
+
+                    var method = this[cacheKeyword].methods[name];
+
+                    if (this.$initializing || method['$prototype_' + this.$constructor.$class.id] === get.caller['$prototype_' + this.$constructor.$class.id]) {
+                        return method;
+                    } else {
+                        throw new Error('Cannot access private method "' + name + '" of class "' + this.Name + '".');
+                    }
+                },
+                set: function set(newVal) {
+
+                    if (this.$initializing) {
+                        this[cacheKeyword].methods[name] = newVal;
+                    } else {
+                        throw new Error('Cannot set private method "' + name + '" of class "' + this.Name + '".');
+                    }
+                },
+                configurable: false,
+                enumerable: false
+            });
+        } else if (meta.isProtected) {
+
+            instance[cacheKeyword].methods[name] = meta.implementation;
+
+            Object.defineProperty(instance, name, {
+                get: function get() {
+
+                    var method = this[cacheKeyword].methods[name];
+                    if (this.$initializing ||
+                            get.caller['$prototype_' + this.$constructor.$class.id] === method['$prototype_' + this.$constructor.$class.id] ||
+                            get.caller['$prototype_' + this.$constructor.$class.id] instanceof method['$prototype_' + this.$constructor.$class.id].$constructor ||
+                            (get.caller['$prototype_' + this.$constructor.$class.id] && method['$prototype_' + this.$constructor.$class.id] instanceof get.caller['$prototype_' + this.$constructor.$class.id].$constructor)) {
+                        return method;
+                    } else {
+                        throw new Error('Cannot access protected method "' + name + '" of class "' + this.Name + '".');
+                    }
+                },
+                set: function set(newVal) {
+
+                    if (this.$initializing) {
+                        this[cacheKeyword].methods[name] = newVal;
+                    } else {
+                        throw new Error('Cannot set protected method "' + name + '" of class "' + this.Name + '".');
+                    }
+                },
+                configurable: false,
+                enumerable: false
+            });
         }
     }
 
+    /**
+     * Protects a static method according to its visibility.
+     *
+     * @param {String}   name        The method name
+     * @param {Object}   meta        The function meta
+     * @param {Function} constructor The constructor that will have the method
+     */
+    function protectStaticMethod(name, meta, constructor) {
+
+        if (meta.isPrivate) {
+
+            constructor[cacheKeyword].methods[name] = meta.implementation;
+
+            Object.defineProperty(constructor, name, {
+                get: function get() {
+
+                    var method = this[cacheKeyword].methods[name];
+
+                    if (method['$constructor_' + this.$class.id] === get.caller['$constructor_' + this.$class.id] ||
+                            method['$constructor_' + this.$class.id].prototype === get.caller['$prototype_' + this.$class.id]) {
+                        return method;
+                    } else {
+                        throw new Error('Cannot access private static method "' + name + '" of class "' + this.prototype.Name + '".');
+                    }
+                },
+                set: function set() {
+                    throw new Error('Cannot set private static method "' + name + '" of class "' + this.prototype.Name + '".');
+                },
+                configurable: false,
+                enumerable: false
+            });
+        } else if (meta.isProtected) {
+
+            constructor[cacheKeyword].methods[name] = meta.implementation;
+
+            Object.defineProperty(constructor, name, {
+                get: function get() {
+
+                    var method = this[cacheKeyword].methods[name];
+
+                    if (this.$inheriting ||
+                            method['$constructor_' + this.$class.id] === get.caller['$constructor_' + this.$class.id] ||
+                            (get.caller['$constructor_' + this.$class.id] && (
+                                method['$constructor_' + this.$class.id].prototype instanceof get.caller['$constructor_' + this.$class.id] ||
+                                get.caller['$constructor_' + this.$class.id].prototype instanceof method['$constructor_' + this.$class.id]
+                            )) ||
+                            (get.caller['$prototype_' + this.$class.id] && (
+                                method['$constructor_' + this.$class.id] === get.caller['$prototype_' + this.$class.id].$constructor ||
+                                method['$constructor_' + this.$class.id].prototype instanceof get.caller['$prototype_' + this.$class.id].$constructor ||
+                                get.caller['$prototype_' + this.$class.id] instanceof method['$constructor_' + this.$class.id]
+                            ))) {
+                        return method;
+                    } else {
+                        throw new Error('Cannot access protected static method "' + name + '" of class "' + this.prototype.Name + '".');
+                    }
+                },
+                set: function set() {
+                    throw new Error('Cannot set protected static method "' + name + '" of class "' + this.prototype.Name + '".');
+                },
+                configurable: false,
+                enumerable: false
+            });
+        }
+    }
+
+    /**
+     * Protects a property according to its visibility.
+     *
+     * @param {String} name     The property name
+     * @param {Object} meta     The property meta
+     * @param {Object} instance The instance that will have the property
+     */
+    function protectProperty(name, meta, instance) {
+
+        if (meta.isPrivate) {
+
+            instance[cacheKeyword].properties[name] = cloneProperty(meta.value);
+
+            Object.defineProperty(instance, name, {
+                get: function get() {
+
+                    if (this.$initializing || meta['$prototype_' + this.$constructor.$class.id] === get.caller['$prototype_' + this.$constructor.$class.id]) {
+                        return this[cacheKeyword].properties[name];
+                    } else {
+                        throw new Error('Cannot access private property "' + name + '" of class "' + this.Name + '".');
+                    }
+                },
+                set: function set(newValue) {
+
+                    if (this.$initializing || meta['$prototype_' + this.$constructor.$class.id] === set.caller['$prototype_' + this.$constructor.$class.id]) {
+                        this[cacheKeyword].properties[name] = newValue;
+                    } else {
+                        throw new Error('Cannot set private property "' + name + '" of class "' + this.Name + '".');
+                    }
+                },
+                configurable: false,
+                enumerable: false
+            });
+        } else if (meta.isProtected) {
+
+            instance[cacheKeyword].properties[name] = cloneProperty(meta.value);
+
+            Object.defineProperty(instance, name, {
+                get: function get() {
+
+                    if (this.$initializing ||
+                            get.caller['$prototype_' + this.$constructor.$class.id] === meta['$prototype_' + this.$constructor.$class.id] ||
+                            get.caller['$prototype_' + this.$constructor.$class.id] instanceof meta['$prototype_' + this.$constructor.$class.id].$constructor ||
+                            (get.caller['$prototype_' + this.$constructor.$class.id] && meta['$prototype_' + this.$constructor.$class.id] instanceof get.caller['$prototype_' + this.$constructor.$class.id].$constructor)) {
+                        return this[cacheKeyword].properties[name];
+                    } else {
+                        throw new Error('Cannot access protected property "' + name + '" of class "' + this.Name + '".');
+                    }
+                },
+                set: function set(newValue) {
+
+                    if (this.$initializing ||
+                            set.caller['$prototype_' + this.$constructor.$class.id] === meta['$prototype_' + this.$constructor.$class.id] ||
+                            set.caller['$prototype_' + this.$constructor.$class.id] instanceof meta['$prototype_' + this.$constructor.$class.id].$constructor ||
+                            (set.caller['$prototype_' + this.$constructor.$class.id] && meta['$prototype_' + this.$constructor.$class.id] instanceof set.caller['$prototype_' + this.$constructor.$class.id].$constructor)) {
+                        this[cacheKeyword].properties[name] = newValue;
+                    } else {
+                        throw new Error('Cannot set protected property "' + name + '" of class "' + this.Name + '".');
+                    }
+                },
+                configurable: false,
+                enumerable: false
+            });
+        } else {
+            instance[name] = cloneProperty(meta.value);
+        }
+    }
+
+    /**
+     * Protects a static property according to its visibility.
+     *
+     * @param {String}   name        The property name
+     * @param {Object}   meta        The property meta
+     * @param {Function} constructor The constructor that will have the property
+     */
+    function protectStaticProperty(name, meta, constructor) {
+
+        if (meta.isPrivate) {
+
+            constructor[cacheKeyword].properties[name] = cloneProperty(meta.value);
+
+            Object.defineProperty(constructor, name, {
+                get: function get() {
+
+                    if (meta['$constructor_' + this.$class.id] === get.caller['$constructor_' + this.$class.id] ||
+                            meta['$constructor_' + this.$class.id].prototype === get.caller['$prototype_' + this.$class.id]
+                            ) {
+                        return this[cacheKeyword].properties[name];
+                    } else {
+                        throw new Error('Cannot access private static property "' + name + '" of class "' + this.prototype.Name + '".');
+                    }
+                },
+                set: function set(newValue) {
+
+                    if (meta['$constructor_' + this.$class.id] === set.caller['$constructor_' + this.$class.id] ||
+                            meta['$constructor_' + this.$class.id].prototype === set.caller['$prototype_' + constructor.$class.id]
+                            ) {
+                        this[cacheKeyword].properties[name] = newValue;
+                    } else {
+                        throw new Error('Cannot set private property "' + name + '" of class "' + this.prototype.Name + '".');
+                    }
+                },
+                configurable: false,
+                enumerable: false
+            });
+        } else if (meta.isProtected) {
+
+            constructor[cacheKeyword].properties[name] = cloneProperty(meta.value);
+
+            Object.defineProperty(constructor, name, {
+                get: function get() {
+
+                    var method = this[cacheKeyword].properties[name];
+
+                    if (this.$inheriting ||
+                             meta['$constructor_' + this.$class.id] === get.caller['$constructor_' + this.$class.id] ||
+                            (get.caller['$constructor_' + this.$class.id] && (
+                                meta['$constructor_' + this.$class.id].prototype instanceof get.caller['$constructor_' + this.$class.id] ||
+                                get.caller['$constructor_' + this.$class.id].prototype instanceof meta['$constructor_' + this.$class.id]
+                            )) ||
+                            (get.caller['$prototype_' + this.$class.id] && (
+                                meta['$constructor_' + this.$class.id] === get.caller['$prototype_' + this.$class.id].$constructor ||
+                                meta['$constructor_' + this.$class.id].prototype instanceof get.caller['$prototype_' + this.$class.id].$constructor ||
+                                get.caller['$prototype_' + this.$class.id] instanceof meta['$constructor_' + this.$class.id]
+                            ))) {
+                        return method;
+                    } else {
+                        throw new Error('Cannot access protected static method "' + name + '" of class "' + this.prototype.Name + '".');
+                    }
+                },
+                set: function set(newValue) {
+
+                    if (this.$inheriting ||
+                            meta['$constructor_' + this.$class.id] === set.caller['$constructor_' + this.$class.id] ||
+                            (set.caller['$constructor_' + this.$class.id] && (
+                                meta['$constructor_' + this.$class.id].prototype instanceof set.caller['$constructor_' + this.$class.id] ||
+                                set.caller['$constructor_' + this.$class.id].prototype instanceof meta['$constructor_' + this.$class.id]
+                            )) ||
+                            (set.caller['$prototype_' + this.$class.id] && (
+                                meta['$constructor_' + this.$class.id] === set.caller['$prototype_' + this.$class.id].$constructor ||
+                                meta['$constructor_' + this.$class.id].prototype instanceof set.caller['$prototype_' + this.$class.id].$constructor ||
+                                set.caller['$prototype_' + this.$class.id] instanceof meta['$constructor_' + this.$class.id]
+                            ))) {
+                        this[cacheKeyword].properties[name] = newValue;
+                    } else {
+                        throw new Error('Cannot set protected property "' + name + '" of class "' + this.prototype.Name + '".');
+                    }
+                },
+                configurable: false,
+                enumerable: false
+            });
+        }
+    }
+
+    /**
+     * Protects an instance.
+     *
+     * All its methods and properties will be secured according to their visibility.
+     *
+     * @param {Object} instance The instance to be protected
+     */
+    function protectInstance(instance) {
+
+        instance[cacheKeyword] = { properties: {}, methods: {} };
+
+        forOwn(instance.$constructor.$class.methods, function (value, key) {
+            protectMethod(key, value, instance);
+        });
+
+        forOwn(instance.$constructor.$class.properties, function (value, key) {
+            protectProperty(key, value, instance);
+        });
+    }
+
+    /**
+     * Protects a constructor.
+     *
+     * All its methods and properties will be secured according to their visibility.
+     *
+     * @param {Function} constructor The constructor to be protected
+     */
+    function protectConstructor(constructor) {
+
+        constructor[cacheKeyword] = { properties: {}, methods: {} };
+
+        forOwn(constructor.$class.staticMethods, function (value, key) {
+            protectStaticMethod(key, value, constructor);
+        });
+
+        forOwn(constructor.$class.staticProperties, function (value, key) {
+            protectStaticProperty(key, value, constructor);
+        });
+    }
+
+    /**
+     * Builds the constructor function that calls the initialize and do
+     * more things internally.
+     *
+     * @param {Function} initialize The initialize function
+     * @param {Boolean}  isAbstract Treat this class as abstract
+     *
+     * @return {Function} The constructor function
+     */
+    function createConstructor(initialize, isAbstract) {
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
     /**
      * Builds the constructor function that calls the initialize and do
      * more things internally.
@@ -350,34 +900,193 @@ define([
      * @return {Function} The constructor function
      */
     function createConstructor(initialize) {
+//>>excludeEnd('strict');
 
         var Instance = function () {
 
+//>>excludeStart('strict', pragmas.strict);
+            var key;
+
+//>>excludeEnd('strict');
+//>>includeStart('strict', pragmas.strict);
+            if (isAbstract) {
+                throw new Error('An abstract class cannot be instantiated.');
+            }
+
+            this.$initializing = true;    // Mark it in order to let abstract classes run their initialize
+
+            // Apply private/protected members
+            protectInstance(this);
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
             // Reset some types of the object in order for each instance to have their variables
-            reset(this);
+            for (key in this) {
+                this[key] = cloneProperty(this[key]);
+            }
+//>>excludeEnd('strict');
 
             // Apply binds
-            if (this.$constructor.$class.binds) {
-                applyBinds(this.$constructor.$class.binds, this, this);
-            }
+            applyBinds(this.$constructor.$class.binds, this, this);
 
 //>>includeStart('strict', pragmas.strict);
-            if (!this.$constructor.$abstract) {
-                this.$initializing = true;    // Mark it in order to let abstract classes run their initialize
-            }
+            delete this.$initializing;
+
+            // Prevent any properties to be added and deleted
+            Object.seal(this);
 
 //>>includeEnd('strict');
             // Call initialize
             initialize.apply(this, arguments);
-//>>includeStart('strict', pragmas.strict);
-
-            if (!this.$constructor.$abstract) {
-                delete this.$initializing;    // Remove previous mark
-            }
-//>>includeEnd('strict');
         };
 
+//>>includeStart('strict', pragmas.strict);
+        Instance.$class = { methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, interfaces: [], binds: [] };
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+        Instance.$class = { staticMethods: [], staticProperties: {}, interfaces: [], binds: [] };
+//>>excludeEnd('strict');
+
         return Instance;
+    }
+
+    /**
+     * Inherits aditional data from the parent, such as metadata, binds and static members.
+     *
+     * @param {Function} constructor The constructor
+     * @param {Function} parent      The parent
+     */
+    function inheritParent(constructor, parent) {
+
+        var x,
+            binds = parent.$class.binds;
+
+
+        // Inherit binds
+        for (x = binds.length - 1; x >= 0; x -= 1) {
+            if (binds[x].substr(0, 2) !== '__') {
+                constructor.$class.binds.push(binds[x]);
+            }
+        }
+
+        // Inherit static methods and properties
+//>>excludeStart('strict', pragmas.strict);
+        append(constructor.$class.staticMethods, parent.$class.staticMethods);
+
+        for (x =  parent.$class.staticMethods.length - 1; x >= 0; x -= 1) {
+            if (parent.$class.staticMethods[x].substr(0, 2) !== '__') {
+                constructor[parent.$class.staticMethods[x]] = parent[parent.$class.staticMethods[x]];
+            }
+        }
+
+        forOwn(parent.$class.staticProperties, function (value, k) {
+            if (k.substr(0, 2) !== '__') {
+                constructor.$class.staticProperties[k] = value;
+                constructor[k] = cloneProperty(constructor.$class.staticProperties[k]);
+            }
+        });
+//>>excludeEnd('strict');
+//>>includeStart('strict', pragmas.strict);
+        parent.$inheriting = true;
+
+        // Grab methods and properties definitions
+        forOwn(parent.$class.methods, function (value, k) {
+            constructor.$class.methods[k] = value;
+        });
+
+        forOwn(parent.$class.properties, function (value, k) {
+            constructor.$class.properties[k] = value;
+        });
+
+        // Inherit static methods and properties
+        forOwn(parent.$class.staticMethods, function (value, k) {
+            if (!value.isPrivate) {
+                constructor.$class.staticMethods[k] = value;
+                constructor[k] = parent[k];
+            }
+        });
+
+        forOwn(parent.$class.staticProperties, function (value, k) {
+            if (!value.isPrivate) {
+                constructor.$class.staticProperties[k] = value;
+                constructor[k] = cloneProperty(constructor.$class.staticProperties[k].value);
+            }
+        });
+
+        delete parent.$inheriting;
+//>>includeEnd('strict');
+    }
+
+    /**
+     * Creates a function that will be used to call a parent method.
+     *
+     * @param {String} classId The unique class id
+     *
+     * @return {Function} The function
+     */
+    function superAlias(classId) {
+
+        return function parent() {
+//>>includeStart('strict', pragmas.strict);
+            if (!parent.caller.$name || !parent.caller['$prototype_' + classId]) {
+                throw new Error('Calling parent method within an unknown function.');
+            }
+            if (!parent.caller['$prototype_' + classId].$constructor.Super || !parent.caller['$prototype_' + classId].$constructor.Super[parent.caller.$name]) {
+                throw 'Cannot call parent method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '"';
+            }
+//>>includeEnd('strict');
+
+            return parent.caller['$prototype_' + classId].$constructor.Super[parent.caller.$name].apply(this, arguments);
+        };
+    }
+
+    /**
+     * Creates a function that will be used to access the static members of itself.
+     *
+     * @param {String} classId The unique class id
+     *
+     * @return {Function} The function
+     */
+    function selfAlias(classId) {
+
+        return function self() {
+//>>includeStart('strict', pragmas.strict);
+            if (!self.caller['$prototype_' + classId]) {
+                throw new Error('Cannot retrieve self alias within an unknown function.');
+            }
+//>>includeEnd('strict');
+            return self.caller['$prototype_' + classId].$constructor;
+        };
+    }
+
+    /**
+     * Creates a function that will be used to access the static methods of itself (with late binding).
+     *
+     * @return {Function} The function
+     */
+    function staticAlias() {
+        return this.$constructor;
+    }
+
+    /**
+     * Creates a function that will be used to call a parent static method.
+     *
+     * @param {String} classId The unique class id
+     *
+     * @return {Function} The function
+     */
+    function superStaticAlias(classId) {
+
+        return function parent() {
+//>>includeStart('strict', pragmas.strict);
+            if (!parent.caller.$name || !parent.caller['$constructor_' + classId]) {
+                throw new Error('Calling parent static method within an unknown function.');
+            }
+            if (!parent.caller['$constructor_' + classId].Super || !parent.caller['$constructor_' + classId].Super.$constructor[parent.caller.$name]) {
+                throw 'Cannot call parent static method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '"';
+            }
+//>>includeEnd('strict');
+            return parent.caller['$constructor_' + classId].Super.$constructor[parent.caller.$name].apply(this, arguments);
+        };
     }
 
 //>>excludeStart('strict', pragmas.strict);
@@ -389,11 +1098,6 @@ define([
      * @return {Function} The constructor
      */
     Class = function Class(params) {
-
-        var classify,
-            parent,
-            $class = { staticMethods: [], staticProperties: [], interfaces: [], binds: [] },
-            k;
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
     /**
@@ -405,11 +1109,6 @@ define([
      * @return {Function} The constructor
      */
     Class = function Class(params, isAbstract) {
-
-        var classify,
-            parent,
-            $class = { methods: {}, staticMethods: {}, staticProperties: [], interfaces: [], binds: [] },
-            k;
 
         // Validate params as an object
         if (!isObject(params)) {
@@ -429,9 +1128,19 @@ define([
             throw new Error('Class "' + params.Name + '" has abstract methods, therefore it must be defined as abstract.');
         }
 
+        // Verify if initialize is a method
+        if (hasOwn(params, 'initialize')) {
+            if (!isFunction(params.initialize)) {
+                throw new Error('The "initialize" member of class "' + params.Name + '" must be a function.');
+            }
+        }
+
         // Verify reserved words
         checkKeywords(params);
 //>>includeEnd('strict');
+
+        var classify,
+            parent;
 
         if (hasOwn(params, 'Extends')) {
 //>>includeStart('strict', pragmas.strict);
@@ -444,53 +1153,55 @@ define([
             parent = params.Extends;
             delete params.Extends;
 
-            params.initialize = params.initialize || function () { parent.prototype.initialize.apply(this, arguments); };
-            classify = createConstructor(params.initialize, params.Name);
+//>>includeStart('strict', pragmas.strict);
+            if (!hasOwn(params, 'initialize')) {
+                params.initialize = function () { parent.prototype.initialize.apply(this, arguments); };
+                params.initialize.$inherited = true;
+            }
+
+            classify = createConstructor(params.initialize, isAbstract);
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+            params.initialize = params.initialize || parent.prototype.initialize;
+            classify = createConstructor(params.initialize);
+//>>excludeEnd('strict');
+            classify.$class.id = parent.$class.id;
             classify.Super = parent.prototype;
             classify.prototype = createObject(parent.prototype, params);
 
-            // Grab all the methods, static methods, static properties, binds and interfaces metadata from the parent
-//>>excludeStart('strict', pragmas.strict);
-            append($class.staticMethods, parent.$class.staticMethods);
-//>>excludeEnd('strict');
-//>>includeStart('strict', pragmas.strict);
-            mixIn($class.staticMethods, parent.$class.staticMethods);
-//>>includeEnd('strict');
-            append($class.staticProperties, parent.$class.staticProperties);
-            append($class.binds, parent.$class.binds);
-            append($class.interfaces, parent.$class.interfaces);
-
-            // Inherit static methods
-//>>includeStart('strict', pragmas.strict);
-            forOwn(parent.$class.staticMethods, function (value, k) {
-                classify[k] = parent[k];
-            });
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
-            for (k =  parent.$class.staticMethods.length - 1; k >= 0; k -= 1) {
-                classify[parent.$class.staticMethods[k]] = parent[parent.$class.staticMethods[k]];
-            }
-//>>excludeEnd('strict');
+            inheritParent(classify, parent);
         } else {
             params.initialize = params.initialize || function () {};
-            classify = createConstructor(params.initialize, params.Name);
+//>>includeStart('strict', pragmas.strict);
+            classify = createConstructor(params.initialize, isAbstract);
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+            classify = createConstructor(params.initialize);
+//>>excludeEnd('strict');
+            classify.$class.id = 'class_' + new Date().getTime() + '_' + Math.floor(Math.random() * 100000000 + 1);
             classify.prototype = params;
+
+            // Assign aliases
+            classify.prototype.$super = superAlias(classify.$class.id);
+            classify.prototype.$self = selfAlias(classify.$class.id);
+            classify.prototype.$static = staticAlias;
         }
 
 //>>excludeStart('strict', pragmas.strict);
         delete classify.prototype.Name;
-
 //>>excludeEnd('strict');
-        classify.prototype.$constructor = classify;
-        classify.$class = $class;
 //>>includeStart('strict', pragmas.strict);
         if (isAbstract) {
             classify.$abstract = true;  // Signal it has abstract
         }
 //>>includeEnd('strict');
 
-        // Parse methods
-        parseMethods(params, classify);
+        // Assign constructor & static parent alias
+        classify.prototype.$constructor = classify;
+        classify.$parent = superStaticAlias(classify.$class.id);
+
+        // Parse members
+        parseMembers(params, classify);
 
         // Parse mixins
         parseBorrows(classify);
@@ -510,6 +1221,10 @@ define([
             handleInterfaces(params.Implements, classify);
             delete classify.prototype.Implements;
         }
+//>>includeStart('strict', pragmas.strict);
+
+        protectConstructor(classify);
+//>>includeEnd('strict');
 
         return classify;
     };
