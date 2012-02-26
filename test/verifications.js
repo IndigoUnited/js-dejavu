@@ -296,8 +296,8 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             it('should throw an error when using reserved keywords', function () {
 
-                var reserved = ['$constructor', '$initializing'],
-                    reservedStatic = ['$class', '$abstract', '$interface', 'Super'],
+                var reserved = ['$constructor', '$initializing', '$static', '$self', '$super'],
+                    reservedStatic = ['$class', '$abstract', '$interface', 'Super', '$super', '$inheriting'],
                     x,
                     checkNormal = function (key) {
                         return function () {
@@ -2048,8 +2048,8 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             it('should throw an error when using reserved keywords', function () {
 
-                var reserved = ['$constructor', '$initializing'],
-                    reservedStatic = ['$class', '$abstract', '$interface', 'Super'],
+                var reserved = ['$constructor', '$initializing', '$static', '$self', '$super'],
+                    reservedStatic = ['$class', '$abstract', '$interface', 'Super', '$super', '$inheriting'],
                     x,
                     checkNormal = function (key, inAbstracts) {
                         return function () {
@@ -2639,8 +2639,8 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             it('should throw an error when using reserved keywords', function () {
 
-                var reserved = ['$constructor', '$initializing'],
-                    reservedStatic = ['$class', '$abstract', '$interface', 'Super'],
+                var reserved = ['$constructor', '$initializing', '$static', '$self', '$super'],
+                    reservedStatic = ['$class', '$abstract', '$interface', 'Super', '$super', '$inheriting'],
                     x,
                     checkNormal = function (key) {
                         return function () {
