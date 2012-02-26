@@ -181,6 +181,152 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
 
         });
 
+        describe('$super()', function () {
+
+            var SomeClass = new Class({
+                _firstName: null,
+                initialize: function () {
+                    this._firstName = 'andre';
+                },
+                getFullName: function () {
+                    return this._firstName;
+                },
+                Statics: {
+                    _fruit: 'potato',
+                    getFruit: function () {
+                        return this._fruit;
+                    }
+                }
+            }),
+                OtherClass = new Class({
+                    Extends: SomeClass,
+                    _lastName: null,
+                    initialize: function () {
+                        this.$super();
+                        this._lastName = 'cruz';
+                    },
+                    getFullName: function () {
+                        return this.$super() + ' ' + this._lastName;
+                    },
+                    Statics: {
+                        getFruit: function () {
+                            return 'hot ' + this.$super();
+                        }
+                    }
+                }),
+                HiClass = new Class({
+                    Extends: OtherClass,
+                    getFullName: function () {
+                        return 'hi ' + this.$super();
+                    },
+                    Statics: {
+                        getFruit: function () {
+                            return 'hi ' + this.$super();
+                        }
+                    }
+                });
+
+            it('should call the parent method', function () {
+
+                expect(new OtherClass().getFullName()).to.be.equal('andre cruz');
+                expect(new HiClass().getFullName()).to.be.equal('hi andre cruz');
+
+            });
+
+            it('should work the same way with static methods', function () {
+
+                expect(OtherClass.getFruit()).to.be.equal('hot potato');
+                expect(HiClass.getFruit()).to.be.equal('hi hot potato');
+
+            });
+
+        });
+
+        describe('$self()', function () {
+
+            var SomeClass = new Class({
+                initialize: function () {
+                    this.$self()._fruit = 'orange';
+                },
+                getFruit: function () {
+                    return this.$self().getFruitStatic();
+                },
+                Statics: {
+                    _fruit: 'potato',
+                    getFruitStatic: function () {
+                        return this._fruit;
+                    }
+                }
+            }),
+                OtherClass = new Class({
+                    Extends: SomeClass,
+                    initialize: function () {
+                        this.$super();
+                    },
+                    getFruit: function () {
+                        return this.$self().getFruitStatic();
+                    },
+                    Statics: {
+                        _fruit: 'potato',
+                        getFruitStatic: function () {
+                            return this._fruit;
+                        }
+                    }
+                });
+
+            it('should give access the static layer of itself', function () {
+
+                expect(new SomeClass().getFruit()).to.be.equal('orange');
+                expect(SomeClass.getFruitStatic()).to.be.equal('orange');
+                expect(new OtherClass().getFruit()).to.be.equal('potato');
+                expect(OtherClass.getFruitStatic()).to.be.equal('potato');
+            });
+
+        });
+
+        describe('$static()', function () {
+
+            var SomeClass = new Class({
+                initialize: function () {
+                    this.$static()._fruit = 'orange';
+                },
+                getFruit: function () {
+                    return this.$static().getFruitStatic();
+                },
+                Statics: {
+                    _fruit: 'potato',
+                    getFruitStatic: function () {
+                        return this._fruit;
+                    }
+                }
+            }),
+                OtherClass = new Class({
+                    Extends: SomeClass,
+                    initialize: function () {
+                        this.$super();
+                    },
+                    getFruit: function () {
+                        return this.$static().getFruitStatic();
+                    },
+                    Statics: {
+                        _fruit: 'potato',
+                        getFruitStatic: function () {
+                            return this._fruit;
+                        }
+                    }
+                });
+
+            it('should give access the static layer of itself (using late binding)', function () {
+
+                expect(new SomeClass().getFruit()).to.be.equal('orange');
+                expect(SomeClass.getFruitStatic()).to.be.equal('orange');
+                expect(new OtherClass().getFruit()).to.be.equal('orange');
+                expect(OtherClass.getFruitStatic()).to.be.equal('orange');
+
+            });
+
+        });
+
         describe('Instantiation of inheritance Cat -> Pet', function () {
 
             var Pet = Class({
@@ -938,6 +1084,12 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                     this._protectedMethod();
                     return this._protectedProperty;
                 },
+                getFruit: function () {
+                    return this._getFruit();
+                },
+                _getFruit: function () {
+                    return 'potato';
+                },
                 Statics: {
                     callTest: function () {
                         this._test();
@@ -945,8 +1097,16 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                     accessTest: function () {
                         return this._test;
                     },
-                    _funcStatic: function () {},
-                    _propStatic: 'property'
+                    _funcStatic: function () {
+                        return 'potato';
+                    },
+                    _propStatic: 'property',
+                    getFruitStatic: function () {
+                        return this._getFruitStatic();
+                    },
+                    _getFruitStatic: function () {
+                        return 'potato';
+                    }
                 }
             });
 
@@ -1143,6 +1303,39 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                 });
 
             }
+
+            it('should work well with $super()', function () {
+
+                var OtherClass = Class({
+                        Extends: SomeClass,
+                        _getFruit: function () {
+                            return 'hot ' + this.$super();
+                        },
+                        Statics: {
+                            _getFruitStatic: function () {
+                                return 'hot ' + this.$super();
+                            }
+                        }
+                    }),
+                    HiClass = Class({
+                        Extends: OtherClass,
+                        _getFruit: function () {
+                            return 'hi ' + this.$super();
+                        },
+                        Statics: {
+                            _getFruitStatic: function () {
+                                return 'hi ' + this.$super();
+                            }
+                        }
+                    }),
+                    other = new OtherClass(),
+                    hi = new HiClass();
+
+                expect(other.getFruit()).to.be.equal('hot potato');
+                expect(hi.getFruit()).to.be.equal('hi hot potato');
+                expect(OtherClass.getFruitStatic()).to.be.equal('hot potato');
+                expect(HiClass.getFruitStatic()).to.be.equal('hi hot potato');
+            });
 
             it('should work well with Borrows', function () {
 
