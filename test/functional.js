@@ -1,7 +1,7 @@
 /*jslint sloppy:true newcap:true nomen:true*/
 /*global global,define,describe,it*/
 
-define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
+define(global.modules, function (Class, AbstractClass, Interface, instanceOf, hasDefineProperty) {
 
     var expect = global.expect;
 
@@ -757,7 +757,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                 }
             });
 
-            if (/strict/.test(global.build)) {
+            if (/strict/.test(global.build) && hasDefineProperty) {
 
                 it('should not be available in the prototype', function () {
 
@@ -795,7 +795,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
 
             });
 
-            if (/strict/.test(global.build)) {
+            if (/strict/.test(global.build) && hasDefineProperty) {
 
                 it('should only be available to self', function () {
 
@@ -1110,7 +1110,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
                 }
             });
 
-            if (/strict/.test(global.build)) {
+            if (/strict/.test(global.build) && hasDefineProperty) {
 
                 it('should not be available in the prototype', function () {
 
@@ -1129,7 +1129,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf) {
 
             });
 
-            if (/strict/.test(global.build)) {
+            if (/strict/.test(global.build) && hasDefineProperty) {
 
                 it('should only be available to derived classes', function () {
 

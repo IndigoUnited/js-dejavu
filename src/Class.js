@@ -11,6 +11,7 @@ define([
     './common/propertyMeta',
     './common/isFunctionCompatible',
     './common/checkKeywords',
+    './common/hasDefineProperty',
 //>>includeEnd('strict');
     'Utils/lang/isFunction',
     'Utils/lang/isObject',
@@ -37,6 +38,7 @@ define([
     propertyMeta,
     isFunctionCompatible,
     checkKeywords,
+    hasDefineProperty,
 //>>includeEnd('strict');
     isFunction,
     isObject,
@@ -59,6 +61,7 @@ define([
     var Class,
         random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
         cacheKeyword = 'cache_' + random;
+
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
     var Class;
@@ -85,6 +88,28 @@ define([
 
 //>>includeStart('strict', pragmas.strict);
     /**
+     * Sets the key of object with the specified value.
+     * The property is obfuscated, by not being enumerable, configurable and writable.
+     *
+     * @param {Object} obj   The object
+     * @param {String} key   The key
+     * @param {Mixin}  value The value
+     */
+    function obfuscateProperty(obj, key, value) {
+
+        if (hasDefineProperty) {
+            Object.defineProperty(obj, key, {
+                value: value,
+                configurable: false,
+                writable: false,
+                enumerable: false
+            });
+        } else {
+            obj[key] = value;
+        }
+    }
+
+    /**
      * Adds a method to a class.
      * This method will throw an error if something is not right.
      * Valid options:
@@ -108,17 +133,11 @@ define([
                 throw new Error('Method "' + name + '" of class "' + constructor.prototype.Name + '" seems to be used by several times by the same or another class.');
             }
         } else {
-            Object.defineProperty(method, '$name', {
-                value: name,
-                writable: false,
-                configurable: false,
-                enumerable: false
-            });
+            obfuscateProperty(method, '$name', name);
         }
 
         if (!isStatic && name === 'initialize' && method.$inherited) {
             metadata = mixIn({}, constructor.Super.$constructor.$class.methods[name]);
-            metadata.implementation = method;
         } else {
             metadata = functionMeta(method, name);
             if (metadata === null) {
@@ -148,11 +167,12 @@ define([
 
         target[name] = metadata;
 
-        // Store visibility flags
-        if (!metadata.isPublic) {
+        if (!metadata.isPublic && hasDefineProperty) {
 
             if (!isStatic) {
                 delete constructor.prototype[name];
+            } else {
+                delete constructor[name];
             }
 
             metadata.implementation = method;
@@ -163,19 +183,9 @@ define([
 
        // Store a reference to the prototype/constructor
         if (!isStatic) {
-            Object.defineProperty(method, '$prototype_' + constructor.$class.id, {
-                value: constructor.prototype,
-                writable: false,
-                configurable: false,
-                enumerable: false
-            });
+            obfuscateProperty(method, '$prototype_' + constructor.$class.id, constructor.prototype);
         } else {
-            Object.defineProperty(method, '$constructor_' + constructor.$class.id, {
-                value: constructor,
-                writable: false,
-                configurable: false,
-                enumerable: false
-            });
+            obfuscateProperty(method, '$constructor_' + constructor.$class.id, constructor);
         }
     }
 
@@ -198,7 +208,7 @@ define([
             target;
 
         // Only protected and private properties are stored
-        if (!metadata.isPublic) {
+        if (!metadata.isPublic && hasDefineProperty) {
             if (!isStatic) {
                 delete constructor.prototype[name];
             } else {
@@ -542,21 +552,12 @@ define([
         var i,
             current;
 
-//>>includeStart('strict', pragmas.strict);
-        for (i = fns.length - 1; i >= 0; i -= 1) {
-            current = instance[fns[i]];
-            instance[fns[i]] = bind(current, instance);
-            instance[fns[i]]['$prototype_' + instance.$constructor.$class.id] = current['$prototype_' + instance.$constructor.$class.id];
-        }
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
         for (i = fns.length - 1; i >= 0; i -= 1) {
             current = instance[fns[i]];
             instance[fns[i]] = bind(current, instance);
             instance[fns[i]]['$prototype_' + instance.$constructor.$class.id] = current['$prototype_' + instance.$constructor.$class.id];
             instance[fns[i]].$name = current.$name;
         }
-//>>excludeEnd('strict');
     }
 
 //>>includeStart('strict', pragmas.strict);
@@ -922,7 +923,14 @@ define([
             this.$initializing = true;    // Mark it in order to let abstract classes run their initialize
 
             // Apply private/protected members
-            protectInstance(this);
+            if (hasDefineProperty) {
+                protectInstance(this);
+            } else {
+                // Reset some types of the object in order for each instance to have their variables
+                for (key in this) {
+                    this[key] = cloneProperty(this[key]);
+                }
+            }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
             // Reset some types of the object in order for each instance to have their variables
@@ -938,7 +946,9 @@ define([
             delete this.$initializing;
 
             // Prevent any properties to be added and deleted
-            Object.seal(this);
+            if (isFunction(Object.seal)) {
+                Object.seal(this);
+            }
 
 //>>includeEnd('strict');
             // Call initialize
@@ -1046,7 +1056,7 @@ define([
             if (meta.isPrivate) {
                 throw new Error('Cannot call $super() within private methods in class "' + this.Name + '".');
             }
-            else if (meta.isPublic) {
+            else if (meta.isPublic || !hasDefineProperty) {
 
                 alias = parent.caller['$prototype_' + classId].$constructor.Super[parent.caller.$name];
 
@@ -1116,7 +1126,7 @@ define([
             }
 
             if (!parent.caller['$constructor_' + classId].Super) {
-                throw 'Cannot call parent static method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '".';
+                throw new Error('Cannot call parent static method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '".');
             }
 
             var meta = parent.caller['$constructor_' + classId].$class.staticMethods[parent.caller.$name],
@@ -1124,12 +1134,12 @@ define([
 
             if (meta.isPrivate) {
                 throw new Error('Cannot call $super() within private static methods in class "' + this.Name + '".');
-            } else if (meta.isPublic) {
+            } else if (meta.isPublic || !hasDefineProperty) {
 
                 alias = parent.caller['$constructor_' + classId].Super.$constructor[parent.caller.$name];
 
                 if (!alias) {
-                    throw 'Cannot call parent static method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '".';
+                    throw new Error('Cannot call parent static method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '".');
                 }
 
                 return alias.apply(this, arguments);
@@ -1137,7 +1147,7 @@ define([
                 alias = parent.caller['$constructor_' + classId].Super.$constructor.$class.staticMethods[parent.caller.$name];
 
                 if (!alias) {
-                    throw 'Cannot call parent static method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '".';
+                    throw new Error('Cannot call parent static method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '".');
                 }
 
                 return alias.implementation.apply(this, arguments);
@@ -1283,7 +1293,9 @@ define([
         }
 //>>includeStart('strict', pragmas.strict);
 
-        protectConstructor(classify);
+        if (hasDefineProperty) {
+            protectConstructor(classify);
+        }
 //>>includeEnd('strict');
 
         return classify;
