@@ -995,6 +995,26 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
+            it('should throw an error if Borrows contains an inherited class', function () {
+
+                expect(function () {
+                    return Class({
+                        Borrows: Class({
+                            Extends: Class({})
+                        })
+                    });
+                }).to.throwException(/inherited class/);
+
+                expect(function () {
+                    return AbstractClass({
+                        Borrows: Class({
+                            Extends: Class({})
+                        })
+                    });
+                }).to.throwException(/inherited class/);
+
+            });
+
             it('should throw an error on duplicate Borrows', function () {
 
                 expect(function () {

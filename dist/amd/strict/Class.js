@@ -159,7 +159,6 @@ define([
                 enumerable: false
             });
         }
-
     }
 
     /**
@@ -280,6 +279,12 @@ define([
                 } else {
                     current = mixins[i].prototype;
                 }
+
+                // Verify if it has parent
+                if (current.$constructor.Super) {
+                    throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + constructor.prototype.Name + '" is an inherited class (only root classes not supported).');
+                }
+
 
                 // Grab mixin static methods
                 forOwn(current.$constructor.$class.methods, grabMethod);
@@ -543,8 +548,8 @@ define([
                     var method = this[cacheKeyword].methods[name];
 
                     if (this.$inheriting ||
-                            method['$constructor_' + this.$class.id] === get.caller['$constructor_' + this.$class.id] ||
                             (get.caller['$constructor_' + this.$class.id] && (
+                                method['$constructor_' + this.$class.id] === get.caller['$constructor_' + this.$class.id] ||
                                 method['$constructor_' + this.$class.id].prototype instanceof get.caller['$constructor_' + this.$class.id] ||
                                 get.caller['$constructor_' + this.$class.id].prototype instanceof method['$constructor_' + this.$class.id]
                             )) ||
@@ -682,8 +687,8 @@ define([
                     var method = this[cacheKeyword].properties[name];
 
                     if (this.$inheriting ||
-                             meta['$constructor_' + this.$class.id] === get.caller['$constructor_' + this.$class.id] ||
                             (get.caller['$constructor_' + this.$class.id] && (
+                                meta['$constructor_' + this.$class.id] === get.caller['$constructor_' + this.$class.id] ||
                                 meta['$constructor_' + this.$class.id].prototype instanceof get.caller['$constructor_' + this.$class.id] ||
                                 get.caller['$constructor_' + this.$class.id].prototype instanceof meta['$constructor_' + this.$class.id]
                             )) ||
@@ -862,11 +867,35 @@ define([
             if (!parent.caller.$name || !parent.caller['$prototype_' + classId]) {
                 throw new Error('Calling parent method within an unknown function.');
             }
-            if (!parent.caller['$prototype_' + classId].$constructor.Super || !parent.caller['$prototype_' + classId].$constructor.Super[parent.caller.$name]) {
-                throw 'Cannot call parent method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '"';
+            if (!parent.caller['$prototype_' + classId].$constructor.Super) {
+                throw new Error('Cannot call parent method "' + (parent.caller.$name || 'N/A') + '" in class "' + this.Name + '".');
             }
 
-            return parent.caller['$prototype_' + classId].$constructor.Super[parent.caller.$name].apply(this, arguments);
+            var meta = parent.caller['$prototype_' + classId].$constructor.$class.methods[parent.caller.$name],
+                alias;
+
+            if (meta.isPrivate) {
+                throw new Error('Cannot call $super() within private methods in class "' + this.Name + '".');
+            }
+            else if (meta.isPublic) {
+
+                alias = parent.caller['$prototype_' + classId].$constructor.Super[parent.caller.$name];
+
+                if (!alias) {
+                    throw new Error('Cannot call parent method "' + (parent.caller.$name || 'N/A') + '" in class "' + this.Name + '".');
+                }
+
+                return alias.apply(this, arguments);
+
+            } else {
+                alias = parent.caller['$prototype_' + classId].$constructor.Super.$constructor.$class.methods[parent.caller.$name];
+
+                if (!alias) {
+                    throw new Error('Cannot call parent method "' + (parent.caller.$name || 'N/A') + '" in class "' + this.Name + '".');
+                }
+
+                return alias.implementation.apply(this, arguments);
+            }
         };
     }
 
@@ -909,10 +938,34 @@ define([
             if (!parent.caller.$name || !parent.caller['$constructor_' + classId]) {
                 throw new Error('Calling parent static method within an unknown function.');
             }
-            if (!parent.caller['$constructor_' + classId].Super || !parent.caller['$constructor_' + classId].Super.$constructor[parent.caller.$name]) {
-                throw 'Cannot call parent static method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '"';
+
+            if (!parent.caller['$constructor_' + classId].Super) {
+                throw 'Cannot call parent static method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '".';
             }
-            return parent.caller['$constructor_' + classId].Super.$constructor[parent.caller.$name].apply(this, arguments);
+
+            var meta = parent.caller['$constructor_' + classId].$class.staticMethods[parent.caller.$name],
+                alias;
+
+            if (meta.isPrivate) {
+                throw new Error('Cannot call $super() within private static methods in class "' + this.Name + '".');
+            } else if (meta.isPublic) {
+
+                alias = parent.caller['$constructor_' + classId].Super.$constructor[parent.caller.$name];
+
+                if (!alias) {
+                    throw 'Cannot call parent static method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '".';
+                }
+
+                return alias.apply(this, arguments);
+            } else {
+                alias = parent.caller['$constructor_' + classId].Super.$constructor.$class.staticMethods[parent.caller.$name];
+
+                if (!alias) {
+                    throw 'Cannot call parent static method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '".';
+                }
+
+                return alias.implementation.apply(this, arguments);
+            }
         };
     }
 
@@ -995,7 +1048,7 @@ define([
 
         // Assign constructor & static parent alias
         classify.prototype.$constructor = classify;
-        classify.$parent = superStaticAlias(classify.$class.id);
+        classify.$super = superStaticAlias(classify.$class.id);
 
         // Parse members
         parseMembers(params, classify);

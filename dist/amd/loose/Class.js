@@ -188,10 +188,14 @@ define([
      */
     function applyBinds(fns, instance) {
 
-        var i;
+        var i,
+            current;
 
         for (i = fns.length - 1; i >= 0; i -= 1) {
-            instance[fns[i]] = bind(instance[fns[i]], instance);
+            current = instance[fns[i]];
+            instance[fns[i]] = bind(current, instance);
+            instance[fns[i]]['$prototype_' + instance.$constructor.$class.id] = current['$prototype_' + instance.$constructor.$class.id];
+            instance[fns[i]].$name = current.$name;
         }
     }
 
@@ -272,7 +276,6 @@ define([
     function superAlias(classId) {
 
         return function parent() {
-
             return parent.caller['$prototype_' + classId].$constructor.Super[parent.caller.$name].apply(this, arguments);
         };
     }
@@ -330,7 +333,7 @@ define([
             parent = params.Extends;
             delete params.Extends;
 
-            params.initialize = params.initialize || parent.prototype.initialize;
+            params.initialize = params.initialize || function () { parent.prototype.initialize.apply(this, arguments); };
             classify = createConstructor(params.initialize);
             classify.$class.id = parent.$class.id;
             classify.Super = parent.prototype;
@@ -353,7 +356,7 @@ define([
 
         // Assign constructor & static parent alias
         classify.prototype.$constructor = classify;
-        classify.$parent = superStaticAlias(classify.$class.id);
+        classify.$super = superStaticAlias(classify.$class.id);
 
         // Parse members
         parseMembers(params, classify);

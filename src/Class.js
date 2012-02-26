@@ -177,7 +177,6 @@ define([
                 enumerable: false
             });
         }
-
     }
 
     /**
@@ -326,6 +325,12 @@ define([
                 } else {
                     current = mixins[i].prototype;
                 }
+
+                // Verify if it has parent
+                if (current.$constructor.Super) {
+                    throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + constructor.prototype.Name + '" is an inherited class (only root classes not supported).');
+                }
+
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
                 current = isObject(mixins[i]) ? Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
@@ -534,10 +539,10 @@ define([
      */
     function applyBinds(fns, instance) {
 
-//>>includeStart('strict', pragmas.strict);
         var i,
             current;
 
+//>>includeStart('strict', pragmas.strict);
         for (i = fns.length - 1; i >= 0; i -= 1) {
             current = instance[fns[i]];
             instance[fns[i]] = bind(current, instance);
@@ -545,10 +550,11 @@ define([
         }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-        var i;
-
         for (i = fns.length - 1; i >= 0; i -= 1) {
-            instance[fns[i]] = bind(instance[fns[i]], instance);
+            current = instance[fns[i]];
+            instance[fns[i]] = bind(current, instance);
+            instance[fns[i]]['$prototype_' + instance.$constructor.$class.id] = current['$prototype_' + instance.$constructor.$class.id];
+            instance[fns[i]].$name = current.$name;
         }
 //>>excludeEnd('strict');
     }
@@ -661,8 +667,8 @@ define([
                     var method = this[cacheKeyword].methods[name];
 
                     if (this.$inheriting ||
-                            method['$constructor_' + this.$class.id] === get.caller['$constructor_' + this.$class.id] ||
                             (get.caller['$constructor_' + this.$class.id] && (
+                                method['$constructor_' + this.$class.id] === get.caller['$constructor_' + this.$class.id] ||
                                 method['$constructor_' + this.$class.id].prototype instanceof get.caller['$constructor_' + this.$class.id] ||
                                 get.caller['$constructor_' + this.$class.id].prototype instanceof method['$constructor_' + this.$class.id]
                             )) ||
@@ -800,8 +806,8 @@ define([
                     var method = this[cacheKeyword].properties[name];
 
                     if (this.$inheriting ||
-                             meta['$constructor_' + this.$class.id] === get.caller['$constructor_' + this.$class.id] ||
                             (get.caller['$constructor_' + this.$class.id] && (
+                                meta['$constructor_' + this.$class.id] === get.caller['$constructor_' + this.$class.id] ||
                                 meta['$constructor_' + this.$class.id].prototype instanceof get.caller['$constructor_' + this.$class.id] ||
                                 get.caller['$constructor_' + this.$class.id].prototype instanceof meta['$constructor_' + this.$class.id]
                             )) ||
@@ -1030,12 +1036,39 @@ define([
             if (!parent.caller.$name || !parent.caller['$prototype_' + classId]) {
                 throw new Error('Calling parent method within an unknown function.');
             }
-            if (!parent.caller['$prototype_' + classId].$constructor.Super || !parent.caller['$prototype_' + classId].$constructor.Super[parent.caller.$name]) {
-                throw 'Cannot call parent method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '"';
+            if (!parent.caller['$prototype_' + classId].$constructor.Super) {
+                throw new Error('Cannot call parent method "' + (parent.caller.$name || 'N/A') + '" in class "' + this.Name + '".');
+            }
+
+            var meta = parent.caller['$prototype_' + classId].$constructor.$class.methods[parent.caller.$name],
+                alias;
+
+            if (meta.isPrivate) {
+                throw new Error('Cannot call $super() within private methods in class "' + this.Name + '".');
+            }
+            else if (meta.isPublic) {
+
+                alias = parent.caller['$prototype_' + classId].$constructor.Super[parent.caller.$name];
+
+                if (!alias) {
+                    throw new Error('Cannot call parent method "' + (parent.caller.$name || 'N/A') + '" in class "' + this.Name + '".');
+                }
+
+                return alias.apply(this, arguments);
+
+            } else {
+                alias = parent.caller['$prototype_' + classId].$constructor.Super.$constructor.$class.methods[parent.caller.$name];
+
+                if (!alias) {
+                    throw new Error('Cannot call parent method "' + (parent.caller.$name || 'N/A') + '" in class "' + this.Name + '".');
+                }
+
+                return alias.implementation.apply(this, arguments);
             }
 //>>includeEnd('strict');
-
+//>>excludeStart('strict', pragmas.strict);
             return parent.caller['$prototype_' + classId].$constructor.Super[parent.caller.$name].apply(this, arguments);
+//>>excludeEnd('strict');
         };
     }
 
@@ -1081,11 +1114,38 @@ define([
             if (!parent.caller.$name || !parent.caller['$constructor_' + classId]) {
                 throw new Error('Calling parent static method within an unknown function.');
             }
-            if (!parent.caller['$constructor_' + classId].Super || !parent.caller['$constructor_' + classId].Super.$constructor[parent.caller.$name]) {
-                throw 'Cannot call parent static method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '"';
+
+            if (!parent.caller['$constructor_' + classId].Super) {
+                throw 'Cannot call parent static method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '".';
+            }
+
+            var meta = parent.caller['$constructor_' + classId].$class.staticMethods[parent.caller.$name],
+                alias;
+
+            if (meta.isPrivate) {
+                throw new Error('Cannot call $super() within private static methods in class "' + this.Name + '".');
+            } else if (meta.isPublic) {
+
+                alias = parent.caller['$constructor_' + classId].Super.$constructor[parent.caller.$name];
+
+                if (!alias) {
+                    throw 'Cannot call parent static method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '".';
+                }
+
+                return alias.apply(this, arguments);
+            } else {
+                alias = parent.caller['$constructor_' + classId].Super.$constructor.$class.staticMethods[parent.caller.$name];
+
+                if (!alias) {
+                    throw 'Cannot call parent static method "' + parent.caller.$name || 'N/A' + '" in class "' + this.Name + '".';
+                }
+
+                return alias.implementation.apply(this, arguments);
             }
 //>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
             return parent.caller['$constructor_' + classId].Super.$constructor[parent.caller.$name].apply(this, arguments);
+//>>excludeEnd('strict');
         };
     }
 
@@ -1162,7 +1222,7 @@ define([
             classify = createConstructor(params.initialize, isAbstract);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-            params.initialize = params.initialize || parent.prototype.initialize;
+            params.initialize = params.initialize || function () { parent.prototype.initialize.apply(this, arguments); };
             classify = createConstructor(params.initialize);
 //>>excludeEnd('strict');
             classify.$class.id = parent.$class.id;
@@ -1198,7 +1258,7 @@ define([
 
         // Assign constructor & static parent alias
         classify.prototype.$constructor = classify;
-        classify.$parent = superStaticAlias(classify.$class.id);
+        classify.$super = superStaticAlias(classify.$class.id);
 
         // Parse members
         parseMembers(params, classify);
