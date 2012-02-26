@@ -1,4 +1,4 @@
-/*jslint sloppy:true regexp:true*/
+/*jslint sloppy:true, regexp:true*/
 /*globals location*/
 
 /**

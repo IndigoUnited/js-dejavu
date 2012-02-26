@@ -1,4 +1,4 @@
-/*jslint node:true sloppy:true*/
+/*jslint node:true, sloppy:true*/
 /*globals define*/
 
 if (!global.evaluated) {
