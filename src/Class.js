@@ -1,4 +1,4 @@
-/*jslint sloppy:true, forin:true, newcap:true*/
+/*jslint sloppy:true, forin:true, newcap:true, callee:true*/
 /*global define*/
 
 define([
@@ -79,11 +79,11 @@ define([
 
         if (isArray(prop)) {
             return [].concat(prop);
-        } else if (isObject(prop)) {
-            return mixIn({}, prop);
-        } else {
-            return prop;
         }
+        if (isObject(prop)) {
+            return mixIn({}, prop);
+        }
+        return prop;
     }
 
 //>>includeStart('strict', pragmas.strict);
@@ -258,7 +258,6 @@ define([
 
 //>>includeStart('strict', pragmas.strict);
             var current,
-                key,
                 mixins = toArray(constructor.prototype.Borrows),
                 i = mixins.length,
                 optsStatic = { isStatic: true },
@@ -582,9 +581,9 @@ define([
 
                     if (this.$initializing || method['$prototype_' + this.$constructor.$class.id] === caller['$prototype_' + this.$constructor.$class.id]) {
                         return method;
-                    } else {
-                        throw new Error('Cannot access private method "' + name + '" of class "' + this.Name + '".');
                     }
+
+                    throw new Error('Cannot access private method "' + name + '" of class "' + this.Name + '".');
                 },
                 set: function set(newVal) {
 
@@ -612,9 +611,9 @@ define([
                             caller['$prototype_' + this.$constructor.$class.id] instanceof method['$prototype_' + this.$constructor.$class.id].$constructor ||
                             (caller['$prototype_' + this.$constructor.$class.id] && method['$prototype_' + this.$constructor.$class.id] instanceof caller['$prototype_' + this.$constructor.$class.id].$constructor)) {
                         return method;
-                    } else {
-                        throw new Error('Cannot access protected method "' + name + '" of class "' + this.Name + '".');
                     }
+
+                    throw new Error('Cannot access protected method "' + name + '" of class "' + this.Name + '".');
                 },
                 set: function set(newVal) {
 
@@ -652,9 +651,9 @@ define([
                     if (method['$constructor_' + this.$class.id] === caller['$constructor_' + this.$class.id] ||
                             method['$constructor_' + this.$class.id].prototype === caller['$prototype_' + this.$class.id]) {
                         return method;
-                    } else {
-                        throw new Error('Cannot access private static method "' + name + '" of class "' + this.prototype.Name + '".');
                     }
+
+                    throw new Error('Cannot access private static method "' + name + '" of class "' + this.prototype.Name + '".');
                 },
                 set: function set() {
                     throw new Error('Cannot set private static method "' + name + '" of class "' + this.prototype.Name + '".');
@@ -684,9 +683,9 @@ define([
                                 caller['$prototype_' + this.$class.id] instanceof method['$constructor_' + this.$class.id]
                             ))) {
                         return method;
-                    } else {
-                        throw new Error('Cannot access protected static method "' + name + '" of class "' + this.prototype.Name + '".');
                     }
+
+                    throw new Error('Cannot access protected static method "' + name + '" of class "' + this.prototype.Name + '".');
                 },
                 set: function set() {
                     throw new Error('Cannot set protected static method "' + name + '" of class "' + this.prototype.Name + '".');
@@ -717,9 +716,9 @@ define([
 
                     if (this.$initializing || meta['$prototype_' + this.$constructor.$class.id] === caller['$prototype_' + this.$constructor.$class.id]) {
                         return this[cacheKeyword].properties[name];
-                    } else {
-                        throw new Error('Cannot access private property "' + name + '" of class "' + this.Name + '".');
                     }
+
+                    throw new Error('Cannot access private property "' + name + '" of class "' + this.Name + '".');
                 },
                 set: function set(newValue) {
 
@@ -748,9 +747,9 @@ define([
                             caller['$prototype_' + this.$constructor.$class.id] instanceof meta['$prototype_' + this.$constructor.$class.id].$constructor ||
                             (caller['$prototype_' + this.$constructor.$class.id] && meta['$prototype_' + this.$constructor.$class.id] instanceof caller['$prototype_' + this.$constructor.$class.id].$constructor)) {
                         return this[cacheKeyword].properties[name];
-                    } else {
-                        throw new Error('Cannot access protected property "' + name + '" of class "' + this.Name + '".');
                     }
+
+                    throw new Error('Cannot access protected property "' + name + '" of class "' + this.Name + '".');
                 },
                 set: function set(newValue) {
 
@@ -795,9 +794,9 @@ define([
                             meta['$constructor_' + this.$class.id].prototype === caller['$prototype_' + this.$class.id]
                             ) {
                         return this[cacheKeyword].properties[name];
-                    } else {
-                        throw new Error('Cannot access private static property "' + name + '" of class "' + this.prototype.Name + '".');
                     }
+
+                    throw new Error('Cannot access private static property "' + name + '" of class "' + this.prototype.Name + '".');
                 },
                 set: function set(newValue) {
 
@@ -836,9 +835,9 @@ define([
                                 caller['$prototype_' + this.$class.id] instanceof meta['$constructor_' + this.$class.id]
                             ))) {
                         return method;
-                    } else {
-                        throw new Error('Cannot access protected static method "' + name + '" of class "' + this.prototype.Name + '".');
                     }
+
+                    throw new Error('Cannot access protected static method "' + name + '" of class "' + this.prototype.Name + '".');
                 },
                 set: function set(newValue) {
 
@@ -931,10 +930,8 @@ define([
 
         var Instance = function () {
 
-//>>excludeStart('strict', pragmas.strict);
             var key;
 
-//>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
             if (isAbstract) {
                 throw new Error('An abstract class cannot be instantiated.');
@@ -1063,9 +1060,11 @@ define([
 
         return function parent() {
 
-            var caller = parent.caller || arguments.callee.caller || arguments.caller;
-
 //>>includeStart('strict', pragmas.strict);
+            var caller = parent.caller || arguments.callee.caller || arguments.caller,
+                meta,
+                alias;
+
             if (!caller.$name || !caller['$prototype_' + classId]) {
                 throw new Error('Calling parent method within an unknown function.');
             }
@@ -1073,13 +1072,13 @@ define([
                 throw new Error('Cannot call parent method "' + (caller.$name || 'N/A') + '" in class "' + this.Name + '".');
             }
 
-            var meta = caller['$prototype_' + classId].$constructor.$class.methods[caller.$name],
-                alias;
+            meta = caller['$prototype_' + classId].$constructor.$class.methods[caller.$name];
 
             if (meta.isPrivate) {
                 throw new Error('Cannot call $super() within private methods in class "' + this.Name + '".');
             }
-            else if (meta.isPublic || !hasDefineProperty) {
+
+            if (meta.isPublic || !hasDefineProperty) {
 
                 alias = caller['$prototype_' + classId].$constructor.Super[caller.$name];
 
@@ -1089,17 +1088,19 @@ define([
 
                 return alias.apply(this, arguments);
 
-            } else {
-                alias = caller['$prototype_' + classId].$constructor.Super.$constructor.$class.methods[caller.$name];
-
-                if (!alias) {
-                    throw new Error('Cannot call parent method "' + (caller.$name || 'N/A') + '" in class "' + this.Name + '".');
-                }
-
-                return alias.implementation.apply(this, arguments);
             }
+
+            alias = caller['$prototype_' + classId].$constructor.Super.$constructor.$class.methods[caller.$name];
+
+            if (!alias) {
+                throw new Error('Cannot call parent method "' + (caller.$name || 'N/A') + '" in class "' + this.Name + '".');
+            }
+
+            return alias.implementation.apply(this, arguments);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
+            var caller = parent.caller || arguments.callee.caller || arguments.caller;
+
             return caller['$prototype_' + classId].$constructor.Super[caller.$name].apply(this, arguments);
 //>>excludeEnd('strict');
         };
@@ -1148,9 +1149,11 @@ define([
 
         return function parent() {
 
-            var caller = parent.caller || arguments.callee.caller || arguments.caller;
-
 //>>includeStart('strict', pragmas.strict);
+            var caller = parent.caller || arguments.callee.caller || arguments.caller,
+                meta,
+                alias;
+
             if (!caller.$name || !caller['$constructor_' + classId]) {
                 throw new Error('Calling parent static method within an unknown function.');
             }
@@ -1159,12 +1162,13 @@ define([
                 throw new Error('Cannot call parent static method "' + caller.$name || 'N/A' + '" in class "' + this.Name + '".');
             }
 
-            var meta = caller['$constructor_' + classId].$class.staticMethods[caller.$name],
-                alias;
+            meta = caller['$constructor_' + classId].$class.staticMethods[caller.$name];
 
             if (meta.isPrivate) {
                 throw new Error('Cannot call $super() within private static methods in class "' + this.Name + '".');
-            } else if (meta.isPublic || !hasDefineProperty) {
+            }
+
+            if (meta.isPublic || !hasDefineProperty) {
 
                 alias = caller['$constructor_' + classId].Super.$constructor[caller.$name];
 
@@ -1173,17 +1177,19 @@ define([
                 }
 
                 return alias.apply(this, arguments);
-            } else {
-                alias = caller['$constructor_' + classId].Super.$constructor.$class.staticMethods[caller.$name];
-
-                if (!alias) {
-                    throw new Error('Cannot call parent static method "' + caller.$name || 'N/A' + '" in class "' + this.Name + '".');
-                }
-
-                return alias.implementation.apply(this, arguments);
             }
+
+            alias = caller['$constructor_' + classId].Super.$constructor.$class.staticMethods[caller.$name];
+
+            if (!alias) {
+                throw new Error('Cannot call parent static method "' + caller.$name || 'N/A' + '" in class "' + this.Name + '".');
+            }
+
+            return alias.implementation.apply(this, arguments);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
+            var caller = parent.caller || arguments.callee.caller || arguments.caller;
+
             return caller['$constructor_' + classId].Super.$constructor[caller.$name].apply(this, arguments);
 //>>excludeEnd('strict');
         };
