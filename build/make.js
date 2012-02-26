@@ -1,4 +1,4 @@
-/*jslint node: true, nomen: true, sloppy: true*/
+/*jslint node:true, nomen:true, sloppy:true*/
 
 var cp = require('child_process'),
     fs = require('fs'),

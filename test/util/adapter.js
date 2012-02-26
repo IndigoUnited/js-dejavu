@@ -1,5 +1,5 @@
 /*jslint nomen:true*/
-/*global window,navigator,document,global:true,define:true,require,expect,__dirname*/
+/*global window,navigator,document,global:true,define:true,require,expect,__dirname,process*/
 
 if (!(typeof window !== 'undefined' && navigator && document)) { // Test if we are at command line
 

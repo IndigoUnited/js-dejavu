@@ -1,4 +1,4 @@
-/*jslint sloppy:true, forin:true, newcap:true*/
+/*jslint sloppy:true, forin:true, newcap:true, callee:true*/
 /*global define*/
 
 define([
@@ -45,11 +45,11 @@ define([
 
         if (isArray(prop)) {
             return [].concat(prop);
-        } else if (isObject(prop)) {
-            return mixIn({}, prop);
-        } else {
-            return prop;
         }
+        if (isObject(prop)) {
+            return mixIn({}, prop);
+        }
+        return prop;
     }
 
     /**

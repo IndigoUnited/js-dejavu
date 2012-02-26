@@ -5,10 +5,10 @@ define(function () {
 
     /**
      * Check if an interface is descendant of another.
-     * 
+     *
      * @param {Function} interf1 The interface to be checked
      * @param {Function} interf2 The interface to be expected as the ancestor
-     * 
+     *
      * @return {Boolean} True if it's a descendant, false otherwise
      */
     function interfaceDescendantOf(interf1, interf2) {
@@ -19,7 +19,8 @@ define(function () {
         for (x = parents.length - 1; x >= 0; x -= 1) {
             if (parents[x] === interf2) {
                 return true;
-            } else if (interfaceDescendantOf(interf1, parents[x])) {
+            }
+            if (interfaceDescendantOf(interf1, parents[x])) {
                 return true;
             }
         }
@@ -62,9 +63,9 @@ define(function () {
 
         if (instance.$constructor.$class && target.$interface) {
             return instanceOfInterface(instance, target);
-        } else {
-            return instance instanceof target;
         }
+
+        return instance instanceof target;
     }
 
     return instanceOf;
