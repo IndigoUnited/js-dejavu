@@ -1,4 +1,4 @@
-/*jslint sloppy:true forin:true newcap:true*/
+/*jslint sloppy:true, forin:true, newcap:true*/
 /*global define*/
 
 define([

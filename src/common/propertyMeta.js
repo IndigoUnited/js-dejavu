@@ -1,5 +1,5 @@
 //>>includeStart('strict', pragmas.strict);
-/*jslint sloppy:true regexp:true*/
+/*jslint sloppy:true, regexp:true*/
 /*global define*/
 
 define(function () {

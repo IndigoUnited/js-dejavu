@@ -1,4 +1,4 @@
-/*jslint sloppy:true newcap:true regexp:true nomen:true*/
+/*jslint sloppy:true, newcap:true, regexp:true, nomen:true*/
 /*global global,define,describe,it*/
 
 define(global.modules, function (Class, AbstractClass, Interface) {
