@@ -1147,9 +1147,9 @@ define([
     function superStaticAlias(classId) {
 
         return function parent() {
-            
+
             var caller = parent.caller || arguments.callee.caller || arguments.caller;
-            
+
 //>>includeStart('strict', pragmas.strict);
             if (!caller.$name || !caller['$constructor_' + classId]) {
                 throw new Error('Calling parent static method within an unknown function.');

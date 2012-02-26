@@ -1,4 +1,4 @@
-/*jslint sloppy:true forin:true newcap:true*/
+/*jslint sloppy:true, forin:true, newcap:true*/
 /*global define*/
 
 define([
@@ -982,9 +982,9 @@ define([
     function superStaticAlias(classId) {
 
         return function parent() {
-            
+
             var caller = parent.caller || arguments.callee.caller || arguments.caller;
-            
+
             if (!caller.$name || !caller['$constructor_' + classId]) {
                 throw new Error('Calling parent static method within an unknown function.');
             }

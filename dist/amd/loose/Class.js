@@ -1,4 +1,4 @@
-/*jslint sloppy:true forin:true newcap:true*/
+/*jslint sloppy:true, forin:true, newcap:true*/
 /*global define*/
 
 define([
@@ -319,9 +319,9 @@ define([
     function superStaticAlias(classId) {
 
         return function parent() {
-            
+
             var caller = parent.caller || arguments.callee.caller || arguments.caller;
-            
+
             return caller['$constructor_' + classId].Super.$constructor[caller.$name].apply(this, arguments);
         };
     }
