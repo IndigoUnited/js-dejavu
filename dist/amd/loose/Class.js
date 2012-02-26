@@ -276,7 +276,10 @@ define([
     function superAlias(classId) {
 
         return function parent() {
-            return parent.caller['$prototype_' + classId].$constructor.Super[parent.caller.$name].apply(this, arguments);
+
+            var caller = parent.caller || arguments.callee.caller || arguments.caller;
+
+            return caller['$prototype_' + classId].$constructor.Super[caller.$name].apply(this, arguments);
         };
     }
 
@@ -290,7 +293,10 @@ define([
     function selfAlias(classId) {
 
         return function self() {
-            return self.caller['$prototype_' + classId].$constructor;
+
+            var caller = self.caller || arguments.callee.caller || arguments.caller;
+
+            return caller['$prototype_' + classId].$constructor;
         };
     }
 
@@ -313,7 +319,10 @@ define([
     function superStaticAlias(classId) {
 
         return function parent() {
-            return parent.caller['$constructor_' + classId].Super.$constructor[parent.caller.$name].apply(this, arguments);
+            
+            var caller = parent.caller || arguments.callee.caller || arguments.caller;
+            
+            return caller['$constructor_' + classId].Super.$constructor[caller.$name].apply(this, arguments);
         };
     }
 

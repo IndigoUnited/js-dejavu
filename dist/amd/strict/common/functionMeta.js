@@ -36,7 +36,7 @@ define(function () {
         if (split[0] !== '') {
 
             for (x = 0; x < length; x += 1) {
-                if (split[x][0] === '$') {
+                if (split[x].charAt(0) === '$') {
                     ret.optional += 1;
                     ret.signature += ' ' + split[x] + ', ';
                     optionalReached = true;
@@ -52,8 +52,8 @@ define(function () {
         }
 
         if (name) {
-            if (name[0] === '_') {
-                if (name[1] === '_') {
+            if (name.charAt(0) === '_') {
+                if (name.charAt(1) === '_') {
                     ret.isPrivate = true;
                 } else {
                     ret.isProtected = true;

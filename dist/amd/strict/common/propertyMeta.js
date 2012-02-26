@@ -17,8 +17,8 @@ define(function () {
         var ret = { value: prop };
 
         if (name) {
-            if (name[0] === '_') {
-                if (name[1] === '_') {
+            if (name.charAt(0) === '_') {
+                if (name.charAt(1) === '_') {
                     ret.isPrivate = true;
                 } else {
                     ret.isProtected = true;

@@ -86,7 +86,7 @@ define([
             target;
 
         // Check if it is public
-        if (name[0] === '_') {
+        if (name.charAt(0) === '_') {
             throw new Error('Interface "' + interf.prototype.Name + '" contains an unallowed non public method: "' + name + '".');
         }
         // Check if it contains no implementation
