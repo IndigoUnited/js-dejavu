@@ -340,11 +340,9 @@ define([
                 throw new TypeError('Entry at index ' + x + ' in Implements of class "' + target.prototype.Name + '" is not a valid interface.');
             }
 
-            // Verify if the interface is well implemented within the class
             if (!target.$abstract) {
                 interfaces[x].$interface.check(target);
             }
-            
             target.$class.interfaces.push(interfaces[x]);
         }
     }
@@ -400,12 +398,11 @@ define([
 
         var optsStatic = { isStatic: true };
 
-        // Add each member metadata
+        // Add each method metadata, verifying its signature
         forOwn(params, function (value, key) {
 
             if (key === 'Statics') {
 
-                // Verify argument type
                 if (!isObject(params.Statics)) {
                     throw new TypeError('Statics definition of class "' + params.Name + '" must be an object.');
                 }
