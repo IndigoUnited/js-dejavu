@@ -49,7 +49,6 @@ define([
         random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
         cacheKeyword = 'cache_' + random;
 
-
     /**
      * Clones a property in order to make them unique for the instance.
      * This solves the shared properties for types like objects or arrays.
