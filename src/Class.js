@@ -61,7 +61,6 @@ define([
     var Class,
         random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
         cacheKeyword = 'cache_' + random;
-
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
     var Class;
