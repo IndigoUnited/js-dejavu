@@ -1077,7 +1077,7 @@ define([
 
             if (!hasOwn(params, 'initialize')) {
                 params.initialize = function () { parent.prototype.initialize.apply(this, arguments); };
-                params.initialize.$inherited = true;
+                obfuscateProperty(params.initialize, '$inherited', true);
             }
 
             classify = createConstructor(params.initialize, isAbstract);
@@ -1093,9 +1093,9 @@ define([
             classify.prototype = params;
 
             // Assign aliases
-            classify.prototype.$super = superAlias(classify.$class.id);
-            classify.prototype.$self = selfAlias(classify.$class.id);
-            classify.prototype.$static = staticAlias;
+            obfuscateProperty(classify.prototype, '$super', superAlias(classify.$class.id));
+            obfuscateProperty(classify.prototype, '$self', selfAlias(classify.$class.id));
+            obfuscateProperty(classify.prototype, '$static', staticAlias);
         }
 
         if (isAbstract) {
@@ -1103,8 +1103,8 @@ define([
         }
 
         // Assign constructor & static parent alias
-        classify.prototype.$constructor = classify;
-        classify.$super = superStaticAlias(classify.$class.id);
+        obfuscateProperty(classify.prototype, '$constructor', classify);
+        obfuscateProperty(classify, '$super', superStaticAlias(classify.$class.id));
 
         // Parse members
         parseMembers(params, classify);

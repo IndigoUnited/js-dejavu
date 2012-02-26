@@ -1264,7 +1264,7 @@ define([
 //>>includeStart('strict', pragmas.strict);
             if (!hasOwn(params, 'initialize')) {
                 params.initialize = function () { parent.prototype.initialize.apply(this, arguments); };
-                params.initialize.$inherited = true;
+                obfuscateProperty(params.initialize, '$inherited', true);
             }
 
             classify = createConstructor(params.initialize, isAbstract);
@@ -1290,9 +1290,16 @@ define([
             classify.prototype = params;
 
             // Assign aliases
+//>>excludeStart('strict', pragmas.strict);
             classify.prototype.$super = superAlias(classify.$class.id);
             classify.prototype.$self = selfAlias(classify.$class.id);
             classify.prototype.$static = staticAlias;
+//>>excludeEnd('strict');
+//>>includeStart('strict', pragmas.strict);
+            obfuscateProperty(classify.prototype, '$super', superAlias(classify.$class.id));
+            obfuscateProperty(classify.prototype, '$self', selfAlias(classify.$class.id));
+            obfuscateProperty(classify.prototype, '$static', staticAlias);
+//>>includeEnd('strict');
         }
 
 //>>excludeStart('strict', pragmas.strict);
@@ -1305,8 +1312,14 @@ define([
 //>>includeEnd('strict');
 
         // Assign constructor & static parent alias
+//>>excludeStart('strict', pragmas.strict);
         classify.prototype.$constructor = classify;
         classify.$super = superStaticAlias(classify.$class.id);
+//>>excludeEnd('strict');
+//>>includeStart('strict', pragmas.strict);
+        obfuscateProperty(classify.prototype, '$constructor', classify);
+        obfuscateProperty(classify, '$super', superStaticAlias(classify.$class.id));
+//>>includeEnd('strict');
 
         // Parse members
         parseMembers(params, classify);
