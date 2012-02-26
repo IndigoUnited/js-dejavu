@@ -1195,21 +1195,21 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         Extends: SomeClass,
                         func: 'some'
-                    })
+                    });
                 }).to.throwException(/with the same name/);
 
                 expect(function () {
                     return Class({
                         Extends: SomeClass,
                         prop: function () {}
-                    })
+                    });
                 }).to.throwException(/with the same name/);
 
                 expect(function () {
                     return Class({
                         Extends: SomeAbstractClass,
                         func: 'some'
-                    })
+                    });
                 }).to.throwException(/(with the same name)|(was not found)/);
 
             });
