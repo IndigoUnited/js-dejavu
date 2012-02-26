@@ -126,7 +126,7 @@ define([
             isStatic = opts && opts.isStatic,
             target;
 
-        // Check if function is ok
+        // Check if function is already being used by another class or within the same class
         if (method.$name) {
             if (method.$name !== name) {
                 throw new Error('Method "' + name + '" of class "' + constructor.prototype.Name + '" seems to be used by several times by the same or another class.');
@@ -135,9 +135,11 @@ define([
             obfuscateProperty(method, '$name', name);
         }
 
+        // If the initialize as inherited, clone the metadata
         if (!isStatic && name === 'initialize' && method.$inherited) {
             metadata = mixIn({}, constructor.Super.$constructor.$class.methods[name]);
         } else {
+            // Grab function metadata and throw error if is not valid
             metadata = functionMeta(method, name);
             if (metadata === null) {
                 throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in class "' + constructor.prototype.Name + '".');
@@ -166,6 +168,7 @@ define([
 
         target[name] = metadata;
 
+        // If the function is protected/private we delete it from the target because they will be protected later
         if (!metadata.isPublic && hasDefineProperty) {
 
             if (!isStatic) {
@@ -206,7 +209,7 @@ define([
             isStatic = opts && opts.isStatic,
             target;
 
-        // Only protected and private properties are stored
+        // If the property is protected/private we delete it from the target because they will be protected later
         if (!metadata.isPublic && hasDefineProperty) {
             if (!isStatic) {
                 delete constructor.prototype[name];
@@ -219,9 +222,10 @@ define([
             constructor.prototype[name] = value;
         }
 
-        // Check if a property with the same name exists
+
         target = isStatic ? constructor.$class.staticMethods : constructor.$class.methods;
 
+        // Check if a property with the same name exists
         if (isObject(target[name])) {
             throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.Name + '".');
         }
@@ -345,20 +349,19 @@ define([
 
                 // Grab mixin members
                 forOwn(current, grabMember);
+
 //>>excludeEnd('strict');
-
-                // Grab mixin static methods
 //>>includeStart('strict', pragmas.strict);
+                // Grab mixin members
                 forOwn(current.$constructor.$class.methods, grabMethod);
-
                 forOwn(current.$constructor.$class.properties, grabProperty);
 
-                // Grab mixin static methods
+                // Grab mixin static members
                 forOwn(current.$constructor.$class.staticMethods, grabStaticMethod);
-
                 forOwn(current.$constructor.$class.staticProperties, grabStaticProperty);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
+                // Grab mixin static methods
                 for (k = current.$constructor.$class.staticMethods.length - 1; k >= 0; k -= 1) {
                     key = current.$constructor.$class.staticMethods[k];
                     if (isUndefined(constructor[key])) {    // Already defined members are not overwritten

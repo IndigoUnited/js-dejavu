@@ -108,7 +108,7 @@ define([
             isStatic = opts && opts.isStatic,
             target;
 
-        // Check if function is ok
+        // Check if function is already being used by another class or within the same class
         if (method.$name) {
             if (method.$name !== name) {
                 throw new Error('Method "' + name + '" of class "' + constructor.prototype.Name + '" seems to be used by several times by the same or another class.');
@@ -117,9 +117,11 @@ define([
             obfuscateProperty(method, '$name', name);
         }
 
+        // If the initialize as inherited, clone the metadata
         if (!isStatic && name === 'initialize' && method.$inherited) {
             metadata = mixIn({}, constructor.Super.$constructor.$class.methods[name]);
         } else {
+            // Grab function metadata and throw error if is not valid
             metadata = functionMeta(method, name);
             if (metadata === null) {
                 throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in class "' + constructor.prototype.Name + '".');
@@ -148,6 +150,7 @@ define([
 
         target[name] = metadata;
 
+        // If the function is protected/private we delete it from the target because they will be protected later
         if (!metadata.isPublic && hasDefineProperty) {
 
             if (!isStatic) {
@@ -188,7 +191,7 @@ define([
             isStatic = opts && opts.isStatic,
             target;
 
-        // Only protected and private properties are stored
+        // If the property is protected/private we delete it from the target because they will be protected later
         if (!metadata.isPublic && hasDefineProperty) {
             if (!isStatic) {
                 delete constructor.prototype[name];
@@ -201,9 +204,10 @@ define([
             constructor.prototype[name] = value;
         }
 
-        // Check if a property with the same name exists
+
         target = isStatic ? constructor.$class.staticMethods : constructor.$class.methods;
 
+        // Check if a property with the same name exists
         if (isObject(target[name])) {
             throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.Name + '".');
         }
@@ -293,15 +297,12 @@ define([
                     throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + constructor.prototype.Name + '" is an inherited class (only root classes not supported).');
                 }
 
-
-                // Grab mixin static methods
+                // Grab mixin members
                 forOwn(current.$constructor.$class.methods, grabMethod);
-
                 forOwn(current.$constructor.$class.properties, grabProperty);
 
-                // Grab mixin static methods
+                // Grab mixin static members
                 forOwn(current.$constructor.$class.staticMethods, grabStaticMethod);
-
                 forOwn(current.$constructor.$class.staticProperties, grabStaticProperty);
 
                 // Merge the binds
@@ -339,9 +340,11 @@ define([
                 throw new TypeError('Entry at index ' + x + ' in Implements of class "' + target.prototype.Name + '" is not a valid interface.');
             }
 
+            // Verify if the interface is well implemented within the class
             if (!target.$abstract) {
                 interfaces[x].$interface.check(target);
             }
+            
             target.$class.interfaces.push(interfaces[x]);
         }
     }
@@ -397,11 +400,12 @@ define([
 
         var optsStatic = { isStatic: true };
 
-        // Add each method metadata, verifying its signature
+        // Add each member metadata
         forOwn(params, function (value, key) {
 
             if (key === 'Statics') {
 
+                // Verify argument type
                 if (!isObject(params.Statics)) {
                     throw new TypeError('Statics definition of class "' + params.Name + '" must be an object.');
                 }
