@@ -60,3 +60,8 @@ Session.vim
 # Sublime TextEditor #
 ######################
 /*.sublime-project
+
+# Eclipse #
+######################
+/.project
+/.settings
