@@ -19,6 +19,7 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 * Abstract classes
 * Interfaces
 * Mixins (so you can get some sort of multiple inheritance)
+* Private and protected members
 * Context binding for functions (useful for functions that will be used as callbacks/handlers)
 * Method signature checks
 * Custom instanceOf that also works with interfaces
@@ -288,9 +289,14 @@ The binds keyword allows you to specify functions that should be bound to the in
 This is useful if certain functions are meant to be used as callbacks or handlers.
 You don't need to bind the function manually, it will be bound for you automatically.
 
+
+
 ### Protected and private members ###
 
 Protected and private members should be prefixed with _ and __ respectively.
+If Object.defineProperty is available, it will be used to manage their access (only in the strict version).
+
+
 
 ### Calling the parent function ###
 
