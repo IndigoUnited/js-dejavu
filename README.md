@@ -354,7 +354,7 @@ var OtherComplexClass = Class({
 });
 ```
 
-## Calling static methods within an instance ##
+### Calling static methods within an instance ###
 
 To call static methods inside an instance you can use $self() and $static().
 $self gives access to the class itself and $static gives access to the called class in a context of static inheritance.
@@ -395,6 +395,10 @@ var Example4 = Class({
 new Example3().foo(); // hello
 new Example4().foo(); // bye
 ```
+
+### instanceOf ###
+
+The instanceOf function works exactly the same way as the native instanceof except that it also work for interfaces.
 
 
 
