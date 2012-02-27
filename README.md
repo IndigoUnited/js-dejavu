@@ -37,15 +37,11 @@ The loose build has no overhead associated with verifications and therefore is s
 If your classes schema work in the strict version then is safe to use them in the loose version.
 The loose version also has lower memory footprint and less size in bytes.
 
-There is no super() or parent() inside your functions. In order to do that, a wrapper must be created for each function, degrading performance.
-Instead, we provide an alternative syntax that performs much better (see usage later in this document).
+Also there is an alternative to $super() inside your functions. $super() is relatively slower than its alternative and can be used in critical code.
+See bellow for more information.
 
 ## To be done ##
 
-* Protected/private members are not yet supported, instead they should prefixed with an _ and an __ respectively.
-Private and protected functions could be made by creating wrappers around them.
-Still, there is no crossbrowser way to define private and protected variables.
-Those will be implemented soon using the [Object.defineProperty](https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/defineProperty) in the strict version only in environments that implement it.
 * Support for constants/final.
 
 Stay tuned!
@@ -201,7 +197,7 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
          */
         initialize: function (argument1) {
             // Call super
-            ComplexAbstractClass.Super.initialize.call(this, argument1);
+            this.$super(argument1);
 
             // Do other things here
         },
@@ -257,7 +253,7 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
          */
         initialize: function () {
             // Call super
-            ConcreteClass.Super.initialize.call(this, argument1);
+            this.$super();
 
             // Do other things here
         },
@@ -292,14 +288,14 @@ The binds keyword allows you to specify functions that should be bound to the in
 This is useful if certain functions are meant to be used as callbacks or handlers.
 You don't need to bind the function manually, it will be bound for you automatically.
 
+### Protected and private members ###
 
+Protected and private members should be prefixed with _ and __ respectively.
 
 ### Calling the parent function ###
 
-As mentioned above, there is no super() or parent() inside of functions.
-Libraries that provide it are required to create wrappers to make it work.
-Those wrappers obviously degrade performance (e.g.: if you call a instance method 100 times, in reality there was at least 200 function calls).
-Instead, you may use this syntax:
+As mentioned above, $super() can be slow compared to its alternative.
+Its alternative is as simple as ClassName.Super.method.call(this, args1, ...):
 
 ```js
 define(['path/to/classify/Class'], function (Class) {
@@ -336,7 +332,7 @@ The signature check are made for every class, abstract class and interface.
 
 ```js
 var SomeClass = Class({
-    'foo': function (param1) {
+    foo: function (param1) {
         // Do something here
     }
 });
@@ -344,7 +340,7 @@ var SomeClass = Class({
 var ComplexClass = Class({
     Extends: SomeClass,
 
-    'foo': function (param1, $param2) {    // It's ok, was augmented with an additional optional argument
+    foo: function (param1, $param2) {    // It's ok, was augmented with an additional optional argument
         // Do something here
     }
 });
@@ -352,11 +348,55 @@ var ComplexClass = Class({
 var OtherComplexClass = Class({
     Extends: SomeClass,
 
-    'foo': function (param1, param2) {     // Will throw an error because foo(param1, param2) is not compatible with foo(param1, $param2)
+    foo: function (param1, param2) {     // Will throw an error because foo(param1, param2) is not compatible with foo(param1, $param2)
         // Do something here
     }
 });
 ```
+
+## Calling static methods within an instance ##
+
+To call static methods inside an instance you can use $self() and $static().
+$self gives access to the class itself and $static gives access to the called class in a context of static inheritance.
+
+```js
+var Example1 = Class({
+    foo: function (param1) {
+        return this.$self().bar;
+    },
+    Statics: {
+        bar: 'hello'
+    }
+});
+
+var Example2 = Class({
+    foo: function (param1) {
+        return this.$static().bar;
+    },
+    Statics: {
+        bar: 'hello'
+    }
+});
+
+var Example3 = Class({
+    Extends: Example1
+    Statics: {
+        bar: 'bye'
+    }
+});
+
+var Example4 = Class({
+    Extends: Example2
+    Statics: {
+        'bar': 'bye'
+    }
+});
+
+new Example3().foo(); // hello
+new Example4().foo(); // bye
+```
+
+
 
 ## Dependencies ##
 
