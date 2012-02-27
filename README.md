@@ -394,7 +394,7 @@ var Example3 = Class({
 var Example4 = Class({
     Extends: Example2
     Statics: {
-        'bar': 'bye'
+        bar: 'bye'
     }
 });
 
