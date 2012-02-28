@@ -80,7 +80,7 @@ Be aware that all functions must obey it's base signature (see explanation later
 ```js
 define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Events, Interface) {
 
-    var SomeEventsInteface = Interface({
+    var SomeEventsInterface = Interface({
         Extends: EventsInterface,   // This interface extends EventsInterface
                                     // Interfaces can extend multiple ones, just reference them in an array
 
