@@ -128,6 +128,8 @@ define([
         if (hasOwn(params, 'Name')) {
             if (!isString(params.Name)) {
                 throw new TypeError('Abstract class name must be a string.');
+            } else if (/\s+/.test(params.Name)) {
+                throw new TypeError('Class name cannot have spaces.');
             }
         } else {
             params.Name = 'Unnamed';

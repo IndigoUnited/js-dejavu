@@ -20,6 +20,26 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
+            it('should throw an error when using an invalid name', function () {
+
+                expect(function () {
+                    return Interface({ Name: undefined });
+                }).to.throwException(/must be a string/);
+                
+                expect(function () {
+                    return Interface({ Name: null });
+                }).to.throwException(/must be a string/);
+                
+                expect(function () {
+                    return Interface({ Name: 'Some Name' });
+                }).to.throwException(/spaces/);
+                
+                expect(function () {
+                    return Interface({ Name: 'SomeName' });
+                }).to.not.throwException();
+                
+            });
+
             it('should throw an error when defining the initialize method', function () {
 
                 expect(function () {
@@ -599,7 +619,43 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 }).to.throwException(/must be an object/);
 
             });
+            
+            it('should throw an error when using an invalid name', function () {
 
+                expect(function () {
+                    return Class({ Name: undefined });
+                }).to.throwException(/must be a string/);
+                
+                expect(function () {
+                    return Class({ Name: null });
+                }).to.throwException(/must be a string/);
+                
+                expect(function () {
+                    return Class({ Name: 'Some Name' });
+                }).to.throwException(/spaces/);
+                
+                expect(function () {
+                    return Class({ Name: 'SomeName' });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass({ Name: undefined });
+                }).to.throwException(/must be a string/);
+                
+                expect(function () {
+                    return AbstractClass({ Name: null });
+                }).to.throwException(/must be a string/);
+                
+                expect(function () {
+                    return AbstractClass({ Name: 'Some Name' });
+                }).to.throwException(/spaces/);
+                
+                expect(function () {
+                    return AbstractClass({ Name: 'SomeName' });
+                }).to.not.throwException();
+                
+            });
+            
             it('should throw an error when using an invalid initialize', function () {
 
                 expect(function () {
@@ -2518,7 +2574,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/was not found/);
-                
+
                 expect(function () {
                     return Class({
                         Extends: AbstractClass({
@@ -2528,7 +2584,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         })
                     });
                 }).to.throwException(/was not found/);
-                
+
                 expect(function () {
                     return Class({
                         Extends: AbstractClass({
@@ -2540,7 +2596,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         })
                     });
                 }).to.throwException(/was not found/);
-                
+
                 expect(function () {
                     return Class({
                         Extends: AbstractClass({
@@ -2551,7 +2607,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         _protectedMethod: function () {}
                     });
                 }).to.not.throwException();
-                
+
                 expect(function () {
                     return Class({
                         Extends: AbstractClass({
@@ -2575,7 +2631,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         })
                     });
                 }).to.throwException(/was not found/);
-                
+
                 expect(function () {
                     return Class({
                         Extends: AbstractClass({
@@ -2587,7 +2643,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         })
                     });
                 }).to.throwException(/was not found/);
-                
+
                 expect(function () {
                     return Class({
                         Extends: AbstractClass({
@@ -2598,7 +2654,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         _protectedMethod: function () {}
                     });
                 }).to.not.throwException();
-                
+
                 expect(function () {
                     return Class({
                         Extends: AbstractClass({
