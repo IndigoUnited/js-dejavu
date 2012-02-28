@@ -106,13 +106,13 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
             it('should not have Statics property', function () {
 
-                return expect(example.Statics).to.not.be.ok;
+                return expect(example.Statics).to.be.equal(undefined);
 
             });
 
             it('should not have Binds property', function () {
 
-                return expect(example.Binds).to.not.be.ok;
+                return expect(example.Binds).to.be.equal(undefined);
 
             });
 
@@ -407,7 +407,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
             it('should not have the Extends property', function () {
 
-                return expect(cat.Extends).to.not.be.ok;
+                return expect(cat.Extends).to.be.equal(undefined);
 
             });
 
@@ -458,7 +458,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 }),
                     someImplementation = new SomeImplementation();
 
-                return expect(someImplementation.Implements).to.not.be.ok;
+                return expect(someImplementation.Implements).to.be.equal(undefined);
             });
 
         });
@@ -473,7 +473,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 }),
                     someImplementation = new SomeImplementation();
 
-                return expect(someImplementation.Abstracts).to.not.be.ok;
+                return expect(someImplementation.Abstracts).to.be.equal(undefined);
             });
 
         });
