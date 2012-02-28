@@ -288,7 +288,6 @@ define([
         // Parse the abstract methods
         if (hasOwn(saved, 'Abstracts')) {
             parseAbstracts(saved.Abstracts, def);
-            delete def.prototype.Abstracts;
         }
 
         return def;

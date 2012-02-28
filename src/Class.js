@@ -879,7 +879,7 @@ define([
      */
     function protectInstance(instance) {
 
-        instance[cacheKeyword] = { properties: {}, methods: {} };
+        obfuscateProperty(instance, cacheKeyword, { properties: {}, methods: {} });
 
         forOwn(instance.$constructor.$class.methods, function (value, key) {
             protectMethod(key, value, instance);
@@ -899,7 +899,7 @@ define([
      */
     function protectConstructor(constructor) {
 
-        constructor[cacheKeyword] = { properties: {}, methods: {} };
+        obfuscateProperty(constructor, cacheKeyword, { properties: {}, methods: {} });
 
         forOwn(constructor.$class.staticMethods, function (value, key) {
             protectStaticMethod(key, value, constructor);
@@ -1215,6 +1215,7 @@ define([
      * @return {Function} The constructor
      */
     Class = function Class(params) {
+
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
     /**
@@ -1350,6 +1351,11 @@ define([
         if (hasOwn(params, 'Implements')) {
             handleInterfaces(params.Implements, classify);
             delete classify.prototype.Implements;
+        }
+
+        // Remove abstracts reference
+        if (hasOwn(params, 'Abstracts')) {
+            delete params.Abstracts;
         }
 //>>includeStart('strict', pragmas.strict);
 

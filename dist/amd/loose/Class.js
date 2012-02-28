@@ -336,6 +336,7 @@ define([
      */
     Class = function Class(params) {
 
+
         var classify,
             parent;
 
@@ -381,6 +382,11 @@ define([
         if (hasOwn(params, 'Implements')) {
             handleInterfaces(params.Implements, classify);
             delete classify.prototype.Implements;
+        }
+
+        // Remove abstracts reference
+        if (hasOwn(params, 'Abstracts')) {
+            delete params.Abstracts;
         }
 
         return classify;
