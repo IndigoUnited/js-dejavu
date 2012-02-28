@@ -31,7 +31,8 @@ define([
     toArray
 ) {
 
-    var Class;
+    var Class,
+        nextId = 0;
 
     /**
      * Clones a property in order to make them unique for the instance.
@@ -352,7 +353,7 @@ define([
         } else {
             params.initialize = params.initialize || function () {};
             classify = createConstructor(params.initialize);
-            classify.$class.id = 'class_' + new Date().getTime() + '_' + Math.floor(Math.random() * 100000000 + 1);
+            classify.$class.id = nextId += 1;
             classify.prototype = params;
 
             // Assign aliases
