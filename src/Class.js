@@ -61,10 +61,12 @@ define([
     var Class,
         random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
         cacheKeyword = 'cache_' + random,
-        inheriting;
+        inheriting,
+        nextId = 0;
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-    var Class;
+    var Class,
+        nextId = 0;
 //>>excludeEnd('strict');
 
     /**
@@ -1293,7 +1295,7 @@ define([
 //>>excludeStart('strict', pragmas.strict);
             classify = createConstructor(params.initialize);
 //>>excludeEnd('strict');
-            classify.$class.id = 'class_' + new Date().getTime() + '_' + Math.floor(Math.random() * 100000000 + 1);
+            classify.$class.id = nextId += 1;
             classify.prototype = params;
 
             // Assign aliases
