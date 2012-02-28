@@ -1206,6 +1206,24 @@ define([
         };
     }
 
+    /**
+     * Method that will print a readable string describing an instance.
+     * 
+     * @return {String} The readable string
+     */
+    function toStringInstance() {
+        return '[instance #' + this.Name + ']';
+    }
+    
+    /**
+     * Method that will print a readable string describing an instance.
+     * 
+     * @return {String} The readable string
+     */
+    function toStringConstructor() {
+        return '[constructor #' + this.prototype.Name + ']';
+    }
+    
 //>>excludeStart('strict', pragmas.strict);
     /**
      * Create a class definition.
@@ -1340,6 +1358,14 @@ define([
         // Parse binds
         parseBinds(classify);
 
+        // Add toString() if not defined yet
+        if (params.toString === Object.prototype.toString) {
+            classify.prototype.toString = toStringInstance;
+        }
+        if (classify.toString === Function.prototype.toString) {
+            classify.toString = toStringConstructor;
+        }
+        
 //>>includeStart('strict', pragmas.strict);
         // If we are a concrete class that extends an abstract class, we need to verify the methods existence
         if (parent && parent.$abstract && !isAbstract) {
@@ -1359,6 +1385,7 @@ define([
         }
 //>>includeStart('strict', pragmas.strict);
 
+        // Prevent any properties/methods to be added and deleted
         if (hasDefineProperty) {
             protectConstructor(classify);
         }

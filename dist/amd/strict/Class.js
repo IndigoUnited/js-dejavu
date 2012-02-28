@@ -1034,6 +1034,24 @@ define([
     }
 
     /**
+     * Method that will print a readable string describing an instance.
+     * 
+     * @return {String} The readable string
+     */
+    function toStringInstance() {
+        return '[instance #' + this.Name + ']';
+    }
+    
+    /**
+     * Method that will print a readable string describing an instance.
+     * 
+     * @return {String} The readable string
+     */
+    function toStringConstructor() {
+        return '[constructor #' + this.prototype.Name + ']';
+    }
+    
+    /**
      * Create a class definition.
      *
      * @param {Object}  params     An object containing methods and properties
@@ -1123,6 +1141,14 @@ define([
         // Parse binds
         parseBinds(classify);
 
+        // Add toString() if not defined yet
+        if (params.toString === Object.prototype.toString) {
+            classify.prototype.toString = toStringInstance;
+        }
+        if (classify.toString === Function.prototype.toString) {
+            classify.toString = toStringConstructor;
+        }
+        
         // If we are a concrete class that extends an abstract class, we need to verify the methods existence
         if (parent && parent.$abstract && !isAbstract) {
             parent.$abstract.check(classify);
@@ -1139,6 +1165,7 @@ define([
             delete params.Abstracts;
         }
 
+        // Prevent any properties/methods to be added and deleted
         if (hasDefineProperty) {
             protectConstructor(classify);
         }
