@@ -14,7 +14,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
         describe('Instantiation of a simple Class', function () {
 
             var Example = Class({
-                Binds: ['method1', 'method2', 'method3'],
+                Binds: ['method1', 'method2', 'method3', '_method4', '__method5'],
                 some: 'property',
                 someOther: null,
                 options: {
@@ -32,6 +32,18 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 },
                 method3: function () {
                     this.some = 'test3';
+                },
+                _method4: function () {
+                    this.some = 'test4';
+                },
+                __method5: function () {
+                    this.some = 'test5';
+                },
+                method4: function () {
+                    return this._method4;
+                },
+                method5: function () {
+                    return this.__method5;
                 },
                 test: function () {
                     this.some = 'test';
@@ -128,11 +140,14 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 expect(example.some).to.be.equal('test3');
                 example2.method1.call(this);
                 expect(example2.some).to.be.equal('test');
-                example2.method2.apply(this, arguments);
+                example2.method2.apply(this);
                 expect(example2.some).to.be.equal('test2');
                 example2.method3();
                 expect(example2.some).to.be.equal('test3');
-
+                example2.method4().call(this);
+                expect(example2.some).to.be.equal('test4');
+                example2.method5().call(this);
+                expect(example2.some).to.be.equal('test5');
             });
         });
 
@@ -183,7 +198,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
         describe('$super()', function () {
 
-            var SomeClass = new Class({
+            var SomeClass = Class({
                 _firstName: null,
                 initialize: function () {
                     this._firstName = 'andre';
@@ -198,7 +213,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     }
                 }
             }),
-                OtherClass = new Class({
+                OtherClass = Class({
                     Extends: SomeClass,
                     _lastName: null,
                     initialize: function () {
@@ -214,7 +229,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                         }
                     }
                 }),
-                HiClass = new Class({
+                HiClass = Class({
                     Extends: OtherClass,
                     getFullName: function () {
                         return 'hi ' + this.$super();
@@ -244,7 +259,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
         describe('$self()', function () {
 
-            var SomeClass = new Class({
+            var SomeClass = Class({
                 initialize: function () {
                     this.$self()._fruit = 'orange';
                 },
@@ -258,7 +273,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     }
                 }
             }),
-                OtherClass = new Class({
+                OtherClass = Class({
                     Extends: SomeClass,
                     initialize: function () {
                         this.$super();
@@ -286,7 +301,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
         describe('$static()', function () {
 
-            var SomeClass = new Class({
+            var SomeClass = Class({
                 initialize: function () {
                     this.$static()._fruit = 'orange';
                 },
@@ -300,7 +315,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     }
                 }
             }),
-                OtherClass = new Class({
+                OtherClass = Class({
                     Extends: SomeClass,
                     initialize: function () {
                         this.$super();
@@ -467,56 +482,110 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
             it('should grab the borrowed members to their own', function () {
 
-                var SomeImplementation = Class({
-                    Borrows: {
-                        method1: function () {},
-                        method2: function () {},
-                        some: 'property'
-                    }
-                }),
-                    OtherImplementation = Class({
-                        Borrows: [Class({
+                (function () {
+                    var SomeImplementation = Class({
+                        Borrows: {
                             method1: function () {},
                             method2: function () {},
                             some: 'property'
-                        }), { method3: function () {} }]
+                        }
                     }),
-                    EvenOtherImplementation = Class({
-                        Borrows: new Class({
-                            method1: function () {},
-                            method2: function () {},
-                            some: 'property'
-                        })
+                        OtherImplementation = Class({
+                            Borrows: [Class({
+                                method1: function () {},
+                                method2: function () {},
+                                some: 'property'
+                            }), { method3: function () {} }]
+                        }),
+                        EvenOtherImplementation = Class({
+                            Borrows: Class({
+                                method1: function () {},
+                                method2: function () {},
+                                some: 'property'
+                            })
+                        }),
+                        someImplementation = new SomeImplementation(),
+                        otherImplementation = new OtherImplementation(),
+                        evenOtherImplementation = new EvenOtherImplementation();
+
+                    expect(SomeImplementation.prototype.method1).to.be.a('function');
+                    expect(SomeImplementation.prototype.method2).to.be.a('function');
+                    expect(SomeImplementation.prototype.some).to.be.equal('property');
+                    expect(OtherImplementation.prototype.method1).to.be.a('function');
+                    expect(OtherImplementation.prototype.method2).to.be.a('function');
+                    expect(OtherImplementation.prototype.method3).to.be.a('function');
+                    expect(OtherImplementation.prototype.some).to.be.equal('property');
+                    expect(EvenOtherImplementation.prototype.method1).to.be.a('function');
+                    expect(EvenOtherImplementation.prototype.method2).to.be.a('function');
+                    expect(EvenOtherImplementation.prototype.some).to.be.equal('property');
+
+                    expect(someImplementation.method1).to.be.a('function');
+                    expect(someImplementation.method2).to.be.a('function');
+                    expect(someImplementation.some).to.be.equal('property');
+                    expect(otherImplementation.method1).to.be.a('function');
+                    expect(otherImplementation.method2).to.be.a('function');
+                    expect(otherImplementation.method3).to.be.a('function');
+                    expect(otherImplementation.some).to.be.equal('property');
+                    expect(evenOtherImplementation.method1).to.be.a('function');
+                    expect(evenOtherImplementation.method2).to.be.a('function');
+                    expect(evenOtherImplementation.some).to.be.equal('property');
+                    
+                }());
+                
+                (function () {
+                    var SomeImplementation = Class({
+                        Borrows: {
+                            _method1: function () {},
+                            _method2: function () {},
+                            _some: 'property'
+                        },
+                        method1: function () {
+                            return this._method1;
+                        },
+                        method2: function () {
+                            return this._method2;
+                        },
+                        some: function () {
+                            return this._some;
+                        }
                     }),
-                    someImplementation = new SomeImplementation(),
-                    otherImplementation = new OtherImplementation(),
-                    evenOtherImplementation = new EvenOtherImplementation();
+                        someImplementation = new SomeImplementation();
 
-                expect(SomeImplementation.prototype.method1).to.be.a('function');
-                expect(SomeImplementation.prototype.method2).to.be.a('function');
-                expect(SomeImplementation.prototype.some).to.be.equal('property');
-                expect(OtherImplementation.prototype.method1).to.be.a('function');
-                expect(OtherImplementation.prototype.method2).to.be.a('function');
-                expect(OtherImplementation.prototype.method3).to.be.a('function');
-                expect(OtherImplementation.prototype.some).to.be.equal('property');
-                expect(EvenOtherImplementation.prototype.method1).to.be.a('function');
-                expect(EvenOtherImplementation.prototype.method2).to.be.a('function');
-                expect(EvenOtherImplementation.prototype.some).to.be.equal('property');
 
-                expect(someImplementation.method1).to.be.a('function');
-                expect(someImplementation.method2).to.be.a('function');
-                expect(someImplementation.some).to.be.equal('property');
-                expect(otherImplementation.method1).to.be.a('function');
-                expect(otherImplementation.method2).to.be.a('function');
-                expect(otherImplementation.method3).to.be.a('function');
-                expect(otherImplementation.some).to.be.equal('property');
-                expect(evenOtherImplementation.method1).to.be.a('function');
-                expect(evenOtherImplementation.method2).to.be.a('function');
-                expect(evenOtherImplementation.some).to.be.equal('property');
+                    expect(someImplementation.method1()).to.be.a('function');
+                    expect(someImplementation.method2()).to.be.a('function');
+                    expect(someImplementation.some()).to.be.equal('property');
+                    
+                }());
+                
+                (function () {
+                    var SomeImplementation = Class({
+                        Borrows: {
+                            __method1: function () {},
+                            __method2: function () {},
+                            __some: 'property'
+                        },
+                        method1: function () {
+                            return this.__method1;
+                        },
+                        method2: function () {
+                            return this.__method2;
+                        },
+                        some: function () {
+                            return this.__some;
+                        }
+                    }),
+                        someImplementation = new SomeImplementation();
 
+
+                    expect(someImplementation.method1()).to.be.a('function');
+                    expect(someImplementation.method2()).to.be.a('function');
+                    expect(someImplementation.some()).to.be.equal('property');
+                    
+                }());
             });
 
-            it('should grab the borrowed members respecting the precedence order and not replace methods', function () {
+            it('should grab the borrowed members, respecting the precedence order and not replace self methods', function () {
 
                 var SomeMixin = {
                     method1: function () {},
@@ -557,7 +626,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 expect(SomeOtherClass.staticMethod1).to.be.equal(method2);
 
             });
-
+            
             it('should not grab the initialize method of any class/object', function () {
 
                 var initialize = function () {
@@ -569,7 +638,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                         initialize: initialize
                     }),
                     OtherImplementation = Class({
-                        Borrows: new Class({ initialize: function () { this.some = 'nooo'; } }),
+                        Borrows: Class({ initialize: function () { this.some = 'nooo'; } }),
                         some: 'property'
                     }),
                     someImplementation = new SomeImplementation(),
@@ -783,15 +852,6 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     });
                     return OtherClass.__propStatic;
                 }())).to.be.equal(undefined);
-
-            });
-
-            it('should work well with binds', function () {
-
-                var some = new SomeClass();
-                some.getMethod().call(this);
-                expect(some.getProp()).to.be.equal('test');
-
 
             });
 
@@ -1012,46 +1072,6 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
             }
 
-            it('should work well with Borrows', function () {
-
-                var OtherClass = {
-                    __privateMethod: function () {
-                        return 'test';
-                    },
-                    __privateProperty: 'some',
-                    Statics: {
-                        __funcStatic: function () {
-                            return 'test';
-                        },
-                        __propStatic: 'property'
-                    }
-                },
-                    SomeClass = Class({
-                        Borrows: OtherClass,
-                        privateMethod: function () {
-                            return this.__privateMethod();
-                        },
-                        privateProperty: function () {
-                            return this.__privateProperty;
-                        },
-                        Statics: {
-                            privateMethod: function () {
-                                return this.__funcStatic();
-                            },
-                            privateProperty: function () {
-                                return this.__propStatic;
-                            }
-                        }
-                    }),
-                    someClass = new SomeClass();
-
-                expect(someClass.privateMethod()).to.be.equal('test');
-                expect(someClass.privateProperty()).to.be.equal('some');
-                expect(SomeClass.privateMethod()).to.be.equal('test');
-                expect(SomeClass.privateProperty()).to.be.equal('property');
-
-            });
-
         });
 
         describe('Protected members', function () {
@@ -1120,14 +1140,6 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 });
 
             }
-
-            it('should work well with binds', function () {
-
-                var some = new SomeClass();
-                some.getMethod().call(this);
-                expect(some.getProp()).to.be.equal('test');
-
-            });
 
             if (/strict/.test(global.build) && hasDefineProperty) {
 
@@ -1335,46 +1347,6 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 expect(hi.getFruit()).to.be.equal('hi hot potato');
                 expect(OtherClass.getFruitStatic()).to.be.equal('hot potato');
                 expect(HiClass.getFruitStatic()).to.be.equal('hi hot potato');
-            });
-
-            it('should work well with Borrows', function () {
-
-                var OtherClass = {
-                    _protectedMethod: function () {
-                        return 'test';
-                    },
-                    _protectedProperty: 'some',
-                    Statics: {
-                        _funcStatic: function () {
-                            return 'test';
-                        },
-                        _propStatic: 'property'
-                    }
-                },
-                    SomeClass = Class({
-                        Borrows: OtherClass,
-                        protectedMethod: function () {
-                            return this._protectedMethod();
-                        },
-                        protectedProperty: function () {
-                            return this._protectedProperty;
-                        },
-                        Statics: {
-                            protectedMethod: function () {
-                                return this._funcStatic();
-                            },
-                            protectedProperty: function () {
-                                return this._propStatic;
-                            }
-                        }
-                    }),
-                    someClass = new SomeClass();
-
-                expect(someClass.protectedMethod()).to.be.equal('test');
-                expect(someClass.protectedProperty()).to.be.equal('some');
-                expect(SomeClass.protectedMethod()).to.be.equal('test');
-                expect(SomeClass.protectedProperty()).to.be.equal('property');
-
             });
 
         });
