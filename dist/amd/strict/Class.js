@@ -74,17 +74,18 @@ define([
      * Sets the key of object with the specified value.
      * The property is obfuscated, by not being enumerable, configurable and writable.
      *
-     * @param {Object} obj   The object
-     * @param {String} key   The key
-     * @param {Mixin}  value The value
+     * @param {Object}  obj                  The object
+     * @param {String}  key                  The key
+     * @param {Mixin}   value                The value
+     * @param {Boolean} [isWritable="false"] True to be writable, false otherwise
      */
-    function obfuscateProperty(obj, key, value) {
+    function obfuscateProperty(obj, key, value, isWritable) {
 
         if (hasDefineProperty) {
             Object.defineProperty(obj, key, {
                 value: value,
                 configurable: false,
-                writable: false,
+                writable: isWritable || true,
                 enumerable: false
             });
         } else {
@@ -1035,22 +1036,22 @@ define([
 
     /**
      * Method that will print a readable string describing an instance.
-     * 
+     *
      * @return {String} The readable string
      */
     function toStringInstance() {
         return '[instance #' + this.Name + ']';
     }
-    
+
     /**
      * Method that will print a readable string describing an instance.
-     * 
+     *
      * @return {String} The readable string
      */
     function toStringConstructor() {
         return '[constructor #' + this.prototype.Name + ']';
     }
-    
+
     /**
      * Create a class definition.
      *
@@ -1145,12 +1146,12 @@ define([
 
         // Add toString() if not defined yet
         if (params.toString === Object.prototype.toString) {
-            classify.prototype.toString = toStringInstance;
+            obfuscateProperty(classify.prototype, 'toString', toStringInstance, true);
         }
         if (classify.toString === Function.prototype.toString) {
-            classify.toString = toStringConstructor;
+            obfuscateProperty(classify, 'toString', toStringConstructor, true);
         }
-        
+
         // If we are a concrete class that extends an abstract class, we need to verify the methods existence
         if (parent && parent.$abstract && !isAbstract) {
             parent.$abstract.check(classify);
