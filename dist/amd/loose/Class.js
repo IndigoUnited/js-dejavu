@@ -329,22 +329,22 @@ define([
 
     /**
      * Method that will print a readable string describing an instance.
-     * 
+     *
      * @return {String} The readable string
      */
     function toStringInstance() {
         return '[instance #' + this.Name + ']';
     }
-    
+
     /**
      * Method that will print a readable string describing an instance.
-     * 
+     *
      * @return {String} The readable string
      */
     function toStringConstructor() {
         return '[constructor #' + this.prototype.Name + ']';
     }
-    
+
     /**
      * Create a class definition.
      *
@@ -403,7 +403,7 @@ define([
         if (classify.toString === Function.prototype.toString) {
             classify.toString = toStringConstructor;
         }
-        
+
         // Handle interfaces
         if (hasOwn(params, 'Implements')) {
             handleInterfaces(params.Implements, classify);
