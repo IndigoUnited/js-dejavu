@@ -178,7 +178,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        some: new Class({})
+                        some: Class({})
                     });
                 }).to.throwException(/not a function/);
 
@@ -197,7 +197,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Interface({
                         Statics: {
-                            some: new Class({})
+                            some: Class({})
                         }
                     });
                 }).to.throwException(/not a function/);
@@ -1702,7 +1702,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         Abstracts: {
-                            some: new Class({})
+                            some: Class({})
                         }
                     });
                 }).to.throwException(/not a function/);
@@ -1727,7 +1727,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return AbstractClass({
                         Abstracts: {
                             Statics: {
-                                some: new Class({})
+                                some: Class({})
                             }
                         }
                     });
@@ -2518,7 +2518,101 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/was not found/);
-
+                
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                _protectedMethod: function () {}
+                            }
+                        })
+                    });
+                }).to.throwException(/was not found/);
+                
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                Statics: {
+                                    _protectedMethod: function () {}
+                                }
+                            }
+                        })
+                    });
+                }).to.throwException(/was not found/);
+                
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                _protectedMethod: function () {}
+                            }
+                        }),
+                        _protectedMethod: function () {}
+                    });
+                }).to.not.throwException();
+                
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                Statics: {
+                                    _protectedMethod: function () {}
+                                }
+                            }
+                        }),
+                        Statics: {
+                            _protectedMethod: function () {}
+                        }
+                    });
+                }).to.not.throwException();
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                _protectedMethod: function () {}
+                            }
+                        })
+                    });
+                }).to.throwException(/was not found/);
+                
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                Statics: {
+                                    _protectedMethod: function () {}
+                                }
+                            }
+                        })
+                    });
+                }).to.throwException(/was not found/);
+                
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                _protectedMethod: function () {}
+                            }
+                        }),
+                        _protectedMethod: function () {}
+                    });
+                }).to.not.throwException();
+                
+                expect(function () {
+                    return Class({
+                        Extends: AbstractClass({
+                            Abstracts: {
+                                Statics: {
+                                    _protectedMethod: function () {}
+                                }
+                            }
+                        }),
+                        Statics: {
+                            _protectedMethod: function () {}
+                        }
+                    });
+                }).to.not.throwException();
             });
 
             it('should not throw an error when it is complete', function () {

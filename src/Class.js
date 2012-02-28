@@ -60,7 +60,8 @@ define([
 //>>includeStart('strict', pragmas.strict);
     var Class,
         random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
-        cacheKeyword = 'cache_' + random;
+        cacheKeyword = 'cache_' + random,
+        inheriting;
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
     var Class;
@@ -673,7 +674,7 @@ define([
                     var method = this[cacheKeyword].methods[name],
                         caller = get.caller || arguments.callee.caller || arguments.caller;
 
-                    if (this.$inheriting ||
+                    if (inheriting ||
                             (caller['$constructor_' + this.$class.id] && (
                                 method['$constructor_' + this.$class.id] === caller['$constructor_' + this.$class.id] ||
                                 method['$constructor_' + this.$class.id].prototype instanceof caller['$constructor_' + this.$class.id] ||
@@ -825,7 +826,7 @@ define([
                     var method = this[cacheKeyword].properties[name],
                         caller = get.caller || arguments.callee.caller || arguments.caller;
 
-                    if (this.$inheriting ||
+                    if (inheriting ||
                             (caller['$constructor_' + this.$class.id] && (
                                 meta['$constructor_' + this.$class.id] === caller['$constructor_' + this.$class.id] ||
                                 meta['$constructor_' + this.$class.id].prototype instanceof caller['$constructor_' + this.$class.id] ||
@@ -845,7 +846,7 @@ define([
 
                     var caller = set.caller || arguments.callee.caller || arguments.caller;
 
-                    if (this.$inheriting ||
+                    if (inheriting ||
                             meta['$constructor_' + this.$class.id] === caller['$constructor_' + this.$class.id] ||
                             (caller['$constructor_' + this.$class.id] && (
                                 meta['$constructor_' + this.$class.id].prototype instanceof caller['$constructor_' + this.$class.id] ||
@@ -905,6 +906,12 @@ define([
         forOwn(constructor.$class.staticProperties, function (value, key) {
             protectStaticProperty(key, value, constructor);
         });
+
+        // Prevent any properties/methods to be added and deleted
+        if (isFunction(Object.seal)) {
+            Object.seal(constructor);
+            Object.seal(constructor.prototype);
+        }
     }
 
     /**
@@ -964,7 +971,7 @@ define([
 //>>includeStart('strict', pragmas.strict);
             delete this.$initializing;
 
-            // Prevent any properties to be added and deleted
+            // Prevent any properties/methods to be added and deleted
             if (isFunction(Object.seal)) {
                 Object.seal(this);
             }
@@ -1021,7 +1028,7 @@ define([
         });
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
-        parent.$inheriting = true;
+        inheriting = true;
 
         // Grab methods and properties definitions
         forOwn(parent.$class.methods, function (value, k) {
@@ -1047,7 +1054,7 @@ define([
             }
         });
 
-        delete parent.$inheriting;
+        inheriting = false;
 //>>includeEnd('strict');
     }
 
