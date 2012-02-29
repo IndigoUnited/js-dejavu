@@ -5,10 +5,6 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
     var expect = global.expect;
 
-    // Uncomment the lines bellow to test a modified object prototype
-    //Object.prototype.youShouldNotDoThis = function (a, b) {};
-    //Object.prototype.youShouldNotDoThisAlso = 'some';
-
     describe('Functional:', function () {
 
         describe('Instantiation of a simple Class', function () {
