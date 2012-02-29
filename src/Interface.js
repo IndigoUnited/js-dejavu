@@ -18,6 +18,7 @@ define([
     './common/functionMeta',
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',
+    './common/isObjectPrototypeSpoiled',
 //>>includeEnd('strict');
     'Utils/object/hasOwn',
     'Utils/lang/toArray'
@@ -38,6 +39,7 @@ define([
     functionMeta,
     isFunctionEmpty,
     isFunctionCompatible,
+    isObjectPrototypeSpoiled,
 //>>includeEnd('strict');
     hasOwn,
     toArray
@@ -127,6 +129,10 @@ define([
     function Interface(params) {
 
 //>>includeStart('strict', pragmas.strict);
+        // Check Object.prototype enumerable properties
+        if (isObjectPrototypeSpoiled()) {
+            throw new Error('Classify will not work properly if Object.prototype  has enumerable properties.');
+        }
         // Validate params as an object
         if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');

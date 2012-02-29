@@ -1,7 +1,7 @@
 /*jslint nomen:true*/
 /*global window,navigator,document,global:true,define:true,require,expect,__dirname,process*/
 
-if (!(typeof window !== 'undefined' && navigator && document)) { // Test if we are at command line
+if (!(typeof window !== 'undefined' && window.navigator && window.document)) { // Test if we are at command line
 
     var requirejs = require('../../vendor/r.js/dist/r.js');
     requirejs.config({

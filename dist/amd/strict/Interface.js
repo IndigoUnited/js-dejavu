@@ -17,6 +17,7 @@ define([
     './common/functionMeta',
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',
+    './common/isObjectPrototypeSpoiled',
     'Utils/object/hasOwn',
     'Utils/lang/toArray'
 ], function (
@@ -35,6 +36,7 @@ define([
     functionMeta,
     isFunctionEmpty,
     isFunctionCompatible,
+    isObjectPrototypeSpoiled,
     hasOwn,
     toArray
 ) {
@@ -120,6 +122,10 @@ define([
      */
     function Interface(params) {
 
+        // Check Object.prototype enumerable properties
+        if (isObjectPrototypeSpoiled()) {
+            throw new Error('Classify will not work properly if Object.prototype  has enumerable properties.');
+        }
         // Validate params as an object
         if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');
