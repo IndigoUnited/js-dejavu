@@ -12,7 +12,7 @@ define([
     './common/isFunctionCompatible',
     './common/checkKeywords',
     './common/hasDefineProperty',
-    './common/isObjectPrototypeSpoiled',
+    './common/checkObjectPrototype',
 //>>includeEnd('strict');
     'Utils/lang/isFunction',
     'Utils/lang/isObject',
@@ -40,7 +40,7 @@ define([
     isFunctionCompatible,
     checkKeywords,
     hasDefineProperty,
-    isObjectPrototypeSpoiled,
+    checkObjectPrototype,
 //>>includeEnd('strict');
     isFunction,
     isObject,
@@ -60,6 +60,8 @@ define([
 ) {
 
 //>>includeStart('strict', pragmas.strict);
+    checkObjectPrototype();
+
     var Class,
         random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
         cacheKeyword = 'cache_' + random,
@@ -947,10 +949,6 @@ define([
             var key;
 
 //>>includeStart('strict', pragmas.strict);
-            // Check Object.prototype enumerable properties
-            if (isObjectPrototypeSpoiled()) {
-                throw new Error('Classify will not work properly if Object.prototype  has enumerable properties.');
-            }
             // If it's abstract, it canot be instantiated
             if (isAbstract) {
                 throw new Error('An abstract class cannot be instantiated.');
@@ -1253,11 +1251,7 @@ define([
      * @return {Function} The constructor
      */
     Class = function Class(params, isAbstract) {
-        
-        // Check Object.prototype enumerable properties
-        if (isObjectPrototypeSpoiled()) {
-            throw new Error('Classify will not work properly if Object.prototype has enumerable properties!');
-        }
+
         // Validate params as an object
         if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');

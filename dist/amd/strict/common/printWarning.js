@@ -1,11 +1,11 @@
 /*jslint sloppy:true*/
 /*global define,console*/
 
-define(function () {
+define(['Utils/lang/isFunction'], function (isFunction) {
 
     function printWarning(message) {
 
-        if (typeof console !== 'undefined' && console.warn) {
+        if (typeof console !== 'undefined' && isFunction(console.warn)) {
             console.warn(message);
         }
 
