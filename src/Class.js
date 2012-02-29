@@ -1,5 +1,5 @@
-/*jslint sloppy:true, forin:true, newcap:true, callee:true*/
-/*global define*/
+/*jslint browser:true, sloppy:true, forin:true, newcap:true, callee:true*/
+/*global define,console*/
 
 define([
 //>>includeStart('strict', pragmas.strict);
@@ -12,6 +12,7 @@ define([
     './common/isFunctionCompatible',
     './common/checkKeywords',
     './common/hasDefineProperty',
+    './common/isObjectPrototypeSpoiled',
 //>>includeEnd('strict');
     'Utils/lang/isFunction',
     'Utils/lang/isObject',
@@ -39,6 +40,7 @@ define([
     isFunctionCompatible,
     checkKeywords,
     hasDefineProperty,
+    isObjectPrototypeSpoiled,
 //>>includeEnd('strict');
     isFunction,
     isObject,
@@ -945,6 +947,11 @@ define([
             var key;
 
 //>>includeStart('strict', pragmas.strict);
+            // Check Object.prototype enumerable properties
+            if (isObjectPrototypeSpoiled()) {
+                throw new Error('Classify will not work properly if Object.prototype  has enumerable properties.');
+            }
+            // If it's abstract, it canot be instantiated
             if (isAbstract) {
                 throw new Error('An abstract class cannot be instantiated.');
             }
@@ -1246,7 +1253,11 @@ define([
      * @return {Function} The constructor
      */
     Class = function Class(params, isAbstract) {
-
+        
+        // Check Object.prototype enumerable properties
+        if (isObjectPrototypeSpoiled()) {
+            throw new Error('Classify will not work properly if Object.prototype has enumerable properties!');
+        }
         // Validate params as an object
         if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');

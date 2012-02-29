@@ -1,5 +1,5 @@
 //>>includeStart('strict', pragmas.strict);
-/*jslint sloppy:true, regexp:true*/
+/*jslint sloppy:true*/
 /*global define*/
 
 define(['Utils/lang/isFunction'], function (isFunction) {

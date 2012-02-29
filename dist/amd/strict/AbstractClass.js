@@ -15,6 +15,7 @@ define([
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',
     './common/checkKeywords',
+    './common/isObjectPrototypeSpoiled',
     'Utils/object/hasOwn',
     './Class',
     'require'
@@ -32,6 +33,7 @@ define([
     isFunctionEmpty,
     isFunctionCompatible,
     checkKeywords,
+    isObjectPrototypeSpoiled,
     hasOwn,
     Class,
     require
@@ -237,6 +239,10 @@ define([
 
         Class = require('./Class');
 
+        // Check Object.prototype enumerable properties
+        if (isObjectPrototypeSpoiled()) {
+            throw new Error('Classify will not work properly if Object.prototype has enumerable properties.');
+        }
         if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');
         }

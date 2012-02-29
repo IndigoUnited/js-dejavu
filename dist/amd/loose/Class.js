@@ -1,5 +1,5 @@
-/*jslint sloppy:true, forin:true, newcap:true, callee:true*/
-/*global define*/
+/*jslint browser:true, sloppy:true, forin:true, newcap:true, callee:true*/
+/*global define,console*/
 
 define([
     'Utils/lang/isFunction',
