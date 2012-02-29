@@ -15,7 +15,7 @@ define([
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',
     './common/checkKeywords',
-    './common/isObjectPrototypeSpoiled',
+    './common/checkObjectPrototype',
     'Utils/object/hasOwn',
     './Class',
     'require'
@@ -33,12 +33,14 @@ define([
     isFunctionEmpty,
     isFunctionCompatible,
     checkKeywords,
-    isObjectPrototypeSpoiled,
+    checkObjectPrototype,
     hasOwn,
     Class,
     require
 ) {
 
+    checkObjectPrototype();
+    
     /**
      * Add an abstract method to an abstract class.
      * This method will throw an error if something is not right.
@@ -239,10 +241,6 @@ define([
 
         Class = require('./Class');
 
-        // Check Object.prototype enumerable properties
-        if (isObjectPrototypeSpoiled()) {
-            throw new Error('Classify will not work properly if Object.prototype has enumerable properties.');
-        }
         if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');
         }

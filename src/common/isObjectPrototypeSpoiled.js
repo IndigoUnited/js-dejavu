@@ -12,14 +12,15 @@ define(function () {
     function isObjectPrototypeSpoiled() {
 
         var obj = {},
-            key,
-            spoiled = false;
+            key;
 
         for (key in obj) {
-            spoiled = true;
+            if (key) {  // This is just to trick jslint..
+                return true;
+            }
         }
 
-        return spoiled;
+        return false;
     }
 
     return isObjectPrototypeSpoiled;

@@ -17,7 +17,7 @@ define([
     './common/functionMeta',
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',
-    './common/isObjectPrototypeSpoiled',
+    './common/checkObjectPrototype',
     'Utils/object/hasOwn',
     'Utils/lang/toArray'
 ], function (
@@ -36,11 +36,13 @@ define([
     functionMeta,
     isFunctionEmpty,
     isFunctionCompatible,
-    isObjectPrototypeSpoiled,
+    checkObjectPrototype,
     hasOwn,
     toArray
 ) {
 
+    checkObjectPrototype();
+    
     /**
      * Checks if an interface is well implemented in a class.
      * In order to this function to work, it must be bound to an interface definition.
@@ -122,10 +124,6 @@ define([
      */
     function Interface(params) {
 
-        // Check Object.prototype enumerable properties
-        if (isObjectPrototypeSpoiled()) {
-            throw new Error('Classify will not work properly if Object.prototype  has enumerable properties.');
-        }
         // Validate params as an object
         if (!isObject(params)) {
             throw new TypeError('Argument "params" must be an object.');
