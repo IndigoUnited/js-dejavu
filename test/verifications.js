@@ -5,9 +5,6 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
     var expect = global.expect;
 
-    // Uncomment the lines bellow to test a modified object prototype
-    //Object.prototype.youShouldNotDoThis = function (a, b) {};
-    //Object.prototype.youShouldNotDoThisAlso = 'some';
     describe('Verifications:', function () {
 
         describe('Defining an Interface', function () {
