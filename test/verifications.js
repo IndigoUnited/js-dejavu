@@ -2104,18 +2104,18 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 var reserved = ['$constructor', '$initializing', '$static', '$self', '$super'],
                     reservedStatic = ['$class', '$abstract', '$interface', '$parent', '$super'],
                     x,
-                    checkNormal = function (key, in$abstracts) {
+                    checkNormal = function (key, inAbstracts) {
                         return function () {
                             var obj = {};
                             obj[key] = 'bla';
-                            return AbstractClass(!!in$abstracts ? {$abstracts: obj} : obj);
+                            return AbstractClass(!!inAbstracts ? {$abstracts: obj} : obj);
                         };
                     },
-                    checkStatic = function (key, in$abstracts) {
+                    checkStatic = function (key, inAbstracts) {
                         return function () {
                             var obj = {$statics: {}};
                             obj.$statics[key] = 'bla';
-                            return AbstractClass(!!in$abstracts ? {$abstracts: obj} : obj);
+                            return AbstractClass(!!inAbstracts ? {$abstracts: obj} : obj);
                         };
                     };
 
