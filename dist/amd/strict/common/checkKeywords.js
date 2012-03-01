@@ -9,13 +9,13 @@ define([
     contains
 ) {
     var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
-        reservedStatics = ['$class', '$abstract', '$interface', '$parent', '$super'];
+        reserved$statics = ['$class', '$abstract', '$interface', '$parent', '$super'];
 
     /**
      * Verify reserved words found in classes/interfaces.
      * The second parameter can be normal or statics.
      * Normal will test for reserved words of the instance.
-     * Statics will test for reserved words in the ckass statics.
+     * $statics will test for reserved words in the ckass statics.
      *
      * Will throw an error if any reserved key is found.
      *
@@ -24,7 +24,7 @@ define([
      */
     function checkKeywords(object, type) {
 
-        var reserved = type === 'normal' || !type ? reservedNormal : reservedStatics;
+        var reserved = type === 'normal' || !type ? reservedNormal : reserved$statics;
 
         forOwn(object, function (value, key) {
             if (contains(reserved, key) || Object.prototype[key]) {

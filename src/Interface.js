@@ -249,15 +249,15 @@ define([
 
         forOwn(params, function (value, k) {
 
-            if (k === 'Statics') {
+            if (k === '$statics') {
 
-                if (!isObject(params.Statics)) {
-                    throw new TypeError('Statics definition of interface "' + params.$name + '" must be an object.');
+                if (!isObject(params.$statics)) {
+                    throw new TypeError('$statics definition of interface "' + params.$name + '" must be an object.');
                 }
 
-                checkKeywords(params.Statics, 'statics');
+                checkKeywords(params.$statics, 'statics');
 
-                forOwn(params.Statics, function (value, k) {
+                forOwn(params.$statics, function (value, k) {
 
                     // Check if it is not a function
                     if (!isFunction(value) || value.$interface || value.$class) {
