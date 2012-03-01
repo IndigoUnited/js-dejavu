@@ -307,11 +307,11 @@ Its alternative is as simple as ClassName.$parent.prototype.method.call(this, ar
 define(['path/to/classify/Class'], function (Class) {
 
     var SomeClass = Class({
-        'foo': function () {
+        foo: function () {
             // Do something here
         },
         $statics: {
-            'bar': function () {
+            bar: function () {
                 // Do something here
             }
         }
