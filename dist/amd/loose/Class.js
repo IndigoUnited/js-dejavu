@@ -9,7 +9,6 @@ define([
     'Utils/lang/createObject',
     'Utils/object/mixIn',
     'Utils/object/hasOwn',
-    'Utils/object/forOwn',
     'Utils/array/combine',
     'Utils/array/append',
     'Utils/array/insert',
@@ -23,7 +22,6 @@ define([
     createObject,
     mixIn,
     hasOwn,
-    forOwn,
     combine,
     append,
     insert,
@@ -65,9 +63,19 @@ define([
             var current,
                 k,
                 key,
+                value,
                 mixins = toArray(constructor.prototype.$borrows),
-                i = mixins.length,
-                grabMember = function (value, key) {
+                i = mixins.length;
+
+            for (i -= 1; i >= 0; i -= 1) {
+
+                current = isObject(mixins[i]) ? Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
+
+                // Grab mixin members
+                for (key in current) {
+
+                    value = current[key];
+
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
                         constructor.prototype[key] = value;
                         if (isFunction(value) && !value.$class && !value.$interface) {
@@ -75,20 +83,7 @@ define([
                             value.$name = key;
                         }
                     }
-                },
-                grabStaticProperty = function (value, key) {
-                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
-                        constructor[key] = cloneProperty(value);
-                        constructor.$class.staticProperties[key] = value;
-                    }
-                };
-
-            for (i -= 1; i >= 0; i -= 1) {
-
-                current = isObject(mixins[i]) ? Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
-
-                // Grab mixin members
-                forOwn(current, grabMember);
+                }
 
                 // Grab mixin static methods
                 for (k = current.$constructor.$class.staticMethods.length - 1; k >= 0; k -= 1) {
@@ -102,7 +97,15 @@ define([
                 }
 
                 // Grab mixin static properties
-                forOwn(current.$constructor.$class.staticProperties, grabStaticProperty);
+                for (key in current.$constructor.$class.staticProperties) {
+
+                    value = current.$constructor.$class.staticProperties[key];
+
+                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
+                        constructor.$class.staticProperties[key] = value;
+                        constructor[key] = cloneProperty(value);
+                    }
+                }
 
                 // Merge the binds
                 combine(constructor.$class.binds, current.$constructor.$class.binds);
@@ -151,11 +154,17 @@ define([
      */
     function parseMembers(params, constructor) {
 
-        forOwn(params, function (value, key) {
+        var key,
+            value;
+
+        for (key in params) {
 
             if (key === '$statics') {
 
-                forOwn(params.$statics, function (value, key) {
+                for (key in params.$statics) {
+
+                    value = params.$statics[key];
+
                     if (isFunction(value) && !value.$class && !value.$interface) {
                         insert(constructor.$class.staticMethods, key);
                         value['$constructor_' + constructor.$class.id] = constructor;
@@ -165,11 +174,14 @@ define([
                     }
 
                     constructor[key] = value;
-                });
+                }
 
                 delete constructor.prototype.$statics;
 
             } else {
+
+                value = params[key];
+
                 // TODO: Maybe we could improve this be storing this in the constructor itself and then deleting it
                 if (key !== '$constructor' && key !== '$self' && key !== '$static' && key !== '$name' && key !== 'Binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts') {
                     if (isFunction(value) && !value.$class && !value.$interface) {
@@ -178,7 +190,7 @@ define([
                     }
                 }
             }
-        });
+        }
     }
 
     /**
@@ -240,8 +252,9 @@ define([
     function inheritParent(constructor, parent) {
 
         var x,
-            binds = parent.$class.binds;
-
+            binds = parent.$class.binds,
+            key,
+            value;
 
         // Inherit binds
         for (x = binds.length - 1; x >= 0; x -= 1) {
@@ -259,12 +272,15 @@ define([
             }
         }
 
-        forOwn(parent.$class.staticProperties, function (value, k) {
-            if (k.substr(0, 2) !== '__') {
-                constructor.$class.staticProperties[k] = value;
-                constructor[k] = cloneProperty(constructor.$class.staticProperties[k]);
+        for (key in parent.$class.staticProperties) {
+
+            value = parent.$class.staticProperties[key];
+
+            if (key.substr(0, 2) !== '__') {
+                constructor.$class.staticProperties[key] = value;
+                constructor[key] = cloneProperty(value);
             }
-        });
+        }
     }
 
     /**
