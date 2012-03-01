@@ -1,4 +1,4 @@
-/*jslint sloppy:true, nomen:true, newcap:true*/
+/*jslint sloppy:true, nomen:true, newcap:true, forin:true*/
 /*global define*/
 
 define([
@@ -10,7 +10,6 @@ define([
     'Utils/lang/toArray',
     'Utils/lang/bind',
     'Utils/object/mixIn',
-    'Utils/object/forOwn',
     'Utils/array/combine',
     './common/functionMeta',
     './common/isFunctionEmpty',
@@ -30,7 +29,6 @@ define([
     toArray,
     bind,
     mixIn,
-    forOwn,
     combine,
     functionMeta,
     isFunctionEmpty,
@@ -45,7 +43,7 @@ define([
 
 //>>includeStart('strict', pragmas.strict);
     checkObjectPrototype();
-    
+
     /**
      * Add an abstract method to an abstract class.
      * This method will throw an error if something is not right.
@@ -107,25 +105,34 @@ define([
      */
     function checkClass(target) {
 
+        var key,
+            value;
+
         // Check normal functions
-        forOwn(this.$abstract.methods, function (value, k) {
-            if (!target.$class.methods[k]) {
-                throw new Error('Class "' + target.prototype.$name + '" does not implement abstract class "' + this.prototype.$name + '" correctly, method "' + k + '" was not found.');
+        for (key in this.$abstract.methods) {
+
+            value = this.$abstract.methods[key];
+
+            if (!target.$class.methods[key]) {
+                throw new Error('Class "' + target.prototype.$name + '" does not implement abstract class "' + this.prototype.$name + '" correctly, method "' + key + '" was not found.');
             }
-            if (!isFunctionCompatible(target.$class.methods[k], value)) {
-                throw new Error('Method "' + k + '(' + target.$class.methods[k].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in abstract class "' + this.prototype.$name + '": "' + k + '(' + value.signature + ').');
+            if (!isFunctionCompatible(target.$class.methods[key], value)) {
+                throw new Error('Method "' + key + '(' + target.$class.methods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in abstract class "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
             }
-        }, this);
+        }
 
         // Check static functions
-        forOwn(this.$abstract.staticMethods, function (value, k) {
-            if (!target.$class.staticMethods[k]) {
-                throw new Error('Class "' + target.prototype.$name + '" does not implement abstract class "' + this.prototype.$name + '" correctly, static method "' + k + '" was not found.');
+        for (key in this.$abstract.staticMethods) {
+
+            value = this.$abstract.staticMethods[key];
+
+            if (!target.$class.staticMethods[key]) {
+                throw new Error('Class "' + target.prototype.$name + '" does not implement abstract class "' + this.prototype.$name + '" correctly, static method "' + key + '" was not found.');
             }
-            if (!isFunctionCompatible(target.$class.staticMethods[k], value)) {
-                throw new Error('Static method "' + k + '(' + target.$class.staticMethods[k].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in abstract class "' + this.prototype.$name + '": "' + k + '(' + value.signature + ').');
+            if (!isFunctionCompatible(target.$class.staticMethods[key], value)) {
+                throw new Error('Static method "' + key + '(' + target.$class.staticMethods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in abstract class "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
             }
-        }, this);
+        }
     }
 
     /**
@@ -142,9 +149,11 @@ define([
 
         checkKeywords(abstracts);
 
-        var optsStatic = { isStatic: true };
+        var optsStatic = { isStatic: true },
+            key,
+            value;
 
-        forOwn(abstracts, function (value, key) {
+        for (key in abstracts) {
 
             if (key === '$statics') {
 
@@ -154,7 +163,9 @@ define([
 
                 checkKeywords(abstracts.$statics, 'statics');
 
-                forOwn(abstracts.$statics, function (value, key) {
+                for (key in abstracts.$statics) {
+
+                    value = abstracts.$statics[key];
 
                     // Check if it is not a function
                     if (!isFunction(value) || value.$interface || value.$class) {
@@ -162,9 +173,11 @@ define([
                     }
 
                     addMethod(key, value, constructor, optsStatic);
-                });
+                }
 
             } else {
+
+                value = abstracts[key];
 
                 // Check if it is not a function
                 if (!isFunction(value) || value.$interface || value.$class) {
@@ -173,7 +186,7 @@ define([
 
                 addMethod(key, value, constructor);
             }
-        });
+        }
     }
 
     /**
@@ -187,28 +200,8 @@ define([
         var interfs = toArray(interfaces),
             x = interfs.length,
             interf,
-            grabMethods = function (value, key) {
-
-                // Check if method is already defined as abstract and is compatible
-                if (constructor.$abstract.methods[key]) {
-                    if (!isFunctionCompatible(constructor.$abstract.methods[key], value)) {
-                        throw new Error('Method "' + key + '( ' + value.signature + ')" described in interface "' + interf.prototype.$name + '" is not compatible with the one already defined in "' + constructor.prototype.$name + '": "' + key + '(' + constructor.$abstract.methods[key].signature + ')".');
-                    }
-                } else {
-                    constructor.$abstract.methods[key] = interf.$interface.methods[key];
-                }
-            },
-            grabStaticMethods = function (value, key) {
-
-                // Check if method is already defined as abstract and is compatible
-                if (constructor.$abstract.staticMethods[key]) {
-                    if (!isFunctionCompatible(constructor.$abstract.staticMethods[key], value)) {
-                        throw new Error('Static method "' + key + '( ' + value.signature + ')" described in interface "' + interf.prototype.$name + '" is not compatible with the one already defined in "' + constructor.prototype.$name + '": "' + key + '(' + constructor.$abstract.staticMethods[key].signature + ')".');
-                    }
-                } else {
-                    constructor.$abstract.staticMethods[key] = value;
-                }
-            };
+            key,
+            value;
 
         // Verify argument type
         if (!x && !isArray(interfs)) {
@@ -225,10 +218,34 @@ define([
             }
 
             // Grab methods
-            forOwn(interf.$interface.methods, grabMethods);
+            for (key in interf.$interface.methods) {
+
+                value = interf.$interface.methods[key];
+
+                 // Check if method is already defined as abstract and is compatible
+                if (constructor.$abstract.methods[key]) {
+                    if (!isFunctionCompatible(constructor.$abstract.methods[key], value)) {
+                        throw new Error('Method "' + key + '( ' + value.signature + ')" described in interface "' + interf.prototype.$name + '" is not compatible with the one already defined in "' + constructor.prototype.$name + '": "' + key + '(' + constructor.$abstract.methods[key].signature + ')".');
+                    }
+                } else {
+                    constructor.$abstract.methods[key] = interf.$interface.methods[key];
+                }
+            }
 
             // Grab static methods
-            forOwn(interf.$interface.staticMethods, grabStaticMethods);
+            for (key in interf.$interface.staticMethods) {
+
+                value = interf.$interface.staticMethods[key];
+
+                // Check if method is already defined as abstract and is compatible
+                if (constructor.$abstract.staticMethods[key]) {
+                    if (!isFunctionCompatible(constructor.$abstract.staticMethods[key], value)) {
+                        throw new Error('Static method "' + key + '( ' + value.signature + ')" described in interface "' + interf.prototype.$name + '" is not compatible with the one already defined in "' + constructor.prototype.$name + '": "' + key + '(' + constructor.$abstract.staticMethods[key].signature + ')".');
+                    }
+                } else {
+                    constructor.$abstract.staticMethods[key] = value;
+                }
+            }
 
             // Add it to the interfaces array
             constructor.$class.interfaces.push(interf);

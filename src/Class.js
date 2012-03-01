@@ -21,7 +21,6 @@ define([
     'Utils/lang/createObject',
     'Utils/object/mixIn',
     'Utils/object/hasOwn',
-    'Utils/object/forOwn',
     'Utils/array/combine',
 //>>excludeStart('strict', pragmas.strict);
     'Utils/array/append',
@@ -49,7 +48,6 @@ define([
     createObject,
     mixIn,
     hasOwn,
-    forOwn,
     combine,
 //>>excludeStart('strict', pragmas.strict);
     append,
@@ -271,49 +269,17 @@ define([
             var current,
                 mixins = toArray(constructor.prototype.$borrows),
                 i = mixins.length,
-                optsStatic = { isStatic: true },
-                grabMethod = function (value, key) {
-                    if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
-                        addMethod(key, value.implementation || current[key], constructor);
-                    }
-                },
-                grabProperty = function (value, key) {
-                    if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
-                        addProperty(key, value.value, constructor);
-                    }
-                },
-                grabStaticMethod = function (value, key) {
-                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
-                        addMethod(key, value.implementation || current.$constructor[key], constructor, optsStatic);
-                    }
-                },
-                grabStaticProperty = function (value, key) {
-                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
-                        addProperty(key, value.value, constructor, optsStatic);
-                    }
-                };
+                key,
+                value,
+                optsStatic = { isStatic: true };
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
             var current,
                 k,
                 key,
+                value,
                 mixins = toArray(constructor.prototype.$borrows),
-                i = mixins.length,
-                grabMember = function (value, key) {
-                    if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
-                        constructor.prototype[key] = value;
-                        if (isFunction(value) && !value.$class && !value.$interface) {
-                            value['$prototype_' + constructor.$class.id] = constructor.prototype;
-                            value.$name = key;
-                        }
-                    }
-                },
-                grabStaticProperty = function (value, key) {
-                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
-                        constructor[key] = cloneProperty(value);
-                        constructor.$class.staticProperties[key] = value;
-                    }
-                };
+                i = mixins.length;
 //>>excludeEnd('strict');
 
 //>>includeStart('strict', pragmas.strict);
@@ -356,17 +322,46 @@ define([
                 current = isObject(mixins[i]) ? Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
 
                 // Grab mixin members
-                forOwn(current, grabMember);
+                for (key in current) {
+
+                    value = current[key];
+
+                    if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
+                        constructor.prototype[key] = value;
+                        if (isFunction(value) && !value.$class && !value.$interface) {
+                            value['$prototype_' + constructor.$class.id] = constructor.prototype;
+                            value.$name = key;
+                        }
+                    }
+                }
 
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
                 // Grab mixin members
-                forOwn(current.$constructor.$class.methods, grabMethod);
-                forOwn(current.$constructor.$class.properties, grabProperty);
+                for (key in current.$constructor.$class.methods) {
+                    if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
+                        addMethod(key, current.$constructor.$class.methods[key].implementation || current[key], constructor);
+                    }
+                }
+
+                for (key in current.$constructor.$class.properties) {
+                    if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
+                        addProperty(key, current.$constructor.$class.properties[key].value, constructor);
+                    }
+                }
 
                 // Grab mixin static members
-                forOwn(current.$constructor.$class.staticMethods, grabStaticMethod);
-                forOwn(current.$constructor.$class.staticProperties, grabStaticProperty);
+                for (key in current.$constructor.$class.staticMethods) {
+                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
+                        addMethod(key, current.$constructor.$class.staticMethods[key].implementation || current.$constructor[key], constructor, optsStatic);
+                    }
+                }
+
+                for (key in current.$constructor.$class.staticProperties) {
+                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
+                        addProperty(key, current.$constructor.$class.staticProperties[key].value, constructor, optsStatic);
+                    }
+                }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
                 // Grab mixin static methods
@@ -381,7 +376,15 @@ define([
                 }
 
                 // Grab mixin static properties
-                forOwn(current.$constructor.$class.staticProperties, grabStaticProperty);
+                for (key in current.$constructor.$class.staticProperties) {
+
+                    value = current.$constructor.$class.staticProperties[key];
+
+                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
+                        constructor.$class.staticProperties[key] = value;
+                        constructor[key] = cloneProperty(value);
+                    }
+                }
 //>>excludeEnd('strict');
 
                 // Merge the binds
@@ -489,12 +492,19 @@ define([
      */
     function parseMembers(params, constructor) {
 
+//>>excludeStart('strict', pragmas.strict);
+        var key,
+            value;
+
+//>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
-        var optsStatic = { isStatic: true };
+        var optsStatic = { isStatic: true },
+            key,
+            value;
 
         // Add each method metadata, verifying its signature
 //>>includeEnd('strict');
-        forOwn(params, function (value, key) {
+        for (key in params) {
 
             if (key === '$statics') {
 
@@ -506,7 +516,10 @@ define([
                 checkKeywords(params.$statics, 'statics');
 
 //>>includeEnd('strict');
-                forOwn(params.$statics, function (value, key) {
+                for (key in params.$statics) {
+
+                    value = params.$statics[key];
+
 //>>includeStart('strict', pragmas.strict);
                     if (isFunction(value) && !value.$class && !value.$interface) {
                         addMethod(key, value, constructor, optsStatic);
@@ -525,11 +538,14 @@ define([
 
                     constructor[key] = value;
 //>>excludeEnd('strict');
-                });
+                }
 
                 delete constructor.prototype.$statics;
 
             } else {
+
+                value = params[key];
+
                 // TODO: Maybe we could improve this be storing this in the constructor itself and then deleting it
                 if (key !== '$constructor' && key !== '$self' && key !== '$static' && key !== '$name' && key !== 'Binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts') {
 //>>includeStart('strict', pragmas.strict);
@@ -547,7 +563,7 @@ define([
 //>>excludeEnd('strict');
                 }
             }
-        });
+        }
     }
 
     /**
@@ -884,15 +900,17 @@ define([
      */
     function protectInstance(instance) {
 
+        var key;
+
         obfuscateProperty(instance, cacheKeyword, { properties: {}, methods: {} });
 
-        forOwn(instance.$constructor.$class.methods, function (value, key) {
-            protectMethod(key, value, instance);
-        });
+        for (key in instance.$constructor.$class.methods) {
+            protectMethod(key, instance.$constructor.$class.methods[key], instance);
+        }
 
-        forOwn(instance.$constructor.$class.properties, function (value, key) {
-            protectProperty(key, value, instance);
-        });
+        for (key in instance.$constructor.$class.properties) {
+            protectProperty(key, instance.$constructor.$class.properties[key], instance);
+        }
     }
 
     /**
@@ -904,15 +922,17 @@ define([
      */
     function protectConstructor(constructor) {
 
+        var key;
+
         obfuscateProperty(constructor, cacheKeyword, { properties: {}, methods: {} });
 
-        forOwn(constructor.$class.staticMethods, function (value, key) {
-            protectStaticMethod(key, value, constructor);
-        });
+        for (key in constructor.$class.staticMethods) {
+            protectStaticMethod(key, constructor.$class.staticMethods[key], constructor);
+        }
 
-        forOwn(constructor.$class.staticProperties, function (value, key) {
-            protectStaticProperty(key, value, constructor);
-        });
+        for (key in constructor.$class.staticProperties) {
+            protectStaticProperty(key, constructor.$class.staticProperties[key], constructor);
+        }
 
         // Prevent any properties/methods to be added and deleted
         if (isFunction(Object.seal)) {
@@ -1008,8 +1028,9 @@ define([
     function inheritParent(constructor, parent) {
 
         var x,
-            binds = parent.$class.binds;
-
+            binds = parent.$class.binds,
+            key,
+            value;
 
         // Inherit binds
         for (x = binds.length - 1; x >= 0; x -= 1) {
@@ -1028,39 +1049,48 @@ define([
             }
         }
 
-        forOwn(parent.$class.staticProperties, function (value, k) {
-            if (k.substr(0, 2) !== '__') {
-                constructor.$class.staticProperties[k] = value;
-                constructor[k] = cloneProperty(constructor.$class.staticProperties[k]);
+        for (key in parent.$class.staticProperties) {
+
+            value = parent.$class.staticProperties[key];
+
+            if (key.substr(0, 2) !== '__') {
+                constructor.$class.staticProperties[key] = value;
+                constructor[key] = cloneProperty(value);
             }
-        });
+        }
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
         inheriting = true;
 
         // Grab methods and properties definitions
-        forOwn(parent.$class.methods, function (value, k) {
-            constructor.$class.methods[k] = value;
-        });
+        for (key in parent.$class.methods) {
+            constructor.$class.methods[key] = parent.$class.methods[key];
+        }
 
-        forOwn(parent.$class.properties, function (value, k) {
-            constructor.$class.properties[k] = value;
-        });
+        for (key in parent.$class.properties) {
+            constructor.$class.properties[key] = parent.$class.properties[key];
+        }
 
         // Inherit static methods and properties
-        forOwn(parent.$class.staticMethods, function (value, k) {
-            if (!value.isPrivate) {
-                constructor.$class.staticMethods[k] = value;
-                constructor[k] = parent[k];
-            }
-        });
+        for (key in parent.$class.staticMethods) {
 
-        forOwn(parent.$class.staticProperties, function (value, k) {
+            value = parent.$class.staticMethods[key];
+
             if (!value.isPrivate) {
-                constructor.$class.staticProperties[k] = value;
-                constructor[k] = cloneProperty(constructor.$class.staticProperties[k].value);
+                constructor.$class.staticMethods[key] = value;
+                constructor[key] = parent[key];
             }
-        });
+        }
+
+        for (key in parent.$class.staticProperties) {
+
+            value = parent.$class.staticProperties[key];
+
+            if (!value.isPrivate) {
+                constructor.$class.staticProperties[key] = value;
+                constructor[key] = cloneProperty(value.value);
+            }
+        }
 
         inheriting = false;
 //>>includeEnd('strict');

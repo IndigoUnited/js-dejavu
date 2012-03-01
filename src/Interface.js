@@ -1,4 +1,4 @@
-/*jslint sloppy:true*/
+/*jslint sloppy:true, forin:true*/
 /*global define*/
 
 define([
@@ -13,7 +13,6 @@ define([
     'Utils/array/compact',
     'Utils/object/mixIn',
     'Utils/object/keys',
-    'Utils/object/forOwn',
     './common/checkKeywords',
     './common/functionMeta',
     './common/isFunctionEmpty',
@@ -34,7 +33,6 @@ define([
     compact,
     mixIn,
     keys,
-    forOwn,
     checkKeywords,
     functionMeta,
     isFunctionEmpty,
@@ -47,7 +45,7 @@ define([
 
 //>>includeStart('strict', pragmas.strict);
     checkObjectPrototype();
-    
+
     /**
      * Checks if an interface is well implemented in a class.
      * In order to this function to work, it must be bound to an interface definition.
@@ -56,25 +54,34 @@ define([
      */
     function checkClass(target) {
 
+        var key,
+            value;
+
         // Check normal functions
-        forOwn(this.$interface.methods, function (value, k) {
-            if (!target.$class.methods[k]) {
-                throw new Error('Class "' + target.prototype.$name + '" does not implement interface "' + this.prototype.$name + '" correctly, method "' + k + '" was not found.');
+        for (key in this.$interface.methods) {
+
+            value = this.$interface.methods[key];
+
+            if (!target.$class.methods[key]) {
+                throw new Error('Class "' + target.prototype.$name + '" does not implement interface "' + this.prototype.$name + '" correctly, method "' + key + '" was not found.');
             }
-            if (!isFunctionCompatible(target.$class.methods[k], value)) {
-                throw new Error('Method "' + k + '(' + target.$class.methods[k].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in interface "' + this.prototype.$name + '": "' + k + '(' + value.signature + ').');
+            if (!isFunctionCompatible(target.$class.methods[key], value)) {
+                throw new Error('Method "' + key + '(' + target.$class.methods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in interface "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
             }
-        }, this);
+        }
 
         // Check static functions
-        forOwn(this.$interface.staticMethods, function (value, k) {
-            if (!target.$class.staticMethods[k]) {
-                throw new Error('Class "' + target.prototype.$name + '" does not implement interface "' + this.prototype.$name + '" correctly, static method "' + k + '" was not found.');
+        for (key in this.$interface.staticMethods) {
+
+            value = this.$interface.staticMethods[key];
+
+            if (!target.$class.staticMethods[key]) {
+                throw new Error('Class "' + target.prototype.$name + '" does not implement interface "' + this.prototype.$name + '" correctly, static method "' + key + '" was not found.');
             }
-            if (!isFunctionCompatible(target.$class.staticMethods[k], value)) {
-                throw new Error('Static method "' + k + '(' + target.$class.staticMethods[k].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in interface "' + this.prototype.$name + '": "' + k + '(' + value.signature + ').');
+            if (!isFunctionCompatible(target.$class.staticMethods[key], value)) {
+                throw new Error('Static method "' + key + '(' + target.$class.staticMethods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in interface "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
             }
-        }, this);
+        }
     }
 
     /**
@@ -157,6 +164,7 @@ define([
             current,
             k,
             i,
+            value,
             duplicate,
             optsStatic,
             interf = function () {
@@ -247,7 +255,7 @@ define([
             throw new Error('Interface "' + params.$name + '" can\'t define the initialize method.');
         }
 
-        forOwn(params, function (value, k) {
+        for (k in params) {
 
             if (k === '$statics') {
 
@@ -257,7 +265,9 @@ define([
 
                 checkKeywords(params.$statics, 'statics');
 
-                forOwn(params.$statics, function (value, k) {
+                for (k in params.$statics) {
+
+                    value = params.$statics[k];
 
                     // Check if it is not a function
                     if (!isFunction(value) || value.$interface || value.$class) {
@@ -265,9 +275,11 @@ define([
                     }
 
                     addMethod(k, value, interf, optsStatic);
-                });
+                }
 
             } else if (k !== '$name') {
+
+                value = params[k];
 
                 // Check if it is not a function
                 if (!isFunction(value) || value.$interface || value.$class) {
@@ -276,7 +288,7 @@ define([
 
                 addMethod(k, value, interf);
             }
-        });
+        }
 
 //>>includeEnd('strict');
 

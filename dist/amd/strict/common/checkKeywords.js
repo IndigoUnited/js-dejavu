@@ -1,15 +1,13 @@
-/*jslint sloppy:true*/
+/*jslint sloppy:true, forin:true*/
 /*global define*/
 
 define([
-    'Utils/object/forOwn',
     'Utils/array/contains'
 ], function (
-    forOwn,
     contains
 ) {
     var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
-        reserved$statics = ['$class', '$abstract', '$interface', '$parent', '$super'];
+        reservedStatics = ['$class', '$abstract', '$interface', '$parent', '$super'];
 
     /**
      * Verify reserved words found in classes/interfaces.
@@ -24,13 +22,15 @@ define([
      */
     function checkKeywords(object, type) {
 
-        var reserved = type === 'normal' || !type ? reservedNormal : reserved$statics;
+        var reserved = type === 'normal' || !type ? reservedNormal : reservedStatics,
+            key;
 
-        forOwn(object, function (value, key) {
+        for (key in object) {
+
             if (contains(reserved, key) || Object.prototype[key]) {
                 throw new TypeError('"' + object.$name + '" is using a reserved keyword: ' + key);
             }
-        });
+        }
     }
 
     return checkKeywords;
