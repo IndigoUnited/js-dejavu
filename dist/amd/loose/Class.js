@@ -153,9 +153,9 @@ define([
 
         forOwn(params, function (value, key) {
 
-            if (key === 'Statics') {
+            if (key === '$statics') {
 
-                forOwn(params.Statics, function (value, key) {
+                forOwn(params.$statics, function (value, key) {
                     if (isFunction(value) && !value.$class && !value.$interface) {
                         insert(constructor.$class.staticMethods, key);
                         value['$constructor_' + constructor.$class.id] = constructor;
@@ -167,7 +167,7 @@ define([
                     constructor[key] = value;
                 });
 
-                delete constructor.prototype.Statics;
+                delete constructor.prototype.$statics;
 
             } else {
                 // TODO: Maybe we could improve this be storing this in the constructor itself and then deleting it

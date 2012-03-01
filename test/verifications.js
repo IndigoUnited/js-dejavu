@@ -121,7 +121,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        Statics: {
+                        $statics: {
                             some: 'property'
                         }
                     });
@@ -129,7 +129,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        Statics: {
+                        $statics: {
                             some: undefined
                         }
                     });
@@ -137,7 +137,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        Statics: {
+                        $statics: {
                             some: null
                         }
                     });
@@ -168,7 +168,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        Statics: {
+                        $statics: {
                             some: function (b) {
                             }
                         }
@@ -177,7 +177,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        Statics: {
+                        $statics: {
                             some: function (a) {
 
                                 // Some code in here
@@ -213,7 +213,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        Statics: {
+                        $statics: {
                             some: Class({})
                         }
                     });
@@ -221,7 +221,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        Statics: {
+                        $statics: {
                             some: new AbstractClass({})
                         }
                     });
@@ -229,7 +229,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        Statics: {
+                        $statics: {
                             some: new Interface({})
                         }
                     });
@@ -249,7 +249,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        Statics: {
+                        $statics: {
                             method1: function (a) {}
                         }
                     });
@@ -257,7 +257,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        Statics: {
+                        $statics: {
                             method1: function (a) { }
                         }
                     });
@@ -275,7 +275,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        Statics: {
+                        $statics: {
                             method1: function ($a, b) {}
                         }
                     });
@@ -283,29 +283,29 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
-            it('should throw an error if Statics is not an object', function () {
+            it('should throw an error if $statics is not an object', function () {
 
                 expect(function () {
                     return Interface({
-                        Statics: 'wtf'
+                        $statics: 'wtf'
                     });
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return Interface({
-                        Statics: undefined
+                        $statics: undefined
                     });
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return Interface({
-                        Statics: null
+                        $statics: null
                     });
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return Interface({
-                        Statics: {}
+                        $statics: {}
                     });
                 }).to.not.throwException();
 
@@ -325,8 +325,8 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     },
                     checkStatic = function (key) {
                         return function () {
-                            var obj = {Statics: {}};
-                            obj.Statics[key] = 'bla';
+                            var obj = {$statics: {}};
+                            obj.$statics[key] = 'bla';
                             return Interface(obj);
                         };
                     };
@@ -349,7 +349,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        Statics: {
+                        $statics: {
                             hasOwnProperty: function () {}
                         }
                     });
@@ -407,12 +407,12 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Interface({
                         $extends: [
                             new Interface({
-                                Statics: {
+                                $statics: {
                                     method1: function () {}
                                 }
                             }),
                             new Interface({
-                                Statics: {
+                                $statics: {
                                     method1: function (a) {}
                                 }
                             })
@@ -424,17 +424,17 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Interface({
                         $extends: [
                             new Interface({
-                                Statics: {
+                                $statics: {
                                     method1: function (a) {}
                                 }
                             }),
                             new Interface({
-                                Statics: {
+                                $statics: {
                                     method1: function (a, b) {}
                                 }
                             })
                         ],
-                        Statics: {
+                        $statics: {
                             method1: function (a, b) {}
                         }
                     });
@@ -455,17 +455,17 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Interface({
                         $extends: [
                             new Interface({
-                                Statics: {
+                                $statics: {
                                     method1: function (a, $b) {}
                                 }
                             }),
                             new Interface({
-                                Statics: {
+                                $statics: {
                                     method1: function (a) {}
                                 }
                             })
                         ],
-                        Statics: {
+                        $statics: {
                             method1: function (a, $b) {}
                         }
                     });
@@ -487,11 +487,11 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Interface({
                         $extends: Interface({
-                            Statics: {
+                            $statics: {
                                 method1: function () {}
                             }
                         }),
-                        Statics: {
+                        $statics: {
                             method1: function (a) {}
                         }
                     });
@@ -509,11 +509,11 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Interface({
                         $extends: Interface({
-                            Statics: {
+                            $statics: {
                                 method1: function (a, $b) {}
                             }
                         }),
-                        Statics: {
+                        $statics: {
                             method1: function (a, b) {}
                         }
                     });
@@ -531,11 +531,11 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Interface({
                         $extends: Interface({
-                            Statics: {
+                            $statics: {
                                 method1: function (a, $b) {}
                             }
                         }),
-                        Statics: {
+                        $statics: {
                             method1: function (a, $b) {}
                         }
                     });
@@ -553,11 +553,11 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Interface({
                         $extends: Interface({
-                            Statics: {
+                            $statics: {
                                 method1: function (a, $b) {}
                             }
                         }),
-                        Statics: {
+                        $statics: {
                             method1: function (a, $b, $c) {}
                         }
                     });
@@ -581,7 +581,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        Statics: {
+                        $statics: {
                             __privateMethod: function () {}
                         }
                     });
@@ -589,7 +589,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        Statics: {
+                        $statics: {
                             _protectedMethod: function () {}
                         }
                     });
@@ -715,29 +715,29 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
-            it('should throw an error if Statics is not an object', function () {
+            it('should throw an error if $statics is not an object', function () {
 
                 expect(function () {
                     return Class({
-                        Statics: 'wtf'
+                        $statics: 'wtf'
                     });
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return Class({
-                        Statics: undefined
+                        $statics: undefined
                     });
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return Class({
-                        Statics: null
+                        $statics: null
                     });
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
                     return Class({
-                        Statics: {}
+                        $statics: {}
                     });
                 }).to.not.throwException();
 
@@ -753,7 +753,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Class({
-                        Statics: {
+                        $statics: {
                             method1: function ($a, b) {}
                         }
                     });
@@ -1282,22 +1282,22 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         method1: function (a, $b) {}
                     }),
                     Interface5 = Interface({
-                        Statics: {
+                        $statics: {
                             method1: function (a) {}
                         }
                     }),
                     Interface6 = Interface({
-                        Statics: {
+                        $statics: {
                             method1: function (a) {}
                         }
                     }),
                     Interface7 = Interface({
-                        Statics: {
+                        $statics: {
                             method1: function (a, b) {}
                         }
                     }),
                     Interface8 = Interface({
-                        Statics: {
+                        $statics: {
                             method1: function (a, $b) {}
                         }
                     });
@@ -1347,7 +1347,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Class({
                         $implements: Interface5,
-                        Statics: {
+                        $statics: {
                             method1: function () {}
                         }
                     });
@@ -1356,7 +1356,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Class({
                         $implements: [Interface5, Interface7],
-                        Statics: {
+                        $statics: {
                             method1: function (a) {}
                         }
                     });
@@ -1365,7 +1365,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Class({
                         $implements: Interface8,
-                        Statics: {
+                        $statics: {
                             method1: function (a) {}
                         }
                     });
@@ -1384,11 +1384,11 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         $implements: [Interface5, Interface7],
                         $borrows: {
-                            Statics: {
+                            $statics: {
                                 method1: function (a) {}
                             }
                         },
-                        Statics: {
+                        $statics: {
                             method1: function (a) {}
                         }
                     });
@@ -1397,7 +1397,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Class({
                         $implements: [Interface5, Interface6],
-                        Statics: {
+                        $statics: {
                             method1: function (a) {}
                         }
                     });
@@ -1406,7 +1406,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Class({
                         $implements: Interface5,
-                        Statics: {
+                        $statics: {
                             method1: function (a, $b) {}
                         }
                     });
@@ -1415,7 +1415,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Class({
                         $implements: Interface5,
-                        Statics: {
+                        $statics: {
                             method1: function (a, $b, $c) {}
                         }
                     });
@@ -1443,7 +1443,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return AbstractClass({
                         $implements: Interface8,
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 method1: function (a) {}
                             }
                         }
@@ -1602,12 +1602,12 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
-            it('should throw an error if Statics inside $abstracts is not an object', function () {
+            it('should throw an error if $statics inside $abstracts is not an object', function () {
 
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: 'wtf'
+                            $statics: 'wtf'
                         }
                     });
                 }).to.throwException(/must be an object/);
@@ -1615,7 +1615,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: undefined
+                            $statics: undefined
                         }
                     });
                 }).to.throwException(/must be an object/);
@@ -1623,7 +1623,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: null
+                            $statics: null
                         }
                     });
                 }).to.throwException(/must be an object/);
@@ -1631,7 +1631,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: {}
+                            $statics: {}
                         }
                     });
                 }).to.not.throwException();
@@ -1667,7 +1667,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 some: 'wtf'
                             }
                         }
@@ -1677,7 +1677,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 some: undefined
                             }
                         }
@@ -1687,7 +1687,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 some: null
                             }
                         }
@@ -1724,7 +1724,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 some: function (b) {
                                 }
                             }
@@ -1735,7 +1735,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 some: function (a) {
 
                                     // Some code in here
@@ -1779,7 +1779,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 some: Class({})
                             }
                         }
@@ -1789,7 +1789,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 some: new AbstractClass({})
                             }
                         }
@@ -1799,7 +1799,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 some: new Interface({})
                             }
                         }
@@ -1825,7 +1825,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 method1: function (a) {}
                             }
                         }
@@ -1835,7 +1835,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 method1: function (a) { }
                             }
                         }
@@ -1857,7 +1857,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 method1: function ($a, b) {}
                             }
                         }
@@ -1885,13 +1885,13 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return AbstractClass({
                         $extends: AbstractClass({
                             $abstracts: {
-                                Statics: {
+                                $statics: {
                                     method1: function () {}
                                 }
                             }
                         }),
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 method1: function (a) {}
                             }
                         }
@@ -1915,13 +1915,13 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return AbstractClass({
                         $extends: AbstractClass({
                             $abstracts: {
-                                Statics: {
+                                $statics: {
                                     method1: function (a, $b) {}
                                 }
                             }
                         }),
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 method1: function (a, b) {}
                             }
                         }
@@ -1945,13 +1945,13 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return AbstractClass({
                         $extends: AbstractClass({
                             $abstracts: {
-                                Statics: {
+                                $statics: {
                                     method1: function (a, $b) {}
                                 }
                             }
                         }),
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 method1: function (a, $b) {}
                             }
                         }
@@ -1975,13 +1975,13 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return AbstractClass({
                         $extends: AbstractClass({
                             $abstracts: {
-                                Statics: {
+                                $statics: {
                                     method1: function (a, $b) {}
                                 }
                             }
                         }),
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 method1: function (a, $b, $c) {}
                             }
                         }
@@ -2003,11 +2003,11 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return AbstractClass({
-                        Statics: {
+                        $statics: {
                             some: function () {}
                         },
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 some: function () {}
                             }
                         }
@@ -2039,12 +2039,12 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $extends: Class({
-                            Statics: {
+                            $statics: {
                                 some: function () {}
                             }
                         }),
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 some: function () {}
                             }
                         }
@@ -2054,12 +2054,12 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $extends: AbstractClass({
-                            Statics: {
+                            $statics: {
                                 some: function () {}
                             }
                         }),
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 some: function () {}
                             }
                         }
@@ -2074,7 +2074,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     var AbstractExample = AbstractClass({
                         $abstracts: {
                             someMethod: function () {},
-                            Statics: {
+                            $statics: {
                                 someStaticMethod: function () {}
                             }
                         }
@@ -2113,8 +2113,8 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     },
                     checkStatic = function (key, in$abstracts) {
                         return function () {
-                            var obj = {Statics: {}};
-                            obj.Statics[key] = 'bla';
+                            var obj = {$statics: {}};
+                            obj.$statics[key] = 'bla';
                             return AbstractClass(!!in$abstracts ? {$abstracts: obj} : obj);
                         };
                     };
@@ -2137,7 +2137,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return AbstractClass({
-                        Statics: {
+                        $statics: {
                             hasOwnProperty: function () {}
                         }
                     });
@@ -2154,7 +2154,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            Statics: {
+                            $statics: {
                                 hasOwnProperty: function () {}
                             }
                         }
@@ -2176,7 +2176,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
             function createSomeInterface() {
                 SomeInterface = Interface({        // Simple interface
                     someMethod: function () {},
-                    Statics: {
+                    $statics: {
                         staticMethod: function () {}
                     }
                 });
@@ -2185,7 +2185,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
             function createOtherInterface() {
                 OtherInterface = Interface({       // Other interface with different methods
                     extraMethod: function () {},
-                    Statics: {
+                    $statics: {
                         extraStaticMethod: function () {}
                     }
                 });
@@ -2196,7 +2196,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 ExtendedInterface = Interface({    // Interface that extends another
                     $extends: SomeInterface,
                     otherMethod: function () {},
-                    Statics: {
+                    $statics: {
                         otherStaticMethod: function () {}
                     }
                 });
@@ -2214,7 +2214,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     $extends: SomeAbstractClass,
                     $abstracts: {
                         otherMethod: function () {},
-                        Statics: {
+                        $statics: {
                             otherStaticMethod: function () {}
                         }
                     }
@@ -2247,7 +2247,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         $implements: [SomeInterface],
                         someMethod: function () {},
-                        Statics: {
+                        $statics: {
                             weirdStaticMethod: function () {}
                             // miss staticMethod()
                         }
@@ -2260,7 +2260,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: [ExtendedInterface],
                         otherMethod: function () {},
                         // miss someMethod()
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             otherStaticMethod: function () {}
                         }
@@ -2273,7 +2273,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: [ExtendedInterface],
                         someMethod: function () {},
                         // miss someMethod()
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             otherStaticMethod: function () {}
                         }
@@ -2286,7 +2286,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: [ExtendedInterface],
                         someMethod: function () {},
                         otherMethod: function () {},
-                        Statics: {
+                        $statics: {
                             otherStaticMethod: function () {}
                             // miss staticMethod()
                         }
@@ -2299,7 +2299,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: [ExtendedInterface],
                         someMethod: function () {},
                         otherMethod: function () {},
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {}
                             // miss otherStaticMethod()
                         }
@@ -2313,7 +2313,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: [SomeInterface, OtherInterface],
                         someMethod: function () {},
                         extraMethod: function () {},
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {}
                             // missing extraStaticMethod()
                         }
@@ -2327,7 +2327,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: [SomeInterface, OtherInterface],
                         extraMethod: function () {},
                         someMethod: function () {},
-                        Statics: {
+                        $statics: {
                             // missing staticMethod()
                             extraStaticMethod: function () {}
                         }
@@ -2341,7 +2341,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: [SomeInterface, OtherInterface],
                         extraMethod: function () {},
                         // missing someMethod()
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             extraStaticMethod: function () {}
                         }
@@ -2355,7 +2355,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: [SomeInterface, OtherInterface],
                         someMethod: function () {},
                         // missing extraMethod()
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             extraStaticMethod: function () {}
                         }
@@ -2370,7 +2370,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         extraMethod: function () {},
                         otherMethod: function () {},
                         someMethod: function () {},
-                        Statics: {
+                        $statics: {
                             // missing staticMethod()
                             otherStaticMethod: function () {},
                             extraStaticMethod: function () {}
@@ -2386,7 +2386,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         otherMethod: function () {},
                         someMethod: function () {},
                         // missing extraMethod()
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             otherStaticMethod: function () {},
                             extraStaticMethod: function () {}
@@ -2418,7 +2418,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         $extends: SomeAbstractClass,
                         someMethod: function () {},
-                        Statics: {
+                        $statics: {
                             weirdStaticMethod: function () {}
                             // miss staticMethod()
                         }
@@ -2432,7 +2432,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $extends: ExtendedAbstractClass,
                         otherMethod: function () {},
                         // miss someMethod()
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             otherStaticMethod: function () {}
                         }
@@ -2445,7 +2445,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $extends: ExtendedAbstractClass,
                         someMethod: function () {},
                         // miss otherMethod()
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             otherStaticMethod: function () {}
                         }
@@ -2458,7 +2458,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $extends: ExtendedAbstractClass,
                         someMethod: function () {},
                         otherMethod: function () {},
-                        Statics: {
+                        $statics: {
                             otherStaticMethod: function () {}
                             // miss staticMethod()
                         }
@@ -2471,7 +2471,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $extends: ExtendedAbstractClass,
                         someMethod: function () {},
                         otherMethod: function () {},
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {}
                             // miss otherStaticMethod()
                         }
@@ -2486,7 +2486,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: [OtherInterface],
                         someMethod: function () {},
                         extraMethod: function () {},
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {}
                             // missing extraStaticMethod()
                         }
@@ -2501,7 +2501,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: [OtherInterface],
                         extraMethod: function () {},
                         someMethod: function () {},
-                        Statics: {
+                        $statics: {
                             // missing staticMethod()
                             extraStaticMethod: function () {}
                         }
@@ -2516,7 +2516,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: [OtherInterface],
                         extraMethod: function () {},
                         // missing someMethod()
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             extraStaticMethod: function () {}
                         }
@@ -2531,7 +2531,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: [OtherInterface],
                         someMethod: function () {},
                         // missing extraMethod()
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             extraStaticMethod: function () {}
                         }
@@ -2547,7 +2547,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         extraMethod: function () {},
                         otherMethod: function () {},
                         someMethod: function () {},
-                        Statics: {
+                        $statics: {
                             // missing staticMethod()
                             otherStaticMethod: function () {},
                             extraStaticMethod: function () {}
@@ -2564,7 +2564,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         otherMethod: function () {},
                         someMethod: function () {},
                         // missing extraMethod()
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             otherStaticMethod: function () {},
                             extraStaticMethod: function () {}
@@ -2586,7 +2586,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         $extends: AbstractClass({
                             $abstracts: {
-                                Statics: {
+                                $statics: {
                                     _protectedMethod: function () {}
                                 }
                             }
@@ -2609,12 +2609,12 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         $extends: AbstractClass({
                             $abstracts: {
-                                Statics: {
+                                $statics: {
                                     _protectedMethod: function () {}
                                 }
                             }
                         }),
-                        Statics: {
+                        $statics: {
                             _protectedMethod: function () {}
                         }
                     });
@@ -2633,7 +2633,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         $extends: AbstractClass({
                             $abstracts: {
-                                Statics: {
+                                $statics: {
                                     _protectedMethod: function () {}
                                 }
                             }
@@ -2656,12 +2656,12 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         $extends: AbstractClass({
                             $abstracts: {
-                                Statics: {
+                                $statics: {
                                     _protectedMethod: function () {}
                                 }
                             }
                         }),
-                        Statics: {
+                        $statics: {
                             _protectedMethod: function () {}
                         }
                     });
@@ -2676,7 +2676,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         $implements: [SomeInterface],
                         someMethod: function () {},
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {}
                         }
                     });
@@ -2688,7 +2688,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: [ExtendedInterface],
                         someMethod: function () {},
                         otherMethod: function () {},
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             otherStaticMethod: function () {}
                         }
@@ -2702,7 +2702,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: [SomeInterface, OtherInterface],
                         someMethod: function () {},
                         extraMethod: function () {},
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             extraStaticMethod: function () {}
                         }
@@ -2717,7 +2717,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         someMethod: function () {},
                         otherMethod: function () {},
                         extraMethod: function () {},
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             otherStaticMethod: function () {},
                             extraStaticMethod: function () {}
@@ -2731,7 +2731,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         $extends: SomeAbstractClass,
                         someMethod: function () {},
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {}
                         }
                     });
@@ -2743,7 +2743,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $extends: ExtendedAbstractClass,
                         someMethod: function () {},
                         otherMethod: function () {},
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             otherStaticMethod: function () {}
                         }
@@ -2758,7 +2758,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: [OtherInterface],
                         someMethod: function () {},
                         extraMethod: function () {},
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             extraStaticMethod: function () {}
                         }
@@ -2774,7 +2774,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         someMethod: function () {},
                         otherMethod: function () {},
                         extraMethod: function () {},
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {},
                             otherStaticMethod: function () {},
                             extraStaticMethod: function () {}
@@ -2798,8 +2798,8 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     },
                     checkStatic = function (key) {
                         return function () {
-                            var obj = {Statics: {}};
-                            obj.Statics[key] = 'bla';
+                            var obj = {$statics: {}};
+                            obj.$statics[key] = 'bla';
                             return Class(obj);
                         };
                     };
@@ -2822,7 +2822,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Class({
-                        Statics: {
+                        $statics: {
                             hasOwnProperty: function () {}
                         }
                     });
@@ -2835,13 +2835,13 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 var Mixin1 = Class({
                     $implements: [SomeInterface],
                     someMethod: function () {},
-                    Statics: {
+                    $statics: {
                         staticMethod: function () {}
                     }
                 }),
                     Mixin2 = {
                         someMethod: function () {},
-                        Statics: {
+                        $statics: {
                             staticMethod: function () {}
                         }
                     };

@@ -146,15 +146,15 @@ define([
 
         forOwn(abstracts, function (value, key) {
 
-            if (key === 'Statics') {
+            if (key === '$statics') {
 
-                if (!isObject(abstracts.Statics)) {
-                    throw new TypeError('Statics definition in $abstracts of abstract class "' + constructor.prototype.$name + '" must be an object.');
+                if (!isObject(abstracts.$statics)) {
+                    throw new TypeError('$statics definition in $abstracts of abstract class "' + constructor.prototype.$name + '" must be an object.');
                 }
 
-                checkKeywords(abstracts.Statics, 'statics');
+                checkKeywords(abstracts.$statics, 'statics');
 
-                forOwn(abstracts.Statics, function (value, key) {
+                forOwn(abstracts.$statics, function (value, key) {
 
                     // Check if it is not a function
                     if (!isFunction(value) || value.$interface || value.$class) {

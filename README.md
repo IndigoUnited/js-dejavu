@@ -84,7 +84,7 @@ define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Even
         $extends: EventsInterface,   // This interface extends EventsInterface
                                     // Interfaces can extend multiple ones, just reference them in an array
 
-        Statics: {                  // This is how we define statics
+        $statics: {                  // This is how we define statics
             getTotalListeners: function () {}
         }
 
@@ -166,7 +166,7 @@ function (EventsInterface, AbstractClass) {
 
             removeAll: function () {},
 
-            Statics: {                 // We can also define abstract static methods
+            $statics: {                 // We can also define abstract static methods
                 getTotalListeners: function () {}
             }
         }
@@ -203,7 +203,7 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
             // Do other things here
         },
 
-        Statics: {
+        $statics: {
             // Some class static members
         },
 
@@ -211,7 +211,7 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
 
             // Some abstract functions
 
-            Statics: {
+            $statics: {
                 // Some abstract static functions
             }
         }
@@ -266,7 +266,7 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
             // Handle click here
         },
 
-        Statics: {
+        $statics: {
             // Some class static members
         }
     });
@@ -384,7 +384,7 @@ var Example1 = Class({
     foo: function (param1) {
         return this.$self().bar;
     },
-    Statics: {
+    $statics: {
         bar: 'hello'
     }
 });
@@ -393,21 +393,21 @@ var Example2 = Class({
     foo: function (param1) {
         return this.$static().bar;
     },
-    Statics: {
+    $statics: {
         bar: 'hello'
     }
 });
 
 var Example3 = Class({
     $extends: Example1
-    Statics: {
+    $statics: {
         bar: 'bye'
     }
 });
 
 var Example4 = Class({
     $extends: Example2
-    Statics: {
+    $statics: {
         bar: 'bye'
     }
 });

@@ -46,7 +46,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     this.options.option1 = 'test';
                     this.someArray.push('other');
                 },
-                Statics: {
+                $statics: {
                     staticMethod: function () {},
                     staticSome: 'property'
                 }
@@ -100,9 +100,9 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
             });
 
-            it('should not have Statics property', function () {
+            it('should not have $statics property', function () {
 
-                return expect(example.Statics).to.be.equal(undefined);
+                return expect(example.$statics).to.be.equal(undefined);
 
             });
 
@@ -202,7 +202,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 getFull$name: function () {
                     return this._first$name;
                 },
-                Statics: {
+                $statics: {
                     _fruit: 'potato',
                     getFruit: function () {
                         return this._fruit;
@@ -219,7 +219,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     getFull$name: function () {
                         return this.$super() + ' ' + this._last$name;
                     },
-                    Statics: {
+                    $statics: {
                         getFruit: function () {
                             return 'hot ' + this.$super();
                         }
@@ -230,7 +230,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     getFull$name: function () {
                         return 'hi ' + this.$super();
                     },
-                    Statics: {
+                    $statics: {
                         getFruit: function () {
                             return 'hi ' + this.$super();
                         }
@@ -262,7 +262,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 getFruit: function () {
                     return this.$self().getFruitStatic();
                 },
-                Statics: {
+                $statics: {
                     _fruit: 'potato',
                     getFruitStatic: function () {
                         return this._fruit;
@@ -277,7 +277,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     getFruit: function () {
                         return this.$self().getFruitStatic();
                     },
-                    Statics: {
+                    $statics: {
                         _fruit: 'potato',
                         getFruitStatic: function () {
                             return this._fruit;
@@ -304,7 +304,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 getFruit: function () {
                     return this.$static().getFruitStatic();
                 },
-                Statics: {
+                $statics: {
                     _fruit: 'potato',
                     getFruitStatic: function () {
                         return this._fruit;
@@ -319,7 +319,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     getFruit: function () {
                         return this.$static().getFruitStatic();
                     },
-                    Statics: {
+                    $statics: {
                         _fruit: 'potato',
                         getFruitStatic: function () {
                             return this._fruit;
@@ -356,7 +356,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 getPosition: function () {
                     return this.position;
                 },
-                Statics: {
+                $statics: {
                     nrPets: 0,
                     dummy: 'test',
                     getNrPets: function () {
@@ -381,7 +381,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     this.position += 1;
                     this.$super();
                 },
-                Statics: {
+                $statics: {
                     getMaxAge: function () {
                         return 20;
                     }
@@ -585,13 +585,13 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                 var SomeMixin = {
                     method1: function () {},
-                    Statics: {
+                    $statics: {
                         staticMethod1: function () {}
                     }
                 },
                     OtherMixin = Class({
                         method1: function () {},
-                        Statics: {
+                        $statics: {
                             staticMethod1: function () {}
                         }
                     }),
@@ -606,7 +606,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     SomeOtherClass = Class({
                         $borrows: [SomeMixin, OtherMixin],
                         method1: method1,
-                        Statics: {
+                        $statics: {
                             staticMethod1: method2
                         }
                     }),
@@ -617,7 +617,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 expect(someClass.method1).to.be.equal(OtherMixin.prototype.method1);
                 expect(SomeClass.staticMethod1).to.be.equal(OtherMixin.staticMethod1);
                 expect(otherClass.method1).to.be.equal(SomeMixin.method1);
-                expect(OtherClass.staticMethod1).to.be.equal(SomeMixin.Statics.staticMethod1);
+                expect(OtherClass.staticMethod1).to.be.equal(SomeMixin.$statics.staticMethod1);
                 expect(someOtherClass.method1).to.be.equal(method1);
                 expect(SomeOtherClass.staticMethod1).to.be.equal(method2);
 
@@ -810,7 +810,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     this.__privateMethod();
                     return this.__privateProperty;
                 },
-                Statics: {
+                $statics: {
                     callTest: function () {
                         this.__test();
                     },
@@ -892,7 +892,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     expect(function () {
                         var OtherClass = Class({
                             $extends: SomeClass,
-                            Statics: {
+                            $statics: {
                                 some: function () {
                                     this.__funcStatic();
                                 }
@@ -924,7 +924,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     expect((function () {
                         var OtherClass = Class({
                             $extends: SomeClass,
-                            Statics: {
+                            $statics: {
                                 some: function () {
                                     return this.__privateProperty;
                                 }
@@ -944,7 +944,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     expect(function () {
                         var OtherClass = Class({
                             $extends: SomeClass,
-                            Statics: {
+                            $statics: {
                                 __test: function () {}
                             }
                         });
@@ -962,7 +962,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     expect(function () {
                         var OtherClass = Class({
                             $extends: SomeClass,
-                            Statics: {
+                            $statics: {
                                 __test: 'some'
                             }
                         });
@@ -1106,7 +1106,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 _getFruit: function () {
                     return 'potato';
                 },
-                Statics: {
+                $statics: {
                     callTest: function () {
                         this._test();
                     },
@@ -1164,7 +1164,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     expect(function () {
                         var OtherClass = Class({
                             $extends: SomeClass,
-                            Statics: {
+                            $statics: {
                                 some: function () {
                                     this._funcStatic();
                                 }
@@ -1186,7 +1186,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     expect((function () {
                         var OtherClass = Class({
                             $extends: SomeClass,
-                            Statics: {
+                            $statics: {
                                 some: function () {
                                     return this._protectedProperty;
                                 }
@@ -1206,7 +1206,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     expect(function () {
                         var OtherClass = Class({
                             $extends: SomeClass,
-                            Statics: {
+                            $statics: {
                                 _test: function () {}
                             }
                         });
@@ -1224,7 +1224,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     expect(function () {
                         var OtherClass = Class({
                             $extends: SomeClass,
-                            Statics: {
+                            $statics: {
                                 _test: 'some'
                             }
                         });
@@ -1319,7 +1319,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                         _getFruit: function () {
                             return 'hot ' + this.$super();
                         },
-                        Statics: {
+                        $statics: {
                             _getFruitStatic: function () {
                                 return 'hot ' + this.$super();
                             }
@@ -1330,7 +1330,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                         _getFruit: function () {
                             return 'hi ' + this.$super();
                         },
-                        Statics: {
+                        $statics: {
                             _getFruitStatic: function () {
                                 return 'hi ' + this.$super();
                             }
