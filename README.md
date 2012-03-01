@@ -301,7 +301,7 @@ If Object.defineProperty is available, it will be used to manage their access (o
 ### Calling the parent function ###
 
 As mentioned above, $super() can be slow compared to its alternative.
-Its alternative is as simple as ClassName.$parent.prototype.method.call(this, args1, ...) for instances and ClassName.$parent.method.call(this, args1, ...) for within static context:
+Its alternative is as simple as ClassName.$parent.prototype.method.call(this, args1, ...) for instances and ClassName.$parent.method.call(this, args1, ...) from within static context:
 
 ```js
 define(['path/to/classify/Class'], function (Class) {
