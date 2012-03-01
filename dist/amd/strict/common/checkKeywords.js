@@ -9,7 +9,7 @@ define([
     contains
 ) {
     var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
-        reservedStatics = ['$class', '$abstract', '$interface', 'Super', '$super', '$inheriting'];
+        reservedStatics = ['$class', '$abstract', '$interface', '$parent', '$super'];
 
     /**
      * Verify reserved words found in classes/interfaces.
@@ -28,7 +28,7 @@ define([
 
         forOwn(object, function (value, key) {
             if (contains(reserved, key) || Object.prototype[key]) {
-                throw new TypeError('"' + object.Name + '" is using a reserved keyword: ' + key);
+                throw new TypeError('"' + object.$name + '" is using a reserved keyword: ' + key);
             }
         });
     }

@@ -18,7 +18,7 @@ define([
      */
     function Interface(params) {
 
-        delete params.Name;
+        delete params.$name;
 
         var parents,
             k,
@@ -26,9 +26,9 @@ define([
 
         interf.$interface = { parents: [] };
 
-        if (hasOwn(params, 'Extends')) {
+        if (hasOwn(params, '$extends')) {
 
-            parents = toArray(params.Extends);
+            parents = toArray(params.$extends);
             k = parents.length;
 
             for (k -= 1; k >= 0; k -= 1) {
@@ -36,7 +36,7 @@ define([
                 interf.$interface.parents.push(parents[k]);
             }
 
-            delete params.Extends;
+            delete params.$extends;
         }
 
 

@@ -54,20 +54,20 @@ define([
         // Check normal functions
         forOwn(this.$interface.methods, function (value, k) {
             if (!target.$class.methods[k]) {
-                throw new Error('Class "' + target.prototype.Name + '" does not implement interface "' + this.prototype.Name + '" correctly, method "' + k + '" was not found.');
+                throw new Error('Class "' + target.prototype.$name + '" does not implement interface "' + this.prototype.$name + '" correctly, method "' + k + '" was not found.');
             }
             if (!isFunctionCompatible(target.$class.methods[k], value)) {
-                throw new Error('Method "' + k + '(' + target.$class.methods[k].signature + ')" defined in class "' + target.prototype.Name + '" is not compatible with the one found in interface "' + this.prototype.Name + '": "' + k + '(' + value.signature + ').');
+                throw new Error('Method "' + k + '(' + target.$class.methods[k].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in interface "' + this.prototype.$name + '": "' + k + '(' + value.signature + ').');
             }
         }, this);
 
         // Check static functions
         forOwn(this.$interface.staticMethods, function (value, k) {
             if (!target.$class.staticMethods[k]) {
-                throw new Error('Class "' + target.prototype.Name + '" does not implement interface "' + this.prototype.Name + '" correctly, static method "' + k + '" was not found.');
+                throw new Error('Class "' + target.prototype.$name + '" does not implement interface "' + this.prototype.$name + '" correctly, static method "' + k + '" was not found.');
             }
             if (!isFunctionCompatible(target.$class.staticMethods[k], value)) {
-                throw new Error('Static method "' + k + '(' + target.$class.staticMethods[k].signature + ')" defined in class "' + target.prototype.Name + '" is not compatible with the one found in interface "' + this.prototype.Name + '": "' + k + '(' + value.signature + ').');
+                throw new Error('Static method "' + k + '(' + target.$class.staticMethods[k].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in interface "' + this.prototype.$name + '": "' + k + '(' + value.signature + ').');
             }
         }, this);
     }
@@ -91,16 +91,16 @@ define([
 
         // Check if it is public
         if (name.charAt(0) === '_') {
-            throw new Error('Interface "' + interf.prototype.Name + '" contains an unallowed non public method: "' + name + '".');
+            throw new Error('Interface "' + interf.prototype.$name + '" contains an unallowed non public method: "' + name + '".');
         }
         // Check if it contains no implementation
         if (!isFunctionEmpty(method)) {
-            throw new TypeError((isStatic ? 'Static method' : 'Method') + ' "' + name + '" must be anonymous and contain no implementation in interface "' + interf.prototype.Name + '".');
+            throw new TypeError((isStatic ? 'Static method' : 'Method') + ' "' + name + '" must be anonymous and contain no implementation in interface "' + interf.prototype.$name + '".');
         }
         // Check if function is ok
         metadata = functionMeta(method, name);
         if (metadata === null) {
-            throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in interface "' + interf.prototype.Name + '".');
+            throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in interface "' + interf.prototype.$name + '".');
         }
 
         target = isStatic ? interf.$interface.staticMethods : interf.$interface.methods;
@@ -108,7 +108,7 @@ define([
         // Check if the method already exists and it's compatible
         if (isObject(target[name])) {
             if (!isFunctionCompatible(metadata, target[name])) {
-                throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '(' + metadata.signature + ')" defined in interface "' + interf.prototype.Name + '" overrides its ancestor but it is not compatible with its signature: "' + name + '(' + target[name].signature + ')".');
+                throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '(' + metadata.signature + ')" defined in interface "' + interf.prototype.$name + '" overrides its ancestor but it is not compatible with its signature: "' + name + '(' + target[name].signature + ')".');
             }
         }
 
@@ -129,14 +129,14 @@ define([
             throw new TypeError('Argument "params" must be an object.');
         }
         // Validate class name
-        if (hasOwn(params, 'Name')) {
-            if (!isString(params.Name)) {
-                throw new TypeError('Abstract class name must be a string.');
-            } else if (/\s+/.test(params.Name)) {
-                throw new TypeError('Class name cannot have spaces.');
+        if (hasOwn(params, '$name')) {
+            if (!isString(params.$name)) {
+                throw new TypeError('Interface name must be a string.');
+            } else if (/\s+/.test(params.$name)) {
+                throw new TypeError('Interface name cannot have spaces.');
             }
         } else {
-            params.Name = 'Unnamed';
+            params.$name = 'Unnamed';
         }
 
         checkKeywords(params);
@@ -152,20 +152,20 @@ define([
             };
 
         interf.$interface = { parents: [], methods: {}, staticMethods: {}, check: bind(checkClass, interf) };
-        interf.prototype.Name = params.Name;
+        interf.prototype.$name = params.$name;
 
-        if (hasOwn(params, 'Extends')) {
+        if (hasOwn(params, '$extends')) {
 
-            parents = toArray(params.Extends);
+            parents = toArray(params.$extends);
             k = parents.length;
 
             // Verify argument type
-            if (!k && !isArray(params.Extends)) {
-                throw new TypeError('Extends of "' + params.Name + '" seems to point to an nonexistent interface.');
+            if (!k && !isArray(params.$extends)) {
+                throw new TypeError('$extends of "' + params.$name + '" seems to point to an nonexistent interface.');
             }
             // Verify duplicate entries
             if (k !== unique(parents).length && compact(parents).length === k) {
-                throw new Error('There are duplicate entries defined in Extends of "' + params.Name + '".');
+                throw new Error('There are duplicate entries defined in $extends of "' + params.$name + '".');
             }
 
             for (k -= 1; k >= 0; k -= 1) {
@@ -174,7 +174,7 @@ define([
 
                 // Check if it is a valid interface
                 if (!isFunction(current) || !current.$interface) {
-                    throw new TypeError('Specified interface in Extends at index ' +  k + ' of "' + params.Name + '" is not a valid interface.');
+                    throw new TypeError('Specified interface in $extends at index ' +  k + ' of "' + params.$name + '" is not a valid interface.');
                 }
 
                 // Merge methods
@@ -184,7 +184,7 @@ define([
                     for (i -= 1; i >= 0; i -= 1) {
                         if (!isFunctionCompatible(interf.$interface.methods[duplicate[i]], current.$interface.methods[duplicate[i]]) &&
                                 !isFunctionCompatible(current.$interface.methods[duplicate[i]], interf.$interface.methods[duplicate[i]])) {
-                            throw new Error('Interface "' + params.Name + '" is inheriting method "' + duplicate[i] + '" from different parents with incompatible signatures.');
+                            throw new Error('Interface "' + params.$name + '" is inheriting method "' + duplicate[i] + '" from different parents with incompatible signatures.');
                         }
                     }
                 }
@@ -197,7 +197,7 @@ define([
                     for (i -= 1; i >= 0; i -= 1) {
                         if (!isFunctionCompatible(interf.$interface.staticMethods[duplicate[i]], current.$interface.staticMethods[duplicate[i]]) &&
                                 !isFunctionCompatible(current.$interface.staticMethods[duplicate[i]], interf.$interface.staticMethods[duplicate[i]])) {
-                            throw new Error('Interface "' + params.Name + '" is inheriting static method "' + duplicate[i] + '" from different parents with incompatible signatures.');
+                            throw new Error('Interface "' + params.$name + '" is inheriting static method "' + duplicate[i] + '" from different parents with incompatible signatures.');
                         }
                     }
                 }
@@ -208,14 +208,14 @@ define([
                 interf.$interface.parents.push(current);
             }
 
-            delete params.Extends;
+            delete params.$extends;
         }
 
         optsStatic = { isStatic: true };
 
         // Check if the interface defines the initialize function
         if (hasOwn(params, 'initialize')) {
-            throw new Error('Interface "' + params.Name + '" can\'t define the initialize method.');
+            throw new Error('Interface "' + params.$name + '" can\'t define the initialize method.');
         }
 
         forOwn(params, function (value, k) {
@@ -223,7 +223,7 @@ define([
             if (k === 'Statics') {
 
                 if (!isObject(params.Statics)) {
-                    throw new TypeError('Statics definition of interface "' + params.Name + '" must be an object.');
+                    throw new TypeError('Statics definition of interface "' + params.$name + '" must be an object.');
                 }
 
                 checkKeywords(params.Statics, 'statics');
@@ -232,17 +232,17 @@ define([
 
                     // Check if it is not a function
                     if (!isFunction(value) || value.$interface || value.$class) {
-                        throw new Error('Static member "' + k + '" found in interface "' + params.Name + '" is not a function.');
+                        throw new Error('Static member "' + k + '" found in interface "' + params.$name + '" is not a function.');
                     }
 
                     addMethod(k, value, interf, optsStatic);
                 });
 
-            } else if (k !== 'Name') {
+            } else if (k !== '$name') {
 
                 // Check if it is not a function
                 if (!isFunction(value) || value.$interface || value.$class) {
-                    throw new Error('Member "' + k + '" found in interface "' + params.Name + '" is not a function.');
+                    throw new Error('Member "' + k + '" found in interface "' + params.$name + '" is not a function.');
                 }
 
                 addMethod(k, value, interf);

@@ -60,12 +60,12 @@ define([
      */
     function parseBorrows(constructor) {
 
-        if (hasOwn(constructor.prototype, 'Borrows')) {
+        if (hasOwn(constructor.prototype, '$borrows')) {
 
             var current,
                 k,
                 key,
-                mixins = toArray(constructor.prototype.Borrows),
+                mixins = toArray(constructor.prototype.$borrows),
                 i = mixins.length,
                 grabMember = function (value, key) {
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
@@ -108,7 +108,7 @@ define([
                 combine(constructor.$class.binds, current.$constructor.$class.binds);
             }
 
-            delete constructor.prototype.Borrows;
+            delete constructor.prototype.$borrows;
         }
     }
 
@@ -171,7 +171,7 @@ define([
 
             } else {
                 // TODO: Maybe we could improve this be storing this in the constructor itself and then deleting it
-                if (key !== '$constructor' && key !== '$self' && key !== '$static' && key !== 'Name' && key !== 'Binds' && key !== 'Borrows' && key !== 'Implements' && key !== 'Abstracts') {
+                if (key !== '$constructor' && key !== '$self' && key !== '$static' && key !== '$name' && key !== 'Binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts') {
                     if (isFunction(value) && !value.$class && !value.$interface) {
                         value['$prototype_' + constructor.$class.id] = constructor.prototype;
                         value.$name = key;
@@ -280,7 +280,7 @@ define([
 
             var caller = parent.caller || arguments.callee.caller || arguments.caller;
 
-            return caller['$prototype_' + classId].$constructor.Super[caller.$name].apply(this, arguments);
+            return caller['$prototype_' + classId].$constructor.$parent[caller.$name].apply(this, arguments);
         };
     }
 
@@ -323,7 +323,7 @@ define([
 
             var caller = parent.caller || arguments.callee.caller || arguments.caller;
 
-            return caller['$constructor_' + classId].Super.$constructor[caller.$name].apply(this, arguments);
+            return caller['$constructor_' + classId].$parent.$constructor[caller.$name].apply(this, arguments);
         };
     }
 
@@ -333,7 +333,7 @@ define([
      * @return {String} The readable string
      */
     function toStringInstance() {
-        return '[instance #' + this.Name + ']';
+        return '[instance #' + this.$name + ']';
     }
 
     /**
@@ -342,7 +342,7 @@ define([
      * @return {String} The readable string
      */
     function toStringConstructor() {
-        return '[constructor #' + this.prototype.Name + ']';
+        return '[constructor #' + this.prototype.$name + ']';
     }
 
     /**
@@ -358,14 +358,14 @@ define([
         var classify,
             parent;
 
-        if (hasOwn(params, 'Extends')) {
-            parent = params.Extends;
-            delete params.Extends;
+        if (hasOwn(params, '$extends')) {
+            parent = params.$extends;
+            delete params.$extends;
 
             params.initialize = params.initialize || function () { parent.prototype.initialize.apply(this, arguments); };
             classify = createConstructor(params.initialize);
             classify.$class.id = parent.$class.id;
-            classify.Super = parent.prototype;
+            classify.$parent = parent.prototype;
             classify.prototype = createObject(parent.prototype, params);
 
             inheritParent(classify, parent);
@@ -381,7 +381,7 @@ define([
             classify.prototype.$static = staticAlias;
         }
 
-        delete classify.prototype.Name;
+        delete classify.prototype.$name;
 
         // Assign constructor & static parent alias
         classify.prototype.$constructor = classify;
@@ -405,14 +405,14 @@ define([
         }
 
         // Handle interfaces
-        if (hasOwn(params, 'Implements')) {
-            handleInterfaces(params.Implements, classify);
-            delete classify.prototype.Implements;
+        if (hasOwn(params, '$implements')) {
+            handleInterfaces(params.$implements, classify);
+            delete classify.prototype.$implements;
         }
 
         // Remove abstracts reference
-        if (hasOwn(params, 'Abstracts')) {
-            delete params.Abstracts;
+        if (hasOwn(params, '$abstracts')) {
+            delete params.$abstracts;
         }
 
         return classify;

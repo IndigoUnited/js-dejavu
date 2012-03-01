@@ -60,11 +60,11 @@ define([
 
         // Check if it is a private member
         if (name.substr(0, 2) === '__') {
-            throw new Error('Abstract class "' + constructor.prototype.Name + '" contains an unallowed abstract ' + (isStatic ? 'static ' : '') + 'private method: "' + name + '".');
+            throw new Error('Abstract class "' + constructor.prototype.$name + '" contains an unallowed abstract ' + (isStatic ? 'static ' : '') + 'private method: "' + name + '".');
         }
         // Check if it contains implementation
         if (!isFunctionEmpty(method)) {
-            throw new TypeError((isStatic ? 'Static method' : 'Method') + ' "' + name + '" must be anonymous and contain no implementation in abstract class "' + constructor.prototype.Name + '".');
+            throw new TypeError((isStatic ? 'Static method' : 'Method') + ' "' + name + '" must be anonymous and contain no implementation in abstract class "' + constructor.prototype.$name + '".');
         }
 
         target = isStatic ? constructor : constructor.prototype;
@@ -72,14 +72,14 @@ define([
         // Check if function is ok
         metadata = functionMeta(method, name);
         if (metadata === null) {
-            throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in abstract class "' + constructor.prototype.Name + '".');
+            throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in abstract class "' + constructor.prototype.$name + '".');
         }
 
         target = isStatic ? constructor.$class.staticMethods : constructor.$class.methods;
 
         // Check if it is already implemented
         if (isObject(target[name])) {
-            throw new Error('Abstract method "' + name + '" defined in abstract class "' + constructor.prototype.Name + "' seems to be already implemented and cannot be declared as abstract anymore.");
+            throw new Error('Abstract method "' + name + '" defined in abstract class "' + constructor.prototype.$name + "' seems to be already implemented and cannot be declared as abstract anymore.");
         }
 
         target = isStatic ? constructor.$abstract.staticMethods : constructor.$abstract.methods;
@@ -87,7 +87,7 @@ define([
         // Check if the method already exists and if it's compatible
         if (isObject(target[name])) {
             if (!isFunctionCompatible(metadata, target[name])) {
-                throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '(' + metadata.signature + ')" defined in abstract class "' + constructor.prototype.Name + '" overrides its ancestor but it is not compatible with its signature: "' + name + '(' + target[name].signature + ')".');
+                throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '(' + metadata.signature + ')" defined in abstract class "' + constructor.prototype.$name + '" overrides its ancestor but it is not compatible with its signature: "' + name + '(' + target[name].signature + ')".');
             }
         }
 
@@ -105,20 +105,20 @@ define([
         // Check normal functions
         forOwn(this.$abstract.methods, function (value, k) {
             if (!target.$class.methods[k]) {
-                throw new Error('Class "' + target.prototype.Name + '" does not implement abstract class "' + this.prototype.Name + '" correctly, method "' + k + '" was not found.');
+                throw new Error('Class "' + target.prototype.$name + '" does not implement abstract class "' + this.prototype.$name + '" correctly, method "' + k + '" was not found.');
             }
             if (!isFunctionCompatible(target.$class.methods[k], value)) {
-                throw new Error('Method "' + k + '(' + target.$class.methods[k].signature + ')" defined in class "' + target.prototype.Name + '" is not compatible with the one found in abstract class "' + this.prototype.Name + '": "' + k + '(' + value.signature + ').');
+                throw new Error('Method "' + k + '(' + target.$class.methods[k].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in abstract class "' + this.prototype.$name + '": "' + k + '(' + value.signature + ').');
             }
         }, this);
 
         // Check static functions
         forOwn(this.$abstract.staticMethods, function (value, k) {
             if (!target.$class.staticMethods[k]) {
-                throw new Error('Class "' + target.prototype.Name + '" does not implement abstract class "' + this.prototype.Name + '" correctly, static method "' + k + '" was not found.');
+                throw new Error('Class "' + target.prototype.$name + '" does not implement abstract class "' + this.prototype.$name + '" correctly, static method "' + k + '" was not found.');
             }
             if (!isFunctionCompatible(target.$class.staticMethods[k], value)) {
-                throw new Error('Static method "' + k + '(' + target.$class.staticMethods[k].signature + ')" defined in class "' + target.prototype.Name + '" is not compatible with the one found in abstract class "' + this.prototype.Name + '": "' + k + '(' + value.signature + ').');
+                throw new Error('Static method "' + k + '(' + target.$class.staticMethods[k].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in abstract class "' + this.prototype.$name + '": "' + k + '(' + value.signature + ').');
             }
         }, this);
     }
@@ -132,7 +132,7 @@ define([
     function parseAbstracts(abstracts, constructor) {
 
         if (!isObject(abstracts)) {
-            throw new TypeError('Abstracts defined in abstract class "' + constructor.prototype.Name + "' must be an object.");
+            throw new TypeError('$abstracts defined in abstract class "' + constructor.prototype.$name + "' must be an object.");
         }
 
         checkKeywords(abstracts);
@@ -144,7 +144,7 @@ define([
             if (key === 'Statics') {
 
                 if (!isObject(abstracts.Statics)) {
-                    throw new TypeError('Statics definition in Abstracts of abstract class "' + constructor.prototype.Name + '" must be an object.');
+                    throw new TypeError('Statics definition in $abstracts of abstract class "' + constructor.prototype.$name + '" must be an object.');
                 }
 
                 checkKeywords(abstracts.Statics, 'statics');
@@ -153,7 +153,7 @@ define([
 
                     // Check if it is not a function
                     if (!isFunction(value) || value.$interface || value.$class) {
-                        throw new Error('Abstract member "' + key + '" found in abstract class "' + constructor.prototype.Name + '" is not a function.');
+                        throw new Error('Abstract member "' + key + '" found in abstract class "' + constructor.prototype.$name + '" is not a function.');
                     }
 
                     addMethod(key, value, constructor, optsStatic);
@@ -163,7 +163,7 @@ define([
 
                 // Check if it is not a function
                 if (!isFunction(value) || value.$interface || value.$class) {
-                    throw new Error('Abstract member "' + key + '" found in abstract class "' + constructor.prototype.Name + '" is not a function.');
+                    throw new Error('Abstract member "' + key + '" found in abstract class "' + constructor.prototype.$name + '" is not a function.');
                 }
 
                 addMethod(key, value, constructor);
@@ -187,7 +187,7 @@ define([
                 // Check if method is already defined as abstract and is compatible
                 if (constructor.$abstract.methods[key]) {
                     if (!isFunctionCompatible(constructor.$abstract.methods[key], value)) {
-                        throw new Error('Method "' + key + '( ' + value.signature + ')" described in interface "' + interf.prototype.Name + '" is not compatible with the one already defined in "' + constructor.prototype.Name + '": "' + key + '(' + constructor.$abstract.methods[key].signature + ')".');
+                        throw new Error('Method "' + key + '( ' + value.signature + ')" described in interface "' + interf.prototype.$name + '" is not compatible with the one already defined in "' + constructor.prototype.$name + '": "' + key + '(' + constructor.$abstract.methods[key].signature + ')".');
                     }
                 } else {
                     constructor.$abstract.methods[key] = interf.$interface.methods[key];
@@ -198,7 +198,7 @@ define([
                 // Check if method is already defined as abstract and is compatible
                 if (constructor.$abstract.staticMethods[key]) {
                     if (!isFunctionCompatible(constructor.$abstract.staticMethods[key], value)) {
-                        throw new Error('Static method "' + key + '( ' + value.signature + ')" described in interface "' + interf.prototype.Name + '" is not compatible with the one already defined in "' + constructor.prototype.Name + '": "' + key + '(' + constructor.$abstract.staticMethods[key].signature + ')".');
+                        throw new Error('Static method "' + key + '( ' + value.signature + ')" described in interface "' + interf.prototype.$name + '" is not compatible with the one already defined in "' + constructor.prototype.$name + '": "' + key + '(' + constructor.$abstract.staticMethods[key].signature + ')".');
                     }
                 } else {
                     constructor.$abstract.staticMethods[key] = value;
@@ -207,7 +207,7 @@ define([
 
         // Verify argument type
         if (!x && !isArray(interfs)) {
-            throw new TypeError('Implements of abstract class "' + constructor.prototype.Name + '" must be an interface or an array of interfaces.');
+            throw new TypeError('$implements of abstract class "' + constructor.prototype.$name + '" must be an interface or an array of interfaces.');
         }
 
         for (x -= 1; x >= 0; x -= 1) {
@@ -216,7 +216,7 @@ define([
 
             // Validate interfaces
             if (!isFunction(interf) || !interf.$interface) {
-                throw new TypeError('Entry at index ' + x + ' in Implements of class "' + constructor.prototype.Name + '" is not a valid interface.');
+                throw new TypeError('Entry at index ' + x + ' in $implements of class "' + constructor.prototype.$name + '" is not a valid interface.');
             }
 
             // Grab methods
@@ -245,12 +245,14 @@ define([
             throw new TypeError('Argument "params" must be an object.');
         }
         // Validate class name
-        if (hasOwn(params, 'Name')) {
-            if (!isString(params.Name)) {
+        if (hasOwn(params, '$name')) {
+            if (!isString(params.$name)) {
                 throw new TypeError('Abstract class name must be a string.');
+            } else if (/\s+/.test(params.$name)) {
+                throw new TypeError('Abstract class name cannot have spaces.');
             }
         } else {
-            params.Name = 'Unnamed';
+            params.$name = 'Unnamed';
         }
 
         var def,
@@ -258,24 +260,24 @@ define([
             saved = {};
 
         // If we are extending an abstract class also, inherit the abstract methods
-        if (isFunction(params.Extends)) {
+        if (isFunction(params.$extends)) {
 
-            if (params.Extends.$abstract) {
-                mixIn($abstract.methods, params.Extends.$abstract.methods);
-                mixIn($abstract.staticMethods, params.Extends.$abstract.staticMethods);
-                combine($abstract.interfaces, params.Extends.$abstract.interfaces);
+            if (params.$extends.$abstract) {
+                mixIn($abstract.methods, params.$extends.$abstract.methods);
+                mixIn($abstract.staticMethods, params.$extends.$abstract.staticMethods);
+                combine($abstract.interfaces, params.$extends.$abstract.interfaces);
             }
         }
 
 
         // Handle abstract methods
-        if (hasOwn(params, 'Abstracts')) {
-            saved.Abstracts = params.Abstracts;     // Save them for later use
+        if (hasOwn(params, '$abstracts')) {
+            saved.$abstracts = params.$abstracts;     // Save them for later use
         }
 
         // Handle interfaces
-        if (hasOwn(params, 'Implements')) {
-            saved.Interfaces = params.Implements;   // Save them for later use
+        if (hasOwn(params, '$implements')) {
+            saved.Interfaces = params.$implements;   // Save them for later use
         }
 
         // Create the class definition
@@ -290,8 +292,8 @@ define([
         }
 
         // Parse the abstract methods
-        if (hasOwn(saved, 'Abstracts')) {
-            parseAbstracts(saved.Abstracts, def);
+        if (hasOwn(saved, '$abstracts')) {
+            parseAbstracts(saved.$abstracts, def);
         }
 
         return def;

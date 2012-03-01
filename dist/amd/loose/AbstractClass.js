@@ -25,8 +25,8 @@ define([
         var def;
 
         // Handle abstract methods
-        if (hasOwn(params, 'Abstracts')) {
-            delete params.Abstracts;
+        if (hasOwn(params, '$abstracts')) {
+            delete params.$abstracts;
         }
 
         // Create the class definition

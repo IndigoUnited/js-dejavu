@@ -156,11 +156,11 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 }
             }),
                 Andre = Class({
-                    Extends: Person,
+                    $extends: Person,
                     name: 'André'
                 }),
                 SuperAndre = Class({
-                    Extends: Andre,
+                    $extends: Andre,
                     name: 'SuperAndre'
                 }),
                 PersonAbstract = AbstractClass({
@@ -170,11 +170,11 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     }
                 }),
                 AndreAbstract = AbstractClass({
-                    Extends: PersonAbstract,
+                    $extends: PersonAbstract,
                     name: 'André'
                 }),
                 SuperAndre2 = Class({
-                    Extends: AndreAbstract,
+                    $extends: AndreAbstract,
                     name: 'SuperAndre'
                 });
 
@@ -195,12 +195,12 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
         describe('$super()', function () {
 
             var SomeClass = Class({
-                _firstName: null,
+                _first$name: null,
                 initialize: function () {
-                    this._firstName = 'andre';
+                    this._first$name = 'andre';
                 },
-                getFullName: function () {
-                    return this._firstName;
+                getFull$name: function () {
+                    return this._first$name;
                 },
                 Statics: {
                     _fruit: 'potato',
@@ -210,14 +210,14 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 }
             }),
                 OtherClass = Class({
-                    Extends: SomeClass,
-                    _lastName: null,
+                    $extends: SomeClass,
+                    _last$name: null,
                     initialize: function () {
                         this.$super();
-                        this._lastName = 'cruz';
+                        this._last$name = 'cruz';
                     },
-                    getFullName: function () {
-                        return this.$super() + ' ' + this._lastName;
+                    getFull$name: function () {
+                        return this.$super() + ' ' + this._last$name;
                     },
                     Statics: {
                         getFruit: function () {
@@ -226,8 +226,8 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     }
                 }),
                 HiClass = Class({
-                    Extends: OtherClass,
-                    getFullName: function () {
+                    $extends: OtherClass,
+                    getFull$name: function () {
                         return 'hi ' + this.$super();
                     },
                     Statics: {
@@ -239,8 +239,8 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
             it('should call the parent method', function () {
 
-                expect(new OtherClass().getFullName()).to.be.equal('andre cruz');
-                expect(new HiClass().getFullName()).to.be.equal('hi andre cruz');
+                expect(new OtherClass().getFull$name()).to.be.equal('andre cruz');
+                expect(new HiClass().getFull$name()).to.be.equal('hi andre cruz');
 
             });
 
@@ -270,7 +270,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 }
             }),
                 OtherClass = Class({
-                    Extends: SomeClass,
+                    $extends: SomeClass,
                     initialize: function () {
                         this.$super();
                     },
@@ -312,7 +312,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 }
             }),
                 OtherClass = Class({
-                    Extends: SomeClass,
+                    $extends: SomeClass,
                     initialize: function () {
                         this.$super();
                     },
@@ -350,7 +350,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 walk: function () {
                     this.position += 1;
                 },
-                getName: function () {
+                get$name: function () {
                     return this.name;
                 },
                 getPosition: function () {
@@ -372,7 +372,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 cat;
 
             Cat = Class({
-                Extends: Pet,
+                $extends: Pet,
                 initialize: function () {
                     this.name = 'Cat';
                     this.$super();
@@ -401,9 +401,9 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
             });
 
-            it('should not have the Extends property', function () {
+            it('should not have the $extends property', function () {
 
-                return expect(cat.Extends).to.be.equal(undefined);
+                return expect(cat.$extends).to.be.equal(undefined);
 
             });
 
@@ -422,8 +422,8 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
             it('should have the right name', function () {
 
-                expect(pet.getName()).to.be.equal('Pet');
-                expect(cat.getName()).to.be.equal('Cat');
+                expect(pet.get$name()).to.be.equal('Pet');
+                expect(cat.get$name()).to.be.equal('Cat');
 
             });
 
@@ -446,55 +446,55 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
         describe('Instantiation of Concrete Classes that implement Interfaces', function () {
 
-            it('should not have the Implements property', function () {
+            it('should not have the $implements property', function () {
 
                 var SomeImplementation = Class({
-                    Implements: [Interface({ method1: function () {}})],
+                    $implements: [Interface({ method1: function () {}})],
                     method1: function () {}
                 }),
                     someImplementation = new SomeImplementation();
 
-                return expect(someImplementation.Implements).to.be.equal(undefined);
+                return expect(someImplementation.$implements).to.be.equal(undefined);
             });
 
         });
 
         describe('Instantiation of Concrete Classes that extend Abstract Classes', function () {
 
-            it('should not have the Abstracts property', function () {
+            it('should not have the $abstracts property', function () {
 
                 var SomeImplementation = Class({
-                    Extends: AbstractClass({ Abstracts: { method1: function () {} }}),
+                    $extends: AbstractClass({ $abstracts: { method1: function () {} }}),
                     method1: function () {}
                 }),
                     someImplementation = new SomeImplementation();
 
-                return expect(someImplementation.Abstracts).to.be.equal(undefined);
+                return expect(someImplementation.$abstracts).to.be.equal(undefined);
             });
 
         });
 
-        describe('Defining a Concrete/Abstract Classes that use Borrows (mixins)', function () {
+        describe('Defining a Concrete/Abstract Classes that use $borrows (mixins)', function () {
 
             it('should grab the borrowed members to their own', function () {
 
                 (function () {
                     var SomeImplementation = Class({
-                        Borrows: {
+                        $borrows: {
                             method1: function () {},
                             method2: function () {},
                             some: 'property'
                         }
                     }),
                         OtherImplementation = Class({
-                            Borrows: [Class({
+                            $borrows: [Class({
                                 method1: function () {},
                                 method2: function () {},
                                 some: 'property'
                             }), { method3: function () {} }]
                         }),
                         EvenOtherImplementation = Class({
-                            Borrows: Class({
+                            $borrows: Class({
                                 method1: function () {},
                                 method2: function () {},
                                 some: 'property'
@@ -530,7 +530,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 
                 (function () {
                     var SomeImplementation = Class({
-                        Borrows: {
+                        $borrows: {
                             _method1: function () {},
                             _method2: function () {},
                             _some: 'property'
@@ -556,7 +556,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 
                 (function () {
                     var SomeImplementation = Class({
-                        Borrows: {
+                        $borrows: {
                             __method1: function () {},
                             __method2: function () {},
                             __some: 'property'
@@ -596,15 +596,15 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                         }
                     }),
                     SomeClass = Class({
-                        Borrows: [SomeMixin, OtherMixin]
+                        $borrows: [SomeMixin, OtherMixin]
                     }),
                     OtherClass = Class({
-                        Borrows: [OtherMixin, SomeMixin]
+                        $borrows: [OtherMixin, SomeMixin]
                     }),
                     method1 = function () {},
                     method2 = function () {},
                     SomeOtherClass = Class({
-                        Borrows: [SomeMixin, OtherMixin],
+                        $borrows: [SomeMixin, OtherMixin],
                         method1: method1,
                         Statics: {
                             staticMethod1: method2
@@ -629,12 +629,12 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     this.some = 'test';
                 },
                     SomeImplementation = Class({
-                        Borrows: { initialize: function () { this.some = 'nooo'; }, method1: function () {} },
+                        $borrows: { initialize: function () { this.some = 'nooo'; }, method1: function () {} },
                         some: 'property',
                         initialize: initialize
                     }),
                     OtherImplementation = Class({
-                        Borrows: Class({ initialize: function () { this.some = 'nooo'; } }),
+                        $borrows: Class({ initialize: function () { this.some = 'nooo'; } }),
                         some: 'property'
                     }),
                     someImplementation = new SomeImplementation(),
@@ -648,7 +648,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
             it('should have passed the specified binds correctly', function () {
 
                 var SomeImplementation = Class({
-                        Borrows: Class({
+                        $borrows: Class({
                             Binds: ['method1', 'method2'],
                             method1: function () {
                                 this.some = 'test';
@@ -661,7 +661,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     }),
                     OtherImplementation = Class({
                         Binds: ['method2'],
-                        Borrows: Class({
+                        $borrows: Class({
                             Binds: ['method1'],
                             method1: function () {
                                 this.some = 'test';
@@ -674,7 +674,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     }),
                     SomeOtherImplementation = Class({
                         Binds: ['method1'],
-                        Borrows: [Class({
+                        $borrows: [Class({
                             Binds: ['method2'],
                             method2: function () {}
                         }), Class({
@@ -691,9 +691,9 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     }),
                     AbstractUsageImplementation = Class({
                         Binds: ['method2'],
-                        Extends: AbstractClass({
+                        $extends: AbstractClass({
                             Binds: ['method1'],
-                            Abstracts: {
+                            $abstracts: {
                                 method1: function () {}
                             }
                         }),
@@ -706,9 +706,9 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                         some: 'property'
                     }),
                     OtherAbstractUsageImplementation = Class({
-                        Extends: AbstractClass({
+                        $extends: AbstractClass({
                             Binds: ['method1', 'method2'],
-                            Abstracts: {
+                            $abstracts: {
                                 method1: function () {}
                             },
                             method2: function () {
@@ -837,14 +837,14 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                 expect((function () {
                     var OtherClass = Class({
-                        Extends: SomeClass
+                        $extends: SomeClass
                     });
                     return OtherClass.__funcStatic;
                 }())).to.be.equal(undefined);
 
                 expect((function () {
                     var OtherClass = Class({
-                        Extends: SomeClass
+                        $extends: SomeClass
                     });
                     return OtherClass.__propStatic;
                 }())).to.be.equal(undefined);
@@ -857,21 +857,21 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect((function () {
                         var OtherClass = Class({
-                            Extends: SomeClass
+                            $extends: SomeClass
                         });
                         return OtherClass.__funcStatic;
                     }())).to.be.equal(undefined);
 
                     expect((function () {
                         var OtherClass = Class({
-                            Extends: SomeClass
+                            $extends: SomeClass
                         });
                         return OtherClass.__propStatic;
                     }())).to.be.equal(undefined);
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             some: function () {
                                 this.__privateMethod();
                             }
@@ -881,7 +881,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             some: function () {
                                 SomeClass.__funcStatic();
                             }
@@ -891,7 +891,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             Statics: {
                                 some: function () {
                                     this.__funcStatic();
@@ -903,7 +903,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             some: function () {
                                 return this.__privateProperty;
                             }
@@ -913,7 +913,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             some: function () {
                                 return SomeClass.__propStatic;
                             }
@@ -923,7 +923,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect((function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             Statics: {
                                 some: function () {
                                     return this.__privateProperty;
@@ -935,7 +935,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             __test: function () {}
                         });
                         return new OtherClass().callTest();
@@ -943,7 +943,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             Statics: {
                                 __test: function () {}
                             }
@@ -953,7 +953,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             __test: 'some'
                         });
                         return new OtherClass().accessTest();
@@ -961,7 +961,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             Statics: {
                                 __test: 'some'
                             }
@@ -971,7 +971,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: Class({
+                            $extends: Class({
                                 initialize: function () {
                                     this.__test();
                                 }
@@ -984,7 +984,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: Class({
+                            $extends: Class({
                                 initialize: function () {
                                     this.__test = 'test';
                                 }
@@ -1016,7 +1016,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             getProp: function () {
                                 return this.$super();
                             }
@@ -1031,7 +1031,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             getProp2: function () {
                                 return this.$super();
                             }
@@ -1052,14 +1052,14 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         return Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             __getProp: function () {}
                         });
                     }).to.throwException(/override private/);
 
                     expect(function () {
                         return Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             __privateProperty: 'foo'
                         });
                     }).to.throwException(/override private/);
@@ -1143,7 +1143,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             some: function () {
                                 this._protectedMethod();
                             }
@@ -1153,7 +1153,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             some: function () {
                                 this.$self()._funcStatic();
                             }
@@ -1163,7 +1163,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             Statics: {
                                 some: function () {
                                     this._funcStatic();
@@ -1175,7 +1175,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             some: function () {
                                 return this._protectedProperty;
                             }
@@ -1185,7 +1185,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect((function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             Statics: {
                                 some: function () {
                                     return this._protectedProperty;
@@ -1197,7 +1197,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             _test: function () {}
                         });
                         return new OtherClass().callTest();
@@ -1205,7 +1205,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             Statics: {
                                 _test: function () {}
                             }
@@ -1215,7 +1215,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             _test: 'some'
                         });
                         return new OtherClass().accessTest();
@@ -1223,7 +1223,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             Statics: {
                                 _test: 'some'
                             }
@@ -1233,7 +1233,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: Class({
+                            $extends: Class({
                                 initialize: function () {
                                     this._test();
                                 }
@@ -1246,7 +1246,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: Class({
+                            $extends: Class({
                                 initialize: function () {
                                     this._test = 'test';
                                 }
@@ -1278,7 +1278,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             getProp: function () {
                                 return this.$super();
                             }
@@ -1293,7 +1293,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                     expect(function () {
                         var OtherClass = Class({
-                            Extends: SomeClass,
+                            $extends: SomeClass,
                             getProp2: function () {
                                 return this.$super();
                             }
@@ -1315,7 +1315,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
             it('should work well with $super()', function () {
 
                 var OtherClass = Class({
-                        Extends: SomeClass,
+                        $extends: SomeClass,
                         _getFruit: function () {
                             return 'hot ' + this.$super();
                         },
@@ -1326,7 +1326,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                         }
                     }),
                     HiClass = Class({
-                        Extends: OtherClass,
+                        $extends: OtherClass,
                         _getFruit: function () {
                             return 'hi ' + this.$super();
                         },
@@ -1353,10 +1353,10 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                 var Class1 = Class({}),
                     Class2 = AbstractClass({}),
-                    Class3 = Class({ Extends: Class1 }),
-                    Class4 = Class({ Extends: Class2 }),
-                    Class5 = AbstractClass({ Extends: Class1 }),
-                    Class6 = Class({ Extends: Class5 });
+                    Class3 = Class({ $extends: Class1 }),
+                    Class4 = Class({ $extends: Class2 }),
+                    Class5 = AbstractClass({ $extends: Class1 }),
+                    Class6 = Class({ $extends: Class5 });
 
                 expect(instanceOf(new Class1(), Class1)).to.be.equal(true);
                 expect(instanceOf(new Class3(), Class3)).to.be.equal(true);
@@ -1379,14 +1379,14 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     Interface2 = Interface({}),
                     Interface3 = Interface({}),
                     Interface4 = Interface({}),
-                    Interface5 = Interface({ Extends: [Interface4, Interface1] }),
-                    Class1 = Class({ Implements: Interface1 }),
-                    Class2 = AbstractClass({ Implements: [Interface1, Interface2] }),
-                    Class3 = Class({ Extends: Class1 }),
-                    Class4 = Class({ Extends: Class2 }),
-                    Class5 = AbstractClass({ Extends: Class1, Implements: Interface3 }),
-                    Class6 = Class({ Extends: Class5 }),
-                    Class7 = Class({ Implements: [Interface2, Interface5] });
+                    Interface5 = Interface({ $extends: [Interface4, Interface1] }),
+                    Class1 = Class({ $implements: Interface1 }),
+                    Class2 = AbstractClass({ $implements: [Interface1, Interface2] }),
+                    Class3 = Class({ $extends: Class1 }),
+                    Class4 = Class({ $extends: Class2 }),
+                    Class5 = AbstractClass({ $extends: Class1, $implements: Interface3 }),
+                    Class6 = Class({ $extends: Class5 }),
+                    Class7 = Class({ $implements: [Interface2, Interface5] });
 
                 expect(instanceOf(new Class1(), Interface1)).to.be.equal(true);
                 expect(instanceOf(new Class3(), Interface1)).to.be.equal(true);
