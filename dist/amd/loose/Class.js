@@ -280,7 +280,7 @@ define([
 
             var caller = parent.caller || arguments.callee.caller || arguments.caller;
 
-            return caller['$prototype_' + classId].$constructor.$parent[caller.$name].apply(this, arguments);
+            return caller['$prototype_' + classId].$constructor.$parent.prototype[caller.$name].apply(this, arguments);
         };
     }
 
@@ -323,7 +323,7 @@ define([
 
             var caller = parent.caller || arguments.callee.caller || arguments.caller;
 
-            return caller['$constructor_' + classId].$parent.$constructor[caller.$name].apply(this, arguments);
+            return caller['$constructor_' + classId].$parent[caller.$name].apply(this, arguments);
         };
     }
 
@@ -365,7 +365,7 @@ define([
             params.initialize = params.initialize || function () { parent.prototype.initialize.apply(this, arguments); };
             classify = createConstructor(params.initialize);
             classify.$class.id = parent.$class.id;
-            classify.$parent = parent.prototype;
+            classify.$parent = parent;
             classify.prototype = createObject(parent.prototype, params);
 
             inheritParent(classify, parent);
