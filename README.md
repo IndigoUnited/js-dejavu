@@ -285,7 +285,7 @@ If clashes occur with multiple mixins, that last one takes precedence.
 
 ### Binds ###
 
-The binds keyword allows you to specify functions that should be bound to the instance.
+The $binds keyword allows you to specify functions that should be bound to the instance.
 This is useful if certain functions are meant to be used as callbacks or handlers.
 You don't need to bind the function manually, it will be bound for you automatically.
 
