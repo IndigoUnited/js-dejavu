@@ -48,7 +48,7 @@ define(function () {
             }
         }
 
-        return instance.$constructor.$parent ? instanceOfInterface(instance.$constructor.$parent, target) : false;
+        return instance.$constructor.$parent ? instanceOfInterface(instance.$constructor.$parent.prototype, target) : false;
     }
 
     /**

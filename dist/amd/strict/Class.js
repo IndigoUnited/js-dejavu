@@ -126,7 +126,7 @@ define([
 
         // If the initialize as inherited, clone the metadata
         if (!isStatic && name === 'initialize' && method.$inherited) {
-            metadata = mixIn({}, constructor.$parent.$constructor.$class.methods[name]);
+            metadata = mixIn({}, constructor.$parent.$class.methods[name]);
         } else {
             // Grab function metadata and throw error if is not valid
             metadata = functionMeta(method, name);
@@ -939,7 +939,7 @@ define([
 
             if (meta.isPublic || !hasDefineProperty) {
 
-                alias = caller['$prototype_' + classId].$constructor.$parent[caller.$name];
+                alias = caller['$prototype_' + classId].$constructor.$parent.prototype[caller.$name];
 
                 if (!alias) {
                     throw new Error('Cannot call parent method "' + (caller.$name || 'N/A') + '" in class "' + this.$name + '".');
@@ -949,7 +949,7 @@ define([
 
             }
 
-            alias = caller['$prototype_' + classId].$constructor.$parent.$constructor.$class.methods[caller.$name];
+            alias = caller['$prototype_' + classId].$constructor.$parent.$class.methods[caller.$name];
 
             if (!alias) {
                 throw new Error('Cannot call parent method "' + (caller.$name || 'N/A') + '" in class "' + this.$name + '".');
@@ -1020,7 +1020,7 @@ define([
 
             if (meta.isPublic || !hasDefineProperty) {
 
-                alias = caller['$constructor_' + classId].$parent.$constructor[caller.$name];
+                alias = caller['$constructor_' + classId].$parent[caller.$name];
 
                 if (!alias) {
                     throw new Error('Cannot call parent static method "' + caller.$name || 'N/A' + '" in class "' + this.$name + '".');
@@ -1029,7 +1029,7 @@ define([
                 return alias.apply(this, arguments);
             }
 
-            alias = caller['$constructor_' + classId].$parent.$constructor.$class.staticMethods[caller.$name];
+            alias = caller['$constructor_' + classId].$parent.$class.staticMethods[caller.$name];
 
             if (!alias) {
                 throw new Error('Cannot call parent static method "' + caller.$name || 'N/A' + '" in class "' + this.$name + '".');
@@ -1116,7 +1116,7 @@ define([
 
             classify = createConstructor(params.initialize, isAbstract);
             classify.$class.id = parent.$class.id;
-            classify.$parent = parent.prototype;
+            classify.$parent = parent;
             classify.prototype = createObject(parent.prototype, params);
 
             inheritParent(classify, parent);
