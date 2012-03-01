@@ -761,66 +761,66 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
-            it('should throw an error if Binds is not a string or an array of strings', function () {
+            it('should throw an error if $binds is not a string or an array of strings', function () {
 
                 expect(function () {
                     return Class({
-                        Binds: {}
+                        $binds: {}
                     });
                 }).to.throwException(/is not a string/);
 
                 expect(function () {
                     return Class({
-                        Binds: undefined
+                        $binds: undefined
                     });
                 }).to.throwException(/must be a string or an array of strings/);
 
                 expect(function () {
                     return Class({
-                        Binds: null
+                        $binds: null
                     });
                 }).to.throwException(/must be a string or an array of strings/);
 
                 expect(function () {
                     return Class({
-                        Binds: [undefined]
+                        $binds: [undefined]
                     });
                 }).to.throwException(/is not a string/);
 
                 expect(function () {
                     return Class({
-                        Binds: [undefined, undefined]
+                        $binds: [undefined, undefined]
                     });
                 }).to.throwException(/is not a string/);
 
                 expect(function () {
                     return Class({
-                        Binds: [null]
+                        $binds: [null]
                     });
                 }).to.throwException(/is not a string/);
 
                 expect(function () {
                     return Class({
-                        Binds: [null, null]
+                        $binds: [null, null]
                     });
                 }).to.throwException(/is not a string/);
 
                 expect(function () {
                     return Class({
-                        Binds: [{}, 'method1'],
+                        $binds: [{}, 'method1'],
                         'method1': function () {}
                     });
                 }).to.throwException(/is not a string/);
 
                 expect(function () {
                     return Class({
-                        Binds: []
+                        $binds: []
                     });
                 }).to.not.throwException();
 
                 expect(function () {
                     return Class({
-                        Binds: ['method1'],
+                        $binds: ['method1'],
                         'method1': function () {}
                     });
                 }).to.not.throwException();
@@ -831,17 +831,17 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Class({
-                        Binds: ['method4']
+                        $binds: ['method4']
                     });
                 }).to.throwException(/does not exist/);
 
                 expect(function () {
                     return Class({
                         $extends: Class({
-                            Binds: ['method1'],
+                            $binds: ['method1'],
                             method1: function () {}
                         }),
-                        Binds: ['method2']
+                        $binds: ['method2']
                     });
                 }).to.throwException(/does not exist/);
 
@@ -851,14 +851,14 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Class({
-                        Binds: ['method1', 'method1'],
+                        $binds: ['method1', 'method1'],
                         method1: function () {}
                     });
                 }).to.throwException(/duplicate entries/);
 
                 expect(function () {
                     return Class({
-                        Binds: [undefined, undefined],
+                        $binds: [undefined, undefined],
                         method1: function () {}
                     });
                 }).to.not.throwException(/duplicate entries/);
@@ -870,10 +870,10 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Class({
                         $extends: Class({
-                            Binds: ['method1'],
+                            $binds: ['method1'],
                             method1: function () {}
                         }),
-                        Binds: ['method1']
+                        $binds: ['method1']
                     });
                 }).to.throwException(/already being bound/);
 
@@ -883,9 +883,9 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Class({
-                        Binds: ['method1'],
+                        $binds: ['method1'],
                         $borrows: Class({
-                            Binds: ['method1', 'method2'],
+                            $binds: ['method1', 'method2'],
                             some: null,
                             method1: function () {
                                 this.some = 'test';
@@ -2090,7 +2090,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return AbstractClass({
-                        Binds: ['method1'],
+                        $binds: ['method1'],
                         $abstracts: {
                             method1: function () {}
                         }
