@@ -138,11 +138,11 @@ define([
      */
     function parseBinds(constructor) {
 
-        if (hasOwn(constructor.prototype, 'Binds')) {
-            var binds = toArray(constructor.prototype.Binds);
+        if (hasOwn(constructor.prototype, '$binds')) {
+            var binds = toArray(constructor.prototype.$binds);
 
             combine(constructor.$class.binds, binds);
-            delete constructor.prototype.Binds;
+            delete constructor.prototype.$binds;
         }
     }
 
@@ -183,7 +183,7 @@ define([
                 value = params[key];
 
                 // TODO: Maybe we could improve this be storing this in the constructor itself and then deleting it
-                if (key !== '$constructor' && key !== '$self' && key !== '$static' && key !== '$name' && key !== 'Binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts') {
+                if (key !== '$constructor' && key !== '$self' && key !== '$static' && key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts') {
                     if (isFunction(value) && !value.$class && !value.$interface) {
                         value['$prototype_' + constructor.$class.id] = constructor.prototype;
                         value.$name = key;

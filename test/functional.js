@@ -10,7 +10,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
         describe('Instantiation of a simple Class', function () {
 
             var Example = Class({
-                Binds: ['method1', 'method2', 'method3', '_method4', '__method5'],
+                $binds: ['method1', 'method2', 'method3', '_method4', '__method5'],
                 some: 'property',
                 someOther: null,
                 options: {
@@ -106,9 +106,9 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
             });
 
-            it('should not have Binds property', function () {
+            it('should not have $binds property', function () {
 
-                return expect(example.Binds).to.be.equal(undefined);
+                return expect(example.$binds).to.be.equal(undefined);
 
             });
 
@@ -125,7 +125,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
             });
 
-            it('should have bound the methods into the instance context specified in Binds', function () {
+            it('should have bound the methods into the instance context specified in $binds', function () {
 
                 example.method1.call(this);
                 expect(example.some).to.be.equal('test');
@@ -649,7 +649,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
                 var SomeImplementation = Class({
                         $borrows: Class({
-                            Binds: ['method1', 'method2'],
+                            $binds: ['method1', 'method2'],
                             method1: function () {
                                 this.some = 'test';
                             },
@@ -660,9 +660,9 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                         some: 'property'
                     }),
                     OtherImplementation = Class({
-                        Binds: ['method2'],
+                        $binds: ['method2'],
                         $borrows: Class({
-                            Binds: ['method1'],
+                            $binds: ['method1'],
                             method1: function () {
                                 this.some = 'test';
                             }
@@ -673,12 +673,12 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                         some: 'property'
                     }),
                     SomeOtherImplementation = Class({
-                        Binds: ['method1'],
+                        $binds: ['method1'],
                         $borrows: [Class({
-                            Binds: ['method2'],
+                            $binds: ['method2'],
                             method2: function () {}
                         }), Class({
-                            Binds: ['method2'],
+                            $binds: ['method2'],
                             method2: function () {}
                         })],
                         method1: function () {
@@ -690,9 +690,9 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                         some: 'property'
                     }),
                     AbstractUsageImplementation = Class({
-                        Binds: ['method2'],
+                        $binds: ['method2'],
                         $extends: AbstractClass({
-                            Binds: ['method1'],
+                            $binds: ['method1'],
                             $abstracts: {
                                 method1: function () {}
                             }
@@ -707,7 +707,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     }),
                     OtherAbstractUsageImplementation = Class({
                         $extends: AbstractClass({
-                            Binds: ['method1', 'method2'],
+                            $binds: ['method1', 'method2'],
                             $abstracts: {
                                 method1: function () {}
                             },
@@ -777,7 +777,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
         describe('Private members', function () {
 
             var SomeClass = Class({
-                Binds: ['__privateMethod'],
+                $binds: ['__privateMethod'],
                 __privateMethod: function () {
                     this.__privateProperty = 'test';
                 },
@@ -1073,7 +1073,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
         describe('Protected members', function () {
 
             var SomeClass = Class({
-                Binds: ['_protectedMethod'],
+                $binds: ['_protectedMethod'],
                 _protectedMethod: function () {
                     this._protectedProperty = 'test';
                 },

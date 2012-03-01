@@ -242,12 +242,12 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
     var ConcreteClass = Class({
         $extends: SomeClass,
         $implements: [SomeInterface, OtherInterface],
-        $borrows: OtherClass                             // We can add mixins by specifying them in here
+        $borrows: OtherClass                            // We can add mixins by specifying them in here
                                                         // You can specify multiple mixins in an array
 
-        Binds: 'handleClick',                           // Binds let you automatically bind the function to the instance
+        $binds: 'handleClick',                          // $binds let you automatically bind the function to the instance
                                                         // Useful for handlers/callbacks
-                                                        // You can specify multiple Binds in an array
+                                                        // You can specify multiple binds in an array
 
         /**
          * Class constructor.

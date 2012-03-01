@@ -359,18 +359,18 @@ define([
      */
     function parseBinds(constructor) {
 
-        if (hasOwn(constructor.prototype, 'Binds')) {
-            var binds = toArray(constructor.prototype.Binds),
+        if (hasOwn(constructor.prototype, '$binds')) {
+            var binds = toArray(constructor.prototype.$binds),
                 x = binds.length,
                 common;
 
             // Verify arguments type
-            if (!x && !isArray(constructor.prototype.Binds)) {
-                throw new TypeError('Binds of "' + constructor.prototype.$name + '" must be a string or an array of strings.');
+            if (!x && !isArray(constructor.prototype.$binds)) {
+                throw new TypeError('$binds of "' + constructor.prototype.$name + '" must be a string or an array of strings.');
             }
             // Verify duplicate binds
             if (x !== unique(binds).length && compact(binds).length === x) {
-                throw new Error('There are duplicate entries in Binds of "' + constructor.prototype.$name + '".');
+                throw new Error('There are duplicate entries in $binds of "' + constructor.prototype.$name + '".');
             }
             // Verify duplicate binds already provided in mixins
             common = intersection(constructor.$class.binds, binds);
@@ -389,7 +389,7 @@ define([
             }
 
             combine(constructor.$class.binds, binds);
-            delete constructor.prototype.Binds;
+            delete constructor.prototype.$binds;
         }
     }
 
@@ -434,7 +434,7 @@ define([
                 value = params[key];
 
                 // TODO: Maybe we could improve this be storing this in the constructor itself and then deleting it
-                if (key !== '$constructor' && key !== '$self' && key !== '$static' && key !== '$name' && key !== 'Binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts') {
+                if (key !== '$constructor' && key !== '$self' && key !== '$static' && key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts') {
                     if (isFunction(value) && !value.$class && !value.$interface) {
                         addMethod(key, value, constructor);
                     } else {
