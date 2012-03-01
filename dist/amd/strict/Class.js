@@ -118,7 +118,7 @@ define([
         // Check if function is already being used by another class or within the same class
         if (method.$name) {
             if (method.$name !== name) {
-                throw new Error('Method "' + name + '" of class "' + constructor.prototype.Name + '" seems to be used by several times by the same or another class.');
+                throw new Error('Method "' + name + '" of class "' + constructor.prototype.$name + '" seems to be used by several times by the same or another class.');
             }
         } else {
             obfuscateProperty(method, '$name', name);
@@ -126,19 +126,19 @@ define([
 
         // If the initialize as inherited, clone the metadata
         if (!isStatic && name === 'initialize' && method.$inherited) {
-            metadata = mixIn({}, constructor.Super.$constructor.$class.methods[name]);
+            metadata = mixIn({}, constructor.$parent.$constructor.$class.methods[name]);
         } else {
             // Grab function metadata and throw error if is not valid
             metadata = functionMeta(method, name);
             if (metadata === null) {
-                throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in class "' + constructor.prototype.Name + '".');
+                throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in class "' + constructor.prototype.$name + '".');
             }
         }
 
         // Check if a property with the same name exists
         target = isStatic ? constructor.$class.staticProperties : constructor.$class.properties;
         if (isObject(target[name])) {
-            throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'property with the same name in class "' + constructor.prototype.Name + '".');
+            throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'property with the same name in class "' + constructor.prototype.$name + '".');
         }
 
         target = isStatic ? constructor.$class.staticMethods : constructor.$class.methods;
@@ -147,11 +147,11 @@ define([
         if (isObject(target[name])) {
             // Are we overriding a private method?
             if (target[name].isPrivate) {
-                throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' method "' + name + ' in class "' + constructor.prototype.Name + '".');
+                throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' method "' + name + ' in class "' + constructor.prototype.$name + '".');
             }
             // Are they compatible?
             if (!isFunctionCompatible(metadata, target[name])) {
-                throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '(' + metadata.signature + ')" defined in abstract class "' + constructor.prototype.Name + '" overrides its ancestor but it is not compatible with its signature: "' + name + '(' + target[name].signature + ')".');
+                throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '(' + metadata.signature + ')" defined in abstract class "' + constructor.prototype.$name + '" overrides its ancestor but it is not compatible with its signature: "' + name + '(' + target[name].signature + ')".');
             }
         }
 
@@ -216,7 +216,7 @@ define([
 
         // Check if a property with the same name exists
         if (isObject(target[name])) {
-            throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.Name + '".');
+            throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.$name + '".');
         }
 
         target = isStatic ? constructor.$class.staticProperties : constructor.$class.properties;
@@ -224,7 +224,7 @@ define([
         if (isObject(target[name])) {
             // Are we overriding a private property?
             if (target[name].isPrivate) {
-                throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' property "' + name + ' in class "' + constructor.prototype.Name + '".');
+                throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' property "' + name + ' in class "' + constructor.prototype.$name + '".');
             }
         }
 
@@ -245,10 +245,10 @@ define([
      */
     function parseBorrows(constructor) {
 
-        if (hasOwn(constructor.prototype, 'Borrows')) {
+        if (hasOwn(constructor.prototype, '$borrows')) {
 
             var current,
-                mixins = toArray(constructor.prototype.Borrows),
+                mixins = toArray(constructor.prototype.$borrows),
                 i = mixins.length,
                 optsStatic = { isStatic: true },
                 grabMethod = function (value, key) {
@@ -273,19 +273,19 @@ define([
                 };
 
             // Verify argument type
-            if (!i && !isArray(constructor.prototype.Borrows)) {
-                throw new TypeError('Borrows of "' + constructor.prototype.Name + '" must be a class/object or an array of classes/objects.');
+            if (!i && !isArray(constructor.prototype.$borrows)) {
+                throw new TypeError('$borrows of "' + constructor.prototype.$name + '" must be a class/object or an array of classes/objects.');
             }
             // Verify duplicate entries
             if (i !== unique(mixins).length && compact(mixins).length === i) {
-                throw new Error('There are duplicate entries defined in Borrows of "' + constructor.prototype.Name + '".');
+                throw new Error('There are duplicate entries defined in $borrows of "' + constructor.prototype.$name + '".');
             }
 
             for (i -= 1; i >= 0; i -= 1) {
 
                 // Verify each mixin
                 if ((!isFunction(mixins[i]) || !mixins[i].$class || mixins[i].$abstract) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
-                    throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + constructor.prototype.Name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
+                    throw new TypeError('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
                 }
 
                 if (isObject(mixins[i])) {
@@ -293,15 +293,15 @@ define([
                         current = Class(mixIn({}, mixins[i])).prototype;
                     } catch (e) {
                         // When an object is being used, throw a more friend message if an error occurs
-                        throw new Error('Unable to define object as class at index ' + i + ' in Borrows of class "' + constructor.prototype.Name + '" (' + e.message + ').');
+                        throw new Error('Unable to define object as class at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" (' + e.message + ').');
                     }
                 } else {
                     current = mixins[i].prototype;
                 }
 
                 // Verify if it has parent
-                if (current.$constructor.Super) {
-                    throw new TypeError('Entry at index ' + i + ' in Borrows of class "' + constructor.prototype.Name + '" is an inherited class (only root classes not supported).');
+                if (current.$constructor.$parent) {
+                    throw new TypeError('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is an inherited class (only root classes not supported).');
                 }
 
                 // Grab mixin members
@@ -316,7 +316,7 @@ define([
                 combine(constructor.$class.binds, current.$constructor.$class.binds);
             }
 
-            delete constructor.prototype.Borrows;
+            delete constructor.prototype.$borrows;
         }
     }
 
@@ -333,18 +333,18 @@ define([
 
         // Verify argument type
         if (!x && !isArray(interfs)) {
-            throw new TypeError('Implements of class "' + target.prototype.Name + '" must be an interface or an array of interfaces.');
+            throw new TypeError('$implements of class "' + target.prototype.$name + '" must be an interface or an array of interfaces.');
         }
         // Verify duplicate interfaces
         if (x !== unique(interfaces).length && compact(interfaces).length === x) {
-            throw new Error('There are duplicate entries in Implements of "' + target.prototype.Name + '".');
+            throw new Error('There are duplicate entries in $implements of "' + target.prototype.$name + '".');
         }
 
         for (x -= 1; x >= 0; x -= 1) {
 
             // Verify if it's a valid interface
             if (!isFunction(interfaces[x]) || !interfaces[x].$interface) {
-                throw new TypeError('Entry at index ' + x + ' in Implements of class "' + target.prototype.Name + '" is not a valid interface.');
+                throw new TypeError('Entry at index ' + x + ' in $implements of class "' + target.prototype.$name + '" is not a valid interface.');
             }
 
             if (!target.$abstract) {
@@ -368,25 +368,25 @@ define([
 
             // Verify arguments type
             if (!x && !isArray(constructor.prototype.Binds)) {
-                throw new TypeError('Binds of "' + constructor.prototype.Name + '" must be a string or an array of strings.');
+                throw new TypeError('Binds of "' + constructor.prototype.$name + '" must be a string or an array of strings.');
             }
             // Verify duplicate binds
             if (x !== unique(binds).length && compact(binds).length === x) {
-                throw new Error('There are duplicate entries in Binds of "' + constructor.prototype.Name + '".');
+                throw new Error('There are duplicate entries in Binds of "' + constructor.prototype.$name + '".');
             }
             // Verify duplicate binds already provided in mixins
             common = intersection(constructor.$class.binds, binds);
             if (common.length > 0) {
-                throw new Error('There are binds in "' + constructor.prototype.Name + '" that are already being bound by the parent class and/or mixin: ' + common.join(', '));
+                throw new Error('There are binds in "' + constructor.prototype.$name + '" that are already being bound by the parent class and/or mixin: ' + common.join(', '));
             }
 
             // Verify if all binds are strings reference existent methods
             for (x -= 1; x >= 0; x -= 1) {
                 if (!isString(binds[x])) {
-                    throw new TypeError('Entry at index ' + x + ' in Borrows of class "' + constructor.prototype.Name + '" is not a string.');
+                    throw new TypeError('Entry at index ' + x + ' in $borrows of class "' + constructor.prototype.$name + '" is not a string.');
                 }
-                if (!constructor.$class.methods[binds[x]] && (!constructor.prototype.Abstracts || !constructor.prototype.Abstracts[binds[x]])) {
-                    throw new ReferenceError('Method "' + binds[x] + '" referenced in "' + constructor.prototype.Name + '" binds does not exist.');
+                if (!constructor.$class.methods[binds[x]] && (!constructor.prototype.$abstracts || !constructor.prototype.$abstracts[binds[x]])) {
+                    throw new ReferenceError('Method "' + binds[x] + '" referenced in "' + constructor.prototype.$name + '" binds does not exist.');
                 }
             }
 
@@ -411,7 +411,7 @@ define([
             if (key === 'Statics') {
 
                 if (!isObject(params.Statics)) {
-                    throw new TypeError('Statics definition of class "' + params.Name + '" must be an object.');
+                    throw new TypeError('Statics definition of class "' + params.$name + '" must be an object.');
                 }
 
                 checkKeywords(params.Statics, 'statics');
@@ -428,7 +428,7 @@ define([
 
             } else {
                 // TODO: Maybe we could improve this be storing this in the constructor itself and then deleting it
-                if (key !== '$constructor' && key !== '$self' && key !== '$static' && key !== 'Name' && key !== 'Binds' && key !== 'Borrows' && key !== 'Implements' && key !== 'Abstracts') {
+                if (key !== '$constructor' && key !== '$self' && key !== '$static' && key !== '$name' && key !== 'Binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts') {
                     if (isFunction(value) && !value.$class && !value.$interface) {
                         addMethod(key, value, constructor);
                     } else {
@@ -481,14 +481,14 @@ define([
                         return method;
                     }
 
-                    throw new Error('Cannot access private method "' + name + '" of class "' + this.Name + '".');
+                    throw new Error('Cannot access private method "' + name + '" of class "' + this.$name + '".');
                 },
                 set: function set(newVal) {
 
                     if (this.$initializing) {
                         this[cacheKeyword].methods[name] = newVal;
                     } else {
-                        throw new Error('Cannot set private method "' + name + '" of class "' + this.Name + '".');
+                        throw new Error('Cannot set private method "' + name + '" of class "' + this.$name + '".');
                     }
                 },
                 configurable: false,
@@ -511,14 +511,14 @@ define([
                         return method;
                     }
 
-                    throw new Error('Cannot access protected method "' + name + '" of class "' + this.Name + '".');
+                    throw new Error('Cannot access protected method "' + name + '" of class "' + this.$name + '".');
                 },
                 set: function set(newVal) {
 
                     if (this.$initializing) {
                         this[cacheKeyword].methods[name] = newVal;
                     } else {
-                        throw new Error('Cannot set protected method "' + name + '" of class "' + this.Name + '".');
+                        throw new Error('Cannot set protected method "' + name + '" of class "' + this.$name + '".');
                     }
                 },
                 configurable: false,
@@ -551,10 +551,10 @@ define([
                         return method;
                     }
 
-                    throw new Error('Cannot access private static method "' + name + '" of class "' + this.prototype.Name + '".');
+                    throw new Error('Cannot access private static method "' + name + '" of class "' + this.prototype.$name + '".');
                 },
                 set: function set() {
-                    throw new Error('Cannot set private static method "' + name + '" of class "' + this.prototype.Name + '".');
+                    throw new Error('Cannot set private static method "' + name + '" of class "' + this.prototype.$name + '".');
                 },
                 configurable: false,
                 enumerable: false
@@ -583,10 +583,10 @@ define([
                         return method;
                     }
 
-                    throw new Error('Cannot access protected static method "' + name + '" of class "' + this.prototype.Name + '".');
+                    throw new Error('Cannot access protected static method "' + name + '" of class "' + this.prototype.$name + '".');
                 },
                 set: function set() {
-                    throw new Error('Cannot set protected static method "' + name + '" of class "' + this.prototype.Name + '".');
+                    throw new Error('Cannot set protected static method "' + name + '" of class "' + this.prototype.$name + '".');
                 },
                 configurable: false,
                 enumerable: false
@@ -616,7 +616,7 @@ define([
                         return this[cacheKeyword].properties[name];
                     }
 
-                    throw new Error('Cannot access private property "' + name + '" of class "' + this.Name + '".');
+                    throw new Error('Cannot access private property "' + name + '" of class "' + this.$name + '".');
                 },
                 set: function set(newValue) {
 
@@ -625,7 +625,7 @@ define([
                     if (this.$initializing || meta['$prototype_' + this.$constructor.$class.id] === caller['$prototype_' + this.$constructor.$class.id]) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
-                        throw new Error('Cannot set private property "' + name + '" of class "' + this.Name + '".');
+                        throw new Error('Cannot set private property "' + name + '" of class "' + this.$name + '".');
                     }
                 },
                 configurable: false,
@@ -647,7 +647,7 @@ define([
                         return this[cacheKeyword].properties[name];
                     }
 
-                    throw new Error('Cannot access protected property "' + name + '" of class "' + this.Name + '".');
+                    throw new Error('Cannot access protected property "' + name + '" of class "' + this.$name + '".');
                 },
                 set: function set(newValue) {
 
@@ -659,7 +659,7 @@ define([
                             (caller['$prototype_' + this.$constructor.$class.id] && meta['$prototype_' + this.$constructor.$class.id] instanceof caller['$prototype_' + this.$constructor.$class.id].$constructor)) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
-                        throw new Error('Cannot set protected property "' + name + '" of class "' + this.Name + '".');
+                        throw new Error('Cannot set protected property "' + name + '" of class "' + this.$name + '".');
                     }
                 },
                 configurable: false,
@@ -694,7 +694,7 @@ define([
                         return this[cacheKeyword].properties[name];
                     }
 
-                    throw new Error('Cannot access private static property "' + name + '" of class "' + this.prototype.Name + '".');
+                    throw new Error('Cannot access private static property "' + name + '" of class "' + this.prototype.$name + '".');
                 },
                 set: function set(newValue) {
 
@@ -705,7 +705,7 @@ define([
                             ) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
-                        throw new Error('Cannot set private property "' + name + '" of class "' + this.prototype.Name + '".');
+                        throw new Error('Cannot set private property "' + name + '" of class "' + this.prototype.$name + '".');
                     }
                 },
                 configurable: false,
@@ -735,7 +735,7 @@ define([
                         return method;
                     }
 
-                    throw new Error('Cannot access protected static method "' + name + '" of class "' + this.prototype.Name + '".');
+                    throw new Error('Cannot access protected static method "' + name + '" of class "' + this.prototype.$name + '".');
                 },
                 set: function set(newValue) {
 
@@ -754,7 +754,7 @@ define([
                             ))) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
-                        throw new Error('Cannot set protected property "' + name + '" of class "' + this.prototype.Name + '".');
+                        throw new Error('Cannot set protected property "' + name + '" of class "' + this.prototype.$name + '".');
                     }
                 },
                 configurable: false,
@@ -927,32 +927,32 @@ define([
             if (!caller.$name || !caller['$prototype_' + classId]) {
                 throw new Error('Calling parent method within an unknown function.');
             }
-            if (!caller['$prototype_' + classId].$constructor.Super) {
-                throw new Error('Cannot call parent method "' + (caller.$name || 'N/A') + '" in class "' + this.Name + '".');
+            if (!caller['$prototype_' + classId].$constructor.$parent) {
+                throw new Error('Cannot call parent method "' + (caller.$name || 'N/A') + '" in class "' + this.$name + '".');
             }
 
             meta = caller['$prototype_' + classId].$constructor.$class.methods[caller.$name];
 
             if (meta.isPrivate) {
-                throw new Error('Cannot call $super() within private methods in class "' + this.Name + '".');
+                throw new Error('Cannot call $super() within private methods in class "' + this.$name + '".');
             }
 
             if (meta.isPublic || !hasDefineProperty) {
 
-                alias = caller['$prototype_' + classId].$constructor.Super[caller.$name];
+                alias = caller['$prototype_' + classId].$constructor.$parent[caller.$name];
 
                 if (!alias) {
-                    throw new Error('Cannot call parent method "' + (caller.$name || 'N/A') + '" in class "' + this.Name + '".');
+                    throw new Error('Cannot call parent method "' + (caller.$name || 'N/A') + '" in class "' + this.$name + '".');
                 }
 
                 return alias.apply(this, arguments);
 
             }
 
-            alias = caller['$prototype_' + classId].$constructor.Super.$constructor.$class.methods[caller.$name];
+            alias = caller['$prototype_' + classId].$constructor.$parent.$constructor.$class.methods[caller.$name];
 
             if (!alias) {
-                throw new Error('Cannot call parent method "' + (caller.$name || 'N/A') + '" in class "' + this.Name + '".');
+                throw new Error('Cannot call parent method "' + (caller.$name || 'N/A') + '" in class "' + this.$name + '".');
             }
 
             return alias.implementation.apply(this, arguments);
@@ -1008,31 +1008,31 @@ define([
                 throw new Error('Calling parent static method within an unknown function.');
             }
 
-            if (!caller['$constructor_' + classId].Super) {
-                throw new Error('Cannot call parent static method "' + caller.$name || 'N/A' + '" in class "' + this.Name + '".');
+            if (!caller['$constructor_' + classId].$parent) {
+                throw new Error('Cannot call parent static method "' + caller.$name || 'N/A' + '" in class "' + this.$name + '".');
             }
 
             meta = caller['$constructor_' + classId].$class.staticMethods[caller.$name];
 
             if (meta.isPrivate) {
-                throw new Error('Cannot call $super() within private static methods in class "' + this.Name + '".');
+                throw new Error('Cannot call $super() within private static methods in class "' + this.$name + '".');
             }
 
             if (meta.isPublic || !hasDefineProperty) {
 
-                alias = caller['$constructor_' + classId].Super.$constructor[caller.$name];
+                alias = caller['$constructor_' + classId].$parent.$constructor[caller.$name];
 
                 if (!alias) {
-                    throw new Error('Cannot call parent static method "' + caller.$name || 'N/A' + '" in class "' + this.Name + '".');
+                    throw new Error('Cannot call parent static method "' + caller.$name || 'N/A' + '" in class "' + this.$name + '".');
                 }
 
                 return alias.apply(this, arguments);
             }
 
-            alias = caller['$constructor_' + classId].Super.$constructor.$class.staticMethods[caller.$name];
+            alias = caller['$constructor_' + classId].$parent.$constructor.$class.staticMethods[caller.$name];
 
             if (!alias) {
-                throw new Error('Cannot call parent static method "' + caller.$name || 'N/A' + '" in class "' + this.Name + '".');
+                throw new Error('Cannot call parent static method "' + caller.$name || 'N/A' + '" in class "' + this.$name + '".');
             }
 
             return alias.implementation.apply(this, arguments);
@@ -1045,7 +1045,7 @@ define([
      * @return {String} The readable string
      */
     function toStringInstance() {
-        return '[instance #' + this.Name + ']';
+        return '[instance #' + this.$name + ']';
     }
 
     /**
@@ -1054,7 +1054,7 @@ define([
      * @return {String} The readable string
      */
     function toStringConstructor() {
-        return '[constructor #' + this.prototype.Name + ']';
+        return '[constructor #' + this.prototype.$name + ']';
     }
 
     /**
@@ -1072,25 +1072,25 @@ define([
             throw new TypeError('Argument "params" must be an object.');
         }
         // Validate class name
-        if (hasOwn(params, 'Name')) {
-            if (!isString(params.Name)) {
+        if (hasOwn(params, '$name')) {
+            if (!isString(params.$name)) {
                 throw new TypeError('Class name must be a string.');
-            } else if (/\s+/.test(params.Name)) {
+            } else if (/\s+/.test(params.$name)) {
                 throw new TypeError('Class name cannot have spaces.');
             }
         } else {
-            params.Name = 'Unnamed';
+            params.$name = 'Unnamed';
         }
 
         // Verify if the class has abstract methods but is not defined as abstract
-        if (hasOwn(params, 'Abstracts') && !isAbstract) {
-            throw new Error('Class "' + params.Name + '" has abstract methods, therefore it must be defined as abstract.');
+        if (hasOwn(params, '$abstracts') && !isAbstract) {
+            throw new Error('Class "' + params.$name + '" has abstract methods, therefore it must be defined as abstract.');
         }
 
         // Verify if initialize is a method
         if (hasOwn(params, 'initialize')) {
             if (!isFunction(params.initialize)) {
-                throw new Error('The "initialize" member of class "' + params.Name + '" must be a function.');
+                throw new Error('The "initialize" member of class "' + params.$name + '" must be a function.');
             }
         }
 
@@ -1100,14 +1100,14 @@ define([
         var classify,
             parent;
 
-        if (hasOwn(params, 'Extends')) {
+        if (hasOwn(params, '$extends')) {
             // Verify if parent is a valid class
-            if (!isFunction(params.Extends) || !params.Extends.$class) {
-                throw new TypeError('Specified parent class in Extends of "' + params.Name + '" is not a valid class.');
+            if (!isFunction(params.$extends) || !params.$extends.$class) {
+                throw new TypeError('Specified parent class in $extends of "' + params.$name + '" is not a valid class.');
             }
 
-            parent = params.Extends;
-            delete params.Extends;
+            parent = params.$extends;
+            delete params.$extends;
 
             if (!hasOwn(params, 'initialize')) {
                 params.initialize = function () { parent.prototype.initialize.apply(this, arguments); };
@@ -1116,7 +1116,7 @@ define([
 
             classify = createConstructor(params.initialize, isAbstract);
             classify.$class.id = parent.$class.id;
-            classify.Super = parent.prototype;
+            classify.$parent = parent.prototype;
             classify.prototype = createObject(parent.prototype, params);
 
             inheritParent(classify, parent);
@@ -1163,14 +1163,14 @@ define([
         }
 
         // Handle interfaces
-        if (hasOwn(params, 'Implements')) {
-            handleInterfaces(params.Implements, classify);
-            delete classify.prototype.Implements;
+        if (hasOwn(params, '$implements')) {
+            handleInterfaces(params.$implements, classify);
+            delete classify.prototype.$implements;
         }
 
         // Remove abstracts reference
-        if (hasOwn(params, 'Abstracts')) {
-            delete params.Abstracts;
+        if (hasOwn(params, '$abstracts')) {
+            delete params.$abstracts;
         }
 
         // Prevent any properties/methods to be added and deleted

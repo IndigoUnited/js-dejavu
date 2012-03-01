@@ -48,7 +48,7 @@ define(function () {
             }
         }
 
-        return instance.$constructor.Super ? instanceOfInterface(instance.$constructor.Super, target) : false;
+        return instance.$constructor.$parent ? instanceOfInterface(instance.$constructor.$parent, target) : false;
     }
 
     /**

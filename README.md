@@ -81,7 +81,7 @@ Be aware that all functions must obey it's base signature (see explanation later
 define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Events, Interface) {
 
     var SomeEventsInterface = Interface({
-        Extends: EventsInterface,   // This interface extends EventsInterface
+        $extends: EventsInterface,   // This interface extends EventsInterface
                                     // Interfaces can extend multiple ones, just reference them in an array
 
         Statics: {                  // This is how we define statics
@@ -99,15 +99,15 @@ define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Even
 ### Interface usage example ###
 
 A class that implements an interface must define all the interface methods and be compatible with their signature.
-You define that a class implements an interface by specifying it in the Implements keyword.
-The Implements keyword can be an interface or an array of interfaces.
+You define that a class implements an interface by specifying it in the $implements keyword.
+The $implements keyword can be an interface or an array of interfaces.
 Following the previous example we can define a concrete class - _EventsEmitter_ - that implements the _EventsInterface_ interface.
 
 ```js
 define(['path/to/EventsInterface', 'path/to/classify/Class'], function (EventsInterface, Class) {
 
     var EventsEmitter = Class({
-        Implements: EventsInterface,   // The class implements the EventsInterface interface
+        $implements: EventsInterface,   // The class implements the EventsInterface interface
                                        // You can specify multiple interfaces in an array
 
         addListener: function (name, fn, context) {
@@ -144,7 +144,7 @@ define([
 function (EventsInterface, AbstractClass) {
 
     var AbstractEventsEmitter = AbstractClass({
-        Implements: EventsInterface,   // The class must implement the EventsInterface
+        $implements: EventsInterface,   // The class must implement the EventsInterface
 
         initialize: function (argument1) {
             // This is the constructor
@@ -162,7 +162,7 @@ function (EventsInterface, AbstractClass) {
 
         // fireEvent() is not implemented, therefore is automatically declared as abstract
 
-        Abstracts: {                   // This how we defined abstract methods
+        $abstracts: {                   // This how we defined abstract methods
 
             removeAll: function () {},
 
@@ -190,8 +190,8 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
 
     var ComplexAbstractClass = AbstractClass({
 
-        Extends: SomeClass,
-        Implements: [SomeInterface, OtherInterface],
+        $extends: SomeClass,
+        $implements: [SomeInterface, OtherInterface],
 
         /**
          * Class constructor.
@@ -207,7 +207,7 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
             // Some class static members
         },
 
-        Abstracts: {
+        $abstracts: {
 
             // Some abstract functions
 
@@ -240,9 +240,9 @@ define([
 function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
 
     var ConcreteClass = Class({
-        Extends: SomeClass,
-        Implements: [SomeInterface, OtherInterface],
-        Borrows: OtherClass                             // We can add mixins by specifying them in here
+        $extends: SomeClass,
+        $implements: [SomeInterface, OtherInterface],
+        $borrows: OtherClass                             // We can add mixins by specifying them in here
                                                         // You can specify multiple mixins in an array
 
         Binds: 'handleClick',                           // Binds let you automatically bind the function to the instance
@@ -301,7 +301,7 @@ If Object.defineProperty is available, it will be used to manage their access (o
 ### Calling the parent function ###
 
 As mentioned above, $super() can be slow compared to its alternative.
-Its alternative is as simple as ClassName.Super.method.call(this, args1, ...):
+Its alternative is as simple as ClassName.$parent.method.call(this, args1, ...):
 
 ```js
 define(['path/to/classify/Class'], function (Class) {
@@ -313,11 +313,11 @@ define(['path/to/classify/Class'], function (Class) {
     });
 
     var ComplexClass = Class({
-        Extends: SomeClass,
+        $extends: SomeClass,
 
         foo: function () {
             // Call super
-            ComplexClass.Super.foo.call(this);
+            ComplexClass.$parent.foo.call(this);
 
             // Do other things
         }
@@ -344,7 +344,7 @@ var SomeClass = Class({
 });
 
 var ComplexClass = Class({
-    Extends: SomeClass,
+    $extends: SomeClass,
 
     foo: function (param1, $param2) {    // It's ok, was augmented with an additional optional argument
         // Do something here
@@ -352,7 +352,7 @@ var ComplexClass = Class({
 });
 
 var OtherComplexClass = Class({
-    Extends: SomeClass,
+    $extends: SomeClass,
 
     foo: function (param1, param2) {     // Will throw an error because foo(param1, param2) is not compatible with foo(param1, $param2)
         // Do something here
@@ -385,14 +385,14 @@ var Example2 = Class({
 });
 
 var Example3 = Class({
-    Extends: Example1
+    $extends: Example1
     Statics: {
         bar: 'bye'
     }
 });
 
 var Example4 = Class({
-    Extends: Example2
+    $extends: Example2
     Statics: {
         bar: 'bye'
     }
