@@ -87,7 +87,9 @@ define([
 
                 // Grab mixin static methods
                 for (k = current.$constructor.$class.staticMethods.length - 1; k >= 0; k -= 1) {
+
                     key = current.$constructor.$class.staticMethods[k];
+
                     if (isUndefined(constructor[key])) {    // Already defined members are not overwritten
                         insert(constructor.$class.staticMethods, key);
                         constructor[key] = current.$constructor[key];
@@ -182,8 +184,7 @@ define([
 
                 value = params[key];
 
-                // TODO: Maybe we could improve this be storing this in the constructor itself and then deleting it
-                if (key !== '$constructor' && key !== '$self' && key !== '$static' && key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts') {
+                if (key.charAt(0) !== '$' || (key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
                     if (isFunction(value) && !value.$class && !value.$interface) {
                         value['$prototype_' + constructor.$class.id] = constructor.prototype;
                         value.$name = key;
@@ -399,12 +400,12 @@ define([
 
         delete classify.prototype.$name;
 
+        // Parse members
+        parseMembers(params, classify);
+
         // Assign constructor & static parent alias
         classify.prototype.$constructor = classify;
         classify.$super = superStaticAlias(classify.$class.id);
-
-        // Parse members
-        parseMembers(params, classify);
 
         // Parse mixins
         parseBorrows(classify);
