@@ -412,8 +412,8 @@ var Example4 = Class({
     }
 });
 
-new Example3().foo(); // hello
-new Example4().foo(); // bye
+Example3.foo(); // hello
+Example4.foo(); // bye
 ```
 
 ### instanceOf ###
