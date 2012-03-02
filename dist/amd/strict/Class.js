@@ -404,8 +404,8 @@ define([
         var optsStatic = { isStatic: true },
             key,
             value;
-
         // Add each method metadata, verifying its signature
+
         for (key in params) {
 
             if (key === '$statics') {
@@ -433,8 +433,7 @@ define([
 
                 value = params[key];
 
-                // TODO: Maybe we could improve this be storing this in the constructor itself and then deleting it
-                if (key !== '$constructor' && key !== '$self' && key !== '$static' && key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts') {
+                if (key.charAt(0) !== '$' || (key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
                     if (isFunction(value) && !value.$class && !value.$interface) {
                         addMethod(key, value, constructor);
                     } else {
@@ -1153,12 +1152,12 @@ define([
             classify.$abstract = true;  // Signal it has abstract
         }
 
+        // Parse members
+        parseMembers(params, classify);
+
         // Assign constructor & static parent alias
         obfuscateProperty(classify.prototype, '$constructor', classify);
         obfuscateProperty(classify, '$super', superStaticAlias(classify.$class.id));
-
-        // Parse members
-        parseMembers(params, classify);
 
         // Parse mixins
         parseBorrows(classify);

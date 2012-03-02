@@ -366,7 +366,9 @@ define([
 //>>excludeStart('strict', pragmas.strict);
                 // Grab mixin static methods
                 for (k = current.$constructor.$class.staticMethods.length - 1; k >= 0; k -= 1) {
+
                     key = current.$constructor.$class.staticMethods[k];
+
                     if (isUndefined(constructor[key])) {    // Already defined members are not overwritten
                         insert(constructor.$class.staticMethods, key);
                         constructor[key] = current.$constructor[key];
@@ -495,15 +497,14 @@ define([
 //>>excludeStart('strict', pragmas.strict);
         var key,
             value;
-
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
         var optsStatic = { isStatic: true },
             key,
             value;
-
         // Add each method metadata, verifying its signature
 //>>includeEnd('strict');
+
         for (key in params) {
 
             if (key === '$statics') {
@@ -546,8 +547,7 @@ define([
 
                 value = params[key];
 
-                // TODO: Maybe we could improve this be storing this in the constructor itself and then deleting it
-                if (key !== '$constructor' && key !== '$self' && key !== '$static' && key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts') {
+                if (key.charAt(0) !== '$' || (key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
 //>>includeStart('strict', pragmas.strict);
                     if (isFunction(value) && !value.$class && !value.$interface) {
                         addMethod(key, value, constructor);
@@ -1377,6 +1377,9 @@ define([
         }
 //>>includeEnd('strict');
 
+        // Parse members
+        parseMembers(params, classify);
+
         // Assign constructor & static parent alias
 //>>excludeStart('strict', pragmas.strict);
         classify.prototype.$constructor = classify;
@@ -1386,9 +1389,6 @@ define([
         obfuscateProperty(classify.prototype, '$constructor', classify);
         obfuscateProperty(classify, '$super', superStaticAlias(classify.$class.id));
 //>>includeEnd('strict');
-
-        // Parse members
-        parseMembers(params, classify);
 
         // Parse mixins
         parseBorrows(classify);
