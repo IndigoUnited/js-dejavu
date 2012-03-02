@@ -432,8 +432,9 @@ define([
             } else {
 
                 value = params[key];
-
+                
                 if (key.charAt(0) !== '$' || (key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
+
                     if (isFunction(value) && !value.$class && !value.$interface) {
                         addMethod(key, value, constructor);
                     } else {

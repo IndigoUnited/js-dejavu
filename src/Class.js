@@ -546,9 +546,10 @@ define([
             } else {
 
                 value = params[key];
-
-                if (key.charAt(0) !== '$' || (key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
+                
 //>>includeStart('strict', pragmas.strict);
+                if (key.charAt(0) !== '$' || (key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
+
                     if (isFunction(value) && !value.$class && !value.$interface) {
                         addMethod(key, value, constructor);
                     } else {
@@ -556,6 +557,8 @@ define([
                     }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
+                if (key.charAt(0) !== '$' || (key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
+
                     if (isFunction(value) && !value.$class && !value.$interface) {
                         value['$prototype_' + constructor.$class.id] = constructor.prototype;
                         value.$name = key;

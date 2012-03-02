@@ -183,8 +183,9 @@ define([
             } else {
 
                 value = params[key];
+                
+                if (key.charAt(0) !== '$' || (key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
 
-                if (key.charAt(0) !== '$' || (key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
                     if (isFunction(value) && !value.$class && !value.$interface) {
                         value['$prototype_' + constructor.$class.id] = constructor.prototype;
                         value.$name = key;
