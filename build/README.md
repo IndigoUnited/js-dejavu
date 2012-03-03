@@ -23,4 +23,7 @@ The __loose__ build has all the overhead of validations removed. If your classes
 
 ## Regular Build ##
 
-The regular build is a standalone file that has all the functionality built in (comming soon).
+The regular build is a standalone file that has all the functionality built in.
+All the functionality is wrapped in the global Classify (e.g.: Class is available through Classify.Class).
+Similar to the AMD build, there is a strict and loose build.
+The loose build is already minified (with uglify).

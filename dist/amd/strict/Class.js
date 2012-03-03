@@ -1057,7 +1057,7 @@ define([
     function toStringConstructor() {
         return '[constructor #' + this.prototype.$name + ']';
     }
-
+    
     /**
      * Create a class definition.
      *

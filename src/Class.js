@@ -1231,6 +1231,7 @@ define([
         };
     }
 
+//>>includeStart('strict', pragmas.strict);
     /**
      * Method that will print a readable string describing an instance.
      *
@@ -1248,7 +1249,8 @@ define([
     function toStringConstructor() {
         return '[constructor #' + this.prototype.$name + ']';
     }
-
+    
+//>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
     /**
      * Create a class definition.
@@ -1258,7 +1260,6 @@ define([
      * @return {Function} The constructor
      */
     Class = function Class(params) {
-
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
     /**
@@ -1399,15 +1400,6 @@ define([
             parent[$abstract].check(classify);
         }
 //>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
-        // Add toString() if not defined yet
-        if (params.toString === Object.prototype.toString) {
-            classify.prototype.toString = toStringInstance;
-        }
-        if (classify.toString === Function.prototype.toString) {
-            classify.toString = toStringConstructor;
-        }
-//>>excludeEnd('strict');
 
         // Handle interfaces
         if (hasOwn(params, '$implements')) {

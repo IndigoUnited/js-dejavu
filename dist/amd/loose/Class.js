@@ -348,24 +348,6 @@ define([
     }
 
     /**
-     * Method that will print a readable string describing an instance.
-     *
-     * @return {String} The readable string
-     */
-    function toStringInstance() {
-        return '[instance #' + this.$name + ']';
-    }
-
-    /**
-     * Method that will print a readable string describing an instance.
-     *
-     * @return {String} The readable string
-     */
-    function toStringConstructor() {
-        return '[constructor #' + this.prototype.$name + ']';
-    }
-
-    /**
      * Create a class definition.
      *
      * @param {Object} params An object containing methods and properties
@@ -373,7 +355,6 @@ define([
      * @return {Function} The constructor
      */
     Class = function Class(params) {
-
 
         var classify,
             parent;
@@ -416,13 +397,6 @@ define([
         // Parse binds
         parseBinds(classify);
 
-        // Add toString() if not defined yet
-        if (params.toString === Object.prototype.toString) {
-            classify.prototype.toString = toStringInstance;
-        }
-        if (classify.toString === Function.prototype.toString) {
-            classify.toString = toStringConstructor;
-        }
 
         // Handle interfaces
         if (hasOwn(params, '$implements')) {

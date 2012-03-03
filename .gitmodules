@@ -10,3 +10,6 @@
 [submodule "vendor/expect.js"]
 	path = vendor/expect.js
 	url = https://github.com/LearnBoost/expect.js.git
+[submodule "vendor/almond"]
+	path = vendor/almond
+	url = git://github.com/jrburke/almond.git

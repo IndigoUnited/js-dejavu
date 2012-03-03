@@ -7,7 +7,7 @@ define([
     contains
 ) {
     var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
-        reservedStatics = ['$class', '$abstract', '$interface', '$parent', '$super'];
+        reservedStatics = ['$parent', '$super'];
 
     /**
      * Verify reserved words found in classes/interfaces.
