@@ -56,7 +56,7 @@ define([
         $class = '$class_' + random,
         $interface = '$interface_' + random,
         $abstract = '$abstract_' + random,
-        cacheKeyword = 'cache_' + random,
+        cacheKeyword = '$cache_' + random,
         inheriting,
         nextId = 0;
 
