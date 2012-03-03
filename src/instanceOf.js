@@ -1,7 +1,25 @@
 /*jslint sloppy:true*/
 /*global define*/
 
-define(function () {
+define([
+//>>includeStart('strict', pragmas.strict);
+    './common/randomAccessor'
+//>>includeEnd('strict');
+], function (
+//>>includeStart('strict', pragmas.strict);
+    randomAccessor
+//>>includeEnd('strict');
+) {
+
+//>>includeStart('strict', pragmas.strict);
+    var random = randomAccessor(),
+        $class = '$class_' + random,
+        $interface = '$interface_' + random;
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+    var $class = '$class',
+        $interface = '$interface';
+//>>excludeEnd('strict');
 
     /**
      * Check if an interface is descendant of another.
@@ -14,7 +32,7 @@ define(function () {
     function interfaceDescendantOf(interf1, interf2) {
 
         var x,
-            parents = interf1.$interface.parents;
+            parents = interf1[$interface].parents;
 
         for (x = parents.length - 1; x >= 0; x -= 1) {
             if (parents[x] === interf2) {
@@ -39,8 +57,7 @@ define(function () {
     function instanceOfInterface(instance, target) {
 
         var x,
-            y,
-            interfaces = instance.$constructor.$class.interfaces;
+            interfaces = instance.$constructor[$class].interfaces;
 
         for (x = interfaces.length - 1; x >= 0; x -= 1) {
             if (interfaces[x] === target || interfaceDescendantOf(interfaces[x], target)) {
@@ -61,7 +78,7 @@ define(function () {
      */
     function instanceOf(instance, target) {
 
-        if (instance.$constructor.$class && target.$interface) {
+        if (instance.$constructor[$class] && target[$interface]) {
             return instanceOfInterface(instance, target);
         }
 

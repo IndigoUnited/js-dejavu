@@ -4,10 +4,12 @@
 define([
     'Utils/object/hasOwn',
     'Utils/lang/toArray'
-], function (
+], function InterfaceWrapper(
     hasOwn,
     toArray
 ) {
+
+    var $interface = '$interface';
 
     /**
      * Create an interface definition.
@@ -24,7 +26,7 @@ define([
             k,
             interf = function () {};
 
-        interf.$interface = { parents: [] };
+        interf[$interface] = { parents: [] };
 
         if (hasOwn(params, '$extends')) {
 
@@ -33,7 +35,7 @@ define([
 
             for (k -= 1; k >= 0; k -= 1) {
                 // Add interface to the parents
-                interf.$interface.parents.push(parents[k]);
+                interf[$interface].parents.push(parents[k]);
             }
 
             delete params.$extends;

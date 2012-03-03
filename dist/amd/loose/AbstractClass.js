@@ -5,11 +5,13 @@ define([
     'Utils/object/hasOwn',
     './Class',
     'require'
-], function (
+], function AbstractClassWrapper(
     hasOwn,
     Class,
     require
 ) {
+
+    var $abstract = '$abstract';
 
     /**
      * Create an abstract class definition.
@@ -31,6 +33,7 @@ define([
 
         // Create the class definition
         def = Class(params);
+        def[$abstract] = true;
 
         return def;
     }

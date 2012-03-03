@@ -18,10 +18,12 @@ define([
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',
     './common/checkObjectPrototype',
+    './common/obfuscateProperty',
+    './common/randomAccessor',
 //>>includeEnd('strict');
     'Utils/object/hasOwn',
     'Utils/lang/toArray'
-], function (
+], function InterfaceWrapper(
 //>>includeStart('strict', pragmas.strict);
     isObject,
     isFunction,
@@ -38,12 +40,22 @@ define([
     isFunctionEmpty,
     isFunctionCompatible,
     checkObjectPrototype,
+    obfuscateProperty,
+    randomAccessor,
 //>>includeEnd('strict');
     hasOwn,
     toArray
 ) {
 
+//>>excludeStart('strict', pragmas.strict);
+    var $interface = '$interface';
+
+//>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
+    var random = randomAccessor(),
+        $class = '$class_' + random,
+        $interface = '$interface_' + random;
+
     checkObjectPrototype();
 
     /**
@@ -58,28 +70,28 @@ define([
             value;
 
         // Check normal functions
-        for (key in this.$interface.methods) {
+        for (key in this[$interface].methods) {
 
-            value = this.$interface.methods[key];
+            value = this[$interface].methods[key];
 
-            if (!target.$class.methods[key]) {
+            if (!target[$class].methods[key]) {
                 throw new Error('Class "' + target.prototype.$name + '" does not implement interface "' + this.prototype.$name + '" correctly, method "' + key + '" was not found.');
             }
-            if (!isFunctionCompatible(target.$class.methods[key], value)) {
-                throw new Error('Method "' + key + '(' + target.$class.methods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in interface "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
+            if (!isFunctionCompatible(target[$class].methods[key], value)) {
+                throw new Error('Method "' + key + '(' + target[$class].methods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in interface "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
             }
         }
 
         // Check static functions
-        for (key in this.$interface.staticMethods) {
+        for (key in this[$interface].staticMethods) {
 
-            value = this.$interface.staticMethods[key];
+            value = this[$interface].staticMethods[key];
 
-            if (!target.$class.staticMethods[key]) {
+            if (!target[$class].staticMethods[key]) {
                 throw new Error('Class "' + target.prototype.$name + '" does not implement interface "' + this.prototype.$name + '" correctly, static method "' + key + '" was not found.');
             }
-            if (!isFunctionCompatible(target.$class.staticMethods[key], value)) {
-                throw new Error('Static method "' + key + '(' + target.$class.staticMethods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in interface "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
+            if (!isFunctionCompatible(target[$class].staticMethods[key], value)) {
+                throw new Error('Static method "' + key + '(' + target[$class].staticMethods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in interface "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
             }
         }
     }
@@ -115,7 +127,7 @@ define([
             throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in interface "' + interf.prototype.$name + '".');
         }
 
-        target = isStatic ? interf.$interface.staticMethods : interf.$interface.methods;
+        target = isStatic ? interf[$interface].staticMethods : interf[$interface].methods;
 
         // Check if the method already exists and it's compatible
         if (isObject(target[name])) {
@@ -171,7 +183,7 @@ define([
                 throw new Error('Interfaces cannot be instantiated.');
             };
 
-        interf.$interface = { parents: [], methods: {}, staticMethods: {}, check: bind(checkClass, interf) };
+        obfuscateProperty(interf, $interface, { parents: [], methods: {}, staticMethods: {}, check: bind(checkClass, interf) });
         interf.prototype.$name = params.$name;
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
@@ -179,7 +191,7 @@ define([
             k,
             interf = function () {};
 
-        interf.$interface = { parents: [] };
+        interf[$interface] = { parents: [] };
 //>>excludeEnd('strict');
 
         if (hasOwn(params, '$extends')) {
@@ -204,43 +216,43 @@ define([
                 current = parents[k];
 
                 // Check if it is a valid interface
-                if (!isFunction(current) || !current.$interface) {
+                if (!isFunction(current) || !current[$interface]) {
                     throw new TypeError('Specified interface in $extends at index ' +  k + ' of "' + params.$name + '" is not a valid interface.');
                 }
 
                 // Merge methods
-                duplicate = intersection(keys(interf.$interface.methods), keys(current.$interface.methods));
+                duplicate = intersection(keys(interf[$interface].methods), keys(current[$interface].methods));
                 i = duplicate.length;
                 if (i > 0) {
                     for (i -= 1; i >= 0; i -= 1) {
-                        if (!isFunctionCompatible(interf.$interface.methods[duplicate[i]], current.$interface.methods[duplicate[i]]) &&
-                                !isFunctionCompatible(current.$interface.methods[duplicate[i]], interf.$interface.methods[duplicate[i]])) {
+                        if (!isFunctionCompatible(interf[$interface].methods[duplicate[i]], current[$interface].methods[duplicate[i]]) &&
+                                !isFunctionCompatible(current[$interface].methods[duplicate[i]], interf[$interface].methods[duplicate[i]])) {
                             throw new Error('Interface "' + params.$name + '" is inheriting method "' + duplicate[i] + '" from different parents with incompatible signatures.');
                         }
                     }
                 }
-                mixIn(interf.$interface.methods, current.$interface.methods);
+                mixIn(interf[$interface].methods, current[$interface].methods);
 
                 // Merge static methods
-                duplicate = intersection(keys(interf.$interface.staticMethods), keys(current.$interface.staticMethods));
+                duplicate = intersection(keys(interf[$interface].staticMethods), keys(current[$interface].staticMethods));
                 i = duplicate.length;
                 if (i > 0) {
                     for (i -= 1; i >= 0; i -= 1) {
-                        if (!isFunctionCompatible(interf.$interface.staticMethods[duplicate[i]], current.$interface.staticMethods[duplicate[i]]) &&
-                                !isFunctionCompatible(current.$interface.staticMethods[duplicate[i]], interf.$interface.staticMethods[duplicate[i]])) {
+                        if (!isFunctionCompatible(interf[$interface].staticMethods[duplicate[i]], current[$interface].staticMethods[duplicate[i]]) &&
+                                !isFunctionCompatible(current[$interface].staticMethods[duplicate[i]], interf[$interface].staticMethods[duplicate[i]])) {
                             throw new Error('Interface "' + params.$name + '" is inheriting static method "' + duplicate[i] + '" from different parents with incompatible signatures.');
                         }
                     }
                 }
 
-                mixIn(interf.$interface.staticMethods, current.$interface.staticMethods);
+                mixIn(interf[$interface].staticMethods, current[$interface].staticMethods);
 
                 // Add interface to the parents
-                interf.$interface.parents.push(current);
+                interf[$interface].parents.push(current);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
                 // Add interface to the parents
-                interf.$interface.parents.push(parents[k]);
+                interf[$interface].parents.push(parents[k]);
 //>>excludeEnd('strict');
             }
 
@@ -270,7 +282,7 @@ define([
                     value = params.$statics[k];
 
                     // Check if it is not a function
-                    if (!isFunction(value) || value.$interface || value.$class) {
+                    if (!isFunction(value) || value[$interface] || value[$class]) {
                         throw new Error('Static member "' + k + '" found in interface "' + params.$name + '" is not a function.');
                     }
 
@@ -282,7 +294,7 @@ define([
                 value = params[k];
 
                 // Check if it is not a function
-                if (!isFunction(value) || value.$interface || value.$class) {
+                if (!isFunction(value) || value[$interface] || value[$class]) {
                     throw new Error('Member "' + k + '" found in interface "' + params.$name + '" is not a function.');
                 }
 

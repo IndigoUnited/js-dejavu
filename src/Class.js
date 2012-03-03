@@ -11,8 +11,10 @@ define([
     './common/propertyMeta',
     './common/isFunctionCompatible',
     './common/checkKeywords',
+    './common/obfuscateProperty',
     './common/hasDefineProperty',
     './common/checkObjectPrototype',
+    './common/randomAccessor',
 //>>includeEnd('strict');
     'Utils/lang/isFunction',
     'Utils/lang/isObject',
@@ -28,7 +30,7 @@ define([
 //>>excludeEnd('strict');
     'Utils/lang/bind',
     'Utils/lang/toArray'
-], function (
+], function ClassWrapper(
 //>>includeStart('strict', pragmas.strict);
     isString,
     intersection,
@@ -38,8 +40,10 @@ define([
     propertyMeta,
     isFunctionCompatible,
     checkKeywords,
+    obfuscateProperty,
     hasDefineProperty,
     checkObjectPrototype,
+    randomAccessor,
 //>>includeEnd('strict');
     isFunction,
     isObject,
@@ -61,14 +65,19 @@ define([
     checkObjectPrototype();
 
     var Class,
-        random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
+        random = randomAccessor(),
+        $class = '$class_' + random,
+        $interface = '$interface_' + random,
+        $abstract = '$abstract_' + random,
         cacheKeyword = 'cache_' + random,
         inheriting,
         nextId = 0;
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
     var Class,
-        nextId = 0;
+        nextId = 0,
+        $class = '$class',
+        $interface = '$interface';
 //>>excludeEnd('strict');
 
     /**
@@ -91,29 +100,6 @@ define([
     }
 
 //>>includeStart('strict', pragmas.strict);
-    /**
-     * Sets the key of object with the specified value.
-     * The property is obfuscated, by not being enumerable, configurable and writable.
-     *
-     * @param {Object}  obj                  The object
-     * @param {String}  key                  The key
-     * @param {Mixin}   value                The value
-     * @param {Boolean} [isWritable="false"] True to be writable, false otherwise
-     */
-    function obfuscateProperty(obj, key, value, isWritable) {
-
-        if (hasDefineProperty) {
-            Object.defineProperty(obj, key, {
-                value: value,
-                configurable: false,
-                writable: isWritable || true,
-                enumerable: false
-            });
-        } else {
-            obj[key] = value;
-        }
-    }
-
     /**
      * Adds a method to a class.
      * This method will throw an error if something is not right.
@@ -143,7 +129,7 @@ define([
 
         // If the initialize as inherited, clone the metadata
         if (!isStatic && name === 'initialize' && method.$inherited) {
-            metadata = mixIn({}, constructor.$parent.$class.methods[name]);
+            metadata = mixIn({}, constructor.$parent[$class].methods[name]);
         } else {
             // Grab function metadata and throw error if is not valid
             metadata = functionMeta(method, name);
@@ -153,12 +139,12 @@ define([
         }
 
         // Check if a property with the same name exists
-        target = isStatic ? constructor.$class.staticProperties : constructor.$class.properties;
+        target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
         if (isObject(target[name])) {
             throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'property with the same name in class "' + constructor.prototype.$name + '".');
         }
 
-        target = isStatic ? constructor.$class.staticMethods : constructor.$class.methods;
+        target = isStatic ? constructor[$class].staticMethods : constructor[$class].methods;
 
         // Check if the method already exists
         if (isObject(target[name])) {
@@ -191,9 +177,9 @@ define([
 
        // Store a reference to the prototype/constructor
         if (!isStatic) {
-            obfuscateProperty(method, '$prototype_' + constructor.$class.id, constructor.prototype);
+            obfuscateProperty(method, '$prototype_' + constructor[$class].id, constructor.prototype);
         } else {
-            obfuscateProperty(method, '$constructor_' + constructor.$class.id, constructor);
+            obfuscateProperty(method, '$constructor_' + constructor[$class].id, constructor);
         }
     }
 
@@ -229,14 +215,14 @@ define([
         }
 
 
-        target = isStatic ? constructor.$class.staticMethods : constructor.$class.methods;
+        target = isStatic ? constructor[$class].staticMethods : constructor[$class].methods;
 
         // Check if a property with the same name exists
         if (isObject(target[name])) {
             throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.$name + '".');
         }
 
-        target = isStatic ? constructor.$class.staticProperties : constructor.$class.properties;
+        target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
 
         if (isObject(target[name])) {
             // Are we overriding a private property?
@@ -249,9 +235,9 @@ define([
 
         // Store a reference to the prototype/constructor
         if (!isStatic) {
-            metadata['$prototype_' + constructor.$class.id] = constructor.prototype;
+            metadata['$prototype_' + constructor[$class].id] = constructor.prototype;
         } else {
-            metadata['$constructor_' + constructor.$class.id] = constructor;
+            metadata['$constructor_' + constructor[$class].id] = constructor;
         }
     }
 
@@ -297,7 +283,7 @@ define([
 
 //>>includeStart('strict', pragmas.strict);
                 // Verify each mixin
-                if ((!isFunction(mixins[i]) || !mixins[i].$class || mixins[i].$abstract) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
+                if ((!isFunction(mixins[i]) || !mixins[i][$class] || mixins[i][$abstract]) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
                     throw new TypeError('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
                 }
 
@@ -328,8 +314,8 @@ define([
 
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
                         constructor.prototype[key] = value;
-                        if (isFunction(value) && !value.$class && !value.$interface) {
-                            value['$prototype_' + constructor.$class.id] = constructor.prototype;
+                        if (isFunction(value) && !value[$class] && !value[$interface]) {
+                            value['$prototype_' + constructor[$class].id] = constructor.prototype;
                             value.$name = key;
                         }
                     }
@@ -338,59 +324,59 @@ define([
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
                 // Grab mixin members
-                for (key in current.$constructor.$class.methods) {
+                for (key in current.$constructor[$class].methods) {
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
-                        addMethod(key, current.$constructor.$class.methods[key].implementation || current[key], constructor);
+                        addMethod(key, current.$constructor[$class].methods[key].implementation || current[key], constructor);
                     }
                 }
 
-                for (key in current.$constructor.$class.properties) {
+                for (key in current.$constructor[$class].properties) {
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
-                        addProperty(key, current.$constructor.$class.properties[key].value, constructor);
+                        addProperty(key, current.$constructor[$class].properties[key].value, constructor);
                     }
                 }
 
                 // Grab mixin static members
-                for (key in current.$constructor.$class.staticMethods) {
+                for (key in current.$constructor[$class].staticMethods) {
                     if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
-                        addMethod(key, current.$constructor.$class.staticMethods[key].implementation || current.$constructor[key], constructor, optsStatic);
+                        addMethod(key, current.$constructor[$class].staticMethods[key].implementation || current.$constructor[key], constructor, optsStatic);
                     }
                 }
 
-                for (key in current.$constructor.$class.staticProperties) {
+                for (key in current.$constructor[$class].staticProperties) {
                     if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
-                        addProperty(key, current.$constructor.$class.staticProperties[key].value, constructor, optsStatic);
+                        addProperty(key, current.$constructor[$class].staticProperties[key].value, constructor, optsStatic);
                     }
                 }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
                 // Grab mixin static methods
-                for (k = current.$constructor.$class.staticMethods.length - 1; k >= 0; k -= 1) {
+                for (k = current.$constructor[$class].staticMethods.length - 1; k >= 0; k -= 1) {
 
-                    key = current.$constructor.$class.staticMethods[k];
+                    key = current.$constructor[$class].staticMethods[k];
 
                     if (isUndefined(constructor[key])) {    // Already defined members are not overwritten
-                        insert(constructor.$class.staticMethods, key);
+                        insert(constructor[$class].staticMethods, key);
                         constructor[key] = current.$constructor[key];
-                        constructor[key]['$constructor_' + constructor.$class.id] = constructor;
+                        constructor[key]['$constructor_' + constructor[$class].id] = constructor;
                         constructor[key].$name = key;
                     }
                 }
 
                 // Grab mixin static properties
-                for (key in current.$constructor.$class.staticProperties) {
+                for (key in current.$constructor[$class].staticProperties) {
 
-                    value = current.$constructor.$class.staticProperties[key];
+                    value = current.$constructor[$class].staticProperties[key];
 
                     if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
-                        constructor.$class.staticProperties[key] = value;
+                        constructor[$class].staticProperties[key] = value;
                         constructor[key] = cloneProperty(value);
                     }
                 }
 //>>excludeEnd('strict');
 
                 // Merge the binds
-                combine(constructor.$class.binds, current.$constructor.$class.binds);
+                combine(constructor[$class].binds, current.$constructor[$class].binds);
             }
 
             delete constructor.prototype.$borrows;
@@ -421,19 +407,19 @@ define([
         for (x -= 1; x >= 0; x -= 1) {
 
             // Verify if it's a valid interface
-            if (!isFunction(interfaces[x]) || !interfaces[x].$interface) {
+            if (!isFunction(interfaces[x]) || !interfaces[x][$interface]) {
                 throw new TypeError('Entry at index ' + x + ' in $implements of class "' + target.prototype.$name + '" is not a valid interface.');
             }
 
-            if (!target.$abstract) {
-                interfaces[x].$interface.check(target);
+            if (!target[$abstract]) {
+                interfaces[x][$interface].check(target);
             }
-            target.$class.interfaces.push(interfaces[x]);
+            target[$class].interfaces.push(interfaces[x]);
         }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
         for (x -= 1; x >= 0; x -= 1) {
-            target.$class.interfaces.push(interfaces[x]);
+            target[$class].interfaces.push(interfaces[x]);
         }
 //>>excludeEnd('strict');
     }
@@ -465,7 +451,7 @@ define([
                 throw new Error('There are duplicate entries in $binds of "' + constructor.prototype.$name + '".');
             }
             // Verify duplicate binds already provided in mixins
-            common = intersection(constructor.$class.binds, binds);
+            common = intersection(constructor[$class].binds, binds);
             if (common.length > 0) {
                 throw new Error('There are binds in "' + constructor.prototype.$name + '" that are already being bound by the parent class and/or mixin: ' + common.join(', '));
             }
@@ -475,13 +461,13 @@ define([
                 if (!isString(binds[x])) {
                     throw new TypeError('Entry at index ' + x + ' in $borrows of class "' + constructor.prototype.$name + '" is not a string.');
                 }
-                if (!constructor.$class.methods[binds[x]] && (!constructor.prototype.$abstracts || !constructor.prototype.$abstracts[binds[x]])) {
+                if (!constructor[$class].methods[binds[x]] && (!constructor.prototype.$abstracts || !constructor.prototype.$abstracts[binds[x]])) {
                     throw new ReferenceError('Method "' + binds[x] + '" referenced in "' + constructor.prototype.$name + '" binds does not exist.');
                 }
             }
 
 //>>includeEnd('strict');
-            combine(constructor.$class.binds, binds);
+            combine(constructor[$class].binds, binds);
             delete constructor.prototype.$binds;
         }
     }
@@ -522,19 +508,19 @@ define([
                     value = params.$statics[key];
 
 //>>includeStart('strict', pragmas.strict);
-                    if (isFunction(value) && !value.$class && !value.$interface) {
+                    if (isFunction(value) && !value[$class] && !value[$interface]) {
                         addMethod(key, value, constructor, optsStatic);
                     } else {
                         addProperty(key, value, constructor, optsStatic);
                     }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-                    if (isFunction(value) && !value.$class && !value.$interface) {
-                        insert(constructor.$class.staticMethods, key);
-                        value['$constructor_' + constructor.$class.id] = constructor;
+                    if (isFunction(value) && !value[$class] && !value[$interface]) {
+                        insert(constructor[$class].staticMethods, key);
+                        value['$constructor_' + constructor[$class].id] = constructor;
                         value.$name = key;
                     } else {
-                        constructor.$class.staticProperties[key] = value;
+                        constructor[$class].staticProperties[key] = value;
                     }
 
                     constructor[key] = value;
@@ -546,11 +532,11 @@ define([
             } else {
 
                 value = params[key];
-                
+
 //>>includeStart('strict', pragmas.strict);
                 if (key.charAt(0) !== '$' || (key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
 
-                    if (isFunction(value) && !value.$class && !value.$interface) {
+                    if (isFunction(value) && !value[$class] && !value[$interface]) {
                         addMethod(key, value, constructor);
                     } else {
                         addProperty(key, value, constructor);
@@ -559,8 +545,8 @@ define([
 //>>excludeStart('strict', pragmas.strict);
                 if (key.charAt(0) !== '$' || (key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
 
-                    if (isFunction(value) && !value.$class && !value.$interface) {
-                        value['$prototype_' + constructor.$class.id] = constructor.prototype;
+                    if (isFunction(value) && !value[$class] && !value[$interface]) {
+                        value['$prototype_' + constructor[$class].id] = constructor.prototype;
                         value.$name = key;
                     }
 //>>excludeEnd('strict');
@@ -583,7 +569,7 @@ define([
         for (i = fns.length - 1; i >= 0; i -= 1) {
             current = instance[fns[i]];
             instance[fns[i]] = bind(current, instance);
-            instance[fns[i]]['$prototype_' + instance.$constructor.$class.id] = current['$prototype_' + instance.$constructor.$class.id];
+            instance[fns[i]]['$prototype_' + instance.$constructor[$class].id] = current['$prototype_' + instance.$constructor[$class].id];
             instance[fns[i]].$name = current.$name;
         }
     }
@@ -608,7 +594,7 @@ define([
                     var method = this[cacheKeyword].methods[name],
                         caller = get.caller || arguments.callee.caller || arguments.caller;
 
-                    if (this.$initializing || method['$prototype_' + this.$constructor.$class.id] === caller['$prototype_' + this.$constructor.$class.id]) {
+                    if (this.$initializing || method['$prototype_' + this.$constructor[$class].id] === caller['$prototype_' + this.$constructor[$class].id]) {
                         return method;
                     }
 
@@ -636,9 +622,9 @@ define([
                         caller = get.caller || arguments.callee.caller || arguments.caller;
 
                     if (this.$initializing ||
-                            caller['$prototype_' + this.$constructor.$class.id] === method['$prototype_' + this.$constructor.$class.id] ||
-                            caller['$prototype_' + this.$constructor.$class.id] instanceof method['$prototype_' + this.$constructor.$class.id].$constructor ||
-                            (caller['$prototype_' + this.$constructor.$class.id] && method['$prototype_' + this.$constructor.$class.id] instanceof caller['$prototype_' + this.$constructor.$class.id].$constructor)) {
+                            caller['$prototype_' + this.$constructor[$class].id] === method['$prototype_' + this.$constructor[$class].id] ||
+                            caller['$prototype_' + this.$constructor[$class].id] instanceof method['$prototype_' + this.$constructor[$class].id].$constructor ||
+                            (caller['$prototype_' + this.$constructor[$class].id] && method['$prototype_' + this.$constructor[$class].id] instanceof caller['$prototype_' + this.$constructor[$class].id].$constructor)) {
                         return method;
                     }
 
@@ -677,8 +663,8 @@ define([
                     var method = this[cacheKeyword].methods[name],
                         caller = get.caller || arguments.callee.caller || arguments.caller;
 
-                    if (method['$constructor_' + this.$class.id] === caller['$constructor_' + this.$class.id] ||
-                            method['$constructor_' + this.$class.id].prototype === caller['$prototype_' + this.$class.id]) {
+                    if (method['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
+                            method['$constructor_' + this[$class].id].prototype === caller['$prototype_' + this[$class].id]) {
                         return method;
                     }
 
@@ -701,15 +687,15 @@ define([
                         caller = get.caller || arguments.callee.caller || arguments.caller;
 
                     if (inheriting ||
-                            (caller['$constructor_' + this.$class.id] && (
-                                method['$constructor_' + this.$class.id] === caller['$constructor_' + this.$class.id] ||
-                                method['$constructor_' + this.$class.id].prototype instanceof caller['$constructor_' + this.$class.id] ||
-                                caller['$constructor_' + this.$class.id].prototype instanceof method['$constructor_' + this.$class.id]
+                            (caller['$constructor_' + this[$class].id] && (
+                                method['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
+                                method['$constructor_' + this[$class].id].prototype instanceof caller['$constructor_' + this[$class].id] ||
+                                caller['$constructor_' + this[$class].id].prototype instanceof method['$constructor_' + this[$class].id]
                             )) ||
-                            (caller['$prototype_' + this.$class.id] && (
-                                method['$constructor_' + this.$class.id] === caller['$prototype_' + this.$class.id].$constructor ||
-                                method['$constructor_' + this.$class.id].prototype instanceof caller['$prototype_' + this.$class.id].$constructor ||
-                                caller['$prototype_' + this.$class.id] instanceof method['$constructor_' + this.$class.id]
+                            (caller['$prototype_' + this[$class].id] && (
+                                method['$constructor_' + this[$class].id] === caller['$prototype_' + this[$class].id].$constructor ||
+                                method['$constructor_' + this[$class].id].prototype instanceof caller['$prototype_' + this[$class].id].$constructor ||
+                                caller['$prototype_' + this[$class].id] instanceof method['$constructor_' + this[$class].id]
                             ))) {
                         return method;
                     }
@@ -743,7 +729,7 @@ define([
 
                     var caller = get.caller || arguments.callee.caller || arguments.caller;
 
-                    if (this.$initializing || meta['$prototype_' + this.$constructor.$class.id] === caller['$prototype_' + this.$constructor.$class.id]) {
+                    if (this.$initializing || meta['$prototype_' + this.$constructor[$class].id] === caller['$prototype_' + this.$constructor[$class].id]) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -753,7 +739,7 @@ define([
 
                     var caller = set.caller || arguments.callee.caller || arguments.caller;
 
-                    if (this.$initializing || meta['$prototype_' + this.$constructor.$class.id] === caller['$prototype_' + this.$constructor.$class.id]) {
+                    if (this.$initializing || meta['$prototype_' + this.$constructor[$class].id] === caller['$prototype_' + this.$constructor[$class].id]) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
                         throw new Error('Cannot set private property "' + name + '" of class "' + this.$name + '".');
@@ -772,9 +758,9 @@ define([
                     var caller = get.caller || arguments.callee.caller || arguments.caller;
 
                     if (this.$initializing ||
-                            caller['$prototype_' + this.$constructor.$class.id] === meta['$prototype_' + this.$constructor.$class.id] ||
-                            caller['$prototype_' + this.$constructor.$class.id] instanceof meta['$prototype_' + this.$constructor.$class.id].$constructor ||
-                            (caller['$prototype_' + this.$constructor.$class.id] && meta['$prototype_' + this.$constructor.$class.id] instanceof caller['$prototype_' + this.$constructor.$class.id].$constructor)) {
+                            caller['$prototype_' + this.$constructor[$class].id] === meta['$prototype_' + this.$constructor[$class].id] ||
+                            caller['$prototype_' + this.$constructor[$class].id] instanceof meta['$prototype_' + this.$constructor[$class].id].$constructor ||
+                            (caller['$prototype_' + this.$constructor[$class].id] && meta['$prototype_' + this.$constructor[$class].id] instanceof caller['$prototype_' + this.$constructor[$class].id].$constructor)) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -785,9 +771,9 @@ define([
                     var caller = set.caller || arguments.callee.caller || arguments.caller;
 
                     if (this.$initializing ||
-                            caller['$prototype_' + this.$constructor.$class.id] === meta['$prototype_' + this.$constructor.$class.id] ||
-                            caller['$prototype_' + this.$constructor.$class.id] instanceof meta['$prototype_' + this.$constructor.$class.id].$constructor ||
-                            (caller['$prototype_' + this.$constructor.$class.id] && meta['$prototype_' + this.$constructor.$class.id] instanceof caller['$prototype_' + this.$constructor.$class.id].$constructor)) {
+                            caller['$prototype_' + this.$constructor[$class].id] === meta['$prototype_' + this.$constructor[$class].id] ||
+                            caller['$prototype_' + this.$constructor[$class].id] instanceof meta['$prototype_' + this.$constructor[$class].id].$constructor ||
+                            (caller['$prototype_' + this.$constructor[$class].id] && meta['$prototype_' + this.$constructor[$class].id] instanceof caller['$prototype_' + this.$constructor[$class].id].$constructor)) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
                         throw new Error('Cannot set protected property "' + name + '" of class "' + this.$name + '".');
@@ -819,8 +805,8 @@ define([
 
                     var caller = get.caller || arguments.callee.caller || arguments.caller;
 
-                    if (meta['$constructor_' + this.$class.id] === caller['$constructor_' + this.$class.id] ||
-                            meta['$constructor_' + this.$class.id].prototype === caller['$prototype_' + this.$class.id]
+                    if (meta['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
+                            meta['$constructor_' + this[$class].id].prototype === caller['$prototype_' + this[$class].id]
                             ) {
                         return this[cacheKeyword].properties[name];
                     }
@@ -831,8 +817,8 @@ define([
 
                     var caller = set.caller || arguments.callee.caller || arguments.caller;
 
-                    if (meta['$constructor_' + this.$class.id] === caller['$constructor_' + this.$class.id] ||
-                            meta['$constructor_' + this.$class.id].prototype === caller['$prototype_' + constructor.$class.id]
+                    if (meta['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
+                            meta['$constructor_' + this[$class].id].prototype === caller['$prototype_' + constructor[$class].id]
                             ) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
@@ -853,15 +839,15 @@ define([
                         caller = get.caller || arguments.callee.caller || arguments.caller;
 
                     if (inheriting ||
-                            (caller['$constructor_' + this.$class.id] && (
-                                meta['$constructor_' + this.$class.id] === caller['$constructor_' + this.$class.id] ||
-                                meta['$constructor_' + this.$class.id].prototype instanceof caller['$constructor_' + this.$class.id] ||
-                                caller['$constructor_' + this.$class.id].prototype instanceof meta['$constructor_' + this.$class.id]
+                            (caller['$constructor_' + this[$class].id] && (
+                                meta['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
+                                meta['$constructor_' + this[$class].id].prototype instanceof caller['$constructor_' + this[$class].id] ||
+                                caller['$constructor_' + this[$class].id].prototype instanceof meta['$constructor_' + this[$class].id]
                             )) ||
-                            (caller['$prototype_' + this.$class.id] && (
-                                meta['$constructor_' + this.$class.id] === caller['$prototype_' + this.$class.id].$constructor ||
-                                meta['$constructor_' + this.$class.id].prototype instanceof caller['$prototype_' + this.$class.id].$constructor ||
-                                caller['$prototype_' + this.$class.id] instanceof meta['$constructor_' + this.$class.id]
+                            (caller['$prototype_' + this[$class].id] && (
+                                meta['$constructor_' + this[$class].id] === caller['$prototype_' + this[$class].id].$constructor ||
+                                meta['$constructor_' + this[$class].id].prototype instanceof caller['$prototype_' + this[$class].id].$constructor ||
+                                caller['$prototype_' + this[$class].id] instanceof meta['$constructor_' + this[$class].id]
                             ))) {
                         return method;
                     }
@@ -873,15 +859,15 @@ define([
                     var caller = set.caller || arguments.callee.caller || arguments.caller;
 
                     if (inheriting ||
-                            meta['$constructor_' + this.$class.id] === caller['$constructor_' + this.$class.id] ||
-                            (caller['$constructor_' + this.$class.id] && (
-                                meta['$constructor_' + this.$class.id].prototype instanceof caller['$constructor_' + this.$class.id] ||
-                                caller['$constructor_' + this.$class.id].prototype instanceof meta['$constructor_' + this.$class.id]
+                            meta['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
+                            (caller['$constructor_' + this[$class].id] && (
+                                meta['$constructor_' + this[$class].id].prototype instanceof caller['$constructor_' + this[$class].id] ||
+                                caller['$constructor_' + this[$class].id].prototype instanceof meta['$constructor_' + this[$class].id]
                             )) ||
-                            (caller['$prototype_' + this.$class.id] && (
-                                meta['$constructor_' + this.$class.id] === caller['$prototype_' + this.$class.id].$constructor ||
-                                meta['$constructor_' + this.$class.id].prototype instanceof caller['$prototype_' + this.$class.id].$constructor ||
-                                caller['$prototype_' + this.$class.id] instanceof meta['$constructor_' + this.$class.id]
+                            (caller['$prototype_' + this[$class].id] && (
+                                meta['$constructor_' + this[$class].id] === caller['$prototype_' + this[$class].id].$constructor ||
+                                meta['$constructor_' + this[$class].id].prototype instanceof caller['$prototype_' + this[$class].id].$constructor ||
+                                caller['$prototype_' + this[$class].id] instanceof meta['$constructor_' + this[$class].id]
                             ))) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
@@ -907,12 +893,12 @@ define([
 
         obfuscateProperty(instance, cacheKeyword, { properties: {}, methods: {} });
 
-        for (key in instance.$constructor.$class.methods) {
-            protectMethod(key, instance.$constructor.$class.methods[key], instance);
+        for (key in instance.$constructor[$class].methods) {
+            protectMethod(key, instance.$constructor[$class].methods[key], instance);
         }
 
-        for (key in instance.$constructor.$class.properties) {
-            protectProperty(key, instance.$constructor.$class.properties[key], instance);
+        for (key in instance.$constructor[$class].properties) {
+            protectProperty(key, instance.$constructor[$class].properties[key], instance);
         }
     }
 
@@ -929,12 +915,12 @@ define([
 
         obfuscateProperty(constructor, cacheKeyword, { properties: {}, methods: {} });
 
-        for (key in constructor.$class.staticMethods) {
-            protectStaticMethod(key, constructor.$class.staticMethods[key], constructor);
+        for (key in constructor[$class].staticMethods) {
+            protectStaticMethod(key, constructor[$class].staticMethods[key], constructor);
         }
 
-        for (key in constructor.$class.staticProperties) {
-            protectStaticProperty(key, constructor.$class.staticProperties[key], constructor);
+        for (key in constructor[$class].staticProperties) {
+            protectStaticProperty(key, constructor[$class].staticProperties[key], constructor);
         }
 
         // Prevent any properties/methods to be added and deleted
@@ -997,7 +983,7 @@ define([
 //>>excludeEnd('strict');
 
             // Apply binds
-            applyBinds(this.$constructor.$class.binds, this, this);
+            applyBinds(this.$constructor[$class].binds, this, this);
 
 //>>includeStart('strict', pragmas.strict);
             delete this.$initializing;
@@ -1013,10 +999,10 @@ define([
         };
 
 //>>includeStart('strict', pragmas.strict);
-        Instance.$class = { methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, interfaces: [], binds: [] };
+        obfuscateProperty(Instance, $class, { methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, interfaces: [], binds: [] });
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-        Instance.$class = { staticMethods: [], staticProperties: {}, interfaces: [], binds: [] };
+        Instance[$class] = { staticMethods: [], staticProperties: {}, interfaces: [], binds: [] };
 //>>excludeEnd('strict');
 
         return Instance;
@@ -1031,33 +1017,33 @@ define([
     function inheritParent(constructor, parent) {
 
         var x,
-            binds = parent.$class.binds,
+            binds = parent[$class].binds,
             key,
             value;
 
         // Inherit binds
         for (x = binds.length - 1; x >= 0; x -= 1) {
             if (binds[x].substr(0, 2) !== '__') {
-                constructor.$class.binds.push(binds[x]);
+                constructor[$class].binds.push(binds[x]);
             }
         }
 
         // Inherit static methods and properties
 //>>excludeStart('strict', pragmas.strict);
-        append(constructor.$class.staticMethods, parent.$class.staticMethods);
+        append(constructor[$class].staticMethods, parent[$class].staticMethods);
 
-        for (x =  parent.$class.staticMethods.length - 1; x >= 0; x -= 1) {
-            if (parent.$class.staticMethods[x].substr(0, 2) !== '__') {
-                constructor[parent.$class.staticMethods[x]] = parent[parent.$class.staticMethods[x]];
+        for (x =  parent[$class].staticMethods.length - 1; x >= 0; x -= 1) {
+            if (parent[$class].staticMethods[x].substr(0, 2) !== '__') {
+                constructor[parent[$class].staticMethods[x]] = parent[parent[$class].staticMethods[x]];
             }
         }
 
-        for (key in parent.$class.staticProperties) {
+        for (key in parent[$class].staticProperties) {
 
-            value = parent.$class.staticProperties[key];
+            value = parent[$class].staticProperties[key];
 
             if (key.substr(0, 2) !== '__') {
-                constructor.$class.staticProperties[key] = value;
+                constructor[$class].staticProperties[key] = value;
                 constructor[key] = cloneProperty(value);
             }
         }
@@ -1066,31 +1052,31 @@ define([
         inheriting = true;
 
         // Grab methods and properties definitions
-        for (key in parent.$class.methods) {
-            constructor.$class.methods[key] = parent.$class.methods[key];
+        for (key in parent[$class].methods) {
+            constructor[$class].methods[key] = parent[$class].methods[key];
         }
 
-        for (key in parent.$class.properties) {
-            constructor.$class.properties[key] = parent.$class.properties[key];
+        for (key in parent[$class].properties) {
+            constructor[$class].properties[key] = parent[$class].properties[key];
         }
 
         // Inherit static methods and properties
-        for (key in parent.$class.staticMethods) {
+        for (key in parent[$class].staticMethods) {
 
-            value = parent.$class.staticMethods[key];
+            value = parent[$class].staticMethods[key];
 
             if (!value.isPrivate) {
-                constructor.$class.staticMethods[key] = value;
+                constructor[$class].staticMethods[key] = value;
                 constructor[key] = parent[key];
             }
         }
 
-        for (key in parent.$class.staticProperties) {
+        for (key in parent[$class].staticProperties) {
 
-            value = parent.$class.staticProperties[key];
+            value = parent[$class].staticProperties[key];
 
             if (!value.isPrivate) {
-                constructor.$class.staticProperties[key] = value;
+                constructor[$class].staticProperties[key] = value;
                 constructor[key] = cloneProperty(value.value);
             }
         }
@@ -1122,7 +1108,7 @@ define([
                 throw new Error('Cannot call parent method "' + (caller.$name || 'N/A') + '" in class "' + this.$name + '".');
             }
 
-            meta = caller['$prototype_' + classId].$constructor.$class.methods[caller.$name];
+            meta = caller['$prototype_' + classId].$constructor[$class].methods[caller.$name];
 
             if (meta.isPrivate) {
                 throw new Error('Cannot call $super() within private methods in class "' + this.$name + '".');
@@ -1140,7 +1126,7 @@ define([
 
             }
 
-            alias = caller['$prototype_' + classId].$constructor.$parent.$class.methods[caller.$name];
+            alias = caller['$prototype_' + classId].$constructor.$parent[$class].methods[caller.$name];
 
             if (!alias) {
                 throw new Error('Cannot call parent method "' + (caller.$name || 'N/A') + '" in class "' + this.$name + '".');
@@ -1212,7 +1198,7 @@ define([
                 throw new Error('Cannot call parent static method "' + caller.$name || 'N/A' + '" in class "' + this.$name + '".');
             }
 
-            meta = caller['$constructor_' + classId].$class.staticMethods[caller.$name];
+            meta = caller['$constructor_' + classId][$class].staticMethods[caller.$name];
 
             if (meta.isPrivate) {
                 throw new Error('Cannot call $super() within private static methods in class "' + this.$name + '".');
@@ -1229,7 +1215,7 @@ define([
                 return alias.apply(this, arguments);
             }
 
-            alias = caller['$constructor_' + classId].$parent.$class.staticMethods[caller.$name];
+            alias = caller['$constructor_' + classId].$parent[$class].staticMethods[caller.$name];
 
             if (!alias) {
                 throw new Error('Cannot call parent static method "' + caller.$name || 'N/A' + '" in class "' + this.$name + '".');
@@ -1322,7 +1308,7 @@ define([
         if (hasOwn(params, '$extends')) {
 //>>includeStart('strict', pragmas.strict);
             // Verify if parent is a valid class
-            if (!isFunction(params.$extends) || !params.$extends.$class) {
+            if (!isFunction(params.$extends) || !params.$extends[$class]) {
                 throw new TypeError('Specified parent class in $extends of "' + params.$name + '" is not a valid class.');
             }
 
@@ -1342,7 +1328,7 @@ define([
             params.initialize = params.initialize || function () { parent.prototype.initialize.apply(this, arguments); };
             classify = createConstructor(params.initialize);
 //>>excludeEnd('strict');
-            classify.$class.id = parent.$class.id;
+            classify[$class].id = parent[$class].id;
             classify.$parent = parent;
             classify.prototype = createObject(parent.prototype, params);
 
@@ -1355,18 +1341,18 @@ define([
 //>>excludeStart('strict', pragmas.strict);
             classify = createConstructor(params.initialize);
 //>>excludeEnd('strict');
-            classify.$class.id = nextId += 1;
+            classify[$class].id = nextId += 1;
             classify.prototype = params;
 
             // Assign aliases
 //>>excludeStart('strict', pragmas.strict);
-            classify.prototype.$super = superAlias(classify.$class.id);
-            classify.prototype.$self = selfAlias(classify.$class.id);
+            classify.prototype.$super = superAlias(classify[$class].id);
+            classify.prototype.$self = selfAlias(classify[$class].id);
             classify.prototype.$static = staticAlias;
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
-            obfuscateProperty(classify.prototype, '$super', superAlias(classify.$class.id));
-            obfuscateProperty(classify.prototype, '$self', selfAlias(classify.$class.id));
+            obfuscateProperty(classify.prototype, '$super', superAlias(classify[$class].id));
+            obfuscateProperty(classify.prototype, '$self', selfAlias(classify[$class].id));
             obfuscateProperty(classify.prototype, '$static', staticAlias);
 //>>includeEnd('strict');
         }
@@ -1376,7 +1362,7 @@ define([
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
         if (isAbstract) {
-            classify.$abstract = true;  // Signal it has abstract
+            obfuscateProperty(classify, '$abstract_' + random, true, true); // Signal it has abstract
         }
 //>>includeEnd('strict');
 
@@ -1386,11 +1372,11 @@ define([
         // Assign constructor & static parent alias
 //>>excludeStart('strict', pragmas.strict);
         classify.prototype.$constructor = classify;
-        classify.$super = superStaticAlias(classify.$class.id);
+        classify.$super = superStaticAlias(classify[$class].id);
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
         obfuscateProperty(classify.prototype, '$constructor', classify);
-        obfuscateProperty(classify, '$super', superStaticAlias(classify.$class.id));
+        obfuscateProperty(classify, '$super', superStaticAlias(classify[$class].id));
 //>>includeEnd('strict');
 
         // Parse mixins
@@ -1409,8 +1395,8 @@ define([
         }
 
         // If we are a concrete class that extends an abstract class, we need to verify the methods existence
-        if (parent && parent.$abstract && !isAbstract) {
-            parent.$abstract.check(classify);
+        if (parent && parent[$abstract] && !isAbstract) {
+            parent[$abstract].check(classify);
         }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
@@ -1439,6 +1425,7 @@ define([
         if (hasDefineProperty) {
             protectConstructor(classify);
         }
+
 //>>includeEnd('strict');
 
         return classify;
