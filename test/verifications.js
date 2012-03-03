@@ -22,19 +22,19 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Interface({ $name: undefined });
                 }).to.throwException(/must be a string/);
-                
+
                 expect(function () {
                     return Interface({ $name: null });
                 }).to.throwException(/must be a string/);
-                
+
                 expect(function () {
                     return Interface({ $name: 'Some Name' });
                 }).to.throwException(/spaces/);
-                
+
                 expect(function () {
                     return Interface({ $name: 'SomeName' });
                 }).to.not.throwException();
-                
+
             });
 
             it('should throw an error when defining the initialize method', function () {
@@ -201,13 +201,13 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Interface({
-                        some: new AbstractClass({})
+                        some: AbstractClass({})
                     });
                 }).to.throwException(/not a function/);
 
                 expect(function () {
                     return Interface({
-                        some: new Interface({})
+                        some: Interface({})
                     });
                 }).to.throwException(/not a function/);
 
@@ -222,7 +222,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Interface({
                         $statics: {
-                            some: new AbstractClass({})
+                            some: AbstractClass({})
                         }
                     });
                 }).to.throwException(/not a function/);
@@ -230,7 +230,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Interface({
                         $statics: {
-                            some: new Interface({})
+                            some: Interface({})
                         }
                     });
                 }).to.throwException(/not a function/);
@@ -379,10 +379,10 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Interface({
                         $extends: [
-                            new Interface({
+                            Interface({
                                 method1: function () {}
                             }),
-                            new Interface({
+                            Interface({
                                 method1: function (a) {}
                             })
                         ]
@@ -392,10 +392,10 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Interface({
                         $extends: [
-                            new Interface({
+                            Interface({
                                 method1: function (a, b) {}
                             }),
-                            new Interface({
+                            Interface({
                                 method1: function (a) {}
                             })
                         ],
@@ -406,12 +406,12 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Interface({
                         $extends: [
-                            new Interface({
+                            Interface({
                                 $statics: {
                                     method1: function () {}
                                 }
                             }),
-                            new Interface({
+                            Interface({
                                 $statics: {
                                     method1: function (a) {}
                                 }
@@ -423,12 +423,12 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Interface({
                         $extends: [
-                            new Interface({
+                            Interface({
                                 $statics: {
                                     method1: function (a) {}
                                 }
                             }),
-                            new Interface({
+                            Interface({
                                 $statics: {
                                     method1: function (a, b) {}
                                 }
@@ -443,7 +443,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Interface({
                         $extends: [
-                            new Interface({
+                            Interface({
                                 method1: function () {}
                             })
                         ],
@@ -454,12 +454,12 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Interface({
                         $extends: [
-                            new Interface({
+                            Interface({
                                 $statics: {
                                     method1: function (a, $b) {}
                                 }
                             }),
-                            new Interface({
+                            Interface({
                                 $statics: {
                                     method1: function (a) {}
                                 }
@@ -616,21 +616,21 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 }).to.throwException(/must be an object/);
 
             });
-            
+
             it('should throw an error when using an invalid name', function () {
 
                 expect(function () {
                     return Class({ $name: undefined });
                 }).to.throwException(/must be a string/);
-                
+
                 expect(function () {
                     return Class({ $name: null });
                 }).to.throwException(/must be a string/);
-                
+
                 expect(function () {
                     return Class({ $name: 'Some $name' });
                 }).to.throwException(/spaces/);
-                
+
                 expect(function () {
                     return Class({ $name: 'Some$name' });
                 }).to.not.throwException();
@@ -638,21 +638,21 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({ $name: undefined });
                 }).to.throwException(/must be a string/);
-                
+
                 expect(function () {
                     return AbstractClass({ $name: null });
                 }).to.throwException(/must be a string/);
-                
+
                 expect(function () {
                     return AbstractClass({ $name: 'Some $name' });
                 }).to.throwException(/spaces/);
-                
+
                 expect(function () {
                     return AbstractClass({ $name: 'Some$name' });
                 }).to.not.throwException();
-                
+
             });
-            
+
             it('should throw an error when using an invalid initialize', function () {
 
                 expect(function () {
@@ -1763,7 +1763,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            some: new AbstractClass({})
+                            some: AbstractClass({})
                         }
                     });
                 }).to.throwException(/not a function/);
@@ -1771,7 +1771,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            some: new Interface({})
+                            some: Interface({})
                         }
                     });
                 }).to.throwException(/not a function/);
@@ -1790,7 +1790,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return AbstractClass({
                         $abstracts: {
                             $statics: {
-                                some: new AbstractClass({})
+                                some: AbstractClass({})
                             }
                         }
                     });
@@ -1800,7 +1800,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return AbstractClass({
                         $abstracts: {
                             $statics: {
-                                some: new Interface({})
+                                some: Interface({})
                             }
                         }
                     });

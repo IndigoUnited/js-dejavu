@@ -26,4 +26,3 @@ define(function () {
     return isObjectPrototypeSpoiled;
 });
 //>>includeEnd('strict');
-
