@@ -24,8 +24,7 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 * Method signature checks
 * Custom instanceOf that also works with interfaces
 * Has two builds, one regular and one AMD based
-
-__NOTE__: Regular build will be made soon!
+* Loose build (the one to be used in production) has 9.71Kb minified and 3.1Kb minified + gziped
 
 
 ## Performance ##

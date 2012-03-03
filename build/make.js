@@ -6,6 +6,7 @@ var cp = require('child_process'),
     command,
     distDir = __dirname + '/../dist/',
     currentDistDir,
+    currentBuild,
     files,
     stat;
 
@@ -17,7 +18,12 @@ var cp = require('child_process'),
 function emptyDir(dir) {
 
     dir = !!dir ? dir : distDir;
-    files = fs.readdirSync(dir);
+
+    try {
+        files = fs.readdirSync(dir);
+    } catch (e) {
+        return;
+    }
 
     files.forEach(function (file) {
         if (fs.statSync(dir + file).isDirectory()) {
@@ -33,7 +39,8 @@ function emptyDir(dir) {
 emptyDir(distDir);
 
 // Build amd strict
-command = 'node "' + __dirname + '/../vendor/r.js/dist/r.js" -o ' + __dirname + '/Classify.build.js';
+currentBuild = 'amd';
+command = 'node "' + __dirname + '/../vendor/r.js/dist/r.js" -o ' + __dirname + '/Classify.build_' + currentBuild + '.js';
 currentDistDir = distDir + 'amd/strict/';
 cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true', function (error, stdout, stderr) {
 
@@ -46,6 +53,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true', function 
     }
 
     fs.unlinkSync(currentDistDir + 'build.txt');
+    fs.unlinkSync(currentDistDir + 'classify.js');
 
     // Build amd loose
     currentDistDir = distDir + 'amd/loose/';
@@ -60,47 +68,93 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true', function 
         }
 
         fs.unlinkSync(currentDistDir + 'build.txt');
+        fs.unlinkSync(currentDistDir + 'classify.js');
 
-        // Run tests
-        process.chdir(__dirname + '/..');
+        // Create regular directories
+        fs.mkdirSync(distDir + 'regular');
+        fs.mkdirSync(distDir + 'regular/loose');
+        fs.mkdirSync(distDir + 'regular/strict');
 
-        command = 'mocha -R list test/amd/strict.js';
+        // Build regular loose
+        currentBuild = 'regular';
+        command = 'node "' + __dirname + '/../vendor/r.js/dist/r.js" -o ' + __dirname + '/Classify.build_' + currentBuild + '.js';
+        currentDistDir = __dirname + '/../tmp/';
 
-        console.log('Running amd/strict tests..');
-        console.log('-------------------------------------------------');
+        emptyDir(currentDistDir);
 
-        if (process.platform === 'win32') {
-            tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
-        } else {
-            tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
-        }
-        tests.on('exit', function (code) {
+        cp.exec(command + ' dir="' + currentDistDir + '" optimize=uglify pragmas.strict=false', function (error, stdout, stderr) {
 
-            var exitCode;
-
-            if (code !== 0) {
-                exitCode = 1;
+            // Print success or error
+            if (error !== null) {
+                console.error(stderr);
+                process.exit(1);
             } else {
-                exitCode = 0;
+                console.log(stdout);
             }
 
-            command = 'mocha -R list test/amd/loose.js';
+            // Move concatenated file
+            fs.renameSync(currentDistDir + 'classify.js', distDir + 'regular/loose/classify.js');
 
-            console.log('Running amd/loose tests..');
-            console.log('-------------------------------------------------');
+            emptyDir(currentDistDir);
 
-            if (process.platform === 'win32') {
-                tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
-            } else {
-                tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
-            }
-            tests.on('exit', function (code) {
+            cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true', function (error, stdout, stderr) {
 
-                if (code !== 0) {
+                // Print success or error
+                if (error !== null) {
+                    console.error(stderr);
                     process.exit(1);
                 } else {
-                    process.exit(exitCode);
+                    console.log(stdout);
                 }
+
+                // Move concatenated file
+                fs.renameSync(currentDistDir + 'classify.js', distDir + 'regular/strict/classify.js');
+
+                emptyDir(currentDistDir);
+                fs.rmdirSync(currentDistDir)           ;
+
+                // Run tests
+                process.chdir(__dirname + '/..');
+
+                command = 'mocha -R list test/amd/strict.js';
+
+                console.log('Running amd/strict tests..');
+                console.log('-------------------------------------------------');
+
+                if (process.platform === 'win32') {
+                    tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
+                } else {
+                    tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
+                }
+                tests.on('exit', function (code) {
+
+                    var exitCode;
+
+                    if (code !== 0) {
+                        exitCode = 1;
+                    } else {
+                        exitCode = 0;
+                    }
+
+                    command = 'mocha -R list test/amd/loose.js';
+
+                    console.log('Running amd/loose tests..');
+                    console.log('-------------------------------------------------');
+
+                    if (process.platform === 'win32') {
+                        tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
+                    } else {
+                        tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
+                    }
+                    tests.on('exit', function (code) {
+
+                        if (code !== 0) {
+                            process.exit(1);
+                        } else {
+                            process.exit(exitCode);
+                        }
+                    });
+                });
             });
         });
     });
