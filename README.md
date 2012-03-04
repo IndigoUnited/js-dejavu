@@ -30,10 +30,15 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 
 ## Works on ##
 
-Some features like private and protected members access management are only avaiilable in modern browsers (the one that support Object.defineProperty).
+* IE6+
+* Safari (3+?)
+* Firefox (3.6+?)
+* Opera (9+?)
+* Node and Rhino
+
+Some features like private and protected members access management are only available in modern browsers (the ones that support Object.defineProperty).
 Still, the library provide fallbacks for those cases.
-It works in IE6+, Safari, Opera and Chrome.
-The regular build is also compatible with CommonJS modules, so it works well with Node.
+The regular build is also compatible with CommonJS modules, so it works well with Node and Rhino.
 
 
 
