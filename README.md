@@ -27,6 +27,17 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 * Loose build (the one to be used in production) has 9.71Kb minified and 3.1Kb minified + gziped
 
 
+
+## Works on ##
+
+Some features like private and protected members access management are only avaiilable in modern browsers (the one that support Object.defineProperty).
+Still, the library provide fallbacks for those cases.
+It works in IE6+, Safari, Opera and Chrome.
+The regular build is also compatible with CommonJS modules, so it works well with Node.
+
+
+
+
 ## Performance ##
 
 All kind of validations to ensure that your classes are well defined and obey all the common rules of classic inheritance degrade performance.
