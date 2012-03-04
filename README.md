@@ -42,7 +42,6 @@ The regular build is also compatible with CommonJS modules, so it works well wit
 
 
 
-
 ## Performance ##
 
 All kind of validations to ensure that your classes are well defined and obey all the common rules of classic inheritance degrade performance.
