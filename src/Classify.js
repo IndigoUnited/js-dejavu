@@ -1,3 +1,6 @@
+/*jslint sloppy:true*/
+/*global define,module,exports,window,global*/
+
 define([
     './Class',
     './AbstractClass',
@@ -10,12 +13,21 @@ define([
     instanceOf
 ) {
     var Classify = {},
-        target = (typeof window !== 'undefined' && window.navigator && window.document) ? window : global;
+        target;
 
     Classify.Class = Class;
     Classify.AbstractClass = AbstractClass;
     Classify.Interface = Interface;
     Classify.instanceOf = instanceOf;
 
-    target.Classify = Classify;
+
+    if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.exports) {
+        module.exports = Classify;
+    } else {
+        target = (typeof window !== 'undefined' && window.navigator && window.document) ? window : global;
+        if (!target) {
+            throw new Error('Could not grab global object.');
+        }
+        target.Classify = Classify;
+    }
 });

@@ -2967,6 +2967,9 @@ define('instanceOf',[
 
     return instanceOf;
 });
+/*jslint sloppy:true*/
+/*global define,module,exports,window,global*/
+
 define('classify',[
     './Class',
     './AbstractClass',
@@ -2979,12 +2982,18 @@ define('classify',[
     instanceOf
 ) {
     var Classify = {},
-        target = (typeof window !== 'undefined' && window.navigator && window.document) ? window : global;
+        target;
 
     Classify.Class = Class;
     Classify.AbstractClass = AbstractClass;
     Classify.Interface = Interface;
     Classify.instanceOf = instanceOf;
 
-    target.Classify = Classify;
+
+    if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.exports) {
+        module.exports = Classify;
+    } else {
+        target = (typeof window !== 'undefined' && window.navigator && window.document) ? window : global;
+        target.Classify = Classify;
+    }
 });}());
