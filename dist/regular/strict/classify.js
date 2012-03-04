@@ -2994,6 +2994,10 @@ define('classify',[
         module.exports = Classify;
     } else {
         target = (typeof window !== 'undefined' && window.navigator && window.document) ? window : global;
+        if (!target) {
+            throw new Error('Could not grab global object.');
+        }
         target.Classify = Classify;
     }
-});}());
+});
+}());
