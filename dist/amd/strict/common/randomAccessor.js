@@ -18,5 +18,6 @@ define(['Utils/array/contains'], function (contains) {
             return random;
         }
     }
+
     return randomAccessor;
 });

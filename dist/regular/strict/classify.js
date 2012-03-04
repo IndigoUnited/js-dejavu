@@ -701,6 +701,7 @@ define('common/randomAccessor',['Utils/array/contains'], function (contains) {
             return random;
         }
     }
+
     return randomAccessor;
 });
 
