@@ -365,8 +365,8 @@ define([
 
             params.initialize = params.initialize || function () { parent.prototype.initialize.apply(this, arguments); };
             classify = createConstructor(params.initialize);
-            classify[$class].id = parent[$class].id;
             classify.$parent = parent;
+            classify[$class].id = parent[$class].id;
             classify.prototype = createObject(parent.prototype, params);
 
             inheritParent(classify, parent);

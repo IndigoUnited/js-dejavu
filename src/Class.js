@@ -1324,13 +1324,14 @@ define([
             }
 
             classify = createConstructor(params.initialize, isAbstract);
+            obfuscateProperty(classify, '$parent', parent);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
             params.initialize = params.initialize || function () { parent.prototype.initialize.apply(this, arguments); };
             classify = createConstructor(params.initialize);
+            classify.$parent = parent;
 //>>excludeEnd('strict');
             classify[$class].id = parent[$class].id;
-            classify.$parent = parent;
             classify.prototype = createObject(parent.prototype, params);
 
             inheritParent(classify, parent);
