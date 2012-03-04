@@ -36,7 +36,7 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 * Opera (9+?)
 * Node and Rhino
 
-Some features like private and protected members access management are only available in modern browsers (the ones that support Object.defineProperty).
+Some features like private and protected members access management are only available in modern javascript engines (the ones that support Object.defineProperty).
 Still, the library provide fallbacks for those cases.
 The regular build is also compatible with CommonJS modules, so it works well with Node and Rhino.
 
@@ -55,11 +55,15 @@ The loose version also has lower memory footprint and less size in bytes.
 Also there is an alternative to $super() inside your functions. $super() is relatively slower than its alternative and can be used in critical code.
 See bellow for more information.
 
+
+
 ## To be done ##
 
 * Support for constants/final.
 
 Stay tuned!
+
+
 
 ## Usage ##
 
@@ -96,7 +100,7 @@ define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Even
 
     var SomeEventsInterface = Interface({
         $extends: EventsInterface,   // This interface extends EventsInterface
-                                    // Interfaces can extend multiple ones, just reference them in an array
+                                     // Interfaces can extend multiple ones, just reference them in an array
 
         $statics: {                  // This is how we define statics
             getTotalListeners: function () {}
@@ -122,7 +126,7 @@ define(['path/to/EventsInterface', 'path/to/classify/Class'], function (EventsIn
 
     var EventsEmitter = Class({
         $implements: EventsInterface,   // The class implements the EventsInterface interface
-                                       // You can specify multiple interfaces in an array
+                                        // You can specify multiple interfaces in an array
 
         addListener: function (name, fn, context) {
             // Implementation goes here
