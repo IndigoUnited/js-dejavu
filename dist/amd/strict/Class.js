@@ -1116,8 +1116,8 @@ define([
             }
 
             classify = createConstructor(params.initialize, isAbstract);
+            obfuscateProperty(classify, '$parent', parent);
             classify[$class].id = parent[$class].id;
-            classify.$parent = parent;
             classify.prototype = createObject(parent.prototype, params);
 
             inheritParent(classify, parent);
