@@ -151,19 +151,35 @@ define([
     }
 
     /**
-     * Parse all the members, including static ones.
+     * Parse all the members, including final and static ones.
      *
      * @param {Object}   params      The parameters
      * @param {Function} constructor The constructor
+     * @param {Boolean}  isFinal     Parse the members as finals
      */
-    function parseMembers(params, constructor) {
+    function parseMembers(params, constructor, isFinal) {
 
         var key,
             value;
 
         for (key in params) {
 
-            if (key === '$statics') {
+            if (key === '$constants') {
+
+                 for (key in params.$constants) {
+
+                    value = params.$statics[key];
+
+                    constructor[$class].staticProperties[key] = value;
+                    constructor[key] = value;
+                 }
+            } else if (key === '$finals') {
+
+                parseMembers(params.$finals, constructor, true);
+
+                delete constructor.prototype.$finals;
+
+            } else if (key === '$statics') {
 
                 for (key in params.$statics) {
 
@@ -181,7 +197,6 @@ define([
                 }
 
                 delete constructor.prototype.$statics;
-
             } else {
 
                 value = params[key];
@@ -191,6 +206,10 @@ define([
                     if (isFunction(value) && !value[$class] && !value[$interface]) {
                         value['$prototype_' + constructor[$class].id] = constructor.prototype;
                         value.$name = key;
+                    }
+
+                    if (isFinal) {
+                        constructor.prototype[key] = value;
                     }
                 }
             }
@@ -356,6 +375,8 @@ define([
      */
     Class = function Class(params) {
 
+        delete params.$name;
+
         var classify,
             parent;
 
@@ -382,7 +403,6 @@ define([
             classify.prototype.$static = staticAlias;
         }
 
-        delete classify.prototype.$name;
 
         // Parse members
         parseMembers(params, classify);

@@ -158,7 +158,7 @@ define([
             value;
 
         for (key in abstracts) {
-
+            
             if (key === '$statics') {
 
                 if (!isObject(abstracts.$statics)) {
@@ -168,7 +168,7 @@ define([
                 checkKeywords(abstracts.$statics, 'statics');
 
                 for (key in abstracts.$statics) {
-
+                    
                     value = abstracts.$statics[key];
 
                     // Check if it is not a function
