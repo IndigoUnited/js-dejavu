@@ -632,7 +632,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 }).to.throwException(/spaces/);
 
                 expect(function () {
-                    return Class({ $name: 'Some$name' });
+                    return Class({ $name: 'SomeName' });
                 }).to.not.throwException();
 
                 expect(function () {
@@ -648,7 +648,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 }).to.throwException(/spaces/);
 
                 expect(function () {
-                    return AbstractClass({ $name: 'Some$name' });
+                    return AbstractClass({ $name: 'SomeName' });
                 }).to.not.throwException();
 
             });
@@ -674,7 +674,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 }).to.throwException(/must be a function/);
 
             });
-
+            
             it('should throw an error when extending an invalid class', function () {
 
                 expect(function () {
@@ -715,6 +715,24 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
+            it('should throw an error if it any function is not well formed', function () {
+
+                expect(function () {
+                    return Class({
+                        method1: function ($a, b) {}
+                    });
+                }).to.throwException(/contains optional arguments before mandatory ones/);
+
+                expect(function () {
+                    return Class({
+                        $statics: {
+                            method1: function ($a, b) {}
+                        }
+                    });
+                }).to.throwException(/contains optional arguments before mandatory ones/);
+
+            });
+
             it('should throw an error if $statics is not an object', function () {
 
                 expect(function () {
@@ -743,21 +761,109 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
-            it('should throw an error if it any function is not well formed', function () {
+            it('should throw an error if $statics inside $finals is not an object', function () {
 
                 expect(function () {
                     return Class({
-                        method1: function ($a, b) {}
-                    });
-                }).to.throwException(/contains optional arguments before mandatory ones/);
-
-                expect(function () {
-                    return Class({
-                        $statics: {
-                            method1: function ($a, b) {}
+                        $finals: {
+                            $statics: 'wtf'
                         }
                     });
-                }).to.throwException(/contains optional arguments before mandatory ones/);
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $statics: undefined
+                        }
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $statics: null
+                        }
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $statics: {}
+                        }
+                    });
+                }).to.not.throwException();
+
+            });
+
+            it('should throw an error if $finals is not an object', function () {
+
+                expect(function () {
+                    return Class({
+                        $finals: 'wtf'
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $finals: undefined
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $finals: null
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {}
+                    });
+                }).to.not.throwException();
+
+            });
+
+            it('should throw an error while defining private method/parameter as $final', function () {
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            __foo: 'bar',
+                            __someFunction: function () {
+                                return this.foo;
+                            }
+                        }
+                    });
+                }).to.throwException(/classified as final/);
+
+            });
+
+            it('should throw an error if overriding a final method or parameter', function () {
+
+                var SomeClass = Class({
+                    $finals: {
+                        foo: 'bar',
+                        someFunction: function () {
+                            return this.foo;
+                        }
+                    }
+                });
+
+                expect(function () {
+                    return Class({
+                        $extends: SomeClass,
+                        foo: 'wtf'
+                    });
+                }).to.throwException(/override final/);
+
+                expect(function () {
+                    return Class({
+                        $extends: SomeClass,
+                        someFunction: function () {}
+                    });
+                }).to.throwException(/override final/);
 
             });
 

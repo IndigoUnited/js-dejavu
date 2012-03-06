@@ -1084,7 +1084,8 @@ define('Class',[
     function addMethod(name, method, constructor, opts) {
 
         var metadata,
-            isStatic = opts && opts.isStatic,
+            isStatic = !!(opts && opts.isStatic),
+            isFinal = !!(opts && opts.isFinal),
             target;
 
         // Check if function is already being used by another class or within the same class
@@ -1107,6 +1108,15 @@ define('Class',[
             }
         }
 
+        // Check if we we got a private method classified as final
+        if (metadata.isPrivate && isFinal) {
+            throw new Error('Private method "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
+        }
+
+        if (name === '___someFunction') {
+            console.log(metadata);
+            console.trace();
+        }
         // Check if a property with the same name exists
         target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
         if (isObject(target[name])) {
@@ -1119,7 +1129,11 @@ define('Class',[
         if (isObject(target[name])) {
             // Are we overriding a private method?
             if (target[name].isPrivate) {
-                throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' method "' + name + ' in class "' + constructor.prototype.$name + '".');
+                throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' method "' + name + '" in class "' + constructor.prototype.$name + '".');
+            }
+            // Are we overriding a final method?
+            if (target[name].isFinal) {
+                throw new Error('Cannot override final method "' + name + '" in class "' + constructor.prototype.$name + '".');
             }
             // Are they compatible?
             if (!isFunctionCompatible(metadata, target[name])) {
@@ -1144,7 +1158,11 @@ define('Class',[
             target[name] = method;
         }
 
-       // Store a reference to the prototype/constructor
+        if (isFinal) {
+            metadata.isFinal = isFinal;
+        }
+
+        // Store a reference to the prototype/constructor
         if (!isStatic) {
             obfuscateProperty(method, '$prototype_' + constructor[$class].id, constructor.prototype);
         } else {
@@ -1167,7 +1185,8 @@ define('Class',[
     function addProperty(name, value, constructor, opts) {
 
         var metadata = propertyMeta(value, name),
-            isStatic = opts && opts.isStatic,
+            isStatic = !!(opts && opts.isStatic),
+            isFinal = !!(opts && opts.isFinal),
             target;
 
         // If the property is protected/private we delete it from the target because they will be protected later
@@ -1183,10 +1202,14 @@ define('Class',[
             constructor.prototype[name] = value;
         }
 
+        // Check if we we got a private property classified as final
+        if (metadata.isPrivate && isFinal) {
+            throw new Error('Private property "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
+        }
 
         target = isStatic ? constructor[$class].staticMethods : constructor[$class].methods;
 
-        // Check if a property with the same name exists
+        // Check if a method with the same name exists
         if (isObject(target[name])) {
             throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.$name + '".');
         }
@@ -1198,9 +1221,17 @@ define('Class',[
             if (target[name].isPrivate) {
                 throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' property "' + name + ' in class "' + constructor.prototype.$name + '".');
             }
+            // Are we overriding a final property?
+            if (target[name].isFinal) {
+                throw new Error('Cannot override final property "' + name + '" in class "' + constructor.prototype.$name + '".');
+            }
         }
 
         target[name] = metadata;
+
+        if (isFinal) {
+            metadata.isFinal = isFinal;
+        }
 
         // Store a reference to the prototype/constructor
         if (!isStatic) {
@@ -1368,41 +1399,68 @@ define('Class',[
     }
 
     /**
-     * Parse all the members, including static ones.
+     * Parse all the members, including final and static ones.
      *
      * @param {Object}   params      The parameters
      * @param {Function} constructor The constructor
+     * @param {Boolean}  isFinal     Parse the members as finals
      */
-    function parseMembers(params, constructor) {
+    function parseMembers(params, constructor, isFinal) {
 
-        var optsStatic = { isStatic: true },
+        var opts = { isStatic: false, isFinal: !!isFinal, isConst: false },
             key,
             value;
-        // Add each method metadata, verifying its signature
 
+        // Add each method metadata, verifying its signature
         for (key in params) {
 
-            if (key === '$statics') {
+            if (key === '$constants') {
+
+                 opts.isConst = true;
+
+                 for (key in params.$constants) {
+
+                    value = params.$statics[key];
+
+                    if (!isNumber(value) && !isString(value) && !isRegExp(value)) {
+                        throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a number, a string or a regular expression.');
+                    }
+
+                    addProperty(key, value, constructor, opts);
+                 }
+                 opts.isConst = false;
+
+            } else if (key === '$finals') {
+
+                if (!isObject(params.$finals)) {
+                    throw new TypeError('$finals definition of class "' + params.$name + '" must be an object.');
+                }
+
+                parseMembers(params.$finals, constructor, true);
+
+                delete constructor.prototype.$finals;
+
+            } else if (key === '$statics') {
 
                 if (!isObject(params.$statics)) {
                     throw new TypeError('$statics definition of class "' + params.$name + '" must be an object.');
                 }
 
                 checkKeywords(params.$statics, 'statics');
-
+                opts.isStatic = true;
                 for (key in params.$statics) {
 
                     value = params.$statics[key];
 
                     if (isFunction(value) && !value[$class] && !value[$interface]) {
-                        addMethod(key, value, constructor, optsStatic);
+                        addMethod(key, value, constructor, opts);
                     } else {
-                        addProperty(key, value, constructor, optsStatic);
+                        addProperty(key, value, constructor, opts);
                     }
                 }
 
                 delete constructor.prototype.$statics;
-
+                opts.isStatic = false;
             } else {
 
                 value = params[key];
@@ -1410,9 +1468,9 @@ define('Class',[
                 if (key.charAt(0) !== '$' || (key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
 
                     if (isFunction(value) && !value[$class] && !value[$interface]) {
-                        addMethod(key, value, constructor);
+                        addMethod(key, value, constructor, opts);
                     } else {
-                        addProperty(key, value, constructor);
+                        addProperty(key, value, constructor, opts);
                     }
                 }
             }
@@ -2047,7 +2105,7 @@ define('Class',[
     function toStringConstructor() {
         return '[constructor #' + this.prototype.$name + ']';
     }
-    
+
     /**
      * Create a class definition.
      *
@@ -2355,7 +2413,7 @@ define('AbstractClass',[
             value;
 
         for (key in abstracts) {
-
+            
             if (key === '$statics') {
 
                 if (!isObject(abstracts.$statics)) {
@@ -2365,7 +2423,7 @@ define('AbstractClass',[
                 checkKeywords(abstracts.$statics, 'statics');
 
                 for (key in abstracts.$statics) {
-
+                    
                     value = abstracts.$statics[key];
 
                     // Check if it is not a function
@@ -2849,7 +2907,9 @@ define('Interface',[
 
         for (k in params) {
 
-            if (k === '$statics') {
+            if (k === '$finals') {
+                
+            } else if (k === '$statics') {
 
                 if (!isObject(params.$statics)) {
                     throw new TypeError('$statics definition of interface "' + params.$name + '" must be an object.');

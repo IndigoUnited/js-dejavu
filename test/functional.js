@@ -46,6 +46,9 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     this.options.option1 = 'test';
                     this.someArray.push('other');
                 },
+                $finals: {
+                    foo: 'bar'
+                },
                 $statics: {
                     staticMethod: function () {},
                     staticSome: 'property'
@@ -100,18 +103,24 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
             });
 
-            it('should not have $statics property', function () {
+            it('should not have the $statics property', function () {
 
                 return expect(example.$statics).to.be.equal(undefined);
 
             });
 
-            it('should not have $binds property', function () {
+            it('should not have the $binds property', function () {
 
                 return expect(example.$binds).to.be.equal(undefined);
 
             });
+            
+            it('should not have the $finals property', function () {
 
+                return expect(example.$finals).to.be.equal(undefined);
+
+            });
+            
             it('should not share properties with other instances', function () {
 
                 example2.test();
@@ -774,6 +783,27 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
         });
 
+        describe('Final members', function () {
+                        
+            it('should be accessible just as normal parameter/function', function () {
+
+                var SomeClass = Class({
+                    $finals: {
+                        foo: 'bar',
+                        someFunction: function () {
+                            return this.foo;
+                        }
+                    }
+                }),
+                    someClass = new SomeClass();
+                
+                expect(someClass.foo).to.be.equal('bar');
+                expect(someClass.someFunction()).to.be.equal('bar');
+                
+            });
+            
+        });
+        
         describe('Private members', function () {
 
             var SomeClass = Class({

@@ -269,7 +269,9 @@ define([
 
         for (k in params) {
 
-            if (k === '$statics') {
+            if (k === '$finals') {
+                
+            } else if (k === '$statics') {
 
                 if (!isObject(params.$statics)) {
                     throw new TypeError('$statics definition of interface "' + params.$name + '" must be an object.');

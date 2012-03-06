@@ -71,7 +71,8 @@ define([
         $abstract = '$abstract_' + random,
         cacheKeyword = '$cache_' + random,
         inheriting,
-        nextId = 0;
+        nextId = 0,
+        defaultModifiers = { isStatic: false, isFinal: false, isConst: false };
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
     var Class,
@@ -115,7 +116,8 @@ define([
     function addMethod(name, method, constructor, opts) {
 
         var metadata,
-            isStatic = opts && opts.isStatic,
+            isStatic = !!(opts && opts.isStatic),
+            isFinal = !!(opts && opts.isFinal),
             target;
 
         // Check if function is already being used by another class or within the same class
@@ -138,6 +140,15 @@ define([
             }
         }
 
+        // Check if we we got a private method classified as final
+        if (metadata.isPrivate && isFinal) {
+            throw new Error('Private method "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
+        }
+
+        if (name === '___someFunction') {
+            console.log(metadata);
+            console.trace();
+        }
         // Check if a property with the same name exists
         target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
         if (isObject(target[name])) {
@@ -150,7 +161,11 @@ define([
         if (isObject(target[name])) {
             // Are we overriding a private method?
             if (target[name].isPrivate) {
-                throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' method "' + name + ' in class "' + constructor.prototype.$name + '".');
+                throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' method "' + name + '" in class "' + constructor.prototype.$name + '".');
+            }
+            // Are we overriding a final method?
+            if (target[name].isFinal) {
+                throw new Error('Cannot override final method "' + name + '" in class "' + constructor.prototype.$name + '".');
             }
             // Are they compatible?
             if (!isFunctionCompatible(metadata, target[name])) {
@@ -175,7 +190,11 @@ define([
             target[name] = method;
         }
 
-       // Store a reference to the prototype/constructor
+        if (isFinal) {
+            metadata.isFinal = isFinal;
+        }
+
+        // Store a reference to the prototype/constructor
         if (!isStatic) {
             obfuscateProperty(method, '$prototype_' + constructor[$class].id, constructor.prototype);
         } else {
@@ -198,7 +217,8 @@ define([
     function addProperty(name, value, constructor, opts) {
 
         var metadata = propertyMeta(value, name),
-            isStatic = opts && opts.isStatic,
+            isStatic = !!(opts && opts.isStatic),
+            isFinal = !!(opts && opts.isFinal),
             target;
 
         // If the property is protected/private we delete it from the target because they will be protected later
@@ -214,10 +234,14 @@ define([
             constructor.prototype[name] = value;
         }
 
+        // Check if we we got a private property classified as final
+        if (metadata.isPrivate && isFinal) {
+            throw new Error('Private property "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
+        }
 
         target = isStatic ? constructor[$class].staticMethods : constructor[$class].methods;
 
-        // Check if a property with the same name exists
+        // Check if a method with the same name exists
         if (isObject(target[name])) {
             throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.$name + '".');
         }
@@ -229,9 +253,17 @@ define([
             if (target[name].isPrivate) {
                 throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' property "' + name + ' in class "' + constructor.prototype.$name + '".');
             }
+            // Are we overriding a final property?
+            if (target[name].isFinal) {
+                throw new Error('Cannot override final property "' + name + '" in class "' + constructor.prototype.$name + '".');
+            }
         }
 
         target[name] = metadata;
+
+        if (isFinal) {
+            metadata.isFinal = isFinal;
+        }
 
         // Store a reference to the prototype/constructor
         if (!isStatic) {
@@ -473,27 +505,114 @@ define([
     }
 
     /**
-     * Parse all the members, including static ones.
+     *
+     */
+    function parseMembers(params, constructor, modifiers) {
+        modifiers = modifiers || { isStatic: false, isFinal: false, isConst: false };
+        
+    }
+    
+    /**
+     * Parse all the class members, including finals, static and constants.
      *
      * @param {Object}   params      The parameters
      * @param {Function} constructor The constructor
+     * @param {Boolean}  isFinal     Parse the members as finals
      */
-    function parseMembers(params, constructor) {
+    function parseClass(params, constructor) {
 
+//>>includeStart('strict', pragmas.strict);
+        var opts = { isStatic: false, isFinal: !!isFinal, isConst: false },
+            key,
+            value;
+//>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
         var key,
             value;
-//>>excludeEnd('strict');
-//>>includeStart('strict', pragmas.strict);
-        var optsStatic = { isStatic: true },
-            key,
-            value;
-        // Add each method metadata, verifying its signature
-//>>includeEnd('strict');
 
+//>>excludeEnd('strict');
+
+        if (hasOwn(params, '$constants')) {
+//>>includeStart('strict', pragmas.strict);
+            opts.isConst = true;
+
+//>>includeEnd('strict');
+            for (key in params.$constants) {
+
+                value = params.$constants[key];
+
+//>>includeStart('strict', pragmas.strict);
+                if (!isNumber(value) && !isString(value) && !isRegExp(value)) {
+                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a number, a string or a regular expression.');
+                }
+
+                addProperty(key, value, constructor, opts);
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+                constructor[$class].staticProperties[key] = value;
+                constructor[key] = value;
+//>>excludeEnd('strict');
+            }
+            
+//>>includeStart('strict', pragmas.strict);
+            opts.isConst = false;
+//>>includeEnd('strict');
+            delete params.$constants;
+        }
+        
+        if (hasOwn(params, '$finals')) {
+//>>includeStart('strict', pragmas.strict);
+            opts.isFinal = true;
+
+//>>includeEnd('strict');
+            
+//>>includeStart('strict', pragmas.strict);
+            opts.isFinal = false;
+//>>includeEnd('strict');
+            delete params.$finals;
+        }
+        
         for (key in params) {
 
-            if (key === '$statics') {
+            if (key === '$constants') {
+
+//>>includeStart('strict', pragmas.strict);
+                 opts.isConst = true;
+
+//>>includeEnd('strict');
+                 for (key in params.$constants) {
+
+                    value = params.$statics[key];
+
+//>>includeStart('strict', pragmas.strict);
+                    if (!isNumber(value) && !isString(value) && !isRegExp(value)) {
+                        throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a number, a string or a regular expression.');
+                    }
+
+                    addProperty(key, value, constructor, opts);
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+                    constructor[$class].staticProperties[key] = value;
+                    constructor[key] = value;
+//>>excludeEnd('strict');
+                 }
+//>>includeStart('strict', pragmas.strict);
+                 opts.isConst = false;
+
+//>>includeEnd('strict');
+            } else if (key === '$finals') {
+
+//>>includeStart('strict', pragmas.strict);
+                if (!isObject(params.$finals)) {
+                    throw new TypeError('$finals definition of class "' + params.$name + '" must be an object.');
+                }
+
+//>>includeEnd('strict');
+                parseMembers(params.$finals, constructor, true);
+
+                delete constructor.prototype.$finals;
+
+            } else if (key === '$statics') {
 
 //>>includeStart('strict', pragmas.strict);
                 if (!isObject(params.$statics)) {
@@ -501,7 +620,7 @@ define([
                 }
 
                 checkKeywords(params.$statics, 'statics');
-
+                opts.isStatic = true;
 //>>includeEnd('strict');
                 for (key in params.$statics) {
 
@@ -509,9 +628,9 @@ define([
 
 //>>includeStart('strict', pragmas.strict);
                     if (isFunction(value) && !value[$class] && !value[$interface]) {
-                        addMethod(key, value, constructor, optsStatic);
+                        addMethod(key, value, constructor, opts);
                     } else {
-                        addProperty(key, value, constructor, optsStatic);
+                        addProperty(key, value, constructor, opts);
                     }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
@@ -528,7 +647,9 @@ define([
                 }
 
                 delete constructor.prototype.$statics;
-
+//>>includeStart('strict', pragmas.strict);
+                opts.isStatic = false;
+//>>includeEnd('strict');
             } else {
 
                 value = params[key];
@@ -537,9 +658,9 @@ define([
                 if (key.charAt(0) !== '$' || (key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
 
                     if (isFunction(value) && !value[$class] && !value[$interface]) {
-                        addMethod(key, value, constructor);
+                        addMethod(key, value, constructor, opts);
                     } else {
-                        addProperty(key, value, constructor);
+                        addProperty(key, value, constructor, opts);
                     }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
@@ -548,6 +669,10 @@ define([
                     if (isFunction(value) && !value[$class] && !value[$interface]) {
                         value['$prototype_' + constructor[$class].id] = constructor.prototype;
                         value.$name = key;
+                    }
+
+                    if (isFinal) {
+                        constructor.prototype[key] = value;
                     }
 //>>excludeEnd('strict');
                 }
@@ -1249,7 +1374,7 @@ define([
     function toStringConstructor() {
         return '[constructor #' + this.prototype.$name + ']';
     }
-    
+
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
     /**
@@ -1260,6 +1385,8 @@ define([
      * @return {Function} The constructor
      */
     Class = function Class(params) {
+
+        delete params.$name;
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
     /**
@@ -1359,9 +1486,6 @@ define([
 //>>includeEnd('strict');
         }
 
-//>>excludeStart('strict', pragmas.strict);
-        delete classify.prototype.$name;
-//>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
         if (isAbstract) {
             obfuscateProperty(classify, '$abstract_' + random, true, true); // Signal it has abstract
