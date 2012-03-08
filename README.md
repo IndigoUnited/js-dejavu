@@ -96,7 +96,7 @@ Interfaces can extend multiple interfaces. They can also define static functions
 Be aware that all functions must obey it's base signature (see explanation later in this document).
 
 ```js
-define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (Events, Interface) {
+define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (EventsInterface, Interface) {
 
     var SomeEventsInterface = Interface({
         $extends: EventsInterface,   // This interface extends EventsInterface
