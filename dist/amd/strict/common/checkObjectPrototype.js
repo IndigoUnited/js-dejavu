@@ -11,7 +11,7 @@ define([
 
     /**
      * Checks object prototype, throwing an error if it has enumerable properties.
-     * Also seals it, to prevent any further modifications
+     * Also seals it, preventing any additions or deletions.
      */
     function checkObjectPrototype() {
 

@@ -617,44 +617,6 @@ define('common/isFunctionCompatible',[],function () {
 });
 
 /*jslint sloppy:true, forin:true*/
-/*global define*/
-
-define('common/checkKeywords',[
-    'Utils/array/contains'
-], function (
-    contains
-) {
-    var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
-        reservedStatics = ['$parent', '$super'];
-
-    /**
-     * Verify reserved words found in classes/interfaces.
-     * The second parameter can be normal or statics.
-     * Normal will test for reserved words of the instance.
-     * $statics will test for reserved words in the ckass statics.
-     *
-     * Will throw an error if any reserved key is found.
-     *
-     * @param {Object} object            The object to verify
-     * @param {String} [type="normal"]   The list of reserved word to test
-     */
-    function checkKeywords(object, type) {
-
-        var reserved = type === 'normal' || !type ? reservedNormal : reservedStatics,
-            key;
-
-        for (key in object) {
-
-            if (contains(reserved, key) || Object.prototype[key]) {
-                throw new TypeError('"' + object.$name + '" is using a reserved keyword: ' + key);
-            }
-        }
-    }
-
-    return checkKeywords;
-});
-
-/*jslint sloppy:true, forin:true*/
 /*global define,console*/
 
 define('common/isObjectPrototypeSpoiled',[],function () {
@@ -756,10 +718,6 @@ define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefinePr
     function obfuscateProperty(obj, key, value, isWritable) {
 
         if (hasDefineProperty) {
-            if (obj.hasOwnProperty(key)) {
-                console.log(obj);
-                console.trace();
-            }
             Object.defineProperty(obj, key, {
                 value: value,
                 configurable: false,
@@ -787,7 +745,7 @@ define('common/checkObjectPrototype',[
 
     /**
      * Checks object prototype, throwing an error if it has enumerable properties.
-     * Also seals it, to prevent any further modifications
+     * Also seals it, preventing any additions or deletions.
      */
     function checkObjectPrototype() {
 
@@ -848,6 +806,44 @@ define('Utils/object/hasOwn',[],function () {
 
      return hasOwn;
 
+});
+
+/*jslint sloppy:true, forin:true*/
+/*global define*/
+
+define('common/checkKeywords',[
+    'Utils/object/hasOwn'
+], function (
+    hasOwn
+) {
+    var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
+        reservedStatics = ['$parent', '$super'];
+
+    /**
+     * Verify reserved words found in classes/interfaces.
+     * The second parameter can be normal or statics.
+     * Normal will test for reserved words of the instance.
+     * $statics will test for reserved words in the ckass statics.
+     *
+     * Will throw an error if any reserved key is found.
+     *
+     * @param {Object} object            The object to verify
+     * @param {String} [type="normal"]   The list of reserved word to test
+     */
+    function checkKeywords(object, type) {
+
+        var reserved = type === 'normal' || !type ? reservedNormal : reservedStatics,
+            x;
+
+        for (x = reserved.length - 1; x >= 0; x -= 1) {
+            console.log('checking' , reserved[x]);
+            if (hasOwn(object, reserved[x])) {
+                throw new TypeError('"' + object.$name + '" is using a reserved keyword: ' + reserved[x]);
+            }
+        }
+    }
+
+    return checkKeywords;
 });
 
 define('Utils/object/mixIn',['./hasOwn'], function(hasOwn){
