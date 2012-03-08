@@ -3,9 +3,9 @@
 /*global define*/
 
 define([
-    'Utils/array/contains'
+    'Utils/object/hasOwn'
 ], function (
-    contains
+    hasOwn
 ) {
     var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
         reservedStatics = ['$parent', '$super'];
@@ -24,12 +24,11 @@ define([
     function checkKeywords(object, type) {
 
         var reserved = type === 'normal' || !type ? reservedNormal : reservedStatics,
-            key;
+            x;
 
-        for (key in object) {
-
-            if (contains(reserved, key) || Object.prototype[key]) {
-                throw new TypeError('"' + object.$name + '" is using a reserved keyword: ' + key);
+        for (x = reserved.length - 1; x >= 0; x -= 1) {
+            if (hasOwn(object, reserved[x])) {
+                throw new TypeError('"' + object.$name + '" is using a reserved keyword: ' + reserved[x]);
             }
         }
     }
