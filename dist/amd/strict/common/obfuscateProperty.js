@@ -15,10 +15,6 @@ define(['./hasDefineProperty'], function (hasDefineProperty) {
     function obfuscateProperty(obj, key, value, isWritable) {
 
         if (hasDefineProperty) {
-            if (obj.hasOwnProperty(key)) {
-                console.log(obj);
-                console.trace();
-            }
             Object.defineProperty(obj, key, {
                 value: value,
                 configurable: false,
