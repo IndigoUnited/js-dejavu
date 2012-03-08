@@ -341,20 +341,6 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     expect(checkStatic(reservedStatic[x], true)).to.throwException(/using a reserved keyword/);
                 }
 
-                expect(function () {
-                    return Interface({
-                        hasOwnProperty: function () {}
-                    });
-                }).to.throwException(/using a reserved keyword/);
-
-                expect(function () {
-                    return Interface({
-                        $statics: {
-                            hasOwnProperty: function () {}
-                        }
-                    });
-                }).to.throwException(/using a reserved keyword/);
-
             });
 
             it('should throw an error when it extends duplicate interfaces', function () {
@@ -2235,38 +2221,6 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     expect(checkStatic(reservedStatic[x], true)).to.throwException(/using a reserved keyword/);
                 }
 
-                expect(function () {
-                    return AbstractClass({
-                        hasOwnProperty: function () {}
-                    });
-                }).to.throwException(/using a reserved keyword/);
-
-                expect(function () {
-                    return AbstractClass({
-                        $statics: {
-                            hasOwnProperty: function () {}
-                        }
-                    });
-                }).to.throwException(/using a reserved keyword/);
-
-                expect(function () {
-                    return AbstractClass({
-                        $abstracts: {
-                            hasOwnProperty: function () {}
-                        }
-                    });
-                }).to.throwException(/using a reserved keyword/);
-
-                expect(function () {
-                    return AbstractClass({
-                        $abstracts: {
-                            $statics: {
-                                hasOwnProperty: function () {}
-                            }
-                        }
-                    });
-                }).to.throwException(/using a reserved keyword/);
-
             });
 
         });
@@ -2919,20 +2873,6 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     expect(checkStatic(reservedStatic[x])).to.throwException(/using a reserved keyword/);
                     expect(checkStatic(reservedStatic[x], true)).to.throwException(/using a reserved keyword/);
                 }
-
-                expect(function () {
-                    return Class({
-                        hasOwnProperty: function () {}
-                    });
-                }).to.throwException(/using a reserved keyword/);
-
-                expect(function () {
-                    return Class({
-                        $statics: {
-                            hasOwnProperty: function () {}
-                        }
-                    });
-                }).to.throwException(/using a reserved keyword/);
 
             });
 
