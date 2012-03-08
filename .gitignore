@@ -65,3 +65,6 @@ Session.vim
 ######################
 /.project
 /.settings
+
+# Node #
+node_modules
