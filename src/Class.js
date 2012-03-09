@@ -145,10 +145,6 @@ define([
             throw new Error('Private method "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
         }
 
-        if (name === '___someFunction') {
-            console.log(metadata);
-            console.trace();
-        }
         // Check if a property with the same name exists
         target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
         if (isObject(target[name])) {
@@ -208,6 +204,7 @@ define([
      * Valid options:
      *   - isStatic: true|false Defaults to false
      *   - isFinal:  true|false Defaults to false
+     *   - isConst:  true|false Defaults to false
      *
      * @param {String}   name        The property name
      * @param {Function} value       The property itself
@@ -505,114 +502,30 @@ define([
     }
 
     /**
-     *
-     */
-    function parseMembers(params, constructor, modifiers) {
-        modifiers = modifiers || { isStatic: false, isFinal: false, isConst: false };
-        
-    }
-    
-    /**
-     * Parse all the class members, including finals, static and constants.
+     * Parse an object members.
      *
      * @param {Object}   params      The parameters
      * @param {Function} constructor The constructor
      * @param {Boolean}  isFinal     Parse the members as finals
      */
-    function parseClass(params, constructor) {
+    function parseMembers(params, constructor, isFinal) {
 
-//>>includeStart('strict', pragmas.strict);
-        var opts = { isStatic: false, isFinal: !!isFinal, isConst: false },
-            key,
-            value;
-//>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
         var key,
             value;
-
 //>>excludeEnd('strict');
-
-        if (hasOwn(params, '$constants')) {
 //>>includeStart('strict', pragmas.strict);
-            opts.isConst = true;
-
+        var opts = { isFinal: !!isFinal },
+            key,
+            value;
+        // Add each method metadata, verifying its signature
 //>>includeEnd('strict');
-            for (key in params.$constants) {
 
-                value = params.$constants[key];
-
-//>>includeStart('strict', pragmas.strict);
-                if (!isNumber(value) && !isString(value) && !isRegExp(value)) {
-                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a number, a string or a regular expression.');
-                }
-
-                addProperty(key, value, constructor, opts);
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
-                constructor[$class].staticProperties[key] = value;
-                constructor[key] = value;
-//>>excludeEnd('strict');
-            }
-            
-//>>includeStart('strict', pragmas.strict);
-            opts.isConst = false;
-//>>includeEnd('strict');
-            delete params.$constants;
-        }
-        
-        if (hasOwn(params, '$finals')) {
-//>>includeStart('strict', pragmas.strict);
-            opts.isFinal = true;
-
-//>>includeEnd('strict');
-            
-//>>includeStart('strict', pragmas.strict);
-            opts.isFinal = false;
-//>>includeEnd('strict');
-            delete params.$finals;
-        }
-        
+        // TODO: use hasOwn here?
+        // TODO: parse statics outside the if
         for (key in params) {
 
-            if (key === '$constants') {
-
-//>>includeStart('strict', pragmas.strict);
-                 opts.isConst = true;
-
-//>>includeEnd('strict');
-                 for (key in params.$constants) {
-
-                    value = params.$statics[key];
-
-//>>includeStart('strict', pragmas.strict);
-                    if (!isNumber(value) && !isString(value) && !isRegExp(value)) {
-                        throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a number, a string or a regular expression.');
-                    }
-
-                    addProperty(key, value, constructor, opts);
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
-                    constructor[$class].staticProperties[key] = value;
-                    constructor[key] = value;
-//>>excludeEnd('strict');
-                 }
-//>>includeStart('strict', pragmas.strict);
-                 opts.isConst = false;
-
-//>>includeEnd('strict');
-            } else if (key === '$finals') {
-
-//>>includeStart('strict', pragmas.strict);
-                if (!isObject(params.$finals)) {
-                    throw new TypeError('$finals definition of class "' + params.$name + '" must be an object.');
-                }
-
-//>>includeEnd('strict');
-                parseMembers(params.$finals, constructor, true);
-
-                delete constructor.prototype.$finals;
-
-            } else if (key === '$statics') {
+            if (key === '$statics') {
 
 //>>includeStart('strict', pragmas.strict);
                 if (!isObject(params.$statics)) {
@@ -621,6 +534,7 @@ define([
 
                 checkKeywords(params.$statics, 'statics');
                 opts.isStatic = true;
+
 //>>includeEnd('strict');
                 for (key in params.$statics) {
 
@@ -646,10 +560,10 @@ define([
 //>>excludeEnd('strict');
                 }
 
-                delete constructor.prototype.$statics;
 //>>includeStart('strict', pragmas.strict);
-                opts.isStatic = false;
+                delete opts.isStatic;
 //>>includeEnd('strict');
+                delete params.$statics;
             } else {
 
                 value = params[key];
@@ -677,6 +591,95 @@ define([
 //>>excludeEnd('strict');
                 }
             }
+        }
+    }
+
+    /**
+     * Parse all the class members, including finals, static and constants.
+     *
+     * @param {Object}   params      The parameters
+     * @param {Function} constructor The constructor
+     * @param {Boolean}  isFinal     Parse the members as finals
+     */
+    function parseClass(params, constructor) {
+
+//>>includeStart('strict', pragmas.strict);
+        var opts = { },
+            key,
+            value,
+            saved = {},
+            has = {};
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+        var key,
+            value,
+            saved = {},
+            has = {};
+
+//>>excludeEnd('strict');
+
+         // Save constants & finals to parse later
+         if (hasOwn(params, '$constants')) {
+//>>includeStart('strict', pragmas.strict);
+
+             if (!isObject(params.$constants)) {
+                throw new TypeError('$constants of class "' + constructor.prototype.$name + '" must be an object.');
+             }
+
+//>>includeEnd('strict');
+             saved.$constants = params.$constants;
+             has.$constants = true;
+             delete params.$constants;
+         }
+
+         if (hasOwn(params, '$finals')) {
+//>>includeStart('strict', pragmas.strict);
+
+             if (!isObject(params.$finals)) {
+                throw new TypeError('$finals of class "' + constructor.prototype.$name + '" must be an object.');
+             }
+
+//>>includeEnd('strict');
+             saved.$finals = params.$finals;
+             has.$finals = true;
+             delete params.$finals;
+         }
+
+        // Parse members
+        parseMembers(params, constructor);
+
+        // Parse constants
+        if (has.$constants) {
+
+//>>includeStart('strict', pragmas.strict);
+            opts.isConst = true;
+
+//>>includeEnd('strict');
+            for (key in params.$constants) {
+
+                value = params.$constants[key];
+
+//>>includeStart('strict', pragmas.strict);
+                if (!isNumber(value) && !isString(value) && !isRegExp(value)) {
+                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a number, a string or a regular expression.');
+                }
+
+                addProperty(key, value, constructor, opts);
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+                constructor[$class].staticProperties[key] = value;
+                constructor[key] = value;
+//>>excludeEnd('strict');
+            }
+
+//>>includeStart('strict', pragmas.strict);
+            delete opts.isConst;
+//>>includeEnd('strict');
+        }
+
+        // Parse finals
+        if (has.$finals) {
+            parseMembers(saved.$finals, constructor, true);
         }
     }
 
@@ -1492,8 +1495,8 @@ define([
         }
 //>>includeEnd('strict');
 
-        // Parse members
-        parseMembers(params, classify);
+        // Parse class members
+        parseClass(params, classify);
 
         // Assign constructor & static parent alias
 //>>excludeStart('strict', pragmas.strict);

@@ -151,7 +151,7 @@ define([
     }
 
     /**
-     * Parse all the members, including final and static ones.
+     * Parse an object members.
      *
      * @param {Object}   params      The parameters
      * @param {Function} constructor The constructor
@@ -162,24 +162,11 @@ define([
         var key,
             value;
 
+        // TODO: use hasOwn here?
+        // TODO: parse statics outside the if
         for (key in params) {
 
-            if (key === '$constants') {
-
-                 for (key in params.$constants) {
-
-                    value = params.$statics[key];
-
-                    constructor[$class].staticProperties[key] = value;
-                    constructor[key] = value;
-                 }
-            } else if (key === '$finals') {
-
-                parseMembers(params.$finals, constructor, true);
-
-                delete constructor.prototype.$finals;
-
-            } else if (key === '$statics') {
+            if (key === '$statics') {
 
                 for (key in params.$statics) {
 
@@ -196,7 +183,7 @@ define([
                     constructor[key] = value;
                 }
 
-                delete constructor.prototype.$statics;
+                delete params.$statics;
             } else {
 
                 value = params[key];
@@ -213,6 +200,56 @@ define([
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Parse all the class members, including finals, static and constants.
+     *
+     * @param {Object}   params      The parameters
+     * @param {Function} constructor The constructor
+     * @param {Boolean}  isFinal     Parse the members as finals
+     */
+    function parseClass(params, constructor) {
+
+        var key,
+            value,
+            saved = {},
+            has = {};
+
+
+         // Save constants & finals to parse later
+         if (hasOwn(params, '$constants')) {
+             saved.$constants = params.$constants;
+             has.$constants = true;
+             delete params.$constants;
+         }
+
+         if (hasOwn(params, '$finals')) {
+             saved.$finals = params.$finals;
+             has.$finals = true;
+             delete params.$finals;
+         }
+
+        // Parse members
+        parseMembers(params, constructor);
+
+        // Parse constants
+        if (has.$constants) {
+
+            for (key in params.$constants) {
+
+                value = params.$constants[key];
+
+                constructor[$class].staticProperties[key] = value;
+                constructor[key] = value;
+            }
+
+        }
+
+        // Parse finals
+        if (has.$finals) {
+            parseMembers(saved.$finals, constructor, true);
         }
     }
 
@@ -404,8 +441,8 @@ define([
         }
 
 
-        // Parse members
-        parseMembers(params, classify);
+        // Parse class members
+        parseClass(params, classify);
 
         // Assign constructor & static parent alias
         classify.prototype.$constructor = classify;
