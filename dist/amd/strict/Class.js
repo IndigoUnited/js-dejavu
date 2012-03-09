@@ -58,7 +58,8 @@ define([
         $abstract = '$abstract_' + random,
         cacheKeyword = '$cache_' + random,
         inheriting,
-        nextId = 0;
+        nextId = 0,
+        defaultModifiers = { isStatic: false, isFinal: false, isConst: false };
 
     /**
      * Clones a property in order to make them unique for the instance.
@@ -123,10 +124,6 @@ define([
             throw new Error('Private method "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
         }
 
-        if (name === '___someFunction') {
-            console.log(metadata);
-            console.trace();
-        }
         // Check if a property with the same name exists
         target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
         if (isObject(target[name])) {
@@ -186,6 +183,7 @@ define([
      * Valid options:
      *   - isStatic: true|false Defaults to false
      *   - isFinal:  true|false Defaults to false
+     *   - isConst:  true|false Defaults to false
      *
      * @param {String}   name        The property name
      * @param {Function} value       The property itself
@@ -409,7 +407,7 @@ define([
     }
 
     /**
-     * Parse all the members, including final and static ones.
+     * Parse an object members.
      *
      * @param {Object}   params      The parameters
      * @param {Function} constructor The constructor
@@ -417,40 +415,16 @@ define([
      */
     function parseMembers(params, constructor, isFinal) {
 
-        var opts = { isStatic: false, isFinal: !!isFinal, isConst: false },
+        var opts = { isFinal: !!isFinal },
             key,
             value;
-
         // Add each method metadata, verifying its signature
+
+        // TODO: use hasOwn here?
+        // TODO: parse statics outside the if
         for (key in params) {
 
-            if (key === '$constants') {
-
-                 opts.isConst = true;
-
-                 for (key in params.$constants) {
-
-                    value = params.$statics[key];
-
-                    if (!isNumber(value) && !isString(value) && !isRegExp(value)) {
-                        throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a number, a string or a regular expression.');
-                    }
-
-                    addProperty(key, value, constructor, opts);
-                 }
-                 opts.isConst = false;
-
-            } else if (key === '$finals') {
-
-                if (!isObject(params.$finals)) {
-                    throw new TypeError('$finals definition of class "' + params.$name + '" must be an object.');
-                }
-
-                parseMembers(params.$finals, constructor, true);
-
-                delete constructor.prototype.$finals;
-
-            } else if (key === '$statics') {
+            if (key === '$statics') {
 
                 if (!isObject(params.$statics)) {
                     throw new TypeError('$statics definition of class "' + params.$name + '" must be an object.');
@@ -458,6 +432,7 @@ define([
 
                 checkKeywords(params.$statics, 'statics');
                 opts.isStatic = true;
+
                 for (key in params.$statics) {
 
                     value = params.$statics[key];
@@ -469,8 +444,8 @@ define([
                     }
                 }
 
-                delete constructor.prototype.$statics;
-                opts.isStatic = false;
+                delete opts.isStatic;
+                delete params.$statics;
             } else {
 
                 value = params[key];
@@ -484,6 +459,72 @@ define([
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Parse all the class members, including finals, static and constants.
+     *
+     * @param {Object}   params      The parameters
+     * @param {Function} constructor The constructor
+     * @param {Boolean}  isFinal     Parse the members as finals
+     */
+    function parseClass(params, constructor) {
+
+        var opts = { },
+            key,
+            value,
+            saved = {},
+            has = {};
+
+         // Save constants & finals to parse later
+         if (hasOwn(params, '$constants')) {
+
+             if (!isObject(params.$constants)) {
+                throw new TypeError('$constants of class "' + constructor.prototype.$name + '" must be an object.');
+             }
+
+             saved.$constants = params.$constants;
+             has.$constants = true;
+             delete params.$constants;
+         }
+
+         if (hasOwn(params, '$finals')) {
+
+             if (!isObject(params.$finals)) {
+                throw new TypeError('$finals of class "' + constructor.prototype.$name + '" must be an object.');
+             }
+
+             saved.$finals = params.$finals;
+             has.$finals = true;
+             delete params.$finals;
+         }
+
+        // Parse members
+        parseMembers(params, constructor);
+
+        // Parse constants
+        if (has.$constants) {
+
+            opts.isConst = true;
+
+            for (key in params.$constants) {
+
+                value = params.$constants[key];
+
+                if (!isNumber(value) && !isString(value) && !isRegExp(value)) {
+                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a number, a string or a regular expression.');
+                }
+
+                addProperty(key, value, constructor, opts);
+            }
+
+            delete opts.isConst;
+        }
+
+        // Parse finals
+        if (has.$finals) {
+            parseMembers(saved.$finals, constructor, true);
         }
     }
 
@@ -1195,8 +1236,8 @@ define([
             obfuscateProperty(classify, '$abstract_' + random, true, true); // Signal it has abstract
         }
 
-        // Parse members
-        parseMembers(params, classify);
+        // Parse class members
+        parseClass(params, classify);
 
         // Assign constructor & static parent alias
         obfuscateProperty(classify.prototype, '$constructor', classify);
