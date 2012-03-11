@@ -660,7 +660,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 }).to.throwException(/must be a function/);
 
             });
-            
+
             it('should throw an error when extending an invalid class', function () {
 
                 expect(function () {
@@ -850,6 +850,175 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         someFunction: function () {}
                     });
                 }).to.throwException(/override final/);
+                
+                expect(function () {
+                    return Class({
+                        $extends: SomeClass,
+                        $finals: {
+                            foo: 'wtf'
+                        }
+                    });
+                }).to.throwException(/override final/);
+
+                expect(function () {
+                    return Class({
+                        $extends: SomeClass,
+                        $finals: {
+                            someFunction: function () {}
+                        }
+                    });
+                }).to.throwException(/override final/);
+                
+            });
+
+            it('should throw an error if $constants is not an object', function () {
+
+                expect(function () {
+                    return Class({
+                        $constants: 'wtf'
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $constants: undefined
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $constants: null
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $constants: {}
+                    });
+                }).to.not.throwException();
+
+            });
+            
+            it('should throw an error if $constants have non primitive types', function () {
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: {}
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: new Date()
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+                
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: function () {}
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+                
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: []
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+                
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: false
+                        }
+                    });
+                }).to.not.throwException();
+                
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: null
+                        }
+                    });
+                }).to.not.throwException();
+                
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: undefined
+                        }
+                    });
+                }).to.not.throwException();
+                
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: "SOME"
+                        }
+                    });
+                }).to.not.throwException();
+                
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: 1
+                        }
+                    });
+                }).to.not.throwException();
+                
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: /DSA/
+                        }
+                    });
+                }).to.not.throwException();
+                
+            });
+            
+            it('should throw an error if overriding a constant parameter', function () {
+
+                var SomeClass = Class({
+                    $constants: {
+                        FOO: 'bar'
+                    }
+                });
+                
+                expect(function () {
+                    return Class({
+                        $extends: SomeClass,
+                        $finals: {
+                            $statics: {
+                                FOO: 'WTF'
+                            }
+                        }
+                    });
+                }).to.throwException(/override constant/);
+                
+                expect(function () {
+                    return Class({
+                        $extends: SomeClass,
+                        $statics: {
+                            FOO: 'WTF'
+                        }
+                    });
+                }).to.throwException(/override constant/);
+                
+                expect(function () {
+                    return Class({
+                        $extends: SomeClass,
+                        $constants: {
+                            FOO: 'WTF'
+                        }
+                    });
+                }).to.throwException(/override constant/);
 
             });
 
