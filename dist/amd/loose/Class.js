@@ -1,4 +1,4 @@
-/*jslint browser:true, sloppy:true, forin:true, newcap:true, callee:true*/
+/*jslint browser:true, sloppy:true, forin:true, newcap:true, callee:true, eqeq:true*/
 /*global define,console*/
 
 define([
@@ -44,12 +44,14 @@ define([
      */
     function cloneProperty(prop) {
 
+        // TODO: Handle other types.. such as Date..
         if (isArray(prop)) {
             return [].concat(prop);
         }
         if (isObject(prop)) {
             return mixIn({}, prop);
         }
+
         return prop;
     }
 
@@ -219,17 +221,17 @@ define([
 
 
          // Save constants & finals to parse later
-         if (hasOwn(params, '$constants')) {
-             saved.$constants = params.$constants;
-             has.$constants = true;
-             delete params.$constants;
-         }
+        if (hasOwn(params, '$constants')) {
+            saved.$constants = params.$constants;
+            has.$constants = true;
+            delete params.$constants;
+        }
 
-         if (hasOwn(params, '$finals')) {
-             saved.$finals = params.$finals;
-             has.$finals = true;
-             delete params.$finals;
-         }
+        if (hasOwn(params, '$finals')) {
+            saved.$finals = params.$finals;
+            has.$finals = true;
+            delete params.$finals;
+        }
 
         // Parse members
         parseMembers(params, constructor);
@@ -237,9 +239,9 @@ define([
         // Parse constants
         if (has.$constants) {
 
-            for (key in params.$constants) {
+            for (key in saved.$constants) {
 
-                value = params.$constants[key];
+                value = saved.$constants[key];
 
                 constructor[$class].staticProperties[key] = value;
                 constructor[key] = value;

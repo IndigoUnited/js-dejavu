@@ -49,6 +49,9 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 $finals: {
                     foo: 'bar'
                 },
+                $constants: {
+                    SOME_CONST: 'bar'
+                },
                 $statics: {
                     staticMethod: function () {},
                     staticSome: 'property'
@@ -114,13 +117,19 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 return expect(example.$binds).to.be.equal(undefined);
 
             });
-            
+
             it('should not have the $finals property', function () {
 
                 return expect(example.$finals).to.be.equal(undefined);
 
             });
-            
+
+            it('should not have the $constants property', function () {
+
+                return expect(example.$constants).to.be.equal(undefined);
+
+            });
+
             it('should not share properties with other instances', function () {
 
                 example2.test();
@@ -534,9 +543,9 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     expect(evenOtherImplementation.method1).to.be.a('function');
                     expect(evenOtherImplementation.method2).to.be.a('function');
                     expect(evenOtherImplementation.some).to.be.equal('property');
-                    
+
                 }());
-                
+
                 (function () {
                     var SomeImplementation = Class({
                         $borrows: {
@@ -560,9 +569,9 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     expect(someImplementation.method1()).to.be.a('function');
                     expect(someImplementation.method2()).to.be.a('function');
                     expect(someImplementation.some()).to.be.equal('property');
-                    
+
                 }());
-                
+
                 (function () {
                     var SomeImplementation = Class({
                         $borrows: {
@@ -586,7 +595,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     expect(someImplementation.method1()).to.be.a('function');
                     expect(someImplementation.method2()).to.be.a('function');
                     expect(someImplementation.some()).to.be.equal('property');
-                    
+
                 }());
             });
 
@@ -631,7 +640,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 expect(SomeOtherClass.staticMethod1).to.be.equal(method2);
 
             });
-            
+
             it('should not grab the initialize method of any class/object', function () {
 
                 var initialize = function () {
@@ -784,7 +793,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
         });
 
         describe('Final members', function () {
-                        
+
             it('should be accessible just as normal parameter/function', function () {
 
                 var SomeClass = Class({
@@ -796,14 +805,36 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     }
                 }),
                     someClass = new SomeClass();
-                
+
                 expect(someClass.foo).to.be.equal('bar');
                 expect(someClass.someFunction()).to.be.equal('bar');
-                
+
             });
-            
+
         });
-        
+
+        describe('Constants', function () {
+
+            var SomeClass = Class({
+                $constants: {
+                    FOO: 'bar'
+                }
+            });
+
+            it('should be accessible in a similiar way as static members', function () {
+                expect(SomeClass.FOO).to.be.equal('bar');
+            });
+
+            if (/strict/.test(global.build) && hasDefineProperty) {
+                it('should throw an error while attempting to change their values', function () {
+                    expect(function () {
+                        SomeClass.FOO = 'test';
+                    }).to.throwException(/constant property/);
+                });
+            }
+
+        });
+
         describe('Private members', function () {
 
             var SomeClass = Class({

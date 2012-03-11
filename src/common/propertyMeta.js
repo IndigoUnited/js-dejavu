@@ -15,7 +15,7 @@ define(function () {
      */
     function propertyMeta(prop, name) {
 
-        var ret = { value: prop };
+        var ret = {};
 
         if (name) {
             if (name.charAt(0) === '_') {

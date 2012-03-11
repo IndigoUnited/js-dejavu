@@ -1,4 +1,4 @@
-/*jslint browser:true, sloppy:true, forin:true, newcap:true, callee:true*/
+/*jslint browser:true, sloppy:true, forin:true, newcap:true, callee:true, eqeq:true*/
 /*global define,console*/
 
 define([
@@ -14,6 +14,9 @@ define([
     './common/hasDefineProperty',
     './common/checkObjectPrototype',
     './common/randomAccessor',
+    'Utils/lang/isNumber',
+    'Utils/lang/isRegExp',
+    'Utils/lang/isBoolean',
     'Utils/lang/isFunction',
     'Utils/lang/isObject',
     'Utils/lang/isArray',
@@ -37,6 +40,9 @@ define([
     hasDefineProperty,
     checkObjectPrototype,
     randomAccessor,
+    isNumber,
+    isRegExp,
+    isBoolean,
     isFunction,
     isObject,
     isArray,
@@ -71,12 +77,14 @@ define([
      */
     function cloneProperty(prop) {
 
+        // TODO: Handle other types.. such as Date..
         if (isArray(prop)) {
             return [].concat(prop);
         }
         if (isObject(prop)) {
             return mixIn({}, prop);
         }
+
         return prop;
     }
 
@@ -86,6 +94,7 @@ define([
      * Valid options:
      *   - isStatic: true|false Defaults to false
      *   - isFinal:  true|false Defaults to false
+     *   - isConst:  true|false Defaults to false
      *
      * @param {String}   name        The method name
      * @param {Function} method      The method itself
@@ -96,7 +105,7 @@ define([
 
         var metadata,
             isStatic = !!(opts && opts.isStatic),
-            isFinal = !!(opts && opts.isFinal),
+            isFinal,
             target;
 
         // Check if function is already being used by another class or within the same class
@@ -108,18 +117,23 @@ define([
             obfuscateProperty(method, '$name', name);
         }
 
-        // If the initialize as inherited, clone the metadata
+        // If the initialize is inherited, copy the metadata
         if (!isStatic && name === 'initialize' && method.$inherited) {
-            metadata = mixIn({}, constructor.$parent[$class].methods[name]);
-        } else {
+            metadata = constructor.$parent[$class].methods[name];
+        } else if (!opts.metadata) {
             // Grab function metadata and throw error if is not valid
             metadata = functionMeta(method, name);
             if (metadata === null) {
                 throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in class "' + constructor.prototype.$name + '".');
             }
+
+            metadata.isFinal = !!opts.isFinal;
+        } else {
+            metadata = opts.metadata;
+            opts.isFinal = metadata.isFinal;
         }
 
-        // Check if we we got a private method classified as final
+        // Check if we got a private method classified as final
         if (metadata.isPrivate && isFinal) {
             throw new Error('Private method "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
         }
@@ -192,10 +206,27 @@ define([
      */
     function addProperty(name, value, constructor, opts) {
 
-        var metadata = propertyMeta(value, name),
-            isStatic = !!(opts && opts.isStatic),
-            isFinal = !!(opts && opts.isFinal),
+        var metadata,
+            isStatic,
+            isFinal,
+            isConst,
             target;
+
+        if (opts) {
+            if (opts.metadata) {
+                metadata = opts.metadata;
+                isFinal = metadata.isFinal;
+                isConst = metadata.isConst;
+            } else {
+                metadata = propertyMeta(value, name);
+                isFinal = !!opts.isFinal;
+                isConst = !!opts.isConst;
+            }
+
+            isStatic = !!(opts.isStatic || isConst);
+        } else {
+            isFinal = isStatic = isConst = false;
+        }
 
         // If the property is protected/private we delete it from the target because they will be protected later
         if (!metadata.isPublic && hasDefineProperty) {
@@ -204,8 +235,13 @@ define([
             } else {
                 delete constructor[name];
             }
+
+            metadata.value = value;
         } else if (isStatic) {
-            constructor[name] = cloneProperty(value);
+            if (!isConst) {
+                constructor[name] = cloneProperty(value);
+            }
+            metadata.value = value;
         } else {
             constructor.prototype[name] = value;
         }
@@ -229,6 +265,10 @@ define([
             if (target[name].isPrivate) {
                 throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' property "' + name + ' in class "' + constructor.prototype.$name + '".');
             }
+            // Are we overriding a constant?
+            if (target[name].isConst) {
+                throw new Error('Cannot override constant property "' + name + '" in class "' + constructor.prototype.$name + '".');
+            }
             // Are we overriding a final property?
             if (target[name].isFinal) {
                 throw new Error('Cannot override final property "' + name + '" in class "' + constructor.prototype.$name + '".');
@@ -239,6 +279,8 @@ define([
 
         if (isFinal) {
             metadata.isFinal = isFinal;
+        } else if (isConst) {
+            metadata.isConst = isConst;
         }
 
         // Store a reference to the prototype/constructor
@@ -263,7 +305,7 @@ define([
                 i = mixins.length,
                 key,
                 value,
-                optsStatic = { isStatic: true };
+                opts = {};
 
             // Verify argument type
             if (!i && !isArray(constructor.prototype.$borrows)) {
@@ -297,29 +339,37 @@ define([
                     throw new TypeError('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is an inherited class (only root classes not supported).');
                 }
 
+                delete opts.isStatic;
+
                 // Grab mixin members
                 for (key in current.$constructor[$class].methods) {
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
-                        addMethod(key, current.$constructor[$class].methods[key].implementation || current[key], constructor);
+                        opts.metadata = current.$constructor[$class].methods[key];
+                        addMethod(key, opts.metadata.implementation || current[key], constructor, opts);
                     }
                 }
 
                 for (key in current.$constructor[$class].properties) {
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
-                        addProperty(key, current.$constructor[$class].properties[key].value, constructor);
+                        opts.metadata = current.$constructor[$class].properties[key];
+                        addProperty(key, opts.metadata.value || current[key], constructor, opts);
                     }
                 }
+
+                opts.isStatic = true;
 
                 // Grab mixin static members
                 for (key in current.$constructor[$class].staticMethods) {
                     if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
-                        addMethod(key, current.$constructor[$class].staticMethods[key].implementation || current.$constructor[key], constructor, optsStatic);
+                        opts.metadata = current.$constructor[$class].staticMethods[key];
+                        addMethod(key, opts.metadata.implementation || current.$constructor[key], constructor, opts);
                     }
                 }
 
                 for (key in current.$constructor[$class].staticProperties) {
                     if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
-                        addProperty(key, current.$constructor[$class].staticProperties[key].value, constructor, optsStatic);
+                        opts.metadata = current.$constructor[$class].staticProperties[key];
+                        addProperty(key, opts.metadata.value || current.$constructor[key], constructor, opts);
                     }
                 }
 
@@ -388,7 +438,7 @@ define([
             // Verify duplicate binds already provided in mixins
             common = intersection(constructor[$class].binds, binds);
             if (common.length > 0) {
-                throw new Error('There are binds in "' + constructor.prototype.$name + '" that are already being bound by the parent class and/or mixin: ' + common.join(', '));
+                throw new Error('There are binds in "' + constructor.prototype.$name + '" that are already being bound by the parent class and/or mixin: "' + common.join('", ') + '".');
             }
 
             // Verify if all binds are strings reference existent methods
@@ -478,27 +528,27 @@ define([
             has = {};
 
          // Save constants & finals to parse later
-         if (hasOwn(params, '$constants')) {
+        if (hasOwn(params, '$constants')) {
 
-             if (!isObject(params.$constants)) {
+            if (!isObject(params.$constants)) {
                 throw new TypeError('$constants of class "' + constructor.prototype.$name + '" must be an object.');
-             }
+            }
 
-             saved.$constants = params.$constants;
-             has.$constants = true;
-             delete params.$constants;
-         }
+            saved.$constants = params.$constants;
+            has.$constants = true;
+            delete params.$constants;
+        }
 
-         if (hasOwn(params, '$finals')) {
+        if (hasOwn(params, '$finals')) {
 
-             if (!isObject(params.$finals)) {
+            if (!isObject(params.$finals)) {
                 throw new TypeError('$finals of class "' + constructor.prototype.$name + '" must be an object.');
-             }
+            }
 
-             saved.$finals = params.$finals;
-             has.$finals = true;
-             delete params.$finals;
-         }
+            saved.$finals = params.$finals;
+            has.$finals = true;
+            delete params.$finals;
+        }
 
         // Parse members
         parseMembers(params, constructor);
@@ -508,12 +558,12 @@ define([
 
             opts.isConst = true;
 
-            for (key in params.$constants) {
+            for (key in saved.$constants) {
 
-                value = params.$constants[key];
+                value = saved.$constants[key];
 
-                if (!isNumber(value) && !isString(value) && !isRegExp(value)) {
-                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a number, a string or a regular expression.');
+                if (!isNumber(value) && !isString(value) && !isRegExp(value) && !isBoolean(value) && value != null) {
+                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a primitive type.');
                 }
 
                 addProperty(key, value, constructor, opts);
@@ -755,7 +805,7 @@ define([
                 enumerable: false
             });
         } else {
-            instance[name] = cloneProperty(meta.value);
+            instance[name] = cloneProperty(instance[name]);
         }
     }
 
@@ -785,18 +835,21 @@ define([
 
                     throw new Error('Cannot access private static property "' + name + '" of class "' + this.prototype.$name + '".');
                 },
-                set: function set(newValue) {
+                set: meta.isConst ?
+                        function () {
+                            throw new Error('Cannot change value of constant property "' + name + '" of class "' + this.prototype.$name + '".');
+                        } :
+                        function set(newValue) {
+                            var caller = set.caller || arguments.callee.caller || arguments.caller;
 
-                    var caller = set.caller || arguments.callee.caller || arguments.caller;
-
-                    if (meta['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
-                            meta['$constructor_' + this[$class].id].prototype === caller['$prototype_' + constructor[$class].id]
-                            ) {
-                        this[cacheKeyword].properties[name] = newValue;
-                    } else {
-                        throw new Error('Cannot set private property "' + name + '" of class "' + this.prototype.$name + '".');
-                    }
-                },
+                            if (meta['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
+                                    meta['$constructor_' + this[$class].id].prototype === caller['$prototype_' + constructor[$class].id]
+                                    ) {
+                                this[cacheKeyword].properties[name] = newValue;
+                            } else {
+                                throw new Error('Cannot set private property "' + name + '" of class "' + this.prototype.$name + '".');
+                            }
+                        },
                 configurable: false,
                 enumerable: false
             });
@@ -826,28 +879,46 @@ define([
 
                     throw new Error('Cannot access protected static method "' + name + '" of class "' + this.prototype.$name + '".');
                 },
-                set: function set(newValue) {
+                set: meta.isConst ?
+                        function () {
+                            throw new Error('Cannot change value of constant property "' + name + '" of class "' + this.prototype.$name + '".');
+                        } :
+                        function set(newValue) {
 
-                    var caller = set.caller || arguments.callee.caller || arguments.caller;
+                            var caller = set.caller || arguments.callee.caller || arguments.caller;
 
-                    if (inheriting ||
-                            meta['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
-                            (caller['$constructor_' + this[$class].id] && (
-                                meta['$constructor_' + this[$class].id].prototype instanceof caller['$constructor_' + this[$class].id] ||
-                                caller['$constructor_' + this[$class].id].prototype instanceof meta['$constructor_' + this[$class].id]
-                            )) ||
-                            (caller['$prototype_' + this[$class].id] && (
-                                meta['$constructor_' + this[$class].id] === caller['$prototype_' + this[$class].id].$constructor ||
-                                meta['$constructor_' + this[$class].id].prototype instanceof caller['$prototype_' + this[$class].id].$constructor ||
-                                caller['$prototype_' + this[$class].id] instanceof meta['$constructor_' + this[$class].id]
-                            ))) {
-                        this[cacheKeyword].properties[name] = newValue;
-                    } else {
-                        throw new Error('Cannot set protected property "' + name + '" of class "' + this.prototype.$name + '".');
-                    }
-                },
+                            if (inheriting ||
+                                    meta['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
+                                    (caller['$constructor_' + this[$class].id] && (
+                                        meta['$constructor_' + this[$class].id].prototype instanceof caller['$constructor_' + this[$class].id] ||
+                                        caller['$constructor_' + this[$class].id].prototype instanceof meta['$constructor_' + this[$class].id]
+                                    )) ||
+                                    (caller['$prototype_' + this[$class].id] && (
+                                        meta['$constructor_' + this[$class].id] === caller['$prototype_' + this[$class].id].$constructor ||
+                                        meta['$constructor_' + this[$class].id].prototype instanceof caller['$prototype_' + this[$class].id].$constructor ||
+                                        caller['$prototype_' + this[$class].id] instanceof meta['$constructor_' + this[$class].id]
+                                    ))) {
+                                this[cacheKeyword].properties[name] = newValue;
+                            } else {
+                                throw new Error('Cannot set protected property "' + name + '" of class "' + this.prototype.$name + '".');
+                            }
+                        },
                 configurable: false,
                 enumerable: false
+            });
+        } else if (meta.isConst) {
+
+            constructor[cacheKeyword].properties[name] = cloneProperty(meta.value);
+
+            Object.defineProperty(constructor, name, {
+                get: function () {
+                    return this[cacheKeyword].properties[name];
+                },
+                set: function () {
+                    throw new Error('Cannot change value of constant property "' + name + '" of class "' + this.prototype.$name + '".');
+                },
+                configurable: false,
+                enumerable: true
             });
         }
     }

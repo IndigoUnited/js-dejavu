@@ -25,6 +25,7 @@ define(function () {
             length,
             x;
 
+        // Analyze arguments
         if (!matches) {
             return null;
         }
@@ -52,6 +53,7 @@ define(function () {
             ret.signature = ret.signature.substr(0, ret.signature.length - 2);
         }
 
+        // Analyze visibility
         if (name) {
             if (name.charAt(0) === '_') {
                 if (name.charAt(1) === '_') {

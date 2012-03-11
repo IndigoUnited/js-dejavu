@@ -14,8 +14,13 @@ define(function () {
      */
     function propertyMeta(prop, name) {
 
-        var ret = { value: prop };
+        var ret = {};
 
+        // Analyze property
+//        if (isArray(prop) || isObject(prop)) {
+//            ret.isPrim
+//        }
+        
         if (name) {
             if (name.charAt(0) === '_') {
                 if (name.charAt(1) === '_') {
