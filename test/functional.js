@@ -491,7 +491,47 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
             });
 
         });
-
+        
+        describe('Defining a Concrete/Abstract Classes that implements $interfaces', function () {
+            
+            var SomeInterface = Interface({
+                $constants: {
+                    SOME: 'foo'
+                }
+            }),
+                SomeClass = Class({
+                    $implements: SomeInterface
+                }),
+                OtherClass = Class({
+                    $extends: SomeClass
+                }),
+                SomeOtherClass = Class({
+                    $extends: SomeClass,
+                    $implements: SomeInterface
+                }),
+                SomeAbstractClass = AbstractClass({
+                    $implements: SomeInterface
+                }),
+                OtherAbstractClass = AbstractClass({
+                    $extends: SomeAbstractClass
+                }),
+                SomeOtherAbstractClass = Class({
+                    $extends: SomeAbstractClass,
+                    $implements: SomeInterface
+                });
+            
+            it('should inherit the interface constants', function () {
+                
+                expect(SomeClass.SOME).to.be.equal('foo');
+                expect(OtherClass.SOME).to.be.equal('foo');
+                expect(SomeOtherClass.SOME).to.be.equal('foo');
+                expect(SomeAbstractClass.SOME).to.be.equal('foo');
+                expect(OtherAbstractClass.SOME).to.be.equal('foo');
+                expect(SomeOtherAbstractClass.SOME).to.be.equal('foo');
+                
+            });
+        });
+        
         describe('Defining a Concrete/Abstract Classes that use $borrows (mixins)', function () {
 
             it('should grab the borrowed members to their own', function () {
@@ -819,17 +859,30 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 $constants: {
                     FOO: 'bar'
                 }
-            });
+            }),
+                SomeInterface = Interface({
+                    $constants: {
+                        FOO: 'bar'
+                    }
+                });
 
             it('should be accessible in a similiar way as static members', function () {
                 expect(SomeClass.FOO).to.be.equal('bar');
+                expect(SomeInterface.FOO).to.be.equal('bar');
             });
 
             if (/strict/.test(global.build) && hasDefineProperty) {
+                
                 it('should throw an error while attempting to change their values', function () {
+                    
                     expect(function () {
                         SomeClass.FOO = 'test';
                     }).to.throwException(/constant property/);
+                    
+                    expect(function () {
+                        SomeInterface.FOO = 'test';
+                    }).to.throwException(/constant property/);
+                    
                 });
             }
 
@@ -867,6 +920,15 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 accessStatic: function () {
                     return SomeClass.__propStatic();
                 },
+                getConst: function () {
+                    return this.$self().__SOME;
+                },
+                getConst2: function () {
+                    return this.$static().__SOME;
+                },
+                getConst3: function () {
+                    return SomeClass.__SOME;
+                },
                 __getProp: function () {
                     this.__privateMethod();
                     return this.__privateProperty;
@@ -878,8 +940,14 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     accessTest: function () {
                         return this.__test;
                     },
+                    accessConst: function () {
+                        return this.__SOME;
+                    },
                     __funcStatic: function () {},
                     __propStatic: 'property'
+                },
+                $constants: {
+                    __SOME: 'foo'
                 }
             });
 
@@ -894,7 +962,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
             }
 
-            it('should not be copied to the constructor if they are static', function () {
+            it('should not be copied to the childs constructor if they are static', function () {
 
                 expect((function () {
                     var OtherClass = Class({
@@ -908,6 +976,13 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                         $extends: SomeClass
                     });
                     return OtherClass.__propStatic;
+                }())).to.be.equal(undefined);
+
+                expect((function () {
+                    var OtherClass = Class({
+                        $extends: SomeClass
+                    });
+                    return OtherClass.__SOME;
                 }())).to.be.equal(undefined);
 
             });
@@ -1072,6 +1147,10 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     }).to.throwException(/access private/);
 
                     expect(function () {
+                        return SomeClass.__SOME;
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
                         (new SomeClass()).getProp();
                     }).to.not.throwException();
 
@@ -1106,6 +1185,22 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                         test.setProp();
                         return test.getProp();
                     }())).to.be.equal('test');
+
+                    expect((function () {
+                        return SomeClass.accessConst();
+                    }())).to.be.equal('foo');
+
+                    expect((function () {
+                        return (new SomeClass()).getConst();
+                    }())).to.be.equal('foo');
+
+                    expect((function () {
+                        return (new SomeClass()).getConst2();
+                    }())).to.be.equal('foo');
+
+                    expect((function () {
+                        return (new SomeClass()).getConst3();
+                    }())).to.be.equal('foo');
 
                 });
 
@@ -1167,12 +1262,24 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 _getFruit: function () {
                     return 'potato';
                 },
+                getConst: function () {
+                    return this.$self()._SOME;
+                },
+                getConst2: function () {
+                    return this.$static()._SOME;
+                },
+                getConst3: function () {
+                    return SomeClass._SOME;
+                },
                 $statics: {
                     callTest: function () {
                         this._test();
                     },
                     accessTest: function () {
                         return this._test;
+                    },
+                    accessConst: function () {
+                        return this._SOME;
                     },
                     _funcStatic: function () {
                         return 'potato';
@@ -1184,6 +1291,9 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     _getFruitStatic: function () {
                         return 'potato';
                     }
+                },
+                $constants: {
+                    _SOME: 'foo'
                 }
             });
 
@@ -1334,6 +1444,10 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     }).to.throwException(/access protected/);
 
                     expect(function () {
+                        return SomeClass._SOME;
+                    }).to.throwException(/access protected/);
+
+                    expect(function () {
                         (new SomeClass()).getProp();
                     }).to.not.throwException();
 
@@ -1368,6 +1482,22 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                         test.setProp();
                         return test.getProp();
                     }())).to.be.equal('test');
+
+                    expect((function () {
+                        return SomeClass.accessConst();
+                    }())).to.be.equal('foo');
+
+                    expect((function () {
+                        return (new SomeClass()).getConst();
+                    }())).to.be.equal('foo');
+
+                    expect((function () {
+                        return (new SomeClass()).getConst2();
+                    }())).to.be.equal('foo');
+
+                    expect((function () {
+                        return (new SomeClass()).getConst3();
+                    }())).to.be.equal('foo');
 
                 });
 

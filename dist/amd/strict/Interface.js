@@ -19,6 +19,8 @@ define([
     './common/checkObjectPrototype',
     './common/obfuscateProperty',
     './common/randomAccessor',
+    './common/isPrimitiveType',
+    './common/hasDefineProperty',
     'Utils/object/hasOwn',
     'Utils/lang/toArray'
 ], function InterfaceWrapper(
@@ -39,6 +41,8 @@ define([
     checkObjectPrototype,
     obfuscateProperty,
     randomAccessor,
+    isPrimitiveType,
+    hasDefineProperty,
     hasOwn,
     toArray
 ) {
@@ -88,7 +92,7 @@ define([
     }
 
     /**
-     * Add a method to an interface.
+     * Adds a method to an interface.
      * This method will throw an error if something is not right.
      * Valid options:
      *   - isStatic: true|false Defaults to false
@@ -104,6 +108,10 @@ define([
             isStatic = opts && opts.isStatic,
             target;
 
+        // Check if it is not a function
+        if (!isFunction(method) || method[$interface] || method[$class]) {
+            throw new Error('Member "' + name + '" found in interface "' + interf.prototype.$name + '" is not a function.');
+        }
         // Check if it is public
         if (name.charAt(0) === '_') {
             throw new Error('Interface "' + interf.prototype.$name + '" contains an unallowed non public method: "' + name + '".');
@@ -128,6 +136,69 @@ define([
         }
 
         target[name] = metadata;
+    }
+
+    /**
+     * Assigns a constant to the interface.
+     * This method will protect the constant from being changed.
+     *
+     * @param {String}   name        The constant name
+     * @param {Function} value       The constant value
+     * @param {Function} interf      The interface in which the constant will be saved
+     */
+    function assignConstant(name, value, interf) {
+
+        if (hasDefineProperty) {
+            Object.defineProperty(interf, name, {
+                get: function () {
+                    return value;
+                },
+                set: function () {
+                    throw new Error('Cannot change value of constant property "' + name + '" of interface "' + this.prototype.$name + '".');
+                },
+                configurable: false,
+                enumerable: true
+            });
+        } else {
+            interf[name] = value;
+        }
+    }
+
+    /**
+     * Adds a constant to an interface.
+     * This method will throw an error if something is not right.
+     *
+     * @param {String}   name        The constant name
+     * @param {Function} value       The constant value
+     * @param {Function} interf      The interface in which the constant will be saved
+     */
+    function addConstant(name, value, interf) {
+
+        var target;
+
+        // Check if it is a primitive type
+        if (!isPrimitiveType(value)) {
+            throw new Error('Value for constant "' + name + '" defined in class "' + interf.prototype.$name + '" must be a primitive type.');
+        }
+
+        // Check if it is public
+        if (name.charAt(0) === '_') {
+            throw new Error('Interface "' + interf.prototype.$name + '" contains an unallowed non public method: "' + name + '".');
+        }
+        // Check if it is a primitive value
+        if (!isPrimitiveType(value)) {
+            throw new Error('Value for constant property "' + name + '" defined in interface "' + interf.prototype.$name + '" must be a primitive type.');
+        }
+
+        target = interf[$interface].constants;
+
+        // Check if the constant already exists
+        if (target[name]) {
+            throw new Error('Cannot override constant property "' + name + '" in interface "' + interf.prototype.$name + '".');
+        }
+
+        target[name] = true;
+        assignConstant(name, value, interf);
     }
 
     /**
@@ -162,12 +233,13 @@ define([
             i,
             value,
             duplicate,
-            optsStatic,
+            opts = {},
+            name,
             interf = function () {
                 throw new Error('Interfaces cannot be instantiated.');
             };
 
-        obfuscateProperty(interf, $interface, { parents: [], methods: {}, staticMethods: {}, check: bind(checkClass, interf) });
+        obfuscateProperty(interf, $interface, { parents: [], methods: {}, staticMethods: {}, constants: {}, check: bind(checkClass, interf) });
         interf.prototype.$name = params.$name;
 
         if (hasOwn(params, '$extends')) {
@@ -217,8 +289,19 @@ define([
                         }
                     }
                 }
-
                 mixIn(interf[$interface].staticMethods, current[$interface].staticMethods);
+
+                // Add interface constants
+                for (i in current[$interface].constants) {
+                    if (interf[$interface].constants[i]) {
+                        if (interf[i] !== current[i]) {
+                            throw new Error('Interface "' + params.$name + '" is inheriting constant property "' + i + '" from different parents with different values.');
+                        }
+                    } else {
+                        interf[$interface].constants[i] = current[$interface].constants[i];
+                        assignConstant(i, current[i], interf);
+                    }
+                }
 
                 // Add interface to the parents
                 interf[$interface].parents.push(current);
@@ -227,50 +310,61 @@ define([
             delete params.$extends;
         }
 
-        optsStatic = { isStatic: true };
-
         // Check if the interface defines the initialize function
         if (hasOwn(params, 'initialize')) {
             throw new Error('Interface "' + params.$name + '" can\'t define the initialize method.');
         }
 
-        for (k in params) {
+        // Parse statics
+        if (hasOwn(params, '$statics')) {
 
-            if (k === '$finals') {
-                
-            } else if (k === '$statics') {
+            if (!isObject(params.$statics)) {
+                throw new TypeError('$statics definition of interface "' + params.$name + '" must be an object.');
+            }
 
-                if (!isObject(params.$statics)) {
-                    throw new TypeError('$statics definition of interface "' + params.$name + '" must be an object.');
-                }
+            checkKeywords(params.$statics, 'statics');
+            opts.isStatic = true;
 
-                checkKeywords(params.$statics, 'statics');
+            for (k in params.$statics) {
 
-                for (k in params.$statics) {
-
-                    value = params.$statics[k];
-
-                    // Check if it is not a function
-                    if (!isFunction(value) || value[$interface] || value[$class]) {
-                        throw new Error('Static member "' + k + '" found in interface "' + params.$name + '" is not a function.');
-                    }
-
-                    addMethod(k, value, interf, optsStatic);
-                }
-
-            } else if (k !== '$name') {
-
-                value = params[k];
+                value = params.$statics[k];
 
                 // Check if it is not a function
                 if (!isFunction(value) || value[$interface] || value[$class]) {
-                    throw new Error('Member "' + k + '" found in interface "' + params.$name + '" is not a function.');
+                    throw new Error('Static member "' + k + '" found in interface "' + params.$name + '" is not a function.');
                 }
 
-                addMethod(k, value, interf);
+                addMethod(k, value, interf, opts);
             }
+
+            delete opts.isStatic;
+            delete params.$statics;
         }
 
+        // Parse constants
+        if (hasOwn(params, '$constants')) {
+
+            if (!isObject(params.$constants)) {
+                throw new TypeError('$constants definition of interface "' + params.$name + '" must be an object.');
+            }
+
+            checkKeywords(params.$constants, 'statics');
+
+            for (k in params.$constants) {
+                addConstant(k, params.$constants[k], interf);
+            }
+
+            delete params.$constants;
+        }
+
+        name = params.$name;
+        delete params.$name;
+
+        for (k in params) {
+            addMethod(k, params[k], interf);
+        }
+
+        params.$name = name;
 
         return interf;
     }

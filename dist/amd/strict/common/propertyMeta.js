@@ -1,7 +1,7 @@
 /*jslint sloppy:true, regexp:true*/
 /*global define*/
 
-define(function () {
+define(['Utils/lang/isUndefined'], function (isUndefined) {
 
     /**
      * Extract meta data from a property.
@@ -15,11 +15,11 @@ define(function () {
     function propertyMeta(prop, name) {
 
         var ret = {};
-
-        // Analyze property
-//        if (isArray(prop) || isObject(prop)) {
-//            ret.isPrim
-//        }
+        
+        // Is it undefined?
+        if (isUndefined(prop)) {
+            return null;
+        }
         
         if (name) {
             if (name.charAt(0) === '_') {

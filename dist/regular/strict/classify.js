@@ -422,18 +422,6 @@ define('Utils/array/indexOf',[],function () {
     return indexOf;
 });
 
-define('Utils/array/contains',['./indexOf'], function (indexOf) {
-
-    /**
-     * If array contains values.
-     * @version 0.1.0 (2011/10/31)
-     */
-    function contains(arr, val) {
-        return indexOf(arr, val) !== -1;
-    }
-    return contains;
-});
-
 define('Utils/array/unique',['./indexOf', './filter'], function(indexOf, filter){
 
     /**
@@ -451,28 +439,6 @@ define('Utils/array/unique',['./indexOf', './filter'], function(indexOf, filter)
     return unique;
 });
 
-
-define('Utils/array/intersection',['./unique', './filter', './every', './contains'], function (unique, filter, every, contains) {
-
-
-    /**
-     * Return a new Array with elements common to all Arrays.
-     * - based on underscore.js implementation
-     * @version 0.1.0 (2011/01/12)
-     */
-    function intersection(arr) {
-        var arrs = Array.prototype.slice.call(arguments, 1),
-            result = filter(unique(arr), function(needle){
-                return every(arrs, function(haystack){
-                    return contains(haystack, needle);
-                });
-            });
-        return result;
-    }
-
-    return intersection;
-
-});
 
 define('Utils/array/compact',['./filter'], function (filter) {
 
@@ -514,7 +480,7 @@ define('common/functionMeta',[],function () {
             optionalReached = false,
             length,
             x;
-            
+
         // Analyze arguments
         if (!matches) {
             return null;
@@ -560,47 +526,6 @@ define('common/functionMeta',[],function () {
     }
 
     return functionMeta;
-});
-
-/*jslint sloppy:true, regexp:true*/
-/*global define*/
-
-define('common/propertyMeta',[],function () {
-
-    /**
-     * Extract meta data from a property.
-     * It returns an object containing the value and visibility.
-     *
-     * @param {Mixed}  prop The property
-     * @param {String} name The name of the property
-     *
-     * @return {Object} An object containg the metadata
-     */
-    function propertyMeta(prop, name) {
-
-        var ret = {};
-
-        // Analyze property
-//        if (isArray(prop) || isObject(prop)) {
-//            ret.isPrim
-//        }
-        
-        if (name) {
-            if (name.charAt(0) === '_') {
-                if (name.charAt(1) === '_') {
-                    ret.isPrivate = true;
-                } else {
-                    ret.isProtected = true;
-                }
-            } else {
-                ret.isPublic = true;
-            }
-        }
-
-        return ret;
-    }
-
-    return propertyMeta;
 });
 
 /*jslint sloppy:true*/
@@ -650,30 +575,6 @@ define('common/isObjectPrototypeSpoiled',[],function () {
     return isObjectPrototypeSpoiled;
 });
 
-/*jslint sloppy:true*/
-/*global define,console*/
-
-define('common/randomAccessor',['Utils/array/contains'], function (contains) {
-
-    var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
-        nrAccesses = 0;
-
-    function randomAccessor() {
-
-        var caller = randomAccessor.caller || arguments.callee.caller || arguments.caller,
-            allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'isntanceOfWrapper'];
-
-        if ((caller.name && !contains(allowed, caller.name)) || nrAccesses > 4) {
-            throw new Error('Can\'t access random identifier.');
-        } {
-            nrAccesses++;
-            return random;
-        }
-    }
-
-    return randomAccessor;
-});
-
 define('Utils/lang/isNumber',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
@@ -702,6 +603,35 @@ define('Utils/lang/isBoolean',['./isKind'], function (isKind) {
         return isKind(val, 'Boolean');
     }
     return isBoolean;
+});
+
+/*jslint sloppy:true, eqeq:true*/
+/*global define,console*/
+
+define('common/isPrimitiveType',[
+    'Utils/lang/isNumber',
+    'Utils/lang/isRegExp',
+    'Utils/lang/isString',
+    'Utils/lang/isBoolean'
+], function (
+    isNumber,
+    isRegExp,
+    isString,
+    isBoolean
+) {
+
+    /**
+     * Checks if a value is a primitive type.
+     *
+     * @param {Mixed} value The value
+     *
+     * @return {Boolean} True if it is, false otherwise
+     */
+    function isPrimitiveType(value) {
+        return isNumber(value) || isString(value) || isBoolean(value) || isRegExp(value) || value == null;
+    }
+
+    return isPrimitiveType;
 });
 
 define('Utils/lang/isFunction',['./isKind'], function (isKind) {
@@ -831,6 +761,47 @@ define('Utils/lang/isUndefined',[],function () {
     return isUndef;
 });
 
+/*jslint sloppy:true, regexp:true*/
+/*global define*/
+
+define('common/propertyMeta',['Utils/lang/isUndefined'], function (isUndefined) {
+
+    /**
+     * Extract meta data from a property.
+     * It returns an object containing the value and visibility.
+     *
+     * @param {Mixed}  prop The property
+     * @param {String} name The name of the property
+     *
+     * @return {Object} An object containg the metadata
+     */
+    function propertyMeta(prop, name) {
+
+        var ret = {};
+        
+        // Is it undefined?
+        if (isUndefined(prop)) {
+            return null;
+        }
+        
+        if (name) {
+            if (name.charAt(0) === '_') {
+                if (name.charAt(1) === '_') {
+                    ret.isPrivate = true;
+                } else {
+                    ret.isProtected = true;
+                }
+            } else {
+                ret.isPublic = true;
+            }
+        }
+
+        return ret;
+    }
+
+    return propertyMeta;
+});
+
 define('Utils/object/hasOwn',[],function () {
 
     /**
@@ -951,6 +922,64 @@ define('Utils/array/combine',['./indexOf'], function (indexOf) {
     return combine;
 });
 
+define('Utils/array/contains',['./indexOf'], function (indexOf) {
+
+    /**
+     * If array contains values.
+     * @version 0.1.0 (2011/10/31)
+     */
+    function contains(arr, val) {
+        return indexOf(arr, val) !== -1;
+    }
+    return contains;
+});
+
+define('Utils/array/intersection',['./unique', './filter', './every', './contains'], function (unique, filter, every, contains) {
+
+
+    /**
+     * Return a new Array with elements common to all Arrays.
+     * - based on underscore.js implementation
+     * @version 0.1.0 (2011/01/12)
+     */
+    function intersection(arr) {
+        var arrs = Array.prototype.slice.call(arguments, 1),
+            result = filter(unique(arr), function(needle){
+                return every(arrs, function(haystack){
+                    return contains(haystack, needle);
+                });
+            });
+        return result;
+    }
+
+    return intersection;
+
+});
+
+/*jslint sloppy:true*/
+/*global define,console*/
+
+define('common/randomAccessor',['Utils/array/contains'], function (contains) {
+
+    var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
+        nrAccesses = 0;
+
+    function randomAccessor() {
+
+        var caller = randomAccessor.caller || arguments.callee.caller || arguments.caller,
+            allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'isntanceOfWrapper'];
+
+        if ((caller.name && !contains(allowed, caller.name)) || nrAccesses > 4) {
+            throw new Error('Can\'t access random identifier.');
+        } {
+            nrAccesses++;
+            return random;
+        }
+    }
+
+    return randomAccessor;
+});
+
 define('Utils/lang/bind',[],function(){
 
     function slice(arr, offset){
@@ -1036,9 +1065,7 @@ define('Class',[
     './common/hasDefineProperty',
     './common/checkObjectPrototype',
     './common/randomAccessor',
-    'Utils/lang/isNumber',
-    'Utils/lang/isRegExp',
-    'Utils/lang/isBoolean',
+    './common/isPrimitiveType',
     'Utils/lang/isFunction',
     'Utils/lang/isObject',
     'Utils/lang/isArray',
@@ -1047,6 +1074,7 @@ define('Class',[
     'Utils/object/mixIn',
     'Utils/object/hasOwn',
     'Utils/array/combine',
+    'Utils/array/contains',
     'Utils/lang/bind',
     'Utils/lang/toArray'
 ], function ClassWrapper(
@@ -1062,9 +1090,7 @@ define('Class',[
     hasDefineProperty,
     checkObjectPrototype,
     randomAccessor,
-    isNumber,
-    isRegExp,
-    isBoolean,
+    isPrimitiveType,
     isFunction,
     isObject,
     isArray,
@@ -1073,6 +1099,7 @@ define('Class',[
     mixIn,
     hasOwn,
     combine,
+    contains,
     bind,
     toArray
 ) {
@@ -1086,8 +1113,7 @@ define('Class',[
         $abstract = '$abstract_' + random,
         cacheKeyword = '$cache_' + random,
         inheriting,
-        nextId = 0,
-        defaultModifiers = { isStatic: false, isFinal: false, isConst: false };
+        nextId = 0;
 
     /**
      * Clones a property in order to make them unique for the instance.
@@ -1143,9 +1169,9 @@ define('Class',[
         if (!isStatic && name === 'initialize' && method.$inherited) {
             metadata = constructor.$parent[$class].methods[name];
         } else if (!opts.metadata) {
-            // Grab function metadata and throw error if is not valid
+            // Grab function metadata and throw error if is not valid (its invalid if the arguments are invalid)
             metadata = functionMeta(method, name);
-            if (metadata === null) {
+            if (!metadata) {
                 throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in class "' + constructor.prototype.$name + '".');
             }
 
@@ -1229,7 +1255,7 @@ define('Class',[
     function addProperty(name, value, constructor, opts) {
 
         var metadata,
-            isStatic,
+            isStatic = !!(opts && (opts.isStatic || opts.isConst)),
             isFinal,
             isConst,
             target;
@@ -1241,11 +1267,12 @@ define('Class',[
                 isConst = metadata.isConst;
             } else {
                 metadata = propertyMeta(value, name);
+                if (!metadata) {
+                    throw new Error('Property "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
+                }
                 isFinal = !!opts.isFinal;
                 isConst = !!opts.isConst;
             }
-
-            isStatic = !!(opts.isStatic || isConst);
         } else {
             isFinal = isStatic = isConst = false;
         }
@@ -1268,16 +1295,20 @@ define('Class',[
             constructor.prototype[name] = value;
         }
 
+        // Check the metadata was fine (if not then the property is undefined)
+        if (!metadata) {
+            throw new Error('Value of ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + '" can\'t be undefined (use null instead).');
+        }
         // Check if we we got a private property classified as final
         if (metadata.isPrivate && isFinal) {
-            throw new Error('Private property "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
+            throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
         }
 
         target = isStatic ? constructor[$class].staticMethods : constructor[$class].methods;
 
         // Check if a method with the same name exists
         if (isObject(target[name])) {
-            throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.$name + '".');
+            throw new Error((isConst ? 'Constant property' : (isStatic ? 'Static property' : 'Property')) + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.$name + '".');
         }
 
         target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
@@ -1285,7 +1316,7 @@ define('Class',[
         if (isObject(target[name])) {
             // Are we overriding a private property?
             if (target[name].isPrivate) {
-                throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' property "' + name + ' in class "' + constructor.prototype.$name + '".');
+                throw new Error('Cannot override private ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + ' in class "' + constructor.prototype.$name + '".');
             }
             // Are we overriding a constant?
             if (target[name].isConst) {
@@ -1407,12 +1438,15 @@ define('Class',[
      * Handle class interfaces.
      *
      * @param {Array}  interfs The array of interfaces
-     * @param {Object} target  The target that will be checked
+     * @param {Object} target  The target that has the interfaces
      */
     function handleInterfaces(interfs, target) {
 
         var interfaces = toArray(interfs),
-            x = interfaces.length;
+            interf,
+            x = interfaces.length,
+            k,
+            opts = { isConst: true };
 
         // Verify argument type
         if (!x && !isArray(interfs)) {
@@ -1425,15 +1459,28 @@ define('Class',[
 
         for (x -= 1; x >= 0; x -= 1) {
 
+            interf = interfaces[x];
+
             // Verify if it's a valid interface
-            if (!isFunction(interfaces[x]) || !interfaces[x][$interface]) {
+            if (!isFunction(interf) || !interf[$interface]) {
                 throw new TypeError('Entry at index ' + x + ' in $implements of class "' + target.prototype.$name + '" is not a valid interface.');
+            }
+
+            // Inherit constants and add interface to the interfaces array
+            if (!contains(target[$class].interfaces, interf)) {
+
+                // Inherit constants
+                for (k in interf[$interface].constants) {
+                    addProperty(k, interf[k], target, opts);
+                }
+
+                // Add to interfaces array
+                target[$class].interfaces.push(interf);
             }
 
             if (!target[$abstract]) {
                 interfaces[x][$interface].check(target);
             }
-            target[$class].interfaces.push(interfaces[x]);
         }
     }
 
@@ -1490,45 +1537,42 @@ define('Class',[
         var opts = { isFinal: !!isFinal },
             key,
             value;
-        // Add each method metadata, verifying its signature
 
-        // TODO: use hasOwn here?
-        // TODO: parse statics outside the if
+        // Add each method metadata, verifying its signature
+        if (hasOwn(params, '$statics')) {
+
+            if (!isObject(params.$statics)) {
+                throw new TypeError('$statics definition of class "' + params.$name + '" must be an object.');
+            }
+
+            checkKeywords(params.$statics, 'statics');
+            opts.isStatic = true;
+
+            for (key in params.$statics) {
+
+                value = params.$statics[key];
+
+                if (isFunction(value) && !value[$class] && !value[$interface]) {
+                    addMethod(key, value, constructor, opts);
+                } else {
+                    addProperty(key, value, constructor, opts);
+                }
+            }
+
+            delete opts.isStatic;
+            delete params.$statics;
+        }
+
         for (key in params) {
 
-            if (key === '$statics') {
+            value = params[key];
 
-                if (!isObject(params.$statics)) {
-                    throw new TypeError('$statics definition of class "' + params.$name + '" must be an object.');
-                }
+            if (key.charAt(0) !== '$' || (key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
 
-                checkKeywords(params.$statics, 'statics');
-                opts.isStatic = true;
-
-                for (key in params.$statics) {
-
-                    value = params.$statics[key];
-
-                    if (isFunction(value) && !value[$class] && !value[$interface]) {
-                        addMethod(key, value, constructor, opts);
-                    } else {
-                        addProperty(key, value, constructor, opts);
-                    }
-                }
-
-                delete opts.isStatic;
-                delete params.$statics;
-            } else {
-
-                value = params[key];
-
-                if (key.charAt(0) !== '$' || (key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
-
-                    if (isFunction(value) && !value[$class] && !value[$interface]) {
-                        addMethod(key, value, constructor, opts);
-                    } else {
-                        addProperty(key, value, constructor, opts);
-                    }
+                if (isFunction(value) && !value[$class] && !value[$interface]) {
+                    addMethod(key, value, constructor, opts);
+                } else {
+                    addProperty(key, value, constructor, opts);
                 }
             }
         }
@@ -1539,7 +1583,6 @@ define('Class',[
      *
      * @param {Object}   params      The parameters
      * @param {Function} constructor The constructor
-     * @param {Boolean}  isFinal     Parse the members as finals
      */
     function parseClass(params, constructor) {
 
@@ -1551,22 +1594,12 @@ define('Class',[
 
          // Save constants & finals to parse later
         if (hasOwn(params, '$constants')) {
-
-            if (!isObject(params.$constants)) {
-                throw new TypeError('$constants of class "' + constructor.prototype.$name + '" must be an object.');
-            }
-
             saved.$constants = params.$constants;
             has.$constants = true;
             delete params.$constants;
         }
 
         if (hasOwn(params, '$finals')) {
-
-            if (!isObject(params.$finals)) {
-                throw new TypeError('$finals of class "' + constructor.prototype.$name + '" must be an object.');
-            }
-
             saved.$finals = params.$finals;
             has.$finals = true;
             delete params.$finals;
@@ -1578,13 +1611,18 @@ define('Class',[
         // Parse constants
         if (has.$constants) {
 
+            if (!isObject(saved.$constants)) {
+                throw new TypeError('$constants of class "' + constructor.prototype.$name + '" must be an object.');
+            }
+
+            checkKeywords(saved.$constants, 'statics');
             opts.isConst = true;
 
             for (key in saved.$constants) {
 
                 value = saved.$constants[key];
 
-                if (!isNumber(value) && !isString(value) && !isRegExp(value) && !isBoolean(value) && value != null) {
+                if (!isPrimitiveType(value)) {
                     throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a primitive type.');
                 }
 
@@ -1596,6 +1634,13 @@ define('Class',[
 
         // Parse finals
         if (has.$finals) {
+
+            if (!isObject(saved.$finals)) {
+                throw new TypeError('$finals of class "' + constructor.prototype.$name + '" must be an object.');
+            }
+
+            checkKeywords(saved.$finals);
+
             parseMembers(saved.$finals, constructor, true);
         }
     }
@@ -1842,7 +1887,7 @@ define('Class',[
 
         if (meta.isPrivate) {
 
-            constructor[cacheKeyword].properties[name] = cloneProperty(meta.value);
+            constructor[cacheKeyword].properties[name] = !meta.isConst ? cloneProperty(meta.value) : meta.value;
 
             Object.defineProperty(constructor, name, {
                 get: function get() {
@@ -1877,7 +1922,7 @@ define('Class',[
             });
         } else if (meta.isProtected) {
 
-            constructor[cacheKeyword].properties[name] = cloneProperty(meta.value);
+            constructor[cacheKeyword].properties[name] = !meta.isConst ? cloneProperty(meta.value) : meta.value;
 
             Object.defineProperty(constructor, name, {
                 get: function get() {
@@ -1930,7 +1975,7 @@ define('Class',[
             });
         } else if (meta.isConst) {
 
-            constructor[cacheKeyword].properties[name] = cloneProperty(meta.value);
+            constructor[cacheKeyword].properties[name] = meta.value;
 
             Object.defineProperty(constructor, name, {
                 get: function () {
@@ -2100,6 +2145,9 @@ define('Class',[
         }
 
         inheriting = false;
+
+        // Inherit implemented interfaces
+        constructor[$class].interfaces = [].concat(parent[$class].interfaces);
     }
 
     /**
@@ -2371,7 +2419,6 @@ define('Class',[
             protectConstructor(classify);
         }
 
-
         return classify;
     };
 
@@ -2403,7 +2450,6 @@ define('common/isFunctionEmpty',[],function () {
 define('AbstractClass',[
     'Utils/lang/isObject',
     'Utils/lang/isFunction',
-    'Utils/lang/isArray',
     'Utils/lang/isString',
     'Utils/lang/toArray',
     'Utils/lang/bind',
@@ -2422,7 +2468,6 @@ define('AbstractClass',[
 ], function AbstractClassWrapper(
     isObject,
     isFunction,
-    isArray,
     isString,
     toArray,
     bind,
@@ -2606,19 +2651,9 @@ define('AbstractClass',[
             key,
             value;
 
-        // Verify argument type
-        if (!x && !isArray(interfs)) {
-            throw new TypeError('$implements of abstract class "' + constructor.prototype.$name + '" must be an interface or an array of interfaces.');
-        }
-
         for (x -= 1; x >= 0; x -= 1) {
 
             interf = interfs[x];
-
-            // Validate interfaces
-            if (!isFunction(interf) || !interf[$interface]) {
-                throw new TypeError('Entry at index ' + x + ' in $implements of class "' + constructor.prototype.$name + '" is not a valid interface.');
-            }
 
             // Grab methods
             for (key in interf[$interface].methods) {
@@ -2649,9 +2684,6 @@ define('AbstractClass',[
                     constructor[$abstract].staticMethods[key] = value;
                 }
             }
-
-            // Add it to the interfaces array
-            constructor[$class].interfaces.push(interf);
         }
     }
 
@@ -2834,6 +2866,8 @@ define('Interface',[
     './common/checkObjectPrototype',
     './common/obfuscateProperty',
     './common/randomAccessor',
+    './common/isPrimitiveType',
+    './common/hasDefineProperty',
     'Utils/object/hasOwn',
     'Utils/lang/toArray'
 ], function InterfaceWrapper(
@@ -2854,6 +2888,8 @@ define('Interface',[
     checkObjectPrototype,
     obfuscateProperty,
     randomAccessor,
+    isPrimitiveType,
+    hasDefineProperty,
     hasOwn,
     toArray
 ) {
@@ -2903,7 +2939,7 @@ define('Interface',[
     }
 
     /**
-     * Add a method to an interface.
+     * Adds a method to an interface.
      * This method will throw an error if something is not right.
      * Valid options:
      *   - isStatic: true|false Defaults to false
@@ -2919,6 +2955,10 @@ define('Interface',[
             isStatic = opts && opts.isStatic,
             target;
 
+        // Check if it is not a function
+        if (!isFunction(method) || method[$interface] || method[$class]) {
+            throw new Error('Member "' + name + '" found in interface "' + interf.prototype.$name + '" is not a function.');
+        }
         // Check if it is public
         if (name.charAt(0) === '_') {
             throw new Error('Interface "' + interf.prototype.$name + '" contains an unallowed non public method: "' + name + '".');
@@ -2943,6 +2983,69 @@ define('Interface',[
         }
 
         target[name] = metadata;
+    }
+
+    /**
+     * Assigns a constant to the interface.
+     * This method will protect the constant from being changed.
+     *
+     * @param {String}   name        The constant name
+     * @param {Function} value       The constant value
+     * @param {Function} interf      The interface in which the constant will be saved
+     */
+    function assignConstant(name, value, interf) {
+
+        if (hasDefineProperty) {
+            Object.defineProperty(interf, name, {
+                get: function () {
+                    return value;
+                },
+                set: function () {
+                    throw new Error('Cannot change value of constant property "' + name + '" of interface "' + this.prototype.$name + '".');
+                },
+                configurable: false,
+                enumerable: true
+            });
+        } else {
+            interf[name] = value;
+        }
+    }
+
+    /**
+     * Adds a constant to an interface.
+     * This method will throw an error if something is not right.
+     *
+     * @param {String}   name        The constant name
+     * @param {Function} value       The constant value
+     * @param {Function} interf      The interface in which the constant will be saved
+     */
+    function addConstant(name, value, interf) {
+
+        var target;
+
+        // Check if it is a primitive type
+        if (!isPrimitiveType(value)) {
+            throw new Error('Value for constant "' + name + '" defined in class "' + interf.prototype.$name + '" must be a primitive type.');
+        }
+
+        // Check if it is public
+        if (name.charAt(0) === '_') {
+            throw new Error('Interface "' + interf.prototype.$name + '" contains an unallowed non public method: "' + name + '".');
+        }
+        // Check if it is a primitive value
+        if (!isPrimitiveType(value)) {
+            throw new Error('Value for constant property "' + name + '" defined in interface "' + interf.prototype.$name + '" must be a primitive type.');
+        }
+
+        target = interf[$interface].constants;
+
+        // Check if the constant already exists
+        if (target[name]) {
+            throw new Error('Cannot override constant property "' + name + '" in interface "' + interf.prototype.$name + '".');
+        }
+
+        target[name] = true;
+        assignConstant(name, value, interf);
     }
 
     /**
@@ -2977,12 +3080,13 @@ define('Interface',[
             i,
             value,
             duplicate,
-            optsStatic,
+            opts = {},
+            name,
             interf = function () {
                 throw new Error('Interfaces cannot be instantiated.');
             };
 
-        obfuscateProperty(interf, $interface, { parents: [], methods: {}, staticMethods: {}, check: bind(checkClass, interf) });
+        obfuscateProperty(interf, $interface, { parents: [], methods: {}, staticMethods: {}, constants: {}, check: bind(checkClass, interf) });
         interf.prototype.$name = params.$name;
 
         if (hasOwn(params, '$extends')) {
@@ -3032,8 +3136,19 @@ define('Interface',[
                         }
                     }
                 }
-
                 mixIn(interf[$interface].staticMethods, current[$interface].staticMethods);
+
+                // Add interface constants
+                for (i in current[$interface].constants) {
+                    if (interf[$interface].constants[i]) {
+                        if (interf[i] !== current[i]) {
+                            throw new Error('Interface "' + params.$name + '" is inheriting constant property "' + i + '" from different parents with different values.');
+                        }
+                    } else {
+                        interf[$interface].constants[i] = current[$interface].constants[i];
+                        assignConstant(i, current[i], interf);
+                    }
+                }
 
                 // Add interface to the parents
                 interf[$interface].parents.push(current);
@@ -3042,50 +3157,61 @@ define('Interface',[
             delete params.$extends;
         }
 
-        optsStatic = { isStatic: true };
-
         // Check if the interface defines the initialize function
         if (hasOwn(params, 'initialize')) {
             throw new Error('Interface "' + params.$name + '" can\'t define the initialize method.');
         }
 
-        for (k in params) {
+        // Parse statics
+        if (hasOwn(params, '$statics')) {
 
-            if (k === '$finals') {
-                
-            } else if (k === '$statics') {
+            if (!isObject(params.$statics)) {
+                throw new TypeError('$statics definition of interface "' + params.$name + '" must be an object.');
+            }
 
-                if (!isObject(params.$statics)) {
-                    throw new TypeError('$statics definition of interface "' + params.$name + '" must be an object.');
-                }
+            checkKeywords(params.$statics, 'statics');
+            opts.isStatic = true;
 
-                checkKeywords(params.$statics, 'statics');
+            for (k in params.$statics) {
 
-                for (k in params.$statics) {
-
-                    value = params.$statics[k];
-
-                    // Check if it is not a function
-                    if (!isFunction(value) || value[$interface] || value[$class]) {
-                        throw new Error('Static member "' + k + '" found in interface "' + params.$name + '" is not a function.');
-                    }
-
-                    addMethod(k, value, interf, optsStatic);
-                }
-
-            } else if (k !== '$name') {
-
-                value = params[k];
+                value = params.$statics[k];
 
                 // Check if it is not a function
                 if (!isFunction(value) || value[$interface] || value[$class]) {
-                    throw new Error('Member "' + k + '" found in interface "' + params.$name + '" is not a function.');
+                    throw new Error('Static member "' + k + '" found in interface "' + params.$name + '" is not a function.');
                 }
 
-                addMethod(k, value, interf);
+                addMethod(k, value, interf, opts);
             }
+
+            delete opts.isStatic;
+            delete params.$statics;
         }
 
+        // Parse constants
+        if (hasOwn(params, '$constants')) {
+
+            if (!isObject(params.$constants)) {
+                throw new TypeError('$constants definition of interface "' + params.$name + '" must be an object.');
+            }
+
+            checkKeywords(params.$constants, 'statics');
+
+            for (k in params.$constants) {
+                addConstant(k, params.$constants[k], interf);
+            }
+
+            delete params.$constants;
+        }
+
+        name = params.$name;
+        delete params.$name;
+
+        for (k in params) {
+            addMethod(k, params[k], interf);
+        }
+
+        params.$name = name;
 
         return interf;
     }
@@ -3132,7 +3258,7 @@ define('instanceOf',[
     }
 
     /**
-     * Check if a class is an instance of an interface.
+     * Check if an instance of a class is an instance of an interface.
      *
      * @param {Object}   instance The instance to be checked
      * @param {Function} target   The interface
@@ -3150,7 +3276,7 @@ define('instanceOf',[
             }
         }
 
-        return instance.$constructor.$parent ? instanceOfInterface(instance.$constructor.$parent.prototype, target) : false;
+        return false;
     }
 
     /**

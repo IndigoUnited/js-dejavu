@@ -23,7 +23,7 @@ define(function () {
             optionalReached = false,
             length,
             x;
-            
+
         // Analyze arguments
         if (!matches) {
             return null;
