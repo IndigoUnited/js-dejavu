@@ -311,6 +311,34 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
+            it('should throw an error if $constants is not an object', function () {
+
+                expect(function () {
+                    return Interface({
+                        $constants: 'wtf'
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: undefined
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: null
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {}
+                    });
+                }).to.not.throwException();
+
+            });
+
             it('should throw an error when using reserved keywords', function () {
 
                 var reserved = ['$constructor', '$initializing', '$static', '$self', '$super'],
@@ -329,16 +357,21 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             obj.$statics[key] = 'bla';
                             return Interface(obj);
                         };
+                    },
+                    checkConst = function (key) {
+                        return function () {
+                            var obj = {$constants: {}};
+                            obj.$constants[key] = 'bla';
+                            return Interface(obj);
+                        };
                     };
-
                 for (x = 0; x < reserved.length; x += 1) {
                     expect(checkNormal(reserved[x])).to.throwException(/using a reserved keyword/);
-                    expect(checkNormal(reserved[x], true)).to.throwException(/using a reserved keyword/);
                 }
 
                 for (x = 0; x < reservedStatic.length; x += 1) {
                     expect(checkStatic(reservedStatic[x])).to.throwException(/using a reserved keyword/);
-                    expect(checkStatic(reservedStatic[x], true)).to.throwException(/using a reserved keyword/);
+                    expect(checkConst(reservedStatic[x])).to.throwException(/using a reserved keyword/);
                 }
 
             });
@@ -550,8 +583,139 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 }).to.not.throwException();
 
             });
+            
+            it('should throw an error if $constants have non primitive types', function () {
 
-            it('should throw an error if a protected/private methods are defined', function () {
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: {}
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: new Date()
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: function () {}
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: []
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: false
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: null
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: "SOME"
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: 1
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: /DSA/
+                        }
+                    });
+                }).to.not.throwException();
+
+            });
+            
+            it('should throw an error when it extends multiple ones with same constants but different values', function () {
+                
+                expect(function () {
+                    return Interface({
+                        $extends: [
+                            Interface({
+                                $constants: {
+                                    FOO: 'test'
+                                }
+                            }),
+                            Interface({
+                                $constants: {
+                                    FOO: 'test2'
+                                }
+                            })
+                        ]
+                    });
+                }).to.throwException(/different values/);
+                
+                //expect(function () {
+                    return Interface({
+                        $extends: [
+                            Interface({
+                                $constants: {
+                                    FOO: 'test'
+                                }
+                            }),
+                            Interface({
+                                $constants: {
+                                    FOO: 'test'
+                                }
+                            })
+                        ]
+                    });
+                //}).to.not.throwException();
+                
+            });
+            
+            it('should throw when overriding a constant', function () {
+                
+                expect(function () {
+                    return Interface({
+                        $extends: Interface({
+                            $constants: {
+                                FOO: 'test'
+                            }
+                        }),
+                        $constants: {
+                            FOO: 'test'
+                        }
+                    });
+                }).to.throwException(/override constant/);
+                
+            });
+            
+            it('should throw an error if a protected/private methods/constants are defined', function () {
 
                 expect(function () {
                     return Interface({
@@ -580,7 +744,23 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/non public/);
-
+                
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            _FOO: 'bar'
+                        }
+                    });
+                }).to.throwException(/non public/);
+                
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            __FOO: 'bar'
+                        }
+                    });
+                }).to.throwException(/non public/);
+                
             });
 
         });
@@ -850,7 +1030,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         someFunction: function () {}
                     });
                 }).to.throwException(/override final/);
-                
+
                 expect(function () {
                     return Class({
                         $extends: SomeClass,
@@ -868,7 +1048,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/override final/);
-                
+
             });
 
             it('should throw an error if $constants is not an object', function () {
@@ -898,7 +1078,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 }).to.not.throwException();
 
             });
-            
+
             it('should throw an error if $constants have non primitive types', function () {
 
                 expect(function () {
@@ -916,7 +1096,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/primitive type/);
-                
+
                 expect(function () {
                     return Class({
                         $constants: {
@@ -924,7 +1104,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/primitive type/);
-                
+
                 expect(function () {
                     return Class({
                         $constants: {
@@ -932,7 +1112,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/primitive type/);
-                
+
                 expect(function () {
                     return Class({
                         $constants: {
@@ -940,7 +1120,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.not.throwException();
-                
+
                 expect(function () {
                     return Class({
                         $constants: {
@@ -948,15 +1128,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.not.throwException();
-                
-                expect(function () {
-                    return Class({
-                        $constants: {
-                            SOME: undefined
-                        }
-                    });
-                }).to.not.throwException();
-                
+
                 expect(function () {
                     return Class({
                         $constants: {
@@ -964,7 +1136,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.not.throwException();
-                
+
                 expect(function () {
                     return Class({
                         $constants: {
@@ -972,7 +1144,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.not.throwException();
-                
+
                 expect(function () {
                     return Class({
                         $constants: {
@@ -980,9 +1152,9 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.not.throwException();
-                
+
             });
-            
+
             it('should throw an error if overriding a constant parameter', function () {
 
                 var SomeClass = Class({
@@ -990,7 +1162,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         FOO: 'bar'
                     }
                 });
-                
+
                 expect(function () {
                     return Class({
                         $extends: SomeClass,
@@ -1001,7 +1173,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/override constant/);
-                
+
                 expect(function () {
                     return Class({
                         $extends: SomeClass,
@@ -1010,7 +1182,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/override constant/);
-                
+
                 expect(function () {
                     return Class({
                         $extends: SomeClass,
@@ -2365,29 +2537,68 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 var reserved = ['$constructor', '$initializing', '$static', '$self', '$super'],
                     reservedStatic = ['$parent', '$super'],
                     x,
-                    checkNormal = function (key, inAbstracts) {
+                    checkNormal = function (key, where) {
                         return function () {
-                            var obj = {};
+                            var obj = {},
+                                temp;
                             obj[key] = 'bla';
-                            return AbstractClass(!!inAbstracts ? {$abstracts: obj} : obj);
+
+                            if (where) {
+                                temp = {};
+                                temp[where] = obj;
+                            } else {
+                                temp = obj;
+                            }
+
+                            return AbstractClass(temp);
                         };
                     },
-                    checkStatic = function (key, inAbstracts) {
+                    checkStatic = function (key, where) {
                         return function () {
-                            var obj = {$statics: {}};
+                            var obj = {$statics: {}},
+                                temp;
                             obj.$statics[key] = 'bla';
-                            return AbstractClass(!!inAbstracts ? {$abstracts: obj} : obj);
+
+                            if (where) {
+                                temp = {},
+                                temp[where] = obj;
+                            } else {
+                                temp = obj;
+                            }
+
+                            return AbstractClass(temp);
+                        };
+                    },
+                    checkConst = function (key) {
+                        return function () {
+                            var obj = {$constants: {}};
+                            obj.$constants[key] = 'bla';
+                            return AbstractClass(obj);
                         };
                     };
 
                 for (x = 0; x < reserved.length; x += 1) {
                     expect(checkNormal(reserved[x])).to.throwException(/using a reserved keyword/);
-                    expect(checkNormal(reserved[x], true)).to.throwException(/using a reserved keyword/);
+                    expect(checkNormal(reserved[x], '$abstracts')).to.throwException(/using a reserved keyword/);
                 }
 
                 for (x = 0; x < reservedStatic.length; x += 1) {
                     expect(checkStatic(reservedStatic[x])).to.throwException(/using a reserved keyword/);
-                    expect(checkStatic(reservedStatic[x], true)).to.throwException(/using a reserved keyword/);
+                    expect(checkStatic(reservedStatic[x], '$abstracts')).to.throwException(/using a reserved keyword/);
+                }
+
+                for (x = 0; x < reserved.length; x += 1) {
+                    expect(checkNormal(reserved[x])).to.throwException(/using a reserved keyword/);
+                    expect(checkNormal(reserved[x], '$finals')).to.throwException(/using a reserved keyword/);
+                }
+
+                for (x = 0; x < reservedStatic.length; x += 1) {
+                    expect(checkStatic(reservedStatic[x])).to.throwException(/using a reserved keyword/);
+                    expect(checkStatic(reservedStatic[x], '$finals')).to.throwException(/using a reserved keyword/);
+                }
+
+                for (x = 0; x < reservedStatic.length; x += 1) {
+                    expect(checkConst(reservedStatic[x])).to.throwException(/using a reserved keyword/);
                 }
 
             });
@@ -3018,29 +3229,55 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 var reserved = ['$constructor', '$initializing', '$static', '$self', '$super'],
                     reservedStatic = ['$parent', '$super'],
                     x,
-                    checkNormal = function (key) {
+                    checkNormal = function (key, where) {
                         return function () {
-                            var obj = {};
+                            var obj = {},
+                                temp;
                             obj[key] = 'bla';
-                            return Class(obj);
+
+                            if (where) {
+                                temp = {},
+                                temp[where] = obj;
+                            } else {
+                                temp = obj;
+                            }
+
+                            return Class(temp);
                         };
                     },
-                    checkStatic = function (key) {
+                    checkStatic = function (key, where) {
                         return function () {
-                            var obj = {$statics: {}};
+                            var obj = {$statics: {}},
+                                temp;
                             obj.$statics[key] = 'bla';
-                            return Class(obj);
+
+                            if (where) {
+                                temp = {},
+                                temp[where] = obj;
+                            } else {
+                                temp = obj;
+                            }
+
+                            return Class(temp);
+                        };
+                    },
+                    checkConst = function (key) {
+                        return function () {
+                            var obj = {$constants: {}};
+                            obj.$constants[key] = 'bla';
+                            return AbstractClass(obj);
                         };
                     };
 
                 for (x = 0; x < reserved.length; x += 1) {
                     expect(checkNormal(reserved[x])).to.throwException(/using a reserved keyword/);
-                    expect(checkNormal(reserved[x], true)).to.throwException(/using a reserved keyword/);
+                    expect(checkNormal(reserved[x], '$finals')).to.throwException(/using a reserved keyword/);
                 }
 
                 for (x = 0; x < reservedStatic.length; x += 1) {
                     expect(checkStatic(reservedStatic[x])).to.throwException(/using a reserved keyword/);
-                    expect(checkStatic(reservedStatic[x], true)).to.throwException(/using a reserved keyword/);
+                    expect(checkStatic(reservedStatic[x], '$finals')).to.throwException(/using a reserved keyword/);
+                    expect(checkConst(reservedStatic[x])).to.throwException(/using a reserved keyword/);
                 }
 
             });

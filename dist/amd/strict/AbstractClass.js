@@ -4,7 +4,6 @@
 define([
     'Utils/lang/isObject',
     'Utils/lang/isFunction',
-    'Utils/lang/isArray',
     'Utils/lang/isString',
     'Utils/lang/toArray',
     'Utils/lang/bind',
@@ -23,7 +22,6 @@ define([
 ], function AbstractClassWrapper(
     isObject,
     isFunction,
-    isArray,
     isString,
     toArray,
     bind,
@@ -207,19 +205,9 @@ define([
             key,
             value;
 
-        // Verify argument type
-        if (!x && !isArray(interfs)) {
-            throw new TypeError('$implements of abstract class "' + constructor.prototype.$name + '" must be an interface or an array of interfaces.');
-        }
-
         for (x -= 1; x >= 0; x -= 1) {
 
             interf = interfs[x];
-
-            // Validate interfaces
-            if (!isFunction(interf) || !interf[$interface]) {
-                throw new TypeError('Entry at index ' + x + ' in $implements of class "' + constructor.prototype.$name + '" is not a valid interface.');
-            }
 
             // Grab methods
             for (key in interf[$interface].methods) {
@@ -250,9 +238,6 @@ define([
                     constructor[$abstract].staticMethods[key] = value;
                 }
             }
-
-            // Add it to the interfaces array
-            constructor[$class].interfaces.push(interf);
         }
     }
 
