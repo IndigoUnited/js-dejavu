@@ -258,7 +258,6 @@ define([
                 constructor[$class].staticProperties[key] = value;
                 constructor[key] = value;
             }
-
         }
 
         // Parse finals

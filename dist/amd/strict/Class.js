@@ -6,6 +6,8 @@ define([
     'Utils/array/intersection',
     'Utils/array/unique',
     'Utils/array/compact',
+    'Utils/array/remove',
+    'Utils/object/keys',
     './common/functionMeta',
     './common/propertyMeta',
     './common/isFunctionCompatible',
@@ -31,6 +33,8 @@ define([
     intersection,
     unique,
     compact,
+    remove,
+    keys,
     functionMeta,
     propertyMeta,
     isFunctionCompatible,
@@ -246,7 +250,7 @@ define([
 
         // Check the metadata was fine (if not then the property is undefined)
         if (!metadata) {
-            throw new Error('Value of ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + '" can\'t be undefined (use null instead).');
+            throw new Error('Value of ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + '" defined in class "' + constructor.prototype.$name + '" can\'t be undefined (use null instead).');
         }
         // Check if we we got a private property classified as final
         if (metadata.isPrivate && isFinal) {
@@ -311,11 +315,11 @@ define([
 
             // Verify argument type
             if (!i && !isArray(constructor.prototype.$borrows)) {
-                throw new TypeError('$borrows of "' + constructor.prototype.$name + '" must be a class/object or an array of classes/objects.');
+                throw new TypeError('$borrows of class "' + constructor.prototype.$name + '" must be a class/object or an array of classes/objects.');
             }
             // Verify duplicate entries
             if (i !== unique(mixins).length && compact(mixins).length === i) {
-                throw new Error('There are duplicate entries defined in $borrows of "' + constructor.prototype.$name + '".');
+                throw new Error('There are duplicate entries defined in $borrows of class "' + constructor.prototype.$name + '".');
             }
 
             for (i -= 1; i >= 0; i -= 1) {
@@ -403,7 +407,7 @@ define([
         }
         // Verify duplicate interfaces
         if (x !== unique(interfaces).length && compact(interfaces).length === x) {
-            throw new Error('There are duplicate entries in $implements of "' + target.prototype.$name + '".');
+            throw new Error('There are duplicate entries in $implements of class "' + target.prototype.$name + '".');
         }
 
         for (x -= 1; x >= 0; x -= 1) {
@@ -447,16 +451,16 @@ define([
 
             // Verify arguments type
             if (!x && !isArray(constructor.prototype.$binds)) {
-                throw new TypeError('$binds of "' + constructor.prototype.$name + '" must be a string or an array of strings.');
+                throw new TypeError('$binds of class "' + constructor.prototype.$name + '" must be a string or an array of strings.');
             }
             // Verify duplicate binds
             if (x !== unique(binds).length && compact(binds).length === x) {
-                throw new Error('There are duplicate entries in $binds of "' + constructor.prototype.$name + '".');
+                throw new Error('There are duplicate entries in $binds of class "' + constructor.prototype.$name + '".');
             }
             // Verify duplicate binds already provided in mixins
             common = intersection(constructor[$class].binds, binds);
-            if (common.length > 0) {
-                throw new Error('There are binds in "' + constructor.prototype.$name + '" that are already being bound by the parent class and/or mixin: "' + common.join('", ') + '".');
+            if (common.length) {
+                throw new Error('There are ambiguous members defined in class in "' + constructor.prototype.$name + '" that are already being bound by the parent class and/or mixin: "' + common.join('", ') + '".');
             }
 
             // Verify if all binds are strings reference existent methods
@@ -465,7 +469,7 @@ define([
                     throw new TypeError('Entry at index ' + x + ' in $borrows of class "' + constructor.prototype.$name + '" is not a string.');
                 }
                 if (!constructor[$class].methods[binds[x]] && (!constructor.prototype.$abstracts || !constructor.prototype.$abstracts[binds[x]])) {
-                    throw new ReferenceError('Method "' + binds[x] + '" referenced in "' + constructor.prototype.$name + '" binds does not exist.');
+                    throw new ReferenceError('Method "' + binds[x] + '" referenced in class "' + constructor.prototype.$name + '" binds does not exist.');
                 }
             }
 
@@ -535,20 +539,68 @@ define([
      */
     function parseClass(params, constructor) {
 
-        var opts = { },
+        var opts = {},
             key,
             value,
             saved = {},
-            has = {};
+            has = {},
+            ambiguous;
 
          // Save constants & finals to parse later
         if (hasOwn(params, '$constants')) {
+
+            // Check argument
+            if (!isObject(params.$constants)) {
+                throw new TypeError('$constants of class "' + constructor.prototype.$name + '" must be an object.');
+            }
+
+            checkKeywords(params.$constants, 'statics');
+
+            // Check ambiguity
+            if (isObject(params.$statics)) {
+                ambiguous = intersection(keys(params.$constants), keys(params.$statics));
+                if (ambiguous.length) {
+                    throw new Error('There are members defined in class "' + constructor.prototype.$name + '" with the same name but with different modifiers: "' + ambiguous.join('", ') + '".');
+                }
+            }
+
             saved.$constants = params.$constants;
             has.$constants = true;
             delete params.$constants;
         }
 
         if (hasOwn(params, '$finals')) {
+
+            // Check argument
+            if (!isObject(params.$finals)) {
+                throw new TypeError('$finals of class "' + constructor.prototype.$name + '" must be an object.');
+            }
+
+            checkKeywords(params.$finals);
+
+            // Check ambiguity
+            if (isObject(params.$finals.$statics)) {
+                if (isObject(params.$statics)) {
+                    ambiguous = intersection(keys(params.$finals.$statics), keys(params.$statics));
+                    if (ambiguous.length) {
+                        throw new Error('There are members defined in class "' + constructor.prototype.$name + '" with the same name but with different modifiers: "' + ambiguous.join('", ') + '".');
+                    }
+                }
+                if (has.$constants) {
+                    ambiguous = intersection(keys(params.$finals.$statics), keys(saved.$constants));
+                    if (ambiguous.length) {
+                        throw new Error('There are members defined in class "' + constructor.prototype.$name + '" with the same name but with different modifiers: "' + ambiguous.join('", ') + '".');
+                    }
+                }
+            }
+            ambiguous = intersection(keys(params), keys(params.$finals));
+            if (ambiguous.length) {
+                remove(ambiguous, '$statics');
+                if (ambiguous.length) {
+                    throw new Error('There are members defined in class "' + constructor.prototype.$name + '" with the same name but with different modifiers: "' + ambiguous.join('", ') + '".');
+                }
+            }
+
             saved.$finals = params.$finals;
             has.$finals = true;
             delete params.$finals;
@@ -560,11 +612,6 @@ define([
         // Parse constants
         if (has.$constants) {
 
-            if (!isObject(saved.$constants)) {
-                throw new TypeError('$constants of class "' + constructor.prototype.$name + '" must be an object.');
-            }
-
-            checkKeywords(saved.$constants, 'statics');
             opts.isConst = true;
 
             for (key in saved.$constants) {
@@ -583,13 +630,6 @@ define([
 
         // Parse finals
         if (has.$finals) {
-
-            if (!isObject(saved.$finals)) {
-                throw new TypeError('$finals of class "' + constructor.prototype.$name + '" must be an object.');
-            }
-
-            checkKeywords(saved.$finals);
-
             parseMembers(saved.$finals, constructor, true);
         }
     }
@@ -1259,7 +1299,7 @@ define([
 
         // Validate params as an object
         if (!isObject(params)) {
-            throw new TypeError('Argument "params" must be an object.');
+            throw new TypeError('Argument "params" must be an object while defining a class.');
         }
         // Validate class name
         if (hasOwn(params, '$name')) {

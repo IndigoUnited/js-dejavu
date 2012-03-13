@@ -89,6 +89,13 @@ define([
             throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in abstract class "' + constructor.prototype.$name + '".');
         }
 
+        // Check if a variable exists with the same name
+        target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
+        if (isObject(target[name])) {
+            throw new Error('Abstract method "' + name + '" defined in abstract class "' + constructor.prototype.$name + "' conflicts with an already defined property.");
+        }
+        
+        
         target = isStatic ? constructor[$class].staticMethods : constructor[$class].methods;
 
         // Check if it is already implemented
@@ -264,7 +271,7 @@ define([
 
 //>>includeStart('strict', pragmas.strict);
         if (!isObject(params)) {
-            throw new TypeError('Argument "params" must be an object.');
+            throw new TypeError('Argument "params" must be an object while defining an abstract class.');
         }
         // Validate class name
         if (hasOwn(params, '$name')) {
