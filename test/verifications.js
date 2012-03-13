@@ -47,6 +47,21 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
+            it('should throw an error when defining ambiguous members', function () {
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: 'foo'
+                        },
+                        $statics: {
+                            SOME: function () {}
+                        }
+                    });
+                }).to.throwException(/different modifiers/);
+
+            });
+
             it('should throw an error when extending an invalid interface', function () {
 
                 expect(function () {
@@ -583,7 +598,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 }).to.not.throwException();
 
             });
-            
+
             it('should throw an error if $constants have non primitive types', function () {
 
                 expect(function () {
@@ -659,9 +674,9 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 }).to.not.throwException();
 
             });
-            
+
             it('should throw an error when it extends multiple ones with same constants but different values', function () {
-                
+
                 expect(function () {
                     return Interface({
                         $extends: [
@@ -678,8 +693,8 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         ]
                     });
                 }).to.throwException(/different values/);
-                
-                //expect(function () {
+
+                expect(function () {
                     return Interface({
                         $extends: [
                             Interface({
@@ -694,12 +709,12 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             })
                         ]
                     });
-                //}).to.not.throwException();
-                
+                }).to.not.throwException();
+
             });
-            
+
             it('should throw when overriding a constant', function () {
-                
+
                 expect(function () {
                     return Interface({
                         $extends: Interface({
@@ -712,9 +727,9 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/override constant/);
-                
+
             });
-            
+
             it('should throw an error if a protected/private methods/constants are defined', function () {
 
                 expect(function () {
@@ -744,7 +759,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/non public/);
-                
+
                 expect(function () {
                     return Interface({
                         $constants: {
@@ -752,7 +767,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/non public/);
-                
+
                 expect(function () {
                     return Interface({
                         $constants: {
@@ -760,7 +775,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/non public/);
-                
+
             });
 
         });
@@ -838,6 +853,122 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         initialize: 'some'
                     });
                 }).to.throwException(/must be a function/);
+
+            });
+
+            it('should throw an error when defining ambiguous members', function () {
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: 'foo'
+                        },
+                        $statics: {
+                            SOME: 'foo'
+                        }
+                    });
+                }).to.throwException(/different modifiers/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $statics: {
+                                SOME: 'foo'
+                            }
+                        },
+                        $statics: {
+                            SOME: 'foo'
+                        }
+                    });
+                }).to.throwException(/different modifiers/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $statics: {
+                                SOME: 'foo'
+                            }
+                        },
+                        $statics: {
+                            other: 'foo'
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            some: 'foo'
+                        },
+                        some: 'foo'
+                    });
+                }).to.throwException(/different modifiers/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $statics: {
+                                SOME: 'foo'
+                            }
+                        },
+                        $constants: {
+                            SOME: 'foo'
+                        }
+                    });
+                }).to.throwException(/different modifiers/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            $statics: {
+                                some: function() {}
+                            }
+                        },
+                        $constants: {
+                            some: 'foo'
+                        }
+                    });
+                }).to.throwException(/already defined/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            some: function() {}
+                        },
+                        $finals: {
+                            some: 'foo'
+                        }
+                    });
+                }).to.throwException(/already defined/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            some: function() {}
+                        },
+                        some: 'foo'
+                    });
+                }).to.throwException(/already defined/);
+                
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            some: function() {}
+                        },
+                        $finals: {
+                            some: function() {}
+                        }
+                    });
+                }).to.throwException(/already implemented/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            some: function() {}
+                        },
+                        some: function() {}
+                    });
+                }).to.throwException(/already implemented/);
 
             });
 
@@ -1192,6 +1323,18 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     });
                 }).to.throwException(/override constant/);
 
+                expect(function () {
+                    return Class({
+                        $implements: Interface({
+                            $constants: {
+                                FOO: 'WTF'
+                            }
+                        }),
+                        $constants: {
+                            FOO: 'WTF'
+                        }
+                    });
+                }).to.throwException(/override constant/);
             });
 
             it('should throw an error if $binds is not a string or an array of strings', function () {
@@ -2471,6 +2614,17 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return AbstractClass({
+                        $extends: AbstractClass({
+                            some: 'foo'
+                        }),
+                        $abstracts: {
+                            some: function () {}
+                        }
+                    });
+                }).to.throwException(/defined property/);
+                
+                expect(function () {
+                    return AbstractClass({
                         $extends: Class({
                             $statics: {
                                 some: function () {}
@@ -2499,6 +2653,21 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     });
                 }).to.throwException(/already implemented/);
 
+                expect(function () {
+                    return AbstractClass({
+                        $extends: AbstractClass({
+                            $statics: {
+                                some: 'some'
+                            }
+                        }),
+                        $abstracts: {
+                            $statics: {
+                                some: function () {}
+                            }
+                        }
+                    });
+                }).to.throwException(/defined property/);
+                
             });
 
             it('should not throw an error while extending another abstract class while not implementing its methods', function () {
@@ -2560,7 +2729,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             obj.$statics[key] = 'bla';
 
                             if (where) {
-                                temp = {},
+                                temp = {};
                                 temp[where] = obj;
                             } else {
                                 temp = obj;

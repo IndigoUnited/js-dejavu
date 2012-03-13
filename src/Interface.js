@@ -223,7 +223,7 @@ define([
 //>>includeStart('strict', pragmas.strict);
         // Validate params as an object
         if (!isObject(params)) {
-            throw new TypeError('Argument "params" must be an object.');
+            throw new TypeError('Argument "params" must be an object while defining an interface.');
         }
         // Validate class name
         if (hasOwn(params, '$name')) {
@@ -251,6 +251,7 @@ define([
             duplicate,
             opts = {},
             name,
+            ambiguous,
             interf = function () {
                 throw new Error('Interfaces cannot be instantiated.');
             };
@@ -297,7 +298,7 @@ define([
                 // Merge methods
                 duplicate = intersection(keys(interf[$interface].methods), keys(current[$interface].methods));
                 i = duplicate.length;
-                if (i > 0) {
+                if (i) {
                     for (i -= 1; i >= 0; i -= 1) {
                         if (!isFunctionCompatible(interf[$interface].methods[duplicate[i]], current[$interface].methods[duplicate[i]]) &&
                                 !isFunctionCompatible(current[$interface].methods[duplicate[i]], interf[$interface].methods[duplicate[i]])) {
@@ -310,7 +311,7 @@ define([
                 // Merge static methods
                 duplicate = intersection(keys(interf[$interface].staticMethods), keys(current[$interface].staticMethods));
                 i = duplicate.length;
-                if (i > 0) {
+                if (i) {
                     for (i -= 1; i >= 0; i -= 1) {
                         if (!isFunctionCompatible(interf[$interface].staticMethods[duplicate[i]], current[$interface].staticMethods[duplicate[i]]) &&
                                 !isFunctionCompatible(current[$interface].staticMethods[duplicate[i]], interf[$interface].staticMethods[duplicate[i]])) {
@@ -352,6 +353,43 @@ define([
             throw new Error('Interface "' + params.$name + '" can\'t define the initialize method.');
         }
 
+//>>includeEnd('strict');
+        // Parse constants
+        if (hasOwn(params, '$constants')) {
+
+//>>includeStart('strict', pragmas.strict);
+            // Check argument
+            if (!isObject(params.$constants)) {
+                throw new TypeError('$constants definition of interface "' + params.$name + '" must be an object.');
+            }
+
+            checkKeywords(params.$constants, 'statics');
+
+            // Check ambiguity
+            if (hasOwn(params, '$statics')) {
+                ambiguous = intersection(keys(params.$constants), keys(params.$statics));
+                if (ambiguous.length) {
+                    throw new Error('There are members defined in interface "' + params.$name + '" with the same name but with different modifiers: "' + ambiguous.join('", ') + '".');
+                }
+            }
+
+//>>includeEnd('strict');
+            for (k in params.$constants) {
+//>>includeStart('strict', pragmas.strict);
+                addConstant(k, params.$constants[k], interf);
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+                interf[k] = params.$constants[k];
+                interf[$interface].constants.push(k);
+//>>excludeEnd('strict');
+            }
+//>>includeStart('strict', pragmas.strict);
+
+            delete params.$constants;
+//>>includeEnd('strict');
+        }
+
+//>>includeStart('strict', pragmas.strict);
         // Parse statics
         if (hasOwn(params, '$statics')) {
 
@@ -378,34 +416,6 @@ define([
             delete params.$statics;
         }
 
-//>>includeEnd('strict');
-        // Parse constants
-        if (hasOwn(params, '$constants')) {
-
-//>>includeStart('strict', pragmas.strict);
-            if (!isObject(params.$constants)) {
-                throw new TypeError('$constants definition of interface "' + params.$name + '" must be an object.');
-            }
-
-            checkKeywords(params.$constants, 'statics');
-
-//>>includeEnd('strict');
-            for (k in params.$constants) {
-//>>includeStart('strict', pragmas.strict);
-                addConstant(k, params.$constants[k], interf);
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
-                interf[k] = params.$constants[k];
-                interf[$interface].constants.push(k);
-//>>excludeEnd('strict');
-            }
-//>>includeStart('strict', pragmas.strict);
-
-            delete params.$constants;
-//>>includeEnd('strict');
-        }
-
-//>>includeStart('strict', pragmas.strict);
         name = params.$name;
         delete params.$name;
 
