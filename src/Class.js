@@ -604,13 +604,15 @@ define([
 
 //>>excludeStart('strict', pragmas.strict);
         var key,
-            value;
+            value,
+            cache = {};
 
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
         var opts = { isFinal: !!isFinal },
             key,
             value,
+            cache = {},
             unallowed;
 
         // Add each method metadata, verifying its signature
@@ -665,33 +667,59 @@ define([
             delete params.$statics;
         }
 
+        // Save certain keywords in the cache for the loop bellow to work faster
+//>>includeStart('strict', pragmas.strict);
+        if (hasOwn(params, '$name')) {
+            cache.$name = params.$name;
+            delete params.$name;
+        }
+
+//>>includeEnd('strict');
+        if (hasOwn(params, '$binds')) {
+            cache.$binds = params.$binds;
+            delete params.$binds;
+        }
+
+        if (hasOwn(params, '$borrows')) {
+            cache.$borrows = params.$borrows;
+            delete params.$borrows;
+        }
+
+        if (hasOwn(params, '$implements')) {
+            cache.$implements = params.$implements;
+            delete params.$implements;
+        }
+
+         if (hasOwn(params, '$abstracts')) {
+            cache.$abstracts = params.$abstracts;
+            delete params.$abstracts;
+        }
+
         for (key in params) {
 
             value = params[key];
 
 //>>includeStart('strict', pragmas.strict);
-            if (key.charAt(0) !== '$' || (key !== '$name' && key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
-
-                if (isFunction(value) && !value[$class] && !value[$interface]) {
-                    addMethod(key, value, constructor, opts);
-                } else {
-                    addProperty(key, value, constructor, opts);
-                }
+            if (isFunction(value) && !value[$class] && !value[$interface]) {
+                addMethod(key, value, constructor, opts);
+            } else {
+                addProperty(key, value, constructor, opts);
+            }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-            if (key.charAt(0) !== '$' || (key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
-
-                if (isFunction(value) && !value[$class] && !value[$interface]) {
-                    value['$prototype_' + constructor[$class].id] = constructor.prototype;
-                    value.$name = key;
-                }
-
-                if (isFinal) {
-                    constructor.prototype[key] = value;
-                }
-//>>excludeEnd('strict');
+            if (isFunction(value) && !value[$class] && !value[$interface]) {
+                value['$prototype_' + constructor[$class].id] = constructor.prototype;
+                value.$name = key;
             }
+
+            if (isFinal) {
+                constructor.prototype[key] = value;
+            }
+//>>excludeEnd('strict');
         }
+        
+        // Restore from cache
+        mixIn(params, cache);
     }
 
     /**
