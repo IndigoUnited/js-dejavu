@@ -563,6 +563,33 @@ define('common/isFunctionCompatible',[],function () {
     return isFunctionCompatible;
 });
 
+define('Utils/array/some',['require'],function (forEach) {
+
+    /**
+     * ES5 Array.some
+     * @version 0.2.1 (2011/11/25)
+     */
+    var some = Array.prototype.some?
+                function (arr, callback, thisObj) {
+                    return arr.some(callback, thisObj);
+                } :
+                function (arr, callback, thisObj) {
+                    var result = false,
+                        n = arr.length >>> 0;
+                    while (n--) {
+                        //according to spec callback should only be called for
+                        //existing items
+                        if ( n in arr && callback.call(thisObj, arr[n], n, arr) ) {
+                            result = true;
+                            break;
+                        }
+                    }
+                    return result;
+                };
+
+    return some;
+});
+
 /*jslint sloppy:true, forin:true*/
 /*global define,console*/
 
@@ -1049,6 +1076,67 @@ define('Utils/array/intersection',['./unique', './filter', './every', './contain
 
 });
 
+define('Utils/array/difference',['./unique', './filter', './some', './contains'], function (unique, filter, some, contains) {
+
+
+    /**
+     * Return a new Array with elements that aren't present in the other Arrays.
+     * @version 0.1.0 (2011/01/12)
+     */
+    function difference(arr) {
+        var arrs = Array.prototype.slice.call(arguments, 1),
+            result = filter(unique(arr), function(needle){
+                return !some(arrs, function(haystack){
+                    return contains(haystack, needle);
+                });
+            });
+        return result;
+    }
+
+    return difference;
+
+});
+
+/*jslint sloppy:true*/
+/*global define*/
+
+define('common/testKeywords',[
+    'Utils/array/difference',
+    'Utils/object/hasOwn'
+], function (
+    difference,
+    hasOwn
+) {
+    var keywords = [
+        '$name', '$extends', '$implements', '$borrows', '$binds',
+        '$statics', '$finals', '$abstracts', '$constants'
+    ];
+
+    /**
+     * Tests if an object contains an unallowed keyword in a given context.
+     *
+     * @param {String} object          The object to verify
+     * @param {Array}  [allowed="[]"]  The list of allowed keywords
+     *
+     * @return {Mixed} False if is ok, or the key that is unallowed.
+     */
+    function testKeywords(object, allowed) {
+
+        var test = allowed ? difference(keywords, allowed) : keywords,
+            x;
+
+        for (x = test.length - 1; x >= 0; x -= 1) {
+            if (hasOwn(object, test[x])) {
+                return test[x];
+            }
+        }
+
+        return false;
+    }
+
+    return testKeywords;
+});
+
 /*jslint sloppy:true*/
 /*global define,console*/
 
@@ -1156,6 +1244,7 @@ define('Class',[
     './common/propertyMeta',
     './common/isFunctionCompatible',
     './common/checkKeywords',
+    './common/testKeywords',
     './common/obfuscateProperty',
     './common/hasDefineProperty',
     './common/checkObjectPrototype',
@@ -1183,6 +1272,7 @@ define('Class',[
     propertyMeta,
     isFunctionCompatible,
     checkKeywords,
+    testKeywords,
     obfuscateProperty,
     hasDefineProperty,
     checkObjectPrototype,
@@ -1633,16 +1723,26 @@ define('Class',[
 
         var opts = { isFinal: !!isFinal },
             key,
-            value;
+            value,
+            unallowed;
 
         // Add each method metadata, verifying its signature
         if (hasOwn(params, '$statics')) {
 
+            // Check if is an object
             if (!isObject(params.$statics)) {
                 throw new TypeError('$statics definition of class "' + params.$name + '" must be an object.');
             }
 
+            // Check reserved keywords
             checkKeywords(params.$statics, 'statics');
+
+            // Check unallowed keywords
+            unallowed = testKeywords(params.$statics);
+            if (unallowed) {
+                throw new Error('$statics ' + (isFinal ? 'inside $finals ' : '') + ' of class "' + constructor.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+            }
+
             opts.isStatic = true;
 
             for (key in params.$statics) {
@@ -1688,6 +1788,7 @@ define('Class',[
             value,
             saved = {},
             has = {},
+            unallowed,
             ambiguous;
 
          // Save constants & finals to parse later
@@ -1698,7 +1799,14 @@ define('Class',[
                 throw new TypeError('$constants of class "' + constructor.prototype.$name + '" must be an object.');
             }
 
+            // Check reserved keywords
             checkKeywords(params.$constants, 'statics');
+
+            // Check unallowed keywords
+            unallowed = testKeywords(params.$constants);
+            if (unallowed) {
+                throw new Error('$constants of class "' + constructor.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+            }
 
             // Check ambiguity
             if (isObject(params.$statics)) {
@@ -1720,10 +1828,18 @@ define('Class',[
                 throw new TypeError('$finals of class "' + constructor.prototype.$name + '" must be an object.');
             }
 
+            // Check reserved keywords
             checkKeywords(params.$finals);
+
+            // Check unallowed keywords
+            unallowed = testKeywords(params.$finals, ['$statics']);
+            if (unallowed) {
+                throw new Error('$finals of class "' + constructor.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+            }
 
             // Check ambiguity
             if (isObject(params.$finals.$statics)) {
+
                 if (isObject(params.$statics)) {
                     ambiguous = intersection(keys(params.$finals.$statics), keys(params.$statics));
                     if (ambiguous.length) {
@@ -2592,6 +2708,7 @@ define('AbstractClass',[
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',
     './common/checkKeywords',
+    './common/testKeywords',
     './common/checkObjectPrototype',
     './common/hasDefineProperty',
     './common/randomAccessor',
@@ -2610,6 +2727,7 @@ define('AbstractClass',[
     isFunctionEmpty,
     isFunctionCompatible,
     checkKeywords,
+    testKeywords,
     checkObjectPrototype,
     hasDefineProperty,
     randomAccessor,
@@ -2664,8 +2782,8 @@ define('AbstractClass',[
         if (isObject(target[name])) {
             throw new Error('Abstract method "' + name + '" defined in abstract class "' + constructor.prototype.$name + "' conflicts with an already defined property.");
         }
-        
-        
+
+
         target = isStatic ? constructor[$class].staticMethods : constructor[$class].methods;
 
         // Check if it is already implemented
@@ -2731,49 +2849,66 @@ define('AbstractClass',[
      */
     function parseAbstracts(abstracts, constructor) {
 
+        var optsStatic = { isStatic: true },
+            key,
+            value,
+            unallowed;
+
+        // Check argument
         if (!isObject(abstracts)) {
             throw new TypeError('$abstracts defined in abstract class "' + constructor.prototype.$name + "' must be an object.");
         }
 
+        // Check reserved keywords
         checkKeywords(abstracts);
 
-        var optsStatic = { isStatic: true },
-            key,
-            value;
+        // Check unallowed keywords
+        unallowed = testKeywords(abstracts, ['$statics']);
+        if (unallowed) {
+            throw new Error('$statics inside $abstracts of abstract class "' + constructor.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+        }
 
-        for (key in abstracts) {
+        if (hasOwn(abstracts, '$statics')) {
 
-            if (key === '$statics') {
+            // Check argument
+            if (!isObject(abstracts.$statics)) {
+                throw new TypeError('$statics definition in $abstracts of abstract class "' + constructor.prototype.$name + '" must be an object.');
+            }
 
-                if (!isObject(abstracts.$statics)) {
-                    throw new TypeError('$statics definition in $abstracts of abstract class "' + constructor.prototype.$name + '" must be an object.');
-                }
+            // Check keywords
+            checkKeywords(abstracts.$statics, 'statics');
 
-                checkKeywords(abstracts.$statics, 'statics');
+            // Check unallowed keywords
+            unallowed = testKeywords(abstracts.$statics);
+            if (unallowed) {
+                throw new Error('$statics inside $abstracts of abstract class "' + constructor.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+            }
 
-                for (key in abstracts.$statics) {
+            for (key in abstracts.$statics) {
 
-                    value = abstracts.$statics[key];
-
-                    // Check if it is not a function
-                    if (!isFunction(value) || value[$interface] || value[$class]) {
-                        throw new Error('Abstract member "' + key + '" found in abstract class "' + constructor.prototype.$name + '" is not a function.');
-                    }
-
-                    addMethod(key, value, constructor, optsStatic);
-                }
-
-            } else {
-
-                value = abstracts[key];
+                value = abstracts.$statics[key];
 
                 // Check if it is not a function
                 if (!isFunction(value) || value[$interface] || value[$class]) {
                     throw new Error('Abstract member "' + key + '" found in abstract class "' + constructor.prototype.$name + '" is not a function.');
                 }
 
-                addMethod(key, value, constructor);
+                addMethod(key, value, constructor, optsStatic);
             }
+
+            delete abstracts.$statics;
+        }
+
+        for (key in abstracts) {
+
+            value = abstracts[key];
+
+            // Check if it is not a function
+            if (!isFunction(value) || value[$interface] || value[$class]) {
+                throw new Error('Abstract member "' + key + '" found in abstract class "' + constructor.prototype.$name + '" is not a function.');
+            }
+
+            addMethod(key, value, constructor);
         }
     }
 
@@ -2866,7 +3001,6 @@ define('AbstractClass',[
             }
         }
 
-
         // Handle abstract methods
         if (hasOwn(params, '$abstracts')) {
             saved.$abstracts = params.$abstracts;     // Save them for later use
@@ -2922,6 +3056,7 @@ define('Interface',[
     'Utils/object/mixIn',
     'Utils/object/keys',
     './common/checkKeywords',
+    './common/testKeywords',
     './common/functionMeta',
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',
@@ -2944,6 +3079,7 @@ define('Interface',[
     mixIn,
     keys,
     checkKeywords,
+    testKeywords,
     functionMeta,
     isFunctionEmpty,
     isFunctionCompatible,
@@ -3145,6 +3281,7 @@ define('Interface',[
             opts = {},
             name,
             ambiguous,
+            unallowed,
             interf = function () {
                 throw new Error('Interfaces cannot be instantiated.');
             };
@@ -3233,7 +3370,14 @@ define('Interface',[
                 throw new TypeError('$constants definition of interface "' + params.$name + '" must be an object.');
             }
 
+            // Check reserved keywords
             checkKeywords(params.$constants, 'statics');
+
+            // Check unallowed keywords
+            unallowed = testKeywords(params.$constants);
+            if (unallowed) {
+                throw new Error('$constants of interface "' + interf.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+            }
 
             // Check ambiguity
             if (hasOwn(params, '$statics')) {
@@ -3253,11 +3397,20 @@ define('Interface',[
         // Parse statics
         if (hasOwn(params, '$statics')) {
 
+            // Check argument
             if (!isObject(params.$statics)) {
                 throw new TypeError('$statics definition of interface "' + params.$name + '" must be an object.');
             }
 
+            // Check reserved keywords
             checkKeywords(params.$statics, 'statics');
+
+            // Check unallowed keywords
+            unallowed = testKeywords(params.$statics);
+            if (unallowed) {
+                throw new Error('$statics of interface "' + interf.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+            }
+
             opts.isStatic = true;
 
             for (k in params.$statics) {
@@ -3278,6 +3431,12 @@ define('Interface',[
 
         name = params.$name;
         delete params.$name;
+
+        // Check unallowed keywords
+        unallowed = testKeywords(params, ['$extends', '$statics', '$constants']);
+        if (unallowed) {
+            throw new Error('$statics of interface "' + interf.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+        }
 
         for (k in params) {
             addMethod(k, params[k], interf);

@@ -12,6 +12,7 @@ define([
     './common/propertyMeta',
     './common/isFunctionCompatible',
     './common/checkKeywords',
+    './common/testKeywords',
     './common/obfuscateProperty',
     './common/hasDefineProperty',
     './common/checkObjectPrototype',
@@ -39,6 +40,7 @@ define([
     propertyMeta,
     isFunctionCompatible,
     checkKeywords,
+    testKeywords,
     obfuscateProperty,
     hasDefineProperty,
     checkObjectPrototype,
@@ -489,16 +491,26 @@ define([
 
         var opts = { isFinal: !!isFinal },
             key,
-            value;
+            value,
+            unallowed;
 
         // Add each method metadata, verifying its signature
         if (hasOwn(params, '$statics')) {
 
+            // Check if is an object
             if (!isObject(params.$statics)) {
                 throw new TypeError('$statics definition of class "' + params.$name + '" must be an object.');
             }
 
+            // Check reserved keywords
             checkKeywords(params.$statics, 'statics');
+
+            // Check unallowed keywords
+            unallowed = testKeywords(params.$statics);
+            if (unallowed) {
+                throw new Error('$statics ' + (isFinal ? 'inside $finals ' : '') + ' of class "' + constructor.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+            }
+
             opts.isStatic = true;
 
             for (key in params.$statics) {
@@ -544,6 +556,7 @@ define([
             value,
             saved = {},
             has = {},
+            unallowed,
             ambiguous;
 
          // Save constants & finals to parse later
@@ -554,7 +567,14 @@ define([
                 throw new TypeError('$constants of class "' + constructor.prototype.$name + '" must be an object.');
             }
 
+            // Check reserved keywords
             checkKeywords(params.$constants, 'statics');
+
+            // Check unallowed keywords
+            unallowed = testKeywords(params.$constants);
+            if (unallowed) {
+                throw new Error('$constants of class "' + constructor.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+            }
 
             // Check ambiguity
             if (isObject(params.$statics)) {
@@ -576,10 +596,18 @@ define([
                 throw new TypeError('$finals of class "' + constructor.prototype.$name + '" must be an object.');
             }
 
+            // Check reserved keywords
             checkKeywords(params.$finals);
+
+            // Check unallowed keywords
+            unallowed = testKeywords(params.$finals, ['$statics']);
+            if (unallowed) {
+                throw new Error('$finals of class "' + constructor.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+            }
 
             // Check ambiguity
             if (isObject(params.$finals.$statics)) {
+
                 if (isObject(params.$statics)) {
                     ambiguous = intersection(keys(params.$finals.$statics), keys(params.$statics));
                     if (ambiguous.length) {

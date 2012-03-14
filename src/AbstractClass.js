@@ -14,6 +14,7 @@ define([
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',
     './common/checkKeywords',
+    './common/testKeywords',
     './common/checkObjectPrototype',
     './common/hasDefineProperty',
     './common/randomAccessor',
@@ -34,6 +35,7 @@ define([
     isFunctionEmpty,
     isFunctionCompatible,
     checkKeywords,
+    testKeywords,
     checkObjectPrototype,
     hasDefineProperty,
     randomAccessor,
@@ -94,8 +96,8 @@ define([
         if (isObject(target[name])) {
             throw new Error('Abstract method "' + name + '" defined in abstract class "' + constructor.prototype.$name + "' conflicts with an already defined property.");
         }
-        
-        
+
+
         target = isStatic ? constructor[$class].staticMethods : constructor[$class].methods;
 
         // Check if it is already implemented
@@ -161,49 +163,66 @@ define([
      */
     function parseAbstracts(abstracts, constructor) {
 
+        var optsStatic = { isStatic: true },
+            key,
+            value,
+            unallowed;
+
+        // Check argument
         if (!isObject(abstracts)) {
             throw new TypeError('$abstracts defined in abstract class "' + constructor.prototype.$name + "' must be an object.");
         }
 
+        // Check reserved keywords
         checkKeywords(abstracts);
 
-        var optsStatic = { isStatic: true },
-            key,
-            value;
+        // Check unallowed keywords
+        unallowed = testKeywords(abstracts, ['$statics']);
+        if (unallowed) {
+            throw new Error('$statics inside $abstracts of abstract class "' + constructor.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+        }
 
-        for (key in abstracts) {
+        if (hasOwn(abstracts, '$statics')) {
 
-            if (key === '$statics') {
+            // Check argument
+            if (!isObject(abstracts.$statics)) {
+                throw new TypeError('$statics definition in $abstracts of abstract class "' + constructor.prototype.$name + '" must be an object.');
+            }
 
-                if (!isObject(abstracts.$statics)) {
-                    throw new TypeError('$statics definition in $abstracts of abstract class "' + constructor.prototype.$name + '" must be an object.');
-                }
+            // Check keywords
+            checkKeywords(abstracts.$statics, 'statics');
 
-                checkKeywords(abstracts.$statics, 'statics');
+            // Check unallowed keywords
+            unallowed = testKeywords(abstracts.$statics);
+            if (unallowed) {
+                throw new Error('$statics inside $abstracts of abstract class "' + constructor.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+            }
 
-                for (key in abstracts.$statics) {
+            for (key in abstracts.$statics) {
 
-                    value = abstracts.$statics[key];
-
-                    // Check if it is not a function
-                    if (!isFunction(value) || value[$interface] || value[$class]) {
-                        throw new Error('Abstract member "' + key + '" found in abstract class "' + constructor.prototype.$name + '" is not a function.');
-                    }
-
-                    addMethod(key, value, constructor, optsStatic);
-                }
-
-            } else {
-
-                value = abstracts[key];
+                value = abstracts.$statics[key];
 
                 // Check if it is not a function
                 if (!isFunction(value) || value[$interface] || value[$class]) {
                     throw new Error('Abstract member "' + key + '" found in abstract class "' + constructor.prototype.$name + '" is not a function.');
                 }
 
-                addMethod(key, value, constructor);
+                addMethod(key, value, constructor, optsStatic);
             }
+
+            delete abstracts.$statics;
+        }
+
+        for (key in abstracts) {
+
+            value = abstracts[key];
+
+            // Check if it is not a function
+            if (!isFunction(value) || value[$interface] || value[$class]) {
+                throw new Error('Abstract member "' + key + '" found in abstract class "' + constructor.prototype.$name + '" is not a function.');
+            }
+
+            addMethod(key, value, constructor);
         }
     }
 
@@ -302,7 +321,6 @@ define([
                 combine(abstractObj.interfaces, params.$extends[$abstract].interfaces);
             }
         }
-
 //>>includeEnd('strict');
 
         // Handle abstract methods
