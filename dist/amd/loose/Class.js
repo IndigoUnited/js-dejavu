@@ -179,7 +179,8 @@ define([
     function parseMembers(params, constructor, isFinal) {
 
         var key,
-            value;
+            value,
+            cache = {};
 
         if (hasOwn(params, '$statics')) {
 
@@ -201,22 +202,43 @@ define([
             delete params.$statics;
         }
 
+        // Save certain keywords in the cache for the loop bellow to work faster
+        if (hasOwn(params, '$binds')) {
+            cache.$binds = params.$binds;
+            delete params.$binds;
+        }
+
+        if (hasOwn(params, '$borrows')) {
+            cache.$borrows = params.$borrows;
+            delete params.$borrows;
+        }
+
+        if (hasOwn(params, '$implements')) {
+            cache.$implements = params.$implements;
+            delete params.$implements;
+        }
+
+         if (hasOwn(params, '$abstracts')) {
+            cache.$abstracts = params.$abstracts;
+            delete params.$abstracts;
+        }
+
         for (key in params) {
 
             value = params[key];
 
-            if (key.charAt(0) !== '$' || (key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
+            if (isFunction(value) && !value[$class] && !value[$interface]) {
+                value['$prototype_' + constructor[$class].id] = constructor.prototype;
+                value.$name = key;
+            }
 
-                if (isFunction(value) && !value[$class] && !value[$interface]) {
-                    value['$prototype_' + constructor[$class].id] = constructor.prototype;
-                    value.$name = key;
-                }
-
-                if (isFinal) {
-                    constructor.prototype[key] = value;
-                }
+            if (isFinal) {
+                constructor.prototype[key] = value;
             }
         }
+        
+        // Restore from cache
+        mixIn(params, cache);
     }
 
     /**
