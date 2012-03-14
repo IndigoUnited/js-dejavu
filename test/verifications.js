@@ -46,6 +46,63 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 }).to.throwException(/initialize method/i);
 
             });
+            it('should throw an error when defining unallowed members', function () {
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            $finals: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            $abstracts: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            $statics: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Interface({
+                        $finals: {}
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Interface({
+                        $abstracts: {}
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Interface({
+                        $implements: []
+                    });
+                }).to.throwException(/unallowed/);
+                
+                expect(function () {
+                    return Interface({
+                        $borrows: []
+                    });
+                }).to.throwException(/unallowed/);
+                
+                expect(function () {
+                    return Interface({
+                        $binds: []
+                    });
+                }).to.throwException(/unallowed/);
+                
+            });
 
             it('should throw an error when defining ambiguous members', function () {
 
@@ -856,6 +913,150 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
+            it('should throw an error when defining unallowed members', function () {
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            $finals: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            $abstracts: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            $statics: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $constants: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $abstracts: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $statics: {
+                            $finals: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $statics: {
+                            $constants: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $statics: {
+                            $name: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $name: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            $constants: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            $extends: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            $extends: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            $abstracts: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            $constants: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            $finals: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            $statics: {
+                                $constants: {}
+                            }
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            $statics: {
+                                $finals: {}
+                            }
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+            });
+
             it('should throw an error when defining ambiguous members', function () {
 
                 expect(function () {
@@ -921,7 +1122,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return AbstractClass({
                         $abstracts: {
                             $statics: {
-                                some: function() {}
+                                some: function () {}
                             }
                         },
                         $constants: {
@@ -933,7 +1134,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            some: function() {}
+                            some: function () {}
                         },
                         $finals: {
                             some: 'foo'
@@ -944,19 +1145,19 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            some: function() {}
+                            some: function () {}
                         },
                         some: 'foo'
                     });
                 }).to.throwException(/already defined/);
-                
+
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            some: function() {}
+                            some: function () {}
                         },
                         $finals: {
-                            some: function() {}
+                            some: function () {}
                         }
                     });
                 }).to.throwException(/already implemented/);
@@ -964,9 +1165,9 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return AbstractClass({
                         $abstracts: {
-                            some: function() {}
+                            some: function () {}
                         },
-                        some: function() {}
+                        some: function () {}
                     });
                 }).to.throwException(/already implemented/);
 
@@ -2622,7 +2823,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/defined property/);
-                
+
                 expect(function () {
                     return AbstractClass({
                         $extends: Class({
@@ -2667,7 +2868,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/defined property/);
-                
+
             });
 
             it('should not throw an error while extending another abstract class while not implementing its methods', function () {
@@ -3405,7 +3606,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             obj[key] = 'bla';
 
                             if (where) {
-                                temp = {},
+                                temp = {};
                                 temp[where] = obj;
                             } else {
                                 temp = obj;

@@ -14,6 +14,7 @@ define([
     'Utils/object/mixIn',
     'Utils/object/keys',
     './common/checkKeywords',
+    './common/testKeywords',
     './common/functionMeta',
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',
@@ -38,6 +39,7 @@ define([
     mixIn,
     keys,
     checkKeywords,
+    testKeywords,
     functionMeta,
     isFunctionEmpty,
     isFunctionCompatible,
@@ -252,6 +254,7 @@ define([
             opts = {},
             name,
             ambiguous,
+            unallowed,
             interf = function () {
                 throw new Error('Interfaces cannot be instantiated.');
             };
@@ -363,7 +366,14 @@ define([
                 throw new TypeError('$constants definition of interface "' + params.$name + '" must be an object.');
             }
 
+            // Check reserved keywords
             checkKeywords(params.$constants, 'statics');
+
+            // Check unallowed keywords
+            unallowed = testKeywords(params.$constants);
+            if (unallowed) {
+                throw new Error('$constants of interface "' + interf.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+            }
 
             // Check ambiguity
             if (hasOwn(params, '$statics')) {
@@ -393,11 +403,20 @@ define([
         // Parse statics
         if (hasOwn(params, '$statics')) {
 
+            // Check argument
             if (!isObject(params.$statics)) {
                 throw new TypeError('$statics definition of interface "' + params.$name + '" must be an object.');
             }
 
+            // Check reserved keywords
             checkKeywords(params.$statics, 'statics');
+
+            // Check unallowed keywords
+            unallowed = testKeywords(params.$statics);
+            if (unallowed) {
+                throw new Error('$statics of interface "' + interf.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+            }
+
             opts.isStatic = true;
 
             for (k in params.$statics) {
@@ -418,6 +437,12 @@ define([
 
         name = params.$name;
         delete params.$name;
+
+        // Check unallowed keywords
+        unallowed = testKeywords(params, ['$extends', '$statics', '$constants']);
+        if (unallowed) {
+            throw new Error('$statics of interface "' + interf.prototype.$name + '" contains an unallowed keyword: "' + unallowed + '".');
+        }
 
         for (k in params) {
             addMethod(k, params[k], interf);
