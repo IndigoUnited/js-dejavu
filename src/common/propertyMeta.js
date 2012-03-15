@@ -22,6 +22,10 @@ define(['Utils/lang/isUndefined'], function (isUndefined) {
             return null;
         }
         
+        // Detect instances of classes / classes here?
+        // How do we handle objects anyway? Objects might contain instances inside of it etc
+        
+        // Analyze visibility
         if (name) {
             if (name.charAt(0) === '_') {
                 if (name.charAt(1) === '_') {
