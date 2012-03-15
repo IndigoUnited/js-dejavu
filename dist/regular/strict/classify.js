@@ -791,6 +791,16 @@ define('Utils/lang/isArray',['./isKind'], function (isKind) {
     return isArray;
 });
 
+define('Utils/lang/isDate',['./isKind'], function (isKind) {
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isDate(val) {
+        return isKind(val, 'Date');
+    }
+    return isDate;
+});
+
 define('Utils/lang/isUndefined',[],function () {
     var UNDEF;
 
@@ -1253,6 +1263,7 @@ define('Class',[
     'Utils/lang/isFunction',
     'Utils/lang/isObject',
     'Utils/lang/isArray',
+    'Utils/lang/isDate',
     'Utils/lang/isUndefined',
     'Utils/lang/createObject',
     'Utils/object/mixIn',
@@ -1281,6 +1292,7 @@ define('Class',[
     isFunction,
     isObject,
     isArray,
+    isDate,
     isUndefined,
     createObject,
     mixIn,
@@ -1312,14 +1324,18 @@ define('Class',[
      */
     function cloneProperty(prop) {
 
-        // TODO: Handle other types.. such as Date..
         if (isArray(prop)) {
             return [].concat(prop);
         }
         if (isObject(prop)) {
             return mixIn({}, prop);
         }
-
+        if (isDate(prop)) {
+            temp = new Date();
+            temp.setTime(prop.getTime());
+            return temp;
+        }
+        
         return prop;
     }
 

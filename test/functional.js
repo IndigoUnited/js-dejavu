@@ -9,10 +9,14 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
         describe('Instantiation of a simple Class', function () {
 
-            var Example = Class({
+            var DummyClass = Class({
+                    some: 'foo'
+                }),
+                Example = Class({
                 $binds: ['method1', 'method2', 'method3', '_method4', '__method5'],
                 some: 'property',
                 someOther: null,
+                someDate: new Date(),
                 options: {
                     option1: 'property'
                 },
@@ -140,6 +144,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 expect(example.options.option1).to.be.equal('property');
                 expect(example2.someArray.length).to.be.equal(2);
                 expect(example.someArray.length).to.be.equal(1);
+                expect(example.someDate).to.not.be.equal(example2.someDate);
 
             });
 
