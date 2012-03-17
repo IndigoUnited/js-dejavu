@@ -1,5 +1,5 @@
-/*jslint browser:true, sloppy:true, forin:true, newcap:true, callee:true, eqeq:true*/
-/*global define,console*/
+/*jslint sloppy:true, forin:true, newcap:true, callee:true, eqeq:true*/
+/*global define*/
 
 define([
 //>>includeStart('strict', pragmas.strict);
