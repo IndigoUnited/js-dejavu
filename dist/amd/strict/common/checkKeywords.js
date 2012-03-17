@@ -27,7 +27,7 @@ define([
 
         for (x = reserved.length - 1; x >= 0; x -= 1) {
             if (hasOwn(object, reserved[x])) {
-                throw new TypeError('"' + object.$name + '" is using a reserved keyword: ' + reserved[x]);
+                throw new Error('"' + object.$name + '" is using a reserved keyword: ' + reserved[x]);
             }
         }
     }

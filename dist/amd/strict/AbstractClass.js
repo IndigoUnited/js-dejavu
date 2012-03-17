@@ -71,7 +71,7 @@ define([
         }
         // Check if it contains implementation
         if (!isFunctionEmpty(method)) {
-            throw new TypeError((isStatic ? 'Static method' : 'Method') + ' "' + name + '" must be anonymous and contain no implementation in abstract class "' + constructor.prototype.$name + '".');
+            throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" must be anonymous and contain no implementation in abstract class "' + constructor.prototype.$name + '".');
         }
 
         target = isStatic ? constructor : constructor.prototype;
@@ -161,7 +161,7 @@ define([
 
         // Check argument
         if (!isObject(abstracts)) {
-            throw new TypeError('$abstracts defined in abstract class "' + constructor.prototype.$name + "' must be an object.");
+            throw new Error('$abstracts defined in abstract class "' + constructor.prototype.$name + "' must be an object.");
         }
 
         // Check reserved keywords
@@ -177,7 +177,7 @@ define([
 
             // Check argument
             if (!isObject(abstracts.$statics)) {
-                throw new TypeError('$statics definition in $abstracts of abstract class "' + constructor.prototype.$name + '" must be an object.');
+                throw new Error('$statics definition in $abstracts of abstract class "' + constructor.prototype.$name + '" must be an object.');
             }
 
             // Check keywords
@@ -279,14 +279,14 @@ define([
         Class = require('./Class');
 
         if (!isObject(params)) {
-            throw new TypeError('Argument "params" must be an object while defining an abstract class.');
+            throw new Error('Argument "params" must be an object while defining an abstract class.');
         }
         // Validate class name
         if (hasOwn(params, '$name')) {
             if (!isString(params.$name)) {
-                throw new TypeError('Abstract class name must be a string.');
+                throw new Error('Abstract class name must be a string.');
             } else if (/\s+/.test(params.$name)) {
-                throw new TypeError('Abstract class name cannot have spaces.');
+                throw new Error('Abstract class name cannot have spaces.');
             }
         } else {
             params.$name = 'Unnamed';
