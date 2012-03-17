@@ -565,7 +565,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         $borrows: {
                             method1: function () {},
                             method2: function () {},
-                            some: 'property'
+                            some: 'property',
+                            $finals: {
+                                finalProp: 'test',
+                                finalFunc: function () {}
+                            },
+                            $constants: {
+                                FOO: 'bar'
+                            }
                         }
                     }),
                         OtherImplementation = Class({
@@ -607,6 +614,10 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     expect(evenOtherImplementation.method1).to.be.a('function');
                     expect(evenOtherImplementation.method2).to.be.a('function');
                     expect(evenOtherImplementation.some).to.be.equal('property');
+
+                    expect(someImplementation.finalProp).to.equal('test');
+                    expect(someImplementation.finalFunc).to.be.a('function');
+                    expect(SomeImplementation.FOO).to.equal('bar');
 
                 }());
 
