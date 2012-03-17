@@ -5,6 +5,7 @@ define([
     './Class',
     './AbstractClass',
     './Interface',
+    './FinalClass',
     'instanceOf'
 ], function (
     Class,
@@ -18,8 +19,8 @@ define([
     Classify.Class = Class;
     Classify.AbstractClass = AbstractClass;
     Classify.Interface = Interface;
+    Classify.FinalClass = FinalClass;
     Classify.instanceOf = instanceOf;
-
 
     if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.exports) {
         module.exports = Classify;
