@@ -36,7 +36,7 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 * Opera (9+?)
 * Node and Rhino
 
-Some features like private and protected members access management are only available in modern javascript engines (the ones that support Object.defineProperty).
+Some features like private and protected members access management are only available in modern JavaScript engines (the ones that support Object.defineProperty).
 Still, the library provide fallbacks for those cases.
 The regular build is also compatible with CommonJS modules, so it works well with Node and Rhino.
 
@@ -53,20 +53,20 @@ If your classes schema work in the strict version then is safe to use them in th
 The loose version also has lower memory footprint and less size in bytes.
 
 Also there is an alternative to $super() inside your functions. The alternative is relatively faster than the original $super() and can be used in critical code.
-See bellow for more information.
+See below for more information.
 
 
 
 ## Usage ##
 
-All examples bellow use the AMD format.
+All examples below use the AMD format.
 
 
 
 ### Interface definition ###
 
 Object interfaces allow you to create code which specifies which methods a class must implement, without having to define how these methods are handled.
-Bellow there's an example of an _EventsInterface_, that has the role of adding event listeners and fire events:
+Below there's an example of an _EventsInterface_ that has the role of adding event listeners and fire events:
 
 ```js
 define(['path/to/classify/Interface'], function (Interface) {
@@ -147,7 +147,7 @@ define([
 Classes defined as abstract may not be instantiated, and any class that contains at least one abstract method must also be abstract.
 Methods defined as abstract simply declare the method's signature.
 When an abstract class implements an interface and doesn't implement some of its methods, those will be automatically declared as abstract.
-Bellow there is an example of an abstract class - _AbstractEmitter_ - that implements all of the _EventsInterface_ interface methods, except the _fireEvent()_ method.
+Below there is an example of an abstract class - _AbstractEmitter_ - that implements all of the _EventsInterface_ interface methods, except the _fireEvent()_ method.
 
 ```js
 define([
@@ -240,7 +240,7 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
 
 Concrete classes can extend other concrete classes or abstract classes as well as implement several interfaces.
 They differ from abstract classes in the way that they can't have abstract methods.
-Bellow is described the full syntax that can be used in concrete and abstract classes.
+Below is described the full syntax that can be used in concrete and abstract classes.
 
 ```js
 define([
@@ -336,7 +336,8 @@ define(['path/to/classify/Class', function (Class) {
 
 ### Final members/classes ###
 
-Final members prevents child classes from overriding it. If the class itself is being defined final then it cannot be extended.
+Members that are declared as final cannot be overriden by a child class.
+If the class itself is being defined final then it cannot be extended.
 
 ```js
 define(['path/to/classify/FinalClass', function (FinalClass) {
@@ -365,7 +366,7 @@ define(['path/to/classify/Class', function (Class) {
             // ...
         },
 
-        $finals: {                 // Classes that extend this one are not allowed to change the members bellow
+        $finals: {                 // Classes that extend this one are not allowed to change the members below
 
             someMethod: function () {
                 // ...
@@ -443,9 +444,8 @@ With this syntax it also gives you the flexibility to call other parent methods.
 
 ### Signature check ###
 
-All functions are virtual functions. A method can override another if they obey their signature, that means that
-they must be equal or augmented with additional optional arguments. Arguments prefixed with a $ are evaluated as optional.
-The signature check are made for every class, abstract class and interface.
+All functions are virtual functions. A method can override another if they obey their signature (their signature must be equal or augmented with additional optional arguments).
+Arguments prefixed with a $ are evaluated as optional. The signature check is made for every class, abstract class and interface.
 
 ```js
 var SomeClass = Class({
@@ -515,7 +515,7 @@ Example4.foo(); // bye
 
 ### instanceOf ###
 
-The instanceOf function works exactly the same way as the native instanceof except that it also work for interfaces.
+The instanceOf function works exactly the same way as the native instanceof except that it also works for interfaces.
 
 
 
