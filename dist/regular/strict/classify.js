@@ -816,7 +816,17 @@ define('Utils/lang/isUndefined',[],function () {
 /*jslint sloppy:true, regexp:true*/
 /*global define*/
 
-define('common/propertyMeta',['Utils/lang/isUndefined'], function (isUndefined) {
+define('common/propertyMeta',[
+    'Utils/lang/isUndefined',
+    'Utils/lang/isObject',
+    'Utils/lang/isFunction'
+], function (
+    isUndefined,
+    isObject,
+    isFunction
+) {
+
+    var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
 
     /**
      * Extract meta data from a property.
@@ -829,13 +839,27 @@ define('common/propertyMeta',['Utils/lang/isUndefined'], function (isUndefined) 
      */
     function propertyMeta(prop, name) {
 
-        var ret = {};
-        
+        var ret = {},
+            proto;
+
         // Is it undefined?
         if (isUndefined(prop)) {
             return null;
         }
-        
+        // If is a object, check if it is a plain object
+        if (isObject(prop)) {
+            proto = '__proto__';
+            proto = hasObjectPrototypeOf ? Object.getPrototypeOf(prop) : prop[proto];
+            if (proto && proto !== Object.prototype) {
+                return null;
+            }
+        }
+        // Is it a function?
+        if (isFunction(prop)) {
+            return null;
+        }
+
+        // Analyze visibility
         if (name) {
             if (name.charAt(0) === '_') {
                 if (name.charAt(1) === '_') {
@@ -1324,6 +1348,8 @@ define('Class',[
      */
     function cloneProperty(prop) {
 
+        var temp;
+
         if (isArray(prop)) {
             return [].concat(prop);
         }
@@ -1335,7 +1361,7 @@ define('Class',[
             temp.setTime(prop.getTime());
             return temp;
         }
-        
+
         return prop;
     }
 
@@ -1471,7 +1497,7 @@ define('Class',[
             } else {
                 metadata = propertyMeta(value, name);
                 if (!metadata) {
-                    throw new Error('Property "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
+                    throw new Error('Value of property "' + name + '"  in class "' + constructor.prototype.$name + '" cannot be parsed (undefined/class/instances are not allowed).');
                 }
                 isFinal = !!opts.isFinal;
                 isConst = !!opts.isConst;
@@ -1798,7 +1824,7 @@ define('Class',[
             delete params.$implements;
         }
 
-         if (hasOwn(params, '$abstracts')) {
+        if (hasOwn(params, '$abstracts')) {
             cache.$abstracts = params.$abstracts;
             delete params.$abstracts;
         }
@@ -1813,7 +1839,7 @@ define('Class',[
                 addProperty(key, value, constructor, opts);
             }
         }
-        
+
         // Restore from cache
         mixIn(params, cache);
     }
