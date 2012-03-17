@@ -52,7 +52,7 @@ The loose build has no overhead associated with verifications and therefore is s
 If your classes schema work in the strict version then is safe to use them in the loose version.
 The loose version also has lower memory footprint and less size in bytes.
 
-Also there is an alternative to $super() inside your functions. $super() is relatively slower than its alternative and can be used in critical code.
+Also there is an alternative to $super() inside your functions. The alternative is relatively faster than the original $super() and can be used in critical code.
 See bellow for more information.
 
 
