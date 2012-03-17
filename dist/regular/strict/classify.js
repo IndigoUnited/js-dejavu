@@ -999,7 +999,7 @@ define('common/checkKeywords',[
 
         for (x = reserved.length - 1; x >= 0; x -= 1) {
             if (hasOwn(object, reserved[x])) {
-                throw new TypeError('"' + object.$name + '" is using a reserved keyword: ' + reserved[x]);
+                throw new Error('"' + object.$name + '" is using a reserved keyword: ' + reserved[x]);
             }
         }
     }
@@ -1591,7 +1591,7 @@ define('Class',[
 
             // Verify argument type
             if (!i && !isArray(constructor.prototype.$borrows)) {
-                throw new TypeError('$borrows of class "' + constructor.prototype.$name + '" must be a class/object or an array of classes/objects.');
+                throw new Error('$borrows of class "' + constructor.prototype.$name + '" must be a class/object or an array of classes/objects.');
             }
             // Verify duplicate entries
             if (i !== unique(mixins).length && compact(mixins).length === i) {
@@ -1602,7 +1602,7 @@ define('Class',[
 
                 // Verify each mixin
                 if ((!isFunction(mixins[i]) || !mixins[i][$class] || mixins[i][$abstract]) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
-                    throw new TypeError('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
+                    throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
                 }
 
                 if (isObject(mixins[i])) {
@@ -1618,7 +1618,7 @@ define('Class',[
 
                 // Verify if it has parent
                 if (current.$constructor.$parent) {
-                    throw new TypeError('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is an inherited class (only root classes not supported).');
+                    throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is an inherited class (only root classes not supported).');
                 }
 
                 delete opts.isStatic;
@@ -1679,7 +1679,7 @@ define('Class',[
 
         // Verify argument type
         if (!x && !isArray(interfs)) {
-            throw new TypeError('$implements of class "' + target.prototype.$name + '" must be an interface or an array of interfaces.');
+            throw new Error('$implements of class "' + target.prototype.$name + '" must be an interface or an array of interfaces.');
         }
         // Verify duplicate interfaces
         if (x !== unique(interfaces).length && compact(interfaces).length === x) {
@@ -1692,7 +1692,7 @@ define('Class',[
 
             // Verify if it's a valid interface
             if (!isFunction(interf) || !interf[$interface]) {
-                throw new TypeError('Entry at index ' + x + ' in $implements of class "' + target.prototype.$name + '" is not a valid interface.');
+                throw new Error('Entry at index ' + x + ' in $implements of class "' + target.prototype.$name + '" is not a valid interface.');
             }
 
             // Inherit constants and add interface to the interfaces array
@@ -1727,7 +1727,7 @@ define('Class',[
 
             // Verify arguments type
             if (!x && !isArray(constructor.prototype.$binds)) {
-                throw new TypeError('$binds of class "' + constructor.prototype.$name + '" must be a string or an array of strings.');
+                throw new Error('$binds of class "' + constructor.prototype.$name + '" must be a string or an array of strings.');
             }
             // Verify duplicate binds
             if (x !== unique(binds).length && compact(binds).length === x) {
@@ -1742,7 +1742,7 @@ define('Class',[
             // Verify if all binds are strings reference existent methods
             for (x -= 1; x >= 0; x -= 1) {
                 if (!isString(binds[x])) {
-                    throw new TypeError('Entry at index ' + x + ' in $borrows of class "' + constructor.prototype.$name + '" is not a string.');
+                    throw new Error('Entry at index ' + x + ' in $borrows of class "' + constructor.prototype.$name + '" is not a string.');
                 }
                 if (!constructor[$class].methods[binds[x]] && (!constructor.prototype.$abstracts || !constructor.prototype.$abstracts[binds[x]])) {
                     throw new ReferenceError('Method "' + binds[x] + '" referenced in class "' + constructor.prototype.$name + '" binds does not exist.');
@@ -1774,7 +1774,7 @@ define('Class',[
 
             // Check if is an object
             if (!isObject(params.$statics)) {
-                throw new TypeError('$statics definition of class "' + params.$name + '" must be an object.');
+                throw new Error('$statics definition of class "' + params.$name + '" must be an object.');
             }
 
             // Check reserved keywords
@@ -1865,7 +1865,7 @@ define('Class',[
 
             // Check argument
             if (!isObject(params.$constants)) {
-                throw new TypeError('$constants of class "' + constructor.prototype.$name + '" must be an object.');
+                throw new Error('$constants of class "' + constructor.prototype.$name + '" must be an object.');
             }
 
             // Check reserved keywords
@@ -1894,7 +1894,7 @@ define('Class',[
 
             // Check argument
             if (!isObject(params.$finals)) {
-                throw new TypeError('$finals of class "' + constructor.prototype.$name + '" must be an object.');
+                throw new Error('$finals of class "' + constructor.prototype.$name + '" must be an object.');
             }
 
             // Check reserved keywords
@@ -2628,14 +2628,14 @@ define('Class',[
 
         // Validate params as an object
         if (!isObject(params)) {
-            throw new TypeError('Argument "params" must be an object while defining a class.');
+            throw new Error('Argument "params" must be an object while defining a class.');
         }
         // Validate class name
         if (hasOwn(params, '$name')) {
             if (!isString(params.$name)) {
-                throw new TypeError('Class name must be a string.');
+                throw new Error('Class name must be a string.');
             } else if (/\s+/.test(params.$name)) {
-                throw new TypeError('Class name cannot have spaces.');
+                throw new Error('Class name cannot have spaces.');
             }
         } else {
             params.$name = 'Unnamed';
@@ -2662,7 +2662,7 @@ define('Class',[
         if (hasOwn(params, '$extends')) {
             // Verify if parent is a valid class
             if (!isFunction(params.$extends) || !params.$extends[$class]) {
-                throw new TypeError('Specified parent class in $extends of "' + params.$name + '" is not a valid class.');
+                throw new Error('Specified parent class in $extends of "' + params.$name + '" is not a valid class.');
             }
 
             parent = params.$extends;
@@ -2835,7 +2835,7 @@ define('AbstractClass',[
         }
         // Check if it contains implementation
         if (!isFunctionEmpty(method)) {
-            throw new TypeError((isStatic ? 'Static method' : 'Method') + ' "' + name + '" must be anonymous and contain no implementation in abstract class "' + constructor.prototype.$name + '".');
+            throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" must be anonymous and contain no implementation in abstract class "' + constructor.prototype.$name + '".');
         }
 
         target = isStatic ? constructor : constructor.prototype;
@@ -2925,7 +2925,7 @@ define('AbstractClass',[
 
         // Check argument
         if (!isObject(abstracts)) {
-            throw new TypeError('$abstracts defined in abstract class "' + constructor.prototype.$name + "' must be an object.");
+            throw new Error('$abstracts defined in abstract class "' + constructor.prototype.$name + "' must be an object.");
         }
 
         // Check reserved keywords
@@ -2941,7 +2941,7 @@ define('AbstractClass',[
 
             // Check argument
             if (!isObject(abstracts.$statics)) {
-                throw new TypeError('$statics definition in $abstracts of abstract class "' + constructor.prototype.$name + '" must be an object.');
+                throw new Error('$statics definition in $abstracts of abstract class "' + constructor.prototype.$name + '" must be an object.');
             }
 
             // Check keywords
@@ -3043,14 +3043,14 @@ define('AbstractClass',[
         Class = require('./Class');
 
         if (!isObject(params)) {
-            throw new TypeError('Argument "params" must be an object while defining an abstract class.');
+            throw new Error('Argument "params" must be an object while defining an abstract class.');
         }
         // Validate class name
         if (hasOwn(params, '$name')) {
             if (!isString(params.$name)) {
-                throw new TypeError('Abstract class name must be a string.');
+                throw new Error('Abstract class name must be a string.');
             } else if (/\s+/.test(params.$name)) {
-                throw new TypeError('Abstract class name cannot have spaces.');
+                throw new Error('Abstract class name cannot have spaces.');
             }
         } else {
             params.$name = 'Unnamed';
@@ -3232,7 +3232,7 @@ define('Interface',[
         }
         // Check if it contains no implementation
         if (!isFunctionEmpty(method)) {
-            throw new TypeError((isStatic ? 'Static method' : 'Method') + ' "' + name + '" must be anonymous and contain no implementation in interface "' + interf.prototype.$name + '".');
+            throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" must be anonymous and contain no implementation in interface "' + interf.prototype.$name + '".');
         }
         // Check if function is ok
         metadata = functionMeta(method, name);
@@ -3326,14 +3326,14 @@ define('Interface',[
 
         // Validate params as an object
         if (!isObject(params)) {
-            throw new TypeError('Argument "params" must be an object while defining an interface.');
+            throw new Error('Argument "params" must be an object while defining an interface.');
         }
         // Validate class name
         if (hasOwn(params, '$name')) {
             if (!isString(params.$name)) {
-                throw new TypeError('Interface name must be a string.');
+                throw new Error('Interface name must be a string.');
             } else if (/\s+/.test(params.$name)) {
-                throw new TypeError('Interface name cannot have spaces.');
+                throw new Error('Interface name cannot have spaces.');
             }
         } else {
             params.$name = 'Unnamed';
@@ -3365,7 +3365,7 @@ define('Interface',[
 
             // Verify argument type
             if (!k && !isArray(params.$extends)) {
-                throw new TypeError('$extends of "' + params.$name + '" seems to point to an nonexistent interface.');
+                throw new Error('$extends of "' + params.$name + '" seems to point to an nonexistent interface.');
             }
             // Verify duplicate entries
             if (k !== unique(parents).length && compact(parents).length === k) {
@@ -3378,7 +3378,7 @@ define('Interface',[
 
                 // Check if it is a valid interface
                 if (!isFunction(current) || !current[$interface]) {
-                    throw new TypeError('Specified interface in $extends at index ' +  k + ' of "' + params.$name + '" is not a valid interface.');
+                    throw new Error('Specified interface in $extends at index ' +  k + ' of "' + params.$name + '" is not a valid interface.');
                 }
 
                 // Merge methods
@@ -3436,7 +3436,7 @@ define('Interface',[
 
             // Check argument
             if (!isObject(params.$constants)) {
-                throw new TypeError('$constants definition of interface "' + params.$name + '" must be an object.');
+                throw new Error('$constants definition of interface "' + params.$name + '" must be an object.');
             }
 
             // Check reserved keywords
@@ -3468,7 +3468,7 @@ define('Interface',[
 
             // Check argument
             if (!isObject(params.$statics)) {
-                throw new TypeError('$statics definition of interface "' + params.$name + '" must be an object.');
+                throw new Error('$statics definition of interface "' + params.$name + '" must be an object.');
             }
 
             // Check reserved keywords

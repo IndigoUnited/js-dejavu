@@ -129,7 +129,7 @@ define([
         }
         // Check if it contains no implementation
         if (!isFunctionEmpty(method)) {
-            throw new TypeError((isStatic ? 'Static method' : 'Method') + ' "' + name + '" must be anonymous and contain no implementation in interface "' + interf.prototype.$name + '".');
+            throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" must be anonymous and contain no implementation in interface "' + interf.prototype.$name + '".');
         }
         // Check if function is ok
         metadata = functionMeta(method, name);
@@ -225,14 +225,14 @@ define([
 //>>includeStart('strict', pragmas.strict);
         // Validate params as an object
         if (!isObject(params)) {
-            throw new TypeError('Argument "params" must be an object while defining an interface.');
+            throw new Error('Argument "params" must be an object while defining an interface.');
         }
         // Validate class name
         if (hasOwn(params, '$name')) {
             if (!isString(params.$name)) {
-                throw new TypeError('Interface name must be a string.');
+                throw new Error('Interface name must be a string.');
             } else if (/\s+/.test(params.$name)) {
-                throw new TypeError('Interface name cannot have spaces.');
+                throw new Error('Interface name cannot have spaces.');
             }
         } else {
             params.$name = 'Unnamed';
@@ -280,7 +280,7 @@ define([
 //>>includeStart('strict', pragmas.strict);
             // Verify argument type
             if (!k && !isArray(params.$extends)) {
-                throw new TypeError('$extends of "' + params.$name + '" seems to point to an nonexistent interface.');
+                throw new Error('$extends of "' + params.$name + '" seems to point to an nonexistent interface.');
             }
             // Verify duplicate entries
             if (k !== unique(parents).length && compact(parents).length === k) {
@@ -295,7 +295,7 @@ define([
 //>>includeStart('strict', pragmas.strict);
                 // Check if it is a valid interface
                 if (!isFunction(current) || !current[$interface]) {
-                    throw new TypeError('Specified interface in $extends at index ' +  k + ' of "' + params.$name + '" is not a valid interface.');
+                    throw new Error('Specified interface in $extends at index ' +  k + ' of "' + params.$name + '" is not a valid interface.');
                 }
 
                 // Merge methods
@@ -363,7 +363,7 @@ define([
 //>>includeStart('strict', pragmas.strict);
             // Check argument
             if (!isObject(params.$constants)) {
-                throw new TypeError('$constants definition of interface "' + params.$name + '" must be an object.');
+                throw new Error('$constants definition of interface "' + params.$name + '" must be an object.');
             }
 
             // Check reserved keywords
@@ -405,7 +405,7 @@ define([
 
             // Check argument
             if (!isObject(params.$statics)) {
-                throw new TypeError('$statics definition of interface "' + params.$name + '" must be an object.');
+                throw new Error('$statics definition of interface "' + params.$name + '" must be an object.');
             }
 
             // Check reserved keywords
