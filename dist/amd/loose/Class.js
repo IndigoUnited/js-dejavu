@@ -48,6 +48,8 @@ define([
      */
     function cloneProperty(prop) {
 
+        var temp;
+
         if (isArray(prop)) {
             return [].concat(prop);
         }
@@ -59,7 +61,7 @@ define([
             temp.setTime(prop.getTime());
             return temp;
         }
-        
+
         return prop;
     }
 
@@ -224,7 +226,7 @@ define([
             delete params.$implements;
         }
 
-         if (hasOwn(params, '$abstracts')) {
+        if (hasOwn(params, '$abstracts')) {
             cache.$abstracts = params.$abstracts;
             delete params.$abstracts;
         }
@@ -242,7 +244,7 @@ define([
                 constructor.prototype[key] = value;
             }
         }
-        
+
         // Restore from cache
         mixIn(params, cache);
     }

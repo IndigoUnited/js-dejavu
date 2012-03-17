@@ -46,6 +46,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 }).to.throwException(/initialize method/i);
 
             });
+
             it('should throw an error when defining unallowed members', function () {
 
                 expect(function () {
@@ -89,19 +90,19 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         $implements: []
                     });
                 }).to.throwException(/unallowed/);
-                
+
                 expect(function () {
                     return Interface({
                         $borrows: []
                     });
                 }).to.throwException(/unallowed/);
-                
+
                 expect(function () {
                     return Interface({
                         $binds: []
                     });
                 }).to.throwException(/unallowed/);
-                
+
             });
 
             it('should throw an error when defining ambiguous members', function () {
@@ -1170,6 +1171,142 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         some: function () {}
                     });
                 }).to.throwException(/already implemented/);
+
+            });
+
+            it('should throw an error when defining unallowed properties', function () {
+
+                expect(function () {
+                    return Class({
+                        some: undefined
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        some: Class({})
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        some: new Class({})
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            some: undefined
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            some: Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            some: new Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        $statics: {
+                            some: undefined
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        $statics: {
+                            some: Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        $statics: {
+                            some: new Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        some: undefined
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        some: Class({})
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        some: new Class({})
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $finals: {
+                            some: undefined
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $finals: {
+                            some: Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $finals: {
+                            some: new Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $statics: {
+                            some: undefined
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $statics: {
+                            some: Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $statics: {
+                            some: new Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
 
             });
 
@@ -3622,7 +3759,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             obj.$statics[key] = 'bla';
 
                             if (where) {
-                                temp = {},
+                                temp = {};
                                 temp[where] = obj;
                             } else {
                                 temp = obj;
