@@ -1,5 +1,5 @@
-/*jslint browser:true, sloppy:true, forin:true, newcap:true, callee:true, eqeq:true*/
-/*global define,console*/
+/*jslint sloppy:true, forin:true, newcap:true, callee:true, eqeq:true*/
+/*global define*/
 
 define([
     'Utils/lang/isString',
@@ -1397,6 +1397,10 @@ define([
             // Verify if parent is a valid class
             if (!isFunction(params.$extends) || !params.$extends[$class]) {
                 throw new Error('Specified parent class in $extends of "' + params.$name + '" is not a valid class.');
+            }
+            // Verify if we are inheriting a final class
+            if (params.$extends[$class].finalClass) {
+                throw new Error('Class "' + params.$name + '" cannot inherit from final class "' + params.$extends.prototype.$name + "'.");
             }
 
             parent = params.$extends;

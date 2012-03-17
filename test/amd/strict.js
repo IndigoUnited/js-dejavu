@@ -6,6 +6,6 @@ if (!global.evaluated) {
 }
 
 var path = '../dist/amd/strict';
-global.modules = [path + '/Class.js', path + '/AbstractClass', path + '/Interface', path + '/instanceOf', path + '/common/hasDefineProperty'];
+global.modules = [path + '/Class.js', path + '/AbstractClass', path + '/Interface', path + '/FinalClass', path + '/instanceOf', path + '/common/hasDefineProperty'];
 global.build = 'amd/strict';
 define(['../verifications', '../functional'], function () { });

@@ -1177,14 +1177,14 @@ define('common/testKeywords',[
 define('common/randomAccessor',['Utils/array/contains'], function (contains) {
 
     var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
-        nrAccesses = 0;
+        nrAccesses = 0,
+        allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'FinalClassWrapper', 'isntanceOfWrapper'];
 
     function randomAccessor() {
 
-        var caller = randomAccessor.caller || arguments.callee.caller || arguments.caller,
-            allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'isntanceOfWrapper'];
+        var caller = randomAccessor.caller || arguments.callee.caller || arguments.caller;
 
-        if ((caller.name && !contains(allowed, caller.name)) || nrAccesses > 4) {
+        if ((caller.name && !contains(allowed, caller.name)) || nrAccesses > 5) {
             throw new Error('Can\'t access random identifier.');
         } {
             nrAccesses++;
@@ -1264,8 +1264,8 @@ define('Utils/lang/toArray',['./isArray', './isObject', './isArguments'], functi
     return toArray;
 });
 
-/*jslint browser:true, sloppy:true, forin:true, newcap:true, callee:true, eqeq:true*/
-/*global define,console*/
+/*jslint sloppy:true, forin:true, newcap:true, callee:true, eqeq:true*/
+/*global define*/
 
 define('Class',[
     'Utils/lang/isString',
@@ -2664,6 +2664,10 @@ define('Class',[
             if (!isFunction(params.$extends) || !params.$extends[$class]) {
                 throw new Error('Specified parent class in $extends of "' + params.$name + '" is not a valid class.');
             }
+            // Verify if we are inheriting a final class
+            if (params.$extends[$class].finalClass) {
+                throw new Error('Class "' + params.$name + '" cannot inherit from final class "' + params.$extends.prototype.$name + "'.");
+            }
 
             parent = params.$extends;
             delete params.$extends;
@@ -3519,6 +3523,32 @@ define('Interface',[
     return Interface;
 });
 
+/*jslint sloppy:true,newcap:true*/
+/*global define*/
+
+define('FinalClass',[
+    './Class',
+    './common/randomAccessor',
+    './common/checkObjectPrototype'
+], function FinalClassWrapper(
+    Class,
+    randomAccessor,
+    checkObjectPrototype
+) {
+    checkObjectPrototype();
+
+    var random = randomAccessor(),
+        $class = '$class_' + random;
+
+    return function FinalClass(params) {
+
+        var def = Class(params);
+        def[$class].finalClass = true;
+
+        return def;
+    };
+});
+
 /*jslint sloppy:true*/
 /*global define*/
 
@@ -3605,6 +3635,7 @@ define('classify',[
     './Class',
     './AbstractClass',
     './Interface',
+    './FinalClass',
     'instanceOf'
 ], function (
     Class,
@@ -3618,8 +3649,8 @@ define('classify',[
     Classify.Class = Class;
     Classify.AbstractClass = AbstractClass;
     Classify.Interface = Interface;
+    Classify.FinalClass = FinalClass;
     Classify.instanceOf = instanceOf;
-
 
     if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.exports) {
         module.exports = Classify;

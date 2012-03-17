@@ -1,7 +1,7 @@
 /*jslint sloppy:true, newcap:true, nomen:true*/
 /*global global,define,describe,it*/
 
-define(global.modules, function (Class, AbstractClass, Interface, instanceOf, hasDefineProperty) {
+define(global.modules, function (Class, AbstractClass, Interface, FinalClass, instanceOf, hasDefineProperty) {
 
     var expect = global.expect;
 
@@ -9,10 +9,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
 
         describe('Instantiation of a simple Class', function () {
 
-            var DummyClass = Class({
-                    some: 'foo'
-                }),
-                Example = Class({
+            var Example = Class({
                 $binds: ['method1', 'method2', 'method3', '_method4', '__method5'],
                 some: 'property',
                 someOther: null,
@@ -180,7 +177,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
             }),
                 Andre = Class({
                     $extends: Person,
-                    name: 'André'
+                    name: 'AndrÃ©'
                 }),
                 SuperAndre = Class({
                     $extends: Andre,
@@ -194,7 +191,7 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                 }),
                 AndreAbstract = AbstractClass({
                     $extends: PersonAbstract,
-                    name: 'André'
+                    name: 'AndrÃ©'
                 }),
                 SuperAndre2 = Class({
                     $extends: AndreAbstract,
@@ -496,9 +493,31 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
             });
 
         });
-        
+
+        if (/strict/.test(global.build)) {
+
+            describe('Extending final classes', function () {
+
+                it('should throw an error', function () {
+
+                    expect(function () {
+                        return Class({
+                            $extends: FinalClass({})
+                        });
+                    }).to.throwException(/cannot inherit from final/);
+
+                    expect(function () {
+                        return AbstractClass({
+                            $extends: FinalClass({})
+                        });
+                    }).to.throwException(/cannot inherit from final/);
+                });
+
+            });
+        }
+
         describe('Defining a Concrete/Abstract Classes that implements $interfaces', function () {
-            
+
             var SomeInterface = Interface({
                 $constants: {
                     SOME: 'foo'
@@ -524,19 +543,19 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
                     $extends: SomeAbstractClass,
                     $implements: SomeInterface
                 });
-            
+
             it('should inherit the interface constants', function () {
-                
+
                 expect(SomeClass.SOME).to.be.equal('foo');
                 expect(OtherClass.SOME).to.be.equal('foo');
                 expect(SomeOtherClass.SOME).to.be.equal('foo');
                 expect(SomeAbstractClass.SOME).to.be.equal('foo');
                 expect(OtherAbstractClass.SOME).to.be.equal('foo');
                 expect(SomeOtherAbstractClass.SOME).to.be.equal('foo');
-                
+
             });
         });
-        
+
         describe('Defining a Concrete/Abstract Classes that use $borrows (mixins)', function () {
 
             it('should grab the borrowed members to their own', function () {
@@ -877,17 +896,17 @@ define(global.modules, function (Class, AbstractClass, Interface, instanceOf, ha
             });
 
             if (/strict/.test(global.build) && hasDefineProperty) {
-                
+
                 it('should throw an error while attempting to change their values', function () {
-                    
+
                     expect(function () {
                         SomeClass.FOO = 'test';
                     }).to.throwException(/constant property/);
-                    
+
                     expect(function () {
                         SomeInterface.FOO = 'test';
                     }).to.throwException(/constant property/);
-                    
+
                 });
             }
 
