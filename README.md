@@ -57,14 +57,6 @@ See bellow for more information.
 
 
 
-## To be done ##
-
-* Support for constants/final.
-
-Stay tuned!
-
-
-
 ## Usage ##
 
 All examples bellow use the AMD format.
@@ -122,7 +114,10 @@ The $implements keyword can be an interface or an array of interfaces.
 Following the previous example we can define a concrete class - _EventsEmitter_ - that implements the _EventsInterface_ interface.
 
 ```js
-define(['path/to/EventsInterface', 'path/to/classify/Class'], function (EventsInterface, Class) {
+define([
+    'path/to/EventsInterface',
+    'path/to/classify/Class'
+], function (EventsInterface, Class) {
 
     var EventsEmitter = Class({
         $implements: EventsInterface,   // The class implements the EventsInterface interface
@@ -308,6 +303,90 @@ This is useful if certain functions are meant to be used as callbacks or handler
 You don't need to bind the function manually, it will be bound for you automatically.
 
 
+### Constants ###
+
+The $constants keyword allows you to defined constants.
+If Object.defineProperty is available, any attempt to modify the constant value will throw an error (only in the strict version).
+Constants can be defined in classes, abstract classes and interfaces.
+
+```js
+define(['path/to/classify/Class', function (Class) {
+
+    var SomeClass = Class({
+        $constants: {
+            FOO: 'bar'
+            BAR: 'foo'
+        },
+
+        /**
+         * Class constructor.
+         */
+        initialize: function () {
+            // ...
+        }
+    });
+
+    SomeClass.FOO; // 'bar'
+    SomeClass.BAR; // 'foo'
+
+    return SomeClass;
+});
+```
+
+
+### Final members/classes ###
+
+Final members prevents child classes from overriding it. If the class itself is being defined final then it cannot be extended.
+
+```js
+define(['path/to/classify/FinalClass', function (FinalClass) {
+
+    var SomeClass = FinalClass({        // This class cannot be extended
+
+        /**
+         * Class constructor.
+         */
+        initialize: function () {
+            // ...
+        }
+    });
+
+    return SomeClass;
+});
+
+define(['path/to/classify/Class', function (Class) {
+
+    var SomeClass = Class({
+
+        /**
+         * Class constructor.
+         */
+        initialize: function () {
+            // ...
+        },
+
+        $finals: {                 // Classes that extend this one are not allowed to change the members bellow
+
+            someMethod: function () {
+                // ...
+            },
+            someProperty: function () {
+                // ...
+            }
+
+            $statics: {             // We can also define static methods as final
+                staticMethod: function () {
+                    // ...
+                },
+                staticProperty: function () {
+                }
+            }
+    });
+
+    return SomeClass;
+});
+
+```
 
 ### Protected and private members ###
 
