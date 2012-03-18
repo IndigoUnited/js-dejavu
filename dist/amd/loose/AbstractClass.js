@@ -1,14 +1,12 @@
-/*jslint sloppy:true, nomen:true, newcap:true, forin:true*/
+/*jslint nomen:true, newcap:true, forin:true*/
 /*global define*/
 
 define([
     'Utils/object/hasOwn',
-    './Class',
-    'require'
+    './Class'
 ], function AbstractClassWrapper(
     hasOwn,
-    Class,
-    require
+    Class
 ) {
 
     var $abstract = '$abstract';
@@ -21,8 +19,6 @@ define([
      * @return {Function} The constructor
      */
     function AbstractClass(params) {
-
-        Class = require('./Class');
 
         var def;
 

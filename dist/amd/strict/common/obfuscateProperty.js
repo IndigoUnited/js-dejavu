@@ -1,7 +1,8 @@
-/*jslint sloppy:true*/
 /*global define*/
 
 define(['./hasDefineProperty'], function (hasDefineProperty) {
+
+    "use strict";
 
     /**
      * Sets the key of object with the specified value.

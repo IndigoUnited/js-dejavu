@@ -1,5 +1,5 @@
 //>>includeStart('strict', pragmas.strict);
-/*jslint sloppy:true, forin:true*/
+/*jslint forin:true*/
 /*global define*/
 
 define([
@@ -7,6 +7,9 @@ define([
 ], function (
     hasOwn
 ) {
+
+    "use strict";
+
     var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
         reservedStatics = ['$parent', '$super'];
 
@@ -28,7 +31,7 @@ define([
 
         for (x = reserved.length - 1; x >= 0; x -= 1) {
             if (hasOwn(object, reserved[x])) {
-                throw new TypeError('"' + object.$name + '" is using a reserved keyword: ' + reserved[x]);
+                throw new Error('"' + object.$name + '" is using a reserved keyword: ' + reserved[x]);
             }
         }
     }

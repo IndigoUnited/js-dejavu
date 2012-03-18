@@ -4,24 +4,29 @@
         <meta charset="utf-8">
         <title>Classify tests</title>
         <link rel="stylesheet" href="../vendor/mocha/mocha.css" />
-        <script src="../vendor/jquery/jquery.min.js"></script>
         <script src="../vendor/mocha/mocha.js"></script>
         <script src="../vendor/expect.js/expect.js"></script>
         <script src="../vendor/r.js/require.js"></script>
         <script src="util/browser.js"></script>
         <script src="util/adapter.js"></script>
         <script>
-            $(function() {
                 var build = getBuild();
-                $('#' + build.replace(/\//g, '_')).addClass('active');
-
                 mocha.setup('bdd');
 
-                require(['./' + build], function() {
+                require(['./' + build, 'Utils/array/indexOf'], function(dummy, indexOf) {
+
+                    if (!Array.prototype.indexOf) {
+                        Array.prototype.indexOf = indexOf;
+                    }
+
+                    var elem = document.getElementById(build.replace(/\//g, '_'));
+                    if (elem) {
+                        elem.className = 'active';
+                    }
+
                     mocha
                     .run();
                 });
-            });
         </script>
         <style>
             #build {

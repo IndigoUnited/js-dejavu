@@ -1,4 +1,4 @@
-/*jslint sloppy:true, forin:true*/
+/*jslint forin:true*/
 /*global define*/
 
 define([
@@ -24,9 +24,11 @@ define([
 
         var parents,
             k,
+            i,
+            current,
             interf = function () {};
 
-        interf[$interface] = { parents: [] };
+        interf[$interface] = { parents: [], constants: [] };
 
         if (hasOwn(params, '$extends')) {
 
@@ -34,13 +36,29 @@ define([
             k = parents.length;
 
             for (k -= 1; k >= 0; k -= 1) {
+
+                current = parents[k];
+
+                // Add interface constants
+                for (i = current[$interface].constants.length - 1; i >= 0; i -= 1) {
+                    interf[current[$interface].constants[i]] = current[current[$interface].constants[i]];
+                }
+
                 // Add interface to the parents
-                interf[$interface].parents.push(parents[k]);
+                interf[$interface].parents.push(current);
             }
 
             delete params.$extends;
         }
 
+        // Parse constants
+        if (hasOwn(params, '$constants')) {
+
+            for (k in params.$constants) {
+                interf[k] = params.$constants[k];
+                interf[$interface].constants.push(k);
+            }
+        }
 
         return interf;
     }

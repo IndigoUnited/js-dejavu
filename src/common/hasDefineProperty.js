@@ -1,8 +1,9 @@
 //>>includeStart('strict', pragmas.strict);
-/*jslint sloppy:true*/
 /*global define*/
 
 define(['Utils/lang/isFunction'], function (isFunction) {
+
+    "use strict";
 
     var hasDefineProperty = (function () {
 

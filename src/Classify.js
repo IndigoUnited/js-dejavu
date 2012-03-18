@@ -1,25 +1,31 @@
-/*jslint sloppy:true*/
 /*global define,module,exports,window,global*/
 
 define([
     './Class',
     './AbstractClass',
     './Interface',
+    './FinalClass',
     'instanceOf'
 ], function (
     Class,
     AbstractClass,
     Interface,
+    FinalClass,
     instanceOf
 ) {
+
+//>>includeStart('strict', pragmas.strict);
+    "use strict";
+
+//>>includeEnd('strict');
     var Classify = {},
         target;
 
     Classify.Class = Class;
     Classify.AbstractClass = AbstractClass;
     Classify.Interface = Interface;
+    Classify.FinalClass = FinalClass;
     Classify.instanceOf = instanceOf;
-
 
     if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.exports) {
         module.exports = Classify;

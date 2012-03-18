@@ -1,4 +1,3 @@
-/*jslint sloppy:true*/
 /*global define*/
 
 define([
@@ -12,6 +11,8 @@ define([
 ) {
 
 //>>includeStart('strict', pragmas.strict);
+    "use strict";
+
     var random = randomAccessor(),
         $class = '$class_' + random,
         $interface = '$interface_' + random;
@@ -47,7 +48,7 @@ define([
     }
 
     /**
-     * Check if a class is an instance of an interface.
+     * Check if an instance of a class is an instance of an interface.
      *
      * @param {Object}   instance The instance to be checked
      * @param {Function} target   The interface
@@ -65,7 +66,7 @@ define([
             }
         }
 
-        return instance.$constructor.$parent ? instanceOfInterface(instance.$constructor.$parent.prototype, target) : false;
+        return false;
     }
 
     /**
