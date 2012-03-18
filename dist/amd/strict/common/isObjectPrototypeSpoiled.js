@@ -1,7 +1,9 @@
-/*jslint sloppy:true, forin:true*/
+/*jslint forin:true*/
 /*global define,console*/
 
 define(function () {
+
+    "use strict";
 
     /**
      * Checks if object prototype has non enumerable properties attached.

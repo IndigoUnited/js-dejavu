@@ -1,4 +1,4 @@
-/*jslint sloppy:true, nomen:true, newcap:true, forin:true*/
+/*jslint nomen:true, newcap:true, forin:true*/
 /*global define*/
 
 define([
@@ -48,10 +48,13 @@ define([
 
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
+    "use strict";
+
     var random = randomAccessor(),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
-        $abstract = '$abstract_' + random;
+        $abstract = '$abstract_' + random,
+        checkClass;
 
     checkObjectPrototype();
 
@@ -121,7 +124,7 @@ define([
      *
      * @param {Function} target The class to be checked
      */
-    function checkClass(target) {
+    checkClass = function (target) {
 
         var key,
             value;
@@ -151,7 +154,7 @@ define([
                 throw new Error('Static method "' + key + '(' + target[$class].staticMethods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in abstract class "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
             }
         }
-    }
+    };
 
     /**
      * Parse abstract methods.
@@ -336,7 +339,7 @@ define([
         }
 
         // Create the class definition
-        def = Class(params, true);
+        def = new Class(params, true);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
         // Create the class definition

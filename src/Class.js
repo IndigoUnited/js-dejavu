@@ -1,4 +1,4 @@
-/*jslint sloppy:true, forin:true, newcap:true, callee:true, eqeq:true*/
+/*jslint forin:true, newcap:true, callee:true, eqeq:true*/
 /*global define*/
 
 define([
@@ -74,6 +74,8 @@ define([
 ) {
 
 //>>includeStart('strict', pragmas.strict);
+    "use strict";
+
     checkObjectPrototype();
 
     var Class,
@@ -84,7 +86,9 @@ define([
         cacheKeyword = '$cache_' + random,
         inheriting,
         nextId = 0,
-        caller;
+        caller,
+        toStringInstance,
+        toStringConstructor;
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
     var Class,
@@ -430,7 +434,7 @@ define([
 
                 if (isObject(mixins[i])) {
                     try {
-                        current = Class(mixIn({}, mixins[i])).prototype;
+                        current = new Class(mixIn({}, mixins[i])).prototype;
                     } catch (e) {
                         // When an object is being used, throw a more friend message if an error occurs
                         throw new Error('Unable to define object as class at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" (' + e.message + ').');
@@ -446,7 +450,7 @@ define([
 
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-                current = isObject(mixins[i]) ? Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
+                current = isObject(mixins[i]) ? new Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
 
                 // Grab mixin members
                 for (key in current) {
@@ -1608,18 +1612,18 @@ define([
      *
      * @return {String} The readable string
      */
-    function toStringInstance() {
+    toStringInstance = function () {
         return '[instance #' + this.$name + ']';
-    }
+    };
 
     /**
      * Method that will print a readable string describing an instance.
      *
      * @return {String} The readable string
      */
-    function toStringConstructor() {
+    toStringConstructor = function () {
         return '[constructor #' + this.prototype.$name + ']';
-    }
+    };
 
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);

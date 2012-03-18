@@ -1,8 +1,10 @@
 //>>includeStart('strict', pragmas.strict);
-/*jslint sloppy:true, regexp:true*/
+/*jslint regexp:true*/
 /*global define*/
 
 define(function () {
+
+    "use strict";
 
     /**
      * Check if a function has no body.

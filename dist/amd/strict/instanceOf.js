@@ -1,4 +1,3 @@
-/*jslint sloppy:true*/
 /*global define*/
 
 define([
@@ -6,6 +5,8 @@ define([
 ], function (
     randomAccessor
 ) {
+
+    "use strict";
 
     var random = randomAccessor(),
         $class = '$class_' + random,

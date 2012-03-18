@@ -470,10 +470,12 @@ define('Utils/array/remove',['./indexOf'], function(indexOf){
     return remove;
 });
 
-/*jslint sloppy:true, regexp:true*/
+/*jslint regexp:true*/
 /*global define*/
 
 define('common/functionMeta',[],function () {
+
+    "use strict";
 
     /**
      * Extract meta data from a function.
@@ -543,10 +545,11 @@ define('common/functionMeta',[],function () {
     return functionMeta;
 });
 
-/*jslint sloppy:true*/
 /*global define*/
 
 define('common/isFunctionCompatible',[],function () {
+
+    "use strict";
 
     /**
      * Check if a function signature is compatible with another.
@@ -590,10 +593,12 @@ define('Utils/array/some',['require'],function (forEach) {
     return some;
 });
 
-/*jslint sloppy:true, forin:true*/
+/*jslint forin:true*/
 /*global define,console*/
 
 define('common/isObjectPrototypeSpoiled',[],function () {
+
+    "use strict";
 
     /**
      * Checks if object prototype has non enumerable properties attached.
@@ -617,10 +622,11 @@ define('common/isObjectPrototypeSpoiled',[],function () {
     return isObjectPrototypeSpoiled;
 });
 
-/*jslint sloppy:true*/
 /*global define,console*/
 
 define('common/randomAccessor',[],function () {
+
+    "use strict";
 
     var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
         nrAccesses = 0;
@@ -631,7 +637,8 @@ define('common/randomAccessor',[],function () {
             throw new Error('Can\'t access random identifier.');
         }
 
-        nrAccesses++;
+        nrAccesses += 1;
+
         return random;
     }
 
@@ -668,7 +675,7 @@ define('Utils/lang/isBoolean',['./isKind'], function (isKind) {
     return isBoolean;
 });
 
-/*jslint sloppy:true, eqeq:true*/
+/*jslint eqeq:true*/
 /*global define,console*/
 
 define('common/isPrimitiveType',[
@@ -682,6 +689,8 @@ define('common/isPrimitiveType',[
     isString,
     isBoolean
 ) {
+
+    "use strict";
 
     /**
      * Checks if a value is a primitive type.
@@ -707,10 +716,11 @@ define('Utils/lang/isFunction',['./isKind'], function (isKind) {
     return isFunction;
 });
 
-/*jslint sloppy:true*/
 /*global define*/
 
 define('common/hasDefineProperty',['Utils/lang/isFunction'], function (isFunction) {
+
+    "use strict";
 
     var hasDefineProperty = (function () {
 
@@ -731,10 +741,11 @@ define('common/hasDefineProperty',['Utils/lang/isFunction'], function (isFunctio
     return hasDefineProperty;
 });
 
-/*jslint sloppy:true*/
 /*global define*/
 
 define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefineProperty) {
+
+    "use strict";
 
     /**
      * Sets the key of object with the specified value.
@@ -762,7 +773,7 @@ define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefinePr
     return obfuscateProperty;
 });
 
-/*jslint sloppy:true, forin:true*/
+/*jslint forin:true*/
 /*global define,console*/
 
 define('common/checkObjectPrototype',[
@@ -772,6 +783,8 @@ define('common/checkObjectPrototype',[
     isObjectPrototypeSpoiled,
     isFunction
 ) {
+
+    "use strict";
 
     /**
      * Checks object prototype, throwing an error if it has enumerable properties.
@@ -834,7 +847,7 @@ define('Utils/lang/isUndefined',[],function () {
     return isUndef;
 });
 
-/*jslint sloppy:true, regexp:true*/
+/*jslint regexp:true*/
 /*global define*/
 
 define('common/propertyMeta',[
@@ -846,6 +859,8 @@ define('common/propertyMeta',[
     isObject,
     isFunction
 ) {
+
+    "use strict";
 
     var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
 
@@ -991,7 +1006,7 @@ define('Utils/object/keys',['./forOwn'], function (forOwn) {
 
 });
 
-/*jslint sloppy:true, forin:true*/
+/*jslint forin:true*/
 /*global define*/
 
 define('common/checkKeywords',[
@@ -999,6 +1014,9 @@ define('common/checkKeywords',[
 ], function (
     hasOwn
 ) {
+
+    "use strict";
+
     var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
         reservedStatics = ['$parent', '$super'];
 
@@ -1152,7 +1170,6 @@ define('Utils/array/difference',['./unique', './filter', './some', './contains']
 
 });
 
-/*jslint sloppy:true*/
 /*global define*/
 
 define('common/testKeywords',[
@@ -1162,6 +1179,9 @@ define('common/testKeywords',[
     difference,
     hasOwn
 ) {
+
+    "use strict";
+
     var keywords = [
         '$name', '$extends', '$implements', '$borrows', '$binds',
         '$statics', '$finals', '$abstracts', '$constants'
@@ -1261,7 +1281,7 @@ define('Utils/lang/toArray',['./isArray', './isObject', './isArguments'], functi
     return toArray;
 });
 
-/*jslint sloppy:true, forin:true, newcap:true, callee:true, eqeq:true*/
+/*jslint forin:true, newcap:true, callee:true, eqeq:true*/
 /*global define*/
 
 define('Class',[
@@ -1324,6 +1344,8 @@ define('Class',[
     toArray
 ) {
 
+    "use strict";
+
     checkObjectPrototype();
 
     var Class,
@@ -1334,7 +1356,9 @@ define('Class',[
         cacheKeyword = '$cache_' + random,
         inheriting,
         nextId = 0,
-        caller;
+        caller,
+        toStringInstance,
+        toStringConstructor;
 
     /**
      * Clones a property in order to make them unique for the instance.
@@ -1658,7 +1682,7 @@ define('Class',[
 
                 if (isObject(mixins[i])) {
                     try {
-                        current = Class(mixIn({}, mixins[i])).prototype;
+                        current = new Class(mixIn({}, mixins[i])).prototype;
                     } catch (e) {
                         // When an object is being used, throw a more friend message if an error occurs
                         throw new Error('Unable to define object as class at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" (' + e.message + ').');
@@ -2630,18 +2654,18 @@ define('Class',[
      *
      * @return {String} The readable string
      */
-    function toStringInstance() {
+    toStringInstance = function () {
         return '[instance #' + this.$name + ']';
-    }
+    };
 
     /**
      * Method that will print a readable string describing an instance.
      *
      * @return {String} The readable string
      */
-    function toStringConstructor() {
+    toStringConstructor = function () {
         return '[constructor #' + this.prototype.$name + ']';
-    }
+    };
 
     /**
      * Create a class definition.
@@ -2774,10 +2798,12 @@ define('Class',[
     return Class;
 });
 
-/*jslint sloppy:true, regexp:true*/
+/*jslint regexp:true*/
 /*global define*/
 
 define('common/isFunctionEmpty',[],function () {
+
+    "use strict";
 
     /**
      * Check if a function has no body.
@@ -2793,7 +2819,7 @@ define('common/isFunctionEmpty',[],function () {
     return isFunctionEmpty;
 });
 
-/*jslint sloppy:true, nomen:true, newcap:true, forin:true*/
+/*jslint nomen:true, newcap:true, forin:true*/
 /*global define*/
 
 define('AbstractClass',[
@@ -2834,10 +2860,13 @@ define('AbstractClass',[
     Class
 ) {
 
+    "use strict";
+
     var random = randomAccessor(),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
-        $abstract = '$abstract_' + random;
+        $abstract = '$abstract_' + random,
+        checkClass;
 
     checkObjectPrototype();
 
@@ -2907,7 +2936,7 @@ define('AbstractClass',[
      *
      * @param {Function} target The class to be checked
      */
-    function checkClass(target) {
+    checkClass = function (target) {
 
         var key,
             value;
@@ -2937,7 +2966,7 @@ define('AbstractClass',[
                 throw new Error('Static method "' + key + '(' + target[$class].staticMethods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in abstract class "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
             }
         }
-    }
+    };
 
     /**
      * Parse abstract methods.
@@ -3108,7 +3137,7 @@ define('AbstractClass',[
         }
 
         // Create the class definition
-        def = Class(params, true);
+        def = new Class(params, true);
 
         abstractObj.check = bind(checkClass, def);
 
@@ -3137,7 +3166,7 @@ define('AbstractClass',[
     return AbstractClass;
 });
 
-/*jslint sloppy:true, forin:true*/
+/*jslint forin:true*/
 /*global define*/
 
 define('Interface',[
@@ -3188,9 +3217,12 @@ define('Interface',[
     toArray
 ) {
 
+    "use strict";
+
     var random = randomAccessor(),
         $class = '$class_' + random,
-        $interface = '$interface_' + random;
+        $interface = '$interface_' + random,
+        checkClass;
 
     checkObjectPrototype();
 
@@ -3200,7 +3232,7 @@ define('Interface',[
      *
      * @param {Function} target The class to be checked
      */
-    function checkClass(target) {
+    checkClass = function (target) {
 
         var key,
             value;
@@ -3230,7 +3262,7 @@ define('Interface',[
                 throw new Error('Static method "' + key + '(' + target[$class].staticMethods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in interface "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
             }
         }
-    }
+    };
 
     /**
      * Adds a method to an interface.
@@ -3546,7 +3578,7 @@ define('Interface',[
     return Interface;
 });
 
-/*jslint sloppy:true,newcap:true*/
+/*jslint newcap:true*/
 /*global define*/
 
 define('FinalClass',[
@@ -3558,6 +3590,9 @@ define('FinalClass',[
     randomAccessor,
     checkObjectPrototype
 ) {
+
+    "use strict";
+
     checkObjectPrototype();
 
     var random = randomAccessor(),
@@ -3565,14 +3600,13 @@ define('FinalClass',[
 
     return function FinalClass(params) {
 
-        var def = Class(params);
+        var def = new Class(params);
         def[$class].finalClass = true;
 
         return def;
     };
 });
 
-/*jslint sloppy:true*/
 /*global define*/
 
 define('instanceOf',[
@@ -3580,6 +3614,8 @@ define('instanceOf',[
 ], function (
     randomAccessor
 ) {
+
+    "use strict";
 
     var random = randomAccessor(),
         $class = '$class_' + random,
@@ -3651,7 +3687,6 @@ define('instanceOf',[
 
     return instanceOf;
 });
-/*jslint sloppy:true*/
 /*global define,module,exports,window,global*/
 
 define('classify',[
@@ -3664,8 +3699,12 @@ define('classify',[
     Class,
     AbstractClass,
     Interface,
+    FinalClass,
     instanceOf
 ) {
+
+    "use strict";
+
     var Classify = {},
         target;
 

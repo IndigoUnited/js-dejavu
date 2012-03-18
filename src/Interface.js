@@ -1,4 +1,4 @@
-/*jslint sloppy:true, forin:true*/
+/*jslint forin:true*/
 /*global define*/
 
 define([
@@ -58,9 +58,12 @@ define([
 
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
+    "use strict";
+
     var random = randomAccessor(),
         $class = '$class_' + random,
-        $interface = '$interface_' + random;
+        $interface = '$interface_' + random,
+        checkClass;
 
     checkObjectPrototype();
 
@@ -70,7 +73,7 @@ define([
      *
      * @param {Function} target The class to be checked
      */
-    function checkClass(target) {
+    checkClass = function (target) {
 
         var key,
             value;
@@ -100,7 +103,7 @@ define([
                 throw new Error('Static method "' + key + '(' + target[$class].staticMethods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in interface "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
             }
         }
-    }
+    };
 
     /**
      * Adds a method to an interface.

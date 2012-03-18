@@ -1,4 +1,4 @@
-/*jslint sloppy:true, forin:true, newcap:true, callee:true, eqeq:true*/
+/*jslint forin:true, newcap:true, callee:true, eqeq:true*/
 /*global define*/
 
 define([
@@ -83,7 +83,7 @@ define([
 
             for (i -= 1; i >= 0; i -= 1) {
 
-                current = isObject(mixins[i]) ? Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
+                current = isObject(mixins[i]) ? new Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
 
                 // Grab mixin members
                 for (key in current) {

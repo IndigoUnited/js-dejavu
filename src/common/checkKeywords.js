@@ -1,5 +1,5 @@
 //>>includeStart('strict', pragmas.strict);
-/*jslint sloppy:true, forin:true*/
+/*jslint forin:true*/
 /*global define*/
 
 define([
@@ -7,6 +7,9 @@ define([
 ], function (
     hasOwn
 ) {
+
+    "use strict";
+
     var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
         reservedStatics = ['$parent', '$super'];
 
