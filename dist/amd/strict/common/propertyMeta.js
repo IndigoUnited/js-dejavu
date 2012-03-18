@@ -1,4 +1,4 @@
-/*jslint sloppy:true, regexp:true*/
+/*jslint regexp:true*/
 /*global define*/
 
 define([
@@ -10,6 +10,8 @@ define([
     isObject,
     isFunction
 ) {
+
+    "use strict";
 
     var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
 

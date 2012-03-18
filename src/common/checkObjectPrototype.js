@@ -1,5 +1,5 @@
 //>>includeStart('strict', pragmas.strict);
-/*jslint sloppy:true, forin:true*/
+/*jslint forin:true*/
 /*global define,console*/
 
 define([
@@ -9,6 +9,8 @@ define([
     isObjectPrototypeSpoiled,
     isFunction
 ) {
+
+    "use strict";
 
     /**
      * Checks object prototype, throwing an error if it has enumerable properties.

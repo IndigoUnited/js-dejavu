@@ -1,4 +1,3 @@
-/*jslint sloppy:true*/
 /*global define,module,exports,window,global*/
 
 define([
@@ -11,8 +10,14 @@ define([
     Class,
     AbstractClass,
     Interface,
+    FinalClass,
     instanceOf
 ) {
+
+//>>includeStart('strict', pragmas.strict);
+    "use strict";
+
+//>>includeEnd('strict');
     var Classify = {},
         target;
 

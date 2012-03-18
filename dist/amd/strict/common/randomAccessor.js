@@ -1,7 +1,8 @@
-/*jslint sloppy:true*/
 /*global define,console*/
 
 define(function () {
+
+    "use strict";
 
     var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
         nrAccesses = 0;
@@ -12,7 +13,8 @@ define(function () {
             throw new Error('Can\'t access random identifier.');
         }
 
-        nrAccesses++;
+        nrAccesses += 1;
+
         return random;
     }
 

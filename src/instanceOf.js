@@ -1,4 +1,3 @@
-/*jslint sloppy:true*/
 /*global define*/
 
 define([
@@ -12,6 +11,8 @@ define([
 ) {
 
 //>>includeStart('strict', pragmas.strict);
+    "use strict";
+
     var random = randomAccessor(),
         $class = '$class_' + random,
         $interface = '$interface_' + random;

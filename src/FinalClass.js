@@ -1,4 +1,4 @@
-/*jslint sloppy:true,newcap:true*/
+/*jslint newcap:true*/
 /*global define*/
 
 define([
@@ -20,7 +20,10 @@ define([
     Class
 //>>excludeEnd('strict');
 ) {
+
 //>>includeStart('strict', pragmas.strict);
+    "use strict";
+
     checkObjectPrototype();
 
     var random = randomAccessor(),
@@ -29,7 +32,7 @@ define([
 
     return function FinalClass(params) {
 
-        var def = Class(params);
+        var def = new Class(params);
 //>>includeStart('strict', pragmas.strict);
         def[$class].finalClass = true;
 //>>includeEnd('strict');

@@ -1,5 +1,5 @@
 //>>includeStart('strict', pragmas.strict);
-/*jslint sloppy:true, eqeq:true*/
+/*jslint eqeq:true*/
 /*global define,console*/
 
 define([
@@ -13,6 +13,8 @@ define([
     isString,
     isBoolean
 ) {
+
+    "use strict";
 
     /**
      * Checks if a value is a primitive type.

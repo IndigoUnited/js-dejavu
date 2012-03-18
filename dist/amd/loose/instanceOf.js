@@ -1,4 +1,3 @@
-/*jslint sloppy:true*/
 /*global define*/
 
 define([

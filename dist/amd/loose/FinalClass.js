@@ -1,4 +1,4 @@
-/*jslint sloppy:true,newcap:true*/
+/*jslint newcap:true*/
 /*global define*/
 
 define([
@@ -7,9 +7,10 @@ define([
     Class
 ) {
 
+
     return function FinalClass(params) {
 
-        var def = Class(params);
+        var def = new Class(params);
 
         return def;
     };

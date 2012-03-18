@@ -1,4 +1,3 @@
-/*jslint sloppy:true*/
 /*global define*/
 
 define([
@@ -8,6 +7,9 @@ define([
     difference,
     hasOwn
 ) {
+
+    "use strict";
+
     var keywords = [
         '$name', '$extends', '$implements', '$borrows', '$binds',
         '$statics', '$finals', '$abstracts', '$constants'
