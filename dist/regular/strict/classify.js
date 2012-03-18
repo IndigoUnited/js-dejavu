@@ -617,6 +617,27 @@ define('common/isObjectPrototypeSpoiled',[],function () {
     return isObjectPrototypeSpoiled;
 });
 
+/*jslint sloppy:true*/
+/*global define,console*/
+
+define('common/randomAccessor',[],function () {
+
+    var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
+        nrAccesses = 0;
+
+    function randomAccessor() {
+
+        if (nrAccesses > 5) {
+            throw new Error('Can\'t access random identifier.');
+        }
+
+        nrAccesses++;
+        return random;
+    }
+
+    return randomAccessor;
+});
+
 define('Utils/lang/isNumber',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
@@ -1171,30 +1192,6 @@ define('common/testKeywords',[
     return testKeywords;
 });
 
-/*jslint sloppy:true*/
-/*global define,console*/
-
-define('common/randomAccessor',['Utils/array/contains'], function (contains) {
-
-    var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
-        nrAccesses = 0,
-        allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'FinalClassWrapper', 'isntanceOfWrapper'];
-
-    function randomAccessor() {
-
-        var caller = randomAccessor.caller || arguments.callee.caller || arguments.caller;
-
-        if ((caller.name && !contains(allowed, caller.name)) || nrAccesses > 5) {
-            throw new Error('Can\'t access random identifier.');
-        } {
-            nrAccesses++;
-            return random;
-        }
-    }
-
-    return randomAccessor;
-});
-
 define('Utils/lang/bind',[],function(){
 
     function slice(arr, offset){
@@ -1336,7 +1333,8 @@ define('Class',[
         $abstract = '$abstract_' + random,
         cacheKeyword = '$cache_' + random,
         inheriting,
-        nextId = 0;
+        nextId = 0,
+        caller;
 
     /**
      * Clones a property in order to make them unique for the instance.
@@ -1366,6 +1364,45 @@ define('Class',[
     }
 
     /**
+     * Wraps a method.
+     * This is just to avoid using Function.caller because is deprecated.
+     *
+     * @param {Function} method   The method to wrap
+     *
+     * @return {Function} The wrapper
+     */
+    function wrapMethod(method) {
+
+        if (method.$wrapped) {
+            throw new Error("Method is already wrapped.");
+        }
+
+        var wrapped = function wrapper() {
+
+            var prevCaller = caller,
+                returns;
+
+            caller = method;
+
+            try {
+                returns = method.apply(this, arguments);
+            } finally {
+                caller = prevCaller;
+            }
+
+            return returns;
+        };
+
+        obfuscateProperty(wrapped, '$wrapped', true);
+
+        if (method.$name) {
+            obfuscateProperty(wrapped, '$name', method.$name);
+        }
+
+        return wrapped;
+    }
+
+    /**
      * Adds a method to a class.
      * This method will throw an error if something is not right.
      * Valid options:
@@ -1383,7 +1420,8 @@ define('Class',[
         var metadata,
             isStatic = !!(opts && opts.isStatic),
             isFinal,
-            target;
+            target,
+            originalMethod;
 
         // Check if function is already being used by another class or within the same class
         if (method.$name) {
@@ -1399,6 +1437,9 @@ define('Class',[
             metadata = constructor.$parent[$class].methods[name];
         } else if (!opts.metadata) {
             // Grab function metadata and throw error if is not valid (its invalid if the arguments are invalid)
+            if (method.$wrapped) {
+                throw new Error('Cannot grab metadata from wrapped method.');
+            }
             metadata = functionMeta(method, name);
             if (!metadata) {
                 throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in class "' + constructor.prototype.$name + '".');
@@ -1441,6 +1482,14 @@ define('Class',[
 
         target[name] = metadata;
 
+        if (!method.$wrapped) {
+            originalMethod = method;
+            method = wrapMethod(method, name);
+            obfuscateProperty(method, '$name', name);
+        } else {
+            originalMethod = method;
+        }
+
         // If the function is protected/private we delete it from the target because they will be protected later
         if (!metadata.isPublic && hasDefineProperty) {
 
@@ -1463,8 +1512,10 @@ define('Class',[
         // Store a reference to the prototype/constructor
         if (!isStatic) {
             obfuscateProperty(method, '$prototype_' + constructor[$class].id, constructor.prototype);
+            obfuscateProperty(originalMethod, '$prototype_' + constructor[$class].id, constructor.prototype);
         } else {
             obfuscateProperty(method, '$constructor_' + constructor[$class].id, constructor);
+            obfuscateProperty(originalMethod, '$constructor_' + constructor[$class].id, constructor);
         }
     }
 
@@ -1998,10 +2049,11 @@ define('Class',[
             Object.defineProperty(instance, name, {
                 get: function get() {
 
-                    var method = this[cacheKeyword].methods[name],
-                        caller = get.caller || arguments.callee.caller || arguments.caller;
+                    var method = this[cacheKeyword].methods[name];
 
-                    if (this.$initializing || method['$prototype_' + this.$constructor[$class].id] === caller['$prototype_' + this.$constructor[$class].id]) {
+                    if (this.$initializing || (caller && caller['$prototype_' + this.$constructor[$class].id] && (
+                            method['$prototype_' + this.$constructor[$class].id] === caller['$prototype_' + this.$constructor[$class].id]
+                        ))) {
                         return method;
                     }
 
@@ -2025,13 +2077,13 @@ define('Class',[
             Object.defineProperty(instance, name, {
                 get: function get() {
 
-                    var method = this[cacheKeyword].methods[name],
-                        caller = get.caller || arguments.callee.caller || arguments.caller;
+                    var method = this[cacheKeyword].methods[name];
 
-                    if (this.$initializing ||
-                            caller['$prototype_' + this.$constructor[$class].id] === method['$prototype_' + this.$constructor[$class].id] ||
+                    if (this.$initializing || (caller && caller['$prototype_' + this.$constructor[$class].id] && (
+                            (caller['$prototype_' + this.$constructor[$class].id] === method['$prototype_' + this.$constructor[$class].id] ||
                             caller['$prototype_' + this.$constructor[$class].id] instanceof method['$prototype_' + this.$constructor[$class].id].$constructor ||
-                            (caller['$prototype_' + this.$constructor[$class].id] && method['$prototype_' + this.$constructor[$class].id] instanceof caller['$prototype_' + this.$constructor[$class].id].$constructor)) {
+                            method['$prototype_' + this.$constructor[$class].id] instanceof caller['$prototype_' + this.$constructor[$class].id].$constructor)
+                        ))) {
                         return method;
                     }
 
@@ -2067,11 +2119,10 @@ define('Class',[
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
-                    var method = this[cacheKeyword].methods[name],
-                        caller = get.caller || arguments.callee.caller || arguments.caller;
+                    var method = this[cacheKeyword].methods[name];
 
-                    if (method['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
-                            method['$constructor_' + this[$class].id].prototype === caller['$prototype_' + this[$class].id]) {
+                    if (caller && ((caller['$constructor_' + this[$class].id] && method['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id]) ||
+                            (caller['$prototype_' + this[$class].id] && method['$constructor_' + this[$class].id].prototype === caller['$prototype_' + this[$class].id]))) {
                         return method;
                     }
 
@@ -2090,20 +2141,18 @@ define('Class',[
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
-                    var method = this[cacheKeyword].methods[name],
-                        caller = get.caller || arguments.callee.caller || arguments.caller;
+                    var method = this[cacheKeyword].methods[name];
 
-                    if (inheriting ||
-                            (caller['$constructor_' + this[$class].id] && (
-                                method['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
-                                method['$constructor_' + this[$class].id].prototype instanceof caller['$constructor_' + this[$class].id] ||
-                                caller['$constructor_' + this[$class].id].prototype instanceof method['$constructor_' + this[$class].id]
-                            )) ||
+                    if (inheriting || (caller && ((caller['$constructor_' + this[$class].id] && (
+                            method['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
+                            method['$constructor_' + this[$class].id].prototype instanceof caller['$constructor_' + this[$class].id] ||
+                            caller['$constructor_' + this[$class].id].prototype instanceof method['$constructor_' + this[$class].id]
+                        )) ||
                             (caller['$prototype_' + this[$class].id] && (
                                 method['$constructor_' + this[$class].id] === caller['$prototype_' + this[$class].id].$constructor ||
                                 method['$constructor_' + this[$class].id].prototype instanceof caller['$prototype_' + this[$class].id].$constructor ||
                                 caller['$prototype_' + this[$class].id] instanceof method['$constructor_' + this[$class].id]
-                            ))) {
+                            ))))) {
                         return method;
                     }
 
@@ -2134,9 +2183,7 @@ define('Class',[
             Object.defineProperty(instance, name, {
                 get: function get() {
 
-                    var caller = get.caller || arguments.callee.caller || arguments.caller;
-
-                    if (this.$initializing || meta['$prototype_' + this.$constructor[$class].id] === caller['$prototype_' + this.$constructor[$class].id]) {
+                    if (this.$initializing || (caller && caller['$prototype_' + this.$constructor[$class].id] && meta['$prototype_' + this.$constructor[$class].id] === caller['$prototype_' + this.$constructor[$class].id])) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -2144,9 +2191,7 @@ define('Class',[
                 },
                 set: function set(newValue) {
 
-                    var caller = set.caller || arguments.callee.caller || arguments.caller;
-
-                    if (this.$initializing || meta['$prototype_' + this.$constructor[$class].id] === caller['$prototype_' + this.$constructor[$class].id]) {
+                    if (this.$initializing || (caller && caller['$prototype_' + this.$constructor[$class].id] && meta['$prototype_' + this.$constructor[$class].id] === caller['$prototype_' + this.$constructor[$class].id])) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
                         throw new Error('Cannot set private property "' + name + '" of class "' + this.$name + '".');
@@ -2162,12 +2207,11 @@ define('Class',[
             Object.defineProperty(instance, name, {
                 get: function get() {
 
-                    var caller = get.caller || arguments.callee.caller || arguments.caller;
-
-                    if (this.$initializing ||
+                    if (this.$initializing || (caller && caller['$prototype_' + this.$constructor[$class].id] && (
                             caller['$prototype_' + this.$constructor[$class].id] === meta['$prototype_' + this.$constructor[$class].id] ||
                             caller['$prototype_' + this.$constructor[$class].id] instanceof meta['$prototype_' + this.$constructor[$class].id].$constructor ||
-                            (caller['$prototype_' + this.$constructor[$class].id] && meta['$prototype_' + this.$constructor[$class].id] instanceof caller['$prototype_' + this.$constructor[$class].id].$constructor)) {
+                            meta['$prototype_' + this.$constructor[$class].id] instanceof caller['$prototype_' + this.$constructor[$class].id].$constructor
+                        ))) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -2175,12 +2219,11 @@ define('Class',[
                 },
                 set: function set(newValue) {
 
-                    var caller = set.caller || arguments.callee.caller || arguments.caller;
-
-                    if (this.$initializing ||
+                    if (this.$initializing || (caller && caller['$prototype_' + this.$constructor[$class].id] && (
                             caller['$prototype_' + this.$constructor[$class].id] === meta['$prototype_' + this.$constructor[$class].id] ||
                             caller['$prototype_' + this.$constructor[$class].id] instanceof meta['$prototype_' + this.$constructor[$class].id].$constructor ||
-                            (caller['$prototype_' + this.$constructor[$class].id] && meta['$prototype_' + this.$constructor[$class].id] instanceof caller['$prototype_' + this.$constructor[$class].id].$constructor)) {
+                            meta['$prototype_' + this.$constructor[$class].id] instanceof caller['$prototype_' + this.$constructor[$class].id].$constructor
+                        ))) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
                         throw new Error('Cannot set protected property "' + name + '" of class "' + this.$name + '".');
@@ -2210,11 +2253,8 @@ define('Class',[
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
-                    var caller = get.caller || arguments.callee.caller || arguments.caller;
-
-                    if (meta['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
-                            meta['$constructor_' + this[$class].id].prototype === caller['$prototype_' + this[$class].id]
-                            ) {
+                    if (caller && ((caller['$constructor_' + this[$class].id] && meta['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id]) ||
+                            (caller['$prototype_' + this[$class].id] && meta['$constructor_' + this[$class].id].prototype === caller['$prototype_' + this[$class].id]))) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -2225,11 +2265,9 @@ define('Class',[
                             throw new Error('Cannot change value of constant property "' + name + '" of class "' + this.prototype.$name + '".');
                         } :
                         function set(newValue) {
-                            var caller = set.caller || arguments.callee.caller || arguments.caller;
 
-                            if (meta['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
-                                    meta['$constructor_' + this[$class].id].prototype === caller['$prototype_' + constructor[$class].id]
-                                    ) {
+                            if (caller && ((caller['$constructor_' + this[$class].id] && meta['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id]) ||
+                                    (caller['$prototype_' + this[$class].id] && meta['$constructor_' + this[$class].id].prototype === caller['$prototype_' + constructor[$class].id]))) {
                                 this[cacheKeyword].properties[name] = newValue;
                             } else {
                                 throw new Error('Cannot set private property "' + name + '" of class "' + this.prototype.$name + '".');
@@ -2245,24 +2283,21 @@ define('Class',[
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
-                    var method = this[cacheKeyword].properties[name],
-                        caller = get.caller || arguments.callee.caller || arguments.caller;
-
                     if (inheriting ||
-                            (caller['$constructor_' + this[$class].id] && (
+                            (caller && ((caller['$constructor_' + this[$class].id] && (
                                 meta['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
                                 meta['$constructor_' + this[$class].id].prototype instanceof caller['$constructor_' + this[$class].id] ||
                                 caller['$constructor_' + this[$class].id].prototype instanceof meta['$constructor_' + this[$class].id]
                             )) ||
                             (caller['$prototype_' + this[$class].id] && (
-                                meta['$constructor_' + this[$class].id] === caller['$prototype_' + this[$class].id].$constructor ||
-                                meta['$constructor_' + this[$class].id].prototype instanceof caller['$prototype_' + this[$class].id].$constructor ||
-                                caller['$prototype_' + this[$class].id] instanceof meta['$constructor_' + this[$class].id]
-                            ))) {
-                        return method;
+                                    meta['$constructor_' + this[$class].id] === caller['$prototype_' + this[$class].id].$constructor ||
+                                    meta['$constructor_' + this[$class].id].prototype instanceof caller['$prototype_' + this[$class].id].$constructor ||
+                                    caller['$prototype_' + this[$class].id] instanceof meta['$constructor_' + this[$class].id]
+                                ))))) {
+                        return constructor[cacheKeyword].properties[name];
                     }
 
-                    throw new Error('Cannot access protected static method "' + name + '" of class "' + this.prototype.$name + '".');
+                    throw new Error('Cannot access protected static property "' + name + '" of class "' + this.prototype.$name + '".');
                 },
                 set: meta.isConst ?
                         function () {
@@ -2270,22 +2305,19 @@ define('Class',[
                         } :
                         function set(newValue) {
 
-                            var caller = set.caller || arguments.callee.caller || arguments.caller;
-
-                            if (inheriting ||
+                            if (inheriting || (caller && ((caller['$constructor_' + this[$class].id] && (
                                     meta['$constructor_' + this[$class].id] === caller['$constructor_' + this[$class].id] ||
-                                    (caller['$constructor_' + this[$class].id] && (
-                                        meta['$constructor_' + this[$class].id].prototype instanceof caller['$constructor_' + this[$class].id] ||
-                                        caller['$constructor_' + this[$class].id].prototype instanceof meta['$constructor_' + this[$class].id]
-                                    )) ||
+                                    meta['$constructor_' + this[$class].id].prototype instanceof caller['$constructor_' + this[$class].id] ||
+                                    caller['$constructor_' + this[$class].id].prototype instanceof meta['$constructor_' + this[$class].id]
+                                )) ||
                                     (caller['$prototype_' + this[$class].id] && (
                                         meta['$constructor_' + this[$class].id] === caller['$prototype_' + this[$class].id].$constructor ||
                                         meta['$constructor_' + this[$class].id].prototype instanceof caller['$prototype_' + this[$class].id].$constructor ||
                                         caller['$prototype_' + this[$class].id] instanceof meta['$constructor_' + this[$class].id]
-                                    ))) {
+                                    ))))) {
                                 this[cacheKeyword].properties[name] = newValue;
                             } else {
-                                throw new Error('Cannot set protected property "' + name + '" of class "' + this.prototype.$name + '".');
+                                throw new Error('Cannot set protected static property "' + name + '" of class "' + this.prototype.$name + '".');
                             }
                         },
                 configurable: false,
@@ -2362,18 +2394,17 @@ define('Class',[
      * Builds the constructor function that calls the initialize and do
      * more things internally.
      *
-     * @param {Function} initialize The initialize function
-     * @param {Boolean}  isAbstract Treat this class as abstract
+     * @param {Boolean} isAbstract Treat this class as abstract
      *
      * @return {Function} The constructor function
      */
-    function createConstructor(initialize, isAbstract) {
+    function createConstructor(isAbstract) {
 
         var Instance = function () {
 
             var key;
 
-            // If it's abstract, it canot be instantiated
+            // If it's abstract, it cannot be instantiated
             if (isAbstract) {
                 throw new Error('An abstract class cannot be instantiated.');
             }
@@ -2401,7 +2432,7 @@ define('Class',[
             }
 
             // Call initialize
-            initialize.apply(this, arguments);
+            this.initialize.apply(this, arguments);
         };
 
         obfuscateProperty(Instance, $class, { methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, interfaces: [], binds: [] });
@@ -2479,11 +2510,10 @@ define('Class',[
 
         return function parent() {
 
-            var caller = parent.caller || arguments.callee.caller || arguments.caller,
-                meta,
+            var meta,
                 alias;
 
-            if (!caller.$name || !caller['$prototype_' + classId]) {
+            if (!caller || !caller.$name || !caller['$prototype_' + classId]) {
                 throw new Error('Calling parent method within an unknown function.');
             }
             if (!caller['$prototype_' + classId].$constructor.$parent) {
@@ -2529,9 +2559,7 @@ define('Class',[
 
         return function self() {
 
-            var caller = self.caller || arguments.callee.caller || arguments.caller;
-
-            if (!caller['$prototype_' + classId]) {
+            if (!caller || !caller['$prototype_' + classId]) {
                 throw new Error('Cannot retrieve self alias within an unknown function.');
             }
 
@@ -2559,11 +2587,10 @@ define('Class',[
 
         return function parent() {
 
-            var caller = parent.caller || arguments.callee.caller || arguments.caller,
-                meta,
+            var meta,
                 alias;
 
-            if (!caller.$name || !caller['$constructor_' + classId]) {
+            if (!caller || !caller.$name || !caller['$constructor_' + classId]) {
                 throw new Error('Calling parent static method within an unknown function.');
             }
 
@@ -2677,7 +2704,7 @@ define('Class',[
                 obfuscateProperty(params.initialize, '$inherited', true);
             }
 
-            classify = createConstructor(params.initialize, isAbstract);
+            classify = createConstructor(isAbstract);
             obfuscateProperty(classify, '$parent', parent);
             classify[$class].id = parent[$class].id;
             classify.prototype = createObject(parent.prototype, params);
@@ -2685,7 +2712,7 @@ define('Class',[
             inheritParent(classify, parent);
         } else {
             params.initialize = params.initialize || function () {};
-            classify = createConstructor(params.initialize, isAbstract);
+            classify = createConstructor(isAbstract);
             classify[$class].id = nextId += 1;
             classify.prototype = params;
 
@@ -2786,8 +2813,7 @@ define('AbstractClass',[
     './common/hasDefineProperty',
     './common/randomAccessor',
     'Utils/object/hasOwn',
-    './Class',
-    'require'
+    './Class'
 ], function AbstractClassWrapper(
     isObject,
     isFunction,
@@ -2805,8 +2831,7 @@ define('AbstractClass',[
     hasDefineProperty,
     randomAccessor,
     hasOwn,
-    Class,
-    require
+    Class
 ) {
 
     var random = randomAccessor(),
@@ -3043,8 +3068,6 @@ define('AbstractClass',[
      * @return {Function} The constructor
      */
     function AbstractClass(params) {
-
-        Class = require('./Class');
 
         if (!isObject(params)) {
             throw new Error('Argument "params" must be an object while defining an abstract class.');

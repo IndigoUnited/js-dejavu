@@ -3,12 +3,10 @@
 
 define([
     'Utils/object/hasOwn',
-    './Class',
-    'require'
+    './Class'
 ], function AbstractClassWrapper(
     hasOwn,
-    Class,
-    require
+    Class
 ) {
 
     var $abstract = '$abstract';
@@ -21,8 +19,6 @@ define([
      * @return {Function} The constructor
      */
     function AbstractClass(params) {
-
-        Class = require('./Class');
 
         var def;
 

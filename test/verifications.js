@@ -914,6 +914,39 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
+            it('should throw an error when using the same function for different members', function () {
+
+                var a = function () {};
+
+                expect(function () {
+                    Class({
+                        test: a,
+                        test2: a
+                    });
+                }).to.throwException(/by the same/);
+
+                expect(function () {
+                    Class({
+                        test: a,
+                        $finals: {
+                            test2: a
+                        }
+                    });
+                }).to.throwException(/by the same/);
+
+                expect(function () {
+                    Class({
+                        $statics: {
+                            test: 1
+                        },
+                        $finals: {
+                            test2: a
+                        }
+                    });
+                }).to.throwException(/by the same/);
+
+            });
+
             it('should throw an error when defining unallowed members', function () {
 
                 expect(function () {

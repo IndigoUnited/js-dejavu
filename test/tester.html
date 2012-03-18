@@ -13,13 +13,17 @@
                 var build = getBuild();
                 mocha.setup('bdd');
 
-                require(['./' + build], function() {
-                    
+                require(['./' + build, 'Utils/array/indexOf'], function(dummy, indexOf) {
+
+                    if (!Array.prototype.indexOf) {
+                        Array.prototype.indexOf = indexOf;
+                    }
+
                     var elem = document.getElementById(build.replace(/\//g, '_'));
                     if (elem) {
                         elem.className = 'active';
                     }
-                    
+
                     mocha
                     .run();
                 });
