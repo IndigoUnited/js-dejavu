@@ -1229,15 +1229,15 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         test.setProp();
                         return test.getProp();
                     }())).to.be.equal('test');
-                    
+
                     expect(function () {
                         return (new SomeClass()).accessStaticProp();
                     }).to.not.throwException();
-                    
+
                     expect(function () {
                         return (new SomeClass()).accessStaticFunc();
                     }).to.not.throwException();
-                    
+
                     expect((function () {
                         return SomeClass.accessConst();
                     }())).to.be.equal('foo');
