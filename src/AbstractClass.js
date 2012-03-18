@@ -20,8 +20,7 @@ define([
     './common/randomAccessor',
 //>>includeEnd('strict');
     'Utils/object/hasOwn',
-    './Class',
-    'require'
+    './Class'
 ], function AbstractClassWrapper(
 //>>includeStart('strict', pragmas.strict);
     isObject,
@@ -41,8 +40,7 @@ define([
     randomAccessor,
 //>>includeEnd('strict');
     hasOwn,
-    Class,
-    require
+    Class
 ) {
 
 //>>excludeStart('strict', pragmas.strict);
@@ -285,8 +283,6 @@ define([
      * @return {Function} The constructor
      */
     function AbstractClass(params) {
-
-        Class = require('./Class');
 
 //>>includeStart('strict', pragmas.strict);
         if (!isObject(params)) {

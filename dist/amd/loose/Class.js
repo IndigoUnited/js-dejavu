@@ -319,11 +319,9 @@ define([
      * Builds the constructor function that calls the initialize and do
      * more things internally.
      *
-     * @param {Function} initialize The initialize function
-     *
      * @return {Function} The constructor function
      */
-    function createConstructor(initialize) {
+    function createConstructor() {
 
         var Instance = function () {
 
@@ -338,7 +336,7 @@ define([
             applyBinds(this.$constructor[$class].binds, this, this);
 
             // Call initialize
-            initialize.apply(this, arguments);
+            this.initialize.apply(this, arguments);
         };
 
         Instance[$class] = { staticMethods: [], staticProperties: {}, interfaces: [], binds: [] };
@@ -468,7 +466,7 @@ define([
             delete params.$extends;
 
             params.initialize = params.initialize || function () { parent.prototype.initialize.apply(this, arguments); };
-            classify = createConstructor(params.initialize);
+            classify = createConstructor();
             classify.$parent = parent;
             classify[$class].id = parent[$class].id;
             classify.prototype = createObject(parent.prototype, params);
@@ -476,7 +474,7 @@ define([
             inheritParent(classify, parent);
         } else {
             params.initialize = params.initialize || function () {};
-            classify = createConstructor(params.initialize);
+            classify = createConstructor();
             classify[$class].id = nextId += 1;
             classify.prototype = params;
 

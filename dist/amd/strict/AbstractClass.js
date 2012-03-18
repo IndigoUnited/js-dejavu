@@ -18,8 +18,7 @@ define([
     './common/hasDefineProperty',
     './common/randomAccessor',
     'Utils/object/hasOwn',
-    './Class',
-    'require'
+    './Class'
 ], function AbstractClassWrapper(
     isObject,
     isFunction,
@@ -37,8 +36,7 @@ define([
     hasDefineProperty,
     randomAccessor,
     hasOwn,
-    Class,
-    require
+    Class
 ) {
 
     var random = randomAccessor(),
@@ -275,8 +273,6 @@ define([
      * @return {Function} The constructor
      */
     function AbstractClass(params) {
-
-        Class = require('./Class');
 
         if (!isObject(params)) {
             throw new Error('Argument "params" must be an object while defining an abstract class.');

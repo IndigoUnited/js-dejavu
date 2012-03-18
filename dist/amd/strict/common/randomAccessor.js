@@ -1,22 +1,19 @@
 /*jslint sloppy:true*/
 /*global define,console*/
 
-define(['Utils/array/contains'], function (contains) {
+define(function () {
 
     var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
-        nrAccesses = 0,
-        allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'FinalClassWrapper', 'isntanceOfWrapper'];
+        nrAccesses = 0;
 
     function randomAccessor() {
 
-        var caller = randomAccessor.caller || arguments.callee.caller || arguments.caller;
-
-        if ((caller.name && !contains(allowed, caller.name)) || nrAccesses > 5) {
+        if (nrAccesses > 5) {
             throw new Error('Can\'t access random identifier.');
-        } {
-            nrAccesses++;
-            return random;
         }
+
+        nrAccesses++;
+        return random;
     }
 
     return randomAccessor;
