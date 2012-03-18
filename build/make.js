@@ -42,7 +42,7 @@ emptyDir(distDir);
 currentBuild = 'amd';
 command = 'node "' + __dirname + '/../vendor/r.js/dist/r.js" -o ' + __dirname + '/Classify.build_' + currentBuild + '.js';
 currentDistDir = distDir + 'amd/strict/';
-cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true', function (error, stdout, stderr) {
+cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
 
     // Print success or error
     if (error !== null) {
@@ -97,7 +97,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true', function 
 
             emptyDir(currentDistDir);
 
-            cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true', function (error, stdout, stderr) {
+            cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
 
                 // Print success or error
                 if (error !== null) {

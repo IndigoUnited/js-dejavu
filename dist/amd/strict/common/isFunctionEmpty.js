@@ -1,7 +1,9 @@
-/*jslint sloppy:true, regexp:true*/
+/*jslint regexp:true*/
 /*global define*/
 
 define(function () {
+
+    "use strict";
 
     /**
      * Check if a function has no body.
@@ -11,7 +13,7 @@ define(function () {
      * @return {Boolean} True if it's empty, false otherwise
      */
     function isFunctionEmpty(func) {
-        return (/^function\s+\([^\(]*\)\s*\{\s*\}$/m).test(func.toString());
+        return (/^function\s+\([^\(]*\)\s*\{\s*(["']use strict["'];)?\s*\}$/m).test(func.toString());
     }
 
     return isFunctionEmpty;

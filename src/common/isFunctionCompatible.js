@@ -1,8 +1,9 @@
 //>>includeStart('strict', pragmas.strict);
-/*jslint sloppy:true*/
 /*global define*/
 
 define(function () {
+
+    "use strict";
 
     /**
      * Check if a function signature is compatible with another.

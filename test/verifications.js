@@ -47,6 +47,79 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
+            it('should throw an error when defining unallowed members', function () {
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            $finals: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            $abstracts: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            $statics: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Interface({
+                        $finals: {}
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Interface({
+                        $abstracts: {}
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Interface({
+                        $implements: []
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Interface({
+                        $borrows: []
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Interface({
+                        $binds: []
+                    });
+                }).to.throwException(/unallowed/);
+
+            });
+
+            it('should throw an error when defining ambiguous members', function () {
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: 'foo'
+                        },
+                        $statics: {
+                            SOME: function () {}
+                        }
+                    });
+                }).to.throwException(/different modifiers/);
+
+            });
+
             it('should throw an error when extending an invalid interface', function () {
 
                 expect(function () {
@@ -311,6 +384,34 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
+            it('should throw an error if $constants is not an object', function () {
+
+                expect(function () {
+                    return Interface({
+                        $constants: 'wtf'
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: undefined
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: null
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {}
+                    });
+                }).to.not.throwException();
+
+            });
+
             it('should throw an error when using reserved keywords', function () {
 
                 var reserved = ['$constructor', '$initializing', '$static', '$self', '$super'],
@@ -329,16 +430,21 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                             obj.$statics[key] = 'bla';
                             return Interface(obj);
                         };
+                    },
+                    checkConst = function (key) {
+                        return function () {
+                            var obj = {$constants: {}};
+                            obj.$constants[key] = 'bla';
+                            return Interface(obj);
+                        };
                     };
-
                 for (x = 0; x < reserved.length; x += 1) {
                     expect(checkNormal(reserved[x])).to.throwException(/using a reserved keyword/);
-                    expect(checkNormal(reserved[x], true)).to.throwException(/using a reserved keyword/);
                 }
 
                 for (x = 0; x < reservedStatic.length; x += 1) {
                     expect(checkStatic(reservedStatic[x])).to.throwException(/using a reserved keyword/);
-                    expect(checkStatic(reservedStatic[x], true)).to.throwException(/using a reserved keyword/);
+                    expect(checkConst(reservedStatic[x])).to.throwException(/using a reserved keyword/);
                 }
 
             });
@@ -551,7 +657,138 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
-            it('should throw an error if a protected/private methods are defined', function () {
+            it('should throw an error if $constants have non primitive types', function () {
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: {}
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: new Date()
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: function () {}
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: []
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: false
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: null
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: "SOME"
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: 1
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            SOME: /DSA/
+                        }
+                    });
+                }).to.not.throwException();
+
+            });
+
+            it('should throw an error when it extends multiple ones with same constants but different values', function () {
+
+                expect(function () {
+                    return Interface({
+                        $extends: [
+                            Interface({
+                                $constants: {
+                                    FOO: 'test'
+                                }
+                            }),
+                            Interface({
+                                $constants: {
+                                    FOO: 'test2'
+                                }
+                            })
+                        ]
+                    });
+                }).to.throwException(/different values/);
+
+                expect(function () {
+                    return Interface({
+                        $extends: [
+                            Interface({
+                                $constants: {
+                                    FOO: 'test'
+                                }
+                            }),
+                            Interface({
+                                $constants: {
+                                    FOO: 'test'
+                                }
+                            })
+                        ]
+                    });
+                }).to.not.throwException();
+
+            });
+
+            it('should throw when overriding a constant', function () {
+
+                expect(function () {
+                    return Interface({
+                        $extends: Interface({
+                            $constants: {
+                                FOO: 'test'
+                            }
+                        }),
+                        $constants: {
+                            FOO: 'test'
+                        }
+                    });
+                }).to.throwException(/override constant/);
+
+            });
+
+            it('should throw an error if a protected/private methods/constants are defined', function () {
 
                 expect(function () {
                     return Interface({
@@ -577,6 +814,22 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Interface({
                         $statics: {
                             _protectedMethod: function () {}
+                        }
+                    });
+                }).to.throwException(/non public/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            _FOO: 'bar'
+                        }
+                    });
+                }).to.throwException(/non public/);
+
+                expect(function () {
+                    return Interface({
+                        $constants: {
+                            __FOO: 'bar'
                         }
                     });
                 }).to.throwException(/non public/);
@@ -618,7 +871,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 }).to.throwException(/spaces/);
 
                 expect(function () {
-                    return Class({ $name: 'Some$name' });
+                    return Class({ $name: 'SomeName' });
                 }).to.not.throwException();
 
                 expect(function () {
@@ -634,7 +887,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 }).to.throwException(/spaces/);
 
                 expect(function () {
-                    return AbstractClass({ $name: 'Some$name' });
+                    return AbstractClass({ $name: 'SomeName' });
                 }).to.not.throwException();
 
             });
@@ -658,6 +911,435 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         initialize: 'some'
                     });
                 }).to.throwException(/must be a function/);
+
+            });
+
+            it('should throw an error when using the same function for different members', function () {
+
+                var a = function () {};
+
+                expect(function () {
+                    Class({
+                        test: a,
+                        test2: a
+                    });
+                }).to.throwException(/by the same/);
+
+                expect(function () {
+                    Class({
+                        test: a,
+                        $finals: {
+                            test2: a
+                        }
+                    });
+                }).to.throwException(/by the same/);
+
+                expect(function () {
+                    Class({
+                        $statics: {
+                            test: 1
+                        },
+                        $finals: {
+                            test2: a
+                        }
+                    });
+                }).to.throwException(/by the same/);
+
+            });
+
+            it('should throw an error when defining unallowed members', function () {
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            $finals: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            $abstracts: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            $statics: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $constants: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $abstracts: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $statics: {
+                            $finals: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $statics: {
+                            $constants: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $statics: {
+                            $name: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $name: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            $constants: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            $extends: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            $extends: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            $abstracts: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            $constants: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            $finals: {}
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            $statics: {
+                                $constants: {}
+                            }
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            $statics: {
+                                $finals: {}
+                            }
+                        }
+                    });
+                }).to.throwException(/unallowed/);
+
+            });
+
+            it('should throw an error when defining ambiguous members', function () {
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: 'foo'
+                        },
+                        $statics: {
+                            SOME: 'foo'
+                        }
+                    });
+                }).to.throwException(/different modifiers/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $statics: {
+                                SOME: 'foo'
+                            }
+                        },
+                        $statics: {
+                            SOME: 'foo'
+                        }
+                    });
+                }).to.throwException(/different modifiers/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $statics: {
+                                SOME: 'foo'
+                            }
+                        },
+                        $statics: {
+                            other: 'foo'
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            some: 'foo'
+                        },
+                        some: 'foo'
+                    });
+                }).to.throwException(/different modifiers/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $statics: {
+                                SOME: 'foo'
+                            }
+                        },
+                        $constants: {
+                            SOME: 'foo'
+                        }
+                    });
+                }).to.throwException(/different modifiers/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            $statics: {
+                                some: function () {}
+                            }
+                        },
+                        $constants: {
+                            some: 'foo'
+                        }
+                    });
+                }).to.throwException(/already defined/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            some: function () {}
+                        },
+                        $finals: {
+                            some: 'foo'
+                        }
+                    });
+                }).to.throwException(/already defined/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            some: function () {}
+                        },
+                        some: 'foo'
+                    });
+                }).to.throwException(/already defined/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            some: function () {}
+                        },
+                        $finals: {
+                            some: function () {}
+                        }
+                    });
+                }).to.throwException(/already implemented/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $abstracts: {
+                            some: function () {}
+                        },
+                        some: function () {}
+                    });
+                }).to.throwException(/already implemented/);
+
+            });
+
+            it('should throw an error when defining unallowed properties', function () {
+
+                expect(function () {
+                    return Class({
+                        some: undefined
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        some: Class({})
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        some: new Class({})
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            some: undefined
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            some: Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            some: new Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        $statics: {
+                            some: undefined
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        $statics: {
+                            some: Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return Class({
+                        $statics: {
+                            some: new Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        some: undefined
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        some: Class({})
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        some: new Class({})
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $finals: {
+                            some: undefined
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $finals: {
+                            some: Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $finals: {
+                            some: new Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $statics: {
+                            some: undefined
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $statics: {
+                            some: Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $statics: {
+                            some: new Class({})
+                        }
+                    });
+                }).to.throwException(/cannot be parsed/);
 
             });
 
@@ -701,6 +1383,24 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
+            it('should throw an error if it any function is not well formed', function () {
+
+                expect(function () {
+                    return Class({
+                        method1: function ($a, b) {}
+                    });
+                }).to.throwException(/contains optional arguments before mandatory ones/);
+
+                expect(function () {
+                    return Class({
+                        $statics: {
+                            method1: function ($a, b) {}
+                        }
+                    });
+                }).to.throwException(/contains optional arguments before mandatory ones/);
+
+            });
+
             it('should throw an error if $statics is not an object', function () {
 
                 expect(function () {
@@ -729,22 +1429,283 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
-            it('should throw an error if it any function is not well formed', function () {
+            it('should throw an error if $statics inside $finals is not an object', function () {
 
                 expect(function () {
                     return Class({
-                        method1: function ($a, b) {}
-                    });
-                }).to.throwException(/contains optional arguments before mandatory ones/);
-
-                expect(function () {
-                    return Class({
-                        $statics: {
-                            method1: function ($a, b) {}
+                        $finals: {
+                            $statics: 'wtf'
                         }
                     });
-                }).to.throwException(/contains optional arguments before mandatory ones/);
+                }).to.throwException(/must be an object/);
 
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $statics: undefined
+                        }
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $statics: null
+                        }
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            $statics: {}
+                        }
+                    });
+                }).to.not.throwException();
+
+            });
+
+            it('should throw an error if $finals is not an object', function () {
+
+                expect(function () {
+                    return Class({
+                        $finals: 'wtf'
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $finals: undefined
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $finals: null
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $finals: {}
+                    });
+                }).to.not.throwException();
+
+            });
+
+            it('should throw an error while defining private method/parameter as $final', function () {
+
+                expect(function () {
+                    return Class({
+                        $finals: {
+                            __foo: 'bar',
+                            __someFunction: function () {
+                                return this.foo;
+                            }
+                        }
+                    });
+                }).to.throwException(/classified as final/);
+
+            });
+
+            it('should throw an error if overriding a final method or parameter', function () {
+
+                var SomeClass = Class({
+                    $finals: {
+                        foo: 'bar',
+                        someFunction: function () {
+                            return this.foo;
+                        }
+                    }
+                });
+
+                expect(function () {
+                    return Class({
+                        $extends: SomeClass,
+                        foo: 'wtf'
+                    });
+                }).to.throwException(/override final/);
+
+                expect(function () {
+                    return Class({
+                        $extends: SomeClass,
+                        someFunction: function () {}
+                    });
+                }).to.throwException(/override final/);
+
+                expect(function () {
+                    return Class({
+                        $extends: SomeClass,
+                        $finals: {
+                            foo: 'wtf'
+                        }
+                    });
+                }).to.throwException(/override final/);
+
+                expect(function () {
+                    return Class({
+                        $extends: SomeClass,
+                        $finals: {
+                            someFunction: function () {}
+                        }
+                    });
+                }).to.throwException(/override final/);
+
+            });
+
+            it('should throw an error if $constants is not an object', function () {
+
+                expect(function () {
+                    return Class({
+                        $constants: 'wtf'
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $constants: undefined
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $constants: null
+                    });
+                }).to.throwException(/must be an object/);
+
+                expect(function () {
+                    return Class({
+                        $constants: {}
+                    });
+                }).to.not.throwException();
+
+            });
+
+            it('should throw an error if $constants have non primitive types', function () {
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: {}
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: new Date()
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: function () {}
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: []
+                        }
+                    });
+                }).to.throwException(/primitive type/);
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: false
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: null
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: "SOME"
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: 1
+                        }
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        $constants: {
+                            SOME: /DSA/
+                        }
+                    });
+                }).to.not.throwException();
+
+            });
+
+            it('should throw an error if overriding a constant parameter', function () {
+
+                var SomeClass = Class({
+                    $constants: {
+                        FOO: 'bar'
+                    }
+                });
+
+                expect(function () {
+                    return Class({
+                        $extends: SomeClass,
+                        $finals: {
+                            $statics: {
+                                FOO: 'WTF'
+                            }
+                        }
+                    });
+                }).to.throwException(/override constant/);
+
+                expect(function () {
+                    return Class({
+                        $extends: SomeClass,
+                        $statics: {
+                            FOO: 'WTF'
+                        }
+                    });
+                }).to.throwException(/override constant/);
+
+                expect(function () {
+                    return Class({
+                        $extends: SomeClass,
+                        $constants: {
+                            FOO: 'WTF'
+                        }
+                    });
+                }).to.throwException(/override constant/);
+
+                expect(function () {
+                    return Class({
+                        $implements: Interface({
+                            $constants: {
+                                FOO: 'WTF'
+                            }
+                        }),
+                        $constants: {
+                            FOO: 'WTF'
+                        }
+                    });
+                }).to.throwException(/override constant/);
             });
 
             it('should throw an error if $binds is not a string or an array of strings', function () {
@@ -2024,6 +2985,17 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return AbstractClass({
+                        $extends: AbstractClass({
+                            some: 'foo'
+                        }),
+                        $abstracts: {
+                            some: function () {}
+                        }
+                    });
+                }).to.throwException(/defined property/);
+
+                expect(function () {
+                    return AbstractClass({
                         $extends: Class({
                             $statics: {
                                 some: function () {}
@@ -2051,6 +3023,21 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.throwException(/already implemented/);
+
+                expect(function () {
+                    return AbstractClass({
+                        $extends: AbstractClass({
+                            $statics: {
+                                some: 'some'
+                            }
+                        }),
+                        $abstracts: {
+                            $statics: {
+                                some: function () {}
+                            }
+                        }
+                    });
+                }).to.throwException(/defined property/);
 
             });
 
@@ -2090,29 +3077,68 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 var reserved = ['$constructor', '$initializing', '$static', '$self', '$super'],
                     reservedStatic = ['$parent', '$super'],
                     x,
-                    checkNormal = function (key, inAbstracts) {
+                    checkNormal = function (key, where) {
                         return function () {
-                            var obj = {};
+                            var obj = {},
+                                temp;
                             obj[key] = 'bla';
-                            return AbstractClass(!!inAbstracts ? {$abstracts: obj} : obj);
+
+                            if (where) {
+                                temp = {};
+                                temp[where] = obj;
+                            } else {
+                                temp = obj;
+                            }
+
+                            return AbstractClass(temp);
                         };
                     },
-                    checkStatic = function (key, inAbstracts) {
+                    checkStatic = function (key, where) {
                         return function () {
-                            var obj = {$statics: {}};
+                            var obj = {$statics: {}},
+                                temp;
                             obj.$statics[key] = 'bla';
-                            return AbstractClass(!!inAbstracts ? {$abstracts: obj} : obj);
+
+                            if (where) {
+                                temp = {};
+                                temp[where] = obj;
+                            } else {
+                                temp = obj;
+                            }
+
+                            return AbstractClass(temp);
+                        };
+                    },
+                    checkConst = function (key) {
+                        return function () {
+                            var obj = {$constants: {}};
+                            obj.$constants[key] = 'bla';
+                            return AbstractClass(obj);
                         };
                     };
 
                 for (x = 0; x < reserved.length; x += 1) {
                     expect(checkNormal(reserved[x])).to.throwException(/using a reserved keyword/);
-                    expect(checkNormal(reserved[x], true)).to.throwException(/using a reserved keyword/);
+                    expect(checkNormal(reserved[x], '$abstracts')).to.throwException(/using a reserved keyword/);
                 }
 
                 for (x = 0; x < reservedStatic.length; x += 1) {
                     expect(checkStatic(reservedStatic[x])).to.throwException(/using a reserved keyword/);
-                    expect(checkStatic(reservedStatic[x], true)).to.throwException(/using a reserved keyword/);
+                    expect(checkStatic(reservedStatic[x], '$abstracts')).to.throwException(/using a reserved keyword/);
+                }
+
+                for (x = 0; x < reserved.length; x += 1) {
+                    expect(checkNormal(reserved[x])).to.throwException(/using a reserved keyword/);
+                    expect(checkNormal(reserved[x], '$finals')).to.throwException(/using a reserved keyword/);
+                }
+
+                for (x = 0; x < reservedStatic.length; x += 1) {
+                    expect(checkStatic(reservedStatic[x])).to.throwException(/using a reserved keyword/);
+                    expect(checkStatic(reservedStatic[x], '$finals')).to.throwException(/using a reserved keyword/);
+                }
+
+                for (x = 0; x < reservedStatic.length; x += 1) {
+                    expect(checkConst(reservedStatic[x])).to.throwException(/using a reserved keyword/);
                 }
 
             });
@@ -2743,29 +3769,55 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 var reserved = ['$constructor', '$initializing', '$static', '$self', '$super'],
                     reservedStatic = ['$parent', '$super'],
                     x,
-                    checkNormal = function (key) {
+                    checkNormal = function (key, where) {
                         return function () {
-                            var obj = {};
+                            var obj = {},
+                                temp;
                             obj[key] = 'bla';
-                            return Class(obj);
+
+                            if (where) {
+                                temp = {};
+                                temp[where] = obj;
+                            } else {
+                                temp = obj;
+                            }
+
+                            return Class(temp);
                         };
                     },
-                    checkStatic = function (key) {
+                    checkStatic = function (key, where) {
                         return function () {
-                            var obj = {$statics: {}};
+                            var obj = {$statics: {}},
+                                temp;
                             obj.$statics[key] = 'bla';
-                            return Class(obj);
+
+                            if (where) {
+                                temp = {};
+                                temp[where] = obj;
+                            } else {
+                                temp = obj;
+                            }
+
+                            return Class(temp);
+                        };
+                    },
+                    checkConst = function (key) {
+                        return function () {
+                            var obj = {$constants: {}};
+                            obj.$constants[key] = 'bla';
+                            return AbstractClass(obj);
                         };
                     };
 
                 for (x = 0; x < reserved.length; x += 1) {
                     expect(checkNormal(reserved[x])).to.throwException(/using a reserved keyword/);
-                    expect(checkNormal(reserved[x], true)).to.throwException(/using a reserved keyword/);
+                    expect(checkNormal(reserved[x], '$finals')).to.throwException(/using a reserved keyword/);
                 }
 
                 for (x = 0; x < reservedStatic.length; x += 1) {
                     expect(checkStatic(reservedStatic[x])).to.throwException(/using a reserved keyword/);
-                    expect(checkStatic(reservedStatic[x], true)).to.throwException(/using a reserved keyword/);
+                    expect(checkStatic(reservedStatic[x], '$finals')).to.throwException(/using a reserved keyword/);
+                    expect(checkConst(reservedStatic[x])).to.throwException(/using a reserved keyword/);
                 }
 
             });

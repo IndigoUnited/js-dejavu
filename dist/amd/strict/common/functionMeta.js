@@ -1,7 +1,9 @@
-/*jslint sloppy:true, regexp:true*/
+/*jslint regexp:true*/
 /*global define*/
 
 define(function () {
+
+    "use strict";
 
     /**
      * Extract meta data from a function.
@@ -24,6 +26,7 @@ define(function () {
             length,
             x;
 
+        // Analyze arguments
         if (!matches) {
             return null;
         }
@@ -51,6 +54,7 @@ define(function () {
             ret.signature = ret.signature.substr(0, ret.signature.length - 2);
         }
 
+        // Analyze visibility
         if (name) {
             if (name.charAt(0) === '_') {
                 if (name.charAt(1) === '_') {

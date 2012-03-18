@@ -1,15 +1,17 @@
-/*jslint browser:true, sloppy:true, forin:true, newcap:true, callee:true*/
-/*global define,console*/
+/*jslint forin:true, newcap:true, callee:true, eqeq:true*/
+/*global define*/
 
 define([
     'Utils/lang/isFunction',
     'Utils/lang/isObject',
     'Utils/lang/isArray',
+    'Utils/lang/isDate',
     'Utils/lang/isUndefined',
     'Utils/lang/createObject',
     'Utils/object/mixIn',
     'Utils/object/hasOwn',
     'Utils/array/combine',
+    'Utils/array/contains',
     'Utils/array/append',
     'Utils/array/insert',
     'Utils/lang/bind',
@@ -18,11 +20,13 @@ define([
     isFunction,
     isObject,
     isArray,
+    isDate,
     isUndefined,
     createObject,
     mixIn,
     hasOwn,
     combine,
+    contains,
     append,
     insert,
     bind,
@@ -44,12 +48,20 @@ define([
      */
     function cloneProperty(prop) {
 
+        var temp;
+
         if (isArray(prop)) {
             return [].concat(prop);
         }
         if (isObject(prop)) {
             return mixIn({}, prop);
         }
+        if (isDate(prop)) {
+            temp = new Date();
+            temp.setTime(prop.getTime());
+            return temp;
+        }
+
         return prop;
     }
 
@@ -71,7 +83,7 @@ define([
 
             for (i -= 1; i >= 0; i -= 1) {
 
-                current = isObject(mixins[i]) ? Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
+                current = isObject(mixins[i]) ? new Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
 
                 // Grab mixin members
                 for (key in current) {
@@ -123,15 +135,30 @@ define([
      * Handle class interfaces.
      *
      * @param {Array}  interfs The array of interfaces
-     * @param {Object} target  The target that will be checked
+     * @param {Object} target  The target that has the interfaces
      */
     function handleInterfaces(interfs, target) {
 
-        var interfaces = toArray(interfs),
-            x = interfaces.length;
+        interfs = toArray(interfs);
+
+        var interf,
+            x = interfs.length,
+            k;
 
         for (x -= 1; x >= 0; x -= 1) {
-            target[$class].interfaces.push(interfaces[x]);
+
+            interf = interfs[x];
+
+            // Inherit constants and add interface to the interfaces array
+            if (!contains(target[$class].interfaces, interf)) {
+
+                for (k = interf[$interface].constants.length - 1; k >= 0; k -= 1) {
+                    target[interf[$interface].constants[k]] = interf[interf[$interface].constants[k]];
+                    target[$class].staticProperties[interf[$interface].constants[k]] = interf[interf[$interface].constants[k]];
+                }
+
+                target[$class].interfaces.push(interf);
+            }
         }
     }
 
@@ -151,49 +178,121 @@ define([
     }
 
     /**
-     * Parse all the members, including static ones.
+     * Parse an object members.
+     *
+     * @param {Object}   params      The parameters
+     * @param {Function} constructor The constructor
+     * @param {Boolean}  isFinal     Parse the members as finals
+     */
+    function parseMembers(params, constructor, isFinal) {
+
+        var key,
+            value,
+            cache = {};
+
+        if (hasOwn(params, '$statics')) {
+
+            for (key in params.$statics) {
+
+                value = params.$statics[key];
+
+                if (isFunction(value) && !value[$class] && !value[$interface]) {
+                    insert(constructor[$class].staticMethods, key);
+                    value['$constructor_' + constructor[$class].id] = constructor;
+                    value.$name = key;
+                } else {
+                    constructor[$class].staticProperties[key] = value;
+                }
+
+                constructor[key] = value;
+            }
+
+            delete params.$statics;
+        }
+
+        // Save certain keywords in the cache for the loop bellow to work faster
+        if (hasOwn(params, '$binds')) {
+            cache.$binds = params.$binds;
+            delete params.$binds;
+        }
+
+        if (hasOwn(params, '$borrows')) {
+            cache.$borrows = params.$borrows;
+            delete params.$borrows;
+        }
+
+        if (hasOwn(params, '$implements')) {
+            cache.$implements = params.$implements;
+            delete params.$implements;
+        }
+
+        if (hasOwn(params, '$abstracts')) {
+            cache.$abstracts = params.$abstracts;
+            delete params.$abstracts;
+        }
+
+        for (key in params) {
+
+            value = params[key];
+
+            if (isFunction(value) && !value[$class] && !value[$interface]) {
+                value['$prototype_' + constructor[$class].id] = constructor.prototype;
+                value.$name = key;
+            }
+
+            if (isFinal) {
+                constructor.prototype[key] = value;
+            }
+        }
+
+        // Restore from cache
+        mixIn(params, cache);
+    }
+
+    /**
+     * Parse all the class members, including finals, static and constants.
      *
      * @param {Object}   params      The parameters
      * @param {Function} constructor The constructor
      */
-    function parseMembers(params, constructor) {
+    function parseClass(params, constructor) {
 
         var key,
-            value;
+            value,
+            saved = {},
+            has = {};
 
-        for (key in params) {
+         // Save constants & finals to parse later
+        if (hasOwn(params, '$constants')) {
+            saved.$constants = params.$constants;
+            has.$constants = true;
+            delete params.$constants;
+        }
 
-            if (key === '$statics') {
+        if (hasOwn(params, '$finals')) {
+            saved.$finals = params.$finals;
+            has.$finals = true;
+            delete params.$finals;
+        }
 
-                for (key in params.$statics) {
+        // Parse members
+        parseMembers(params, constructor);
 
-                    value = params.$statics[key];
+        // Parse constants
+        if (has.$constants) {
 
-                    if (isFunction(value) && !value[$class] && !value[$interface]) {
-                        insert(constructor[$class].staticMethods, key);
-                        value['$constructor_' + constructor[$class].id] = constructor;
-                        value.$name = key;
-                    } else {
-                        constructor[$class].staticProperties[key] = value;
-                    }
+            for (key in saved.$constants) {
 
-                    constructor[key] = value;
-                }
+                value = saved.$constants[key];
 
-                delete constructor.prototype.$statics;
-
-            } else {
-
-                value = params[key];
-
-                if (key.charAt(0) !== '$' || (key !== '$binds' && key !== '$borrows' && key !== '$implements' && key !== '$abstracts')) {
-
-                    if (isFunction(value) && !value[$class] && !value[$interface]) {
-                        value['$prototype_' + constructor[$class].id] = constructor.prototype;
-                        value.$name = key;
-                    }
-                }
+                constructor[$class].staticProperties[key] = value;
+                constructor[key] = value;
             }
+        }
+
+        // Parse finals
+        if (has.$finals) {
+            parseMembers(saved.$finals, constructor, true);
         }
     }
 
@@ -220,11 +319,9 @@ define([
      * Builds the constructor function that calls the initialize and do
      * more things internally.
      *
-     * @param {Function} initialize The initialize function
-     *
      * @return {Function} The constructor function
      */
-    function createConstructor(initialize) {
+    function createConstructor() {
 
         var Instance = function () {
 
@@ -239,7 +336,7 @@ define([
             applyBinds(this.$constructor[$class].binds, this, this);
 
             // Call initialize
-            initialize.apply(this, arguments);
+            this.initialize.apply(this, arguments);
         };
 
         Instance[$class] = { staticMethods: [], staticProperties: {}, interfaces: [], binds: [] };
@@ -285,6 +382,9 @@ define([
                 constructor[key] = cloneProperty(value);
             }
         }
+
+        // Inherit implemented interfaces
+        constructor[$class].interfaces = [].concat(parent[$class].interfaces);
     }
 
     /**
@@ -356,6 +456,8 @@ define([
      */
     Class = function Class(params) {
 
+        delete params.$name;
+
         var classify,
             parent;
 
@@ -364,7 +466,7 @@ define([
             delete params.$extends;
 
             params.initialize = params.initialize || function () { parent.prototype.initialize.apply(this, arguments); };
-            classify = createConstructor(params.initialize);
+            classify = createConstructor();
             classify.$parent = parent;
             classify[$class].id = parent[$class].id;
             classify.prototype = createObject(parent.prototype, params);
@@ -372,7 +474,7 @@ define([
             inheritParent(classify, parent);
         } else {
             params.initialize = params.initialize || function () {};
-            classify = createConstructor(params.initialize);
+            classify = createConstructor();
             classify[$class].id = nextId += 1;
             classify.prototype = params;
 
@@ -382,10 +484,9 @@ define([
             classify.prototype.$static = staticAlias;
         }
 
-        delete classify.prototype.$name;
 
-        // Parse members
-        parseMembers(params, classify);
+        // Parse class members
+        parseClass(params, classify);
 
         // Assign constructor & static parent alias
         classify.prototype.$constructor = classify;
