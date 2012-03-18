@@ -55,7 +55,9 @@ The loose version also has lower memory footprint and less size in bytes.
 Also there is an alternative to $super() inside your functions. The alternative is relatively faster than the original $super() and can be used in critical code.
 See below for more information.
 
-
+NOTE: The strict mode works well with "use strict".
+      Though, to improve performance, the loose version is not compatible with "use strict".
+      Run a preprocessor to remove "use strict" from all your code in production.
 
 ## Usage ##
 
