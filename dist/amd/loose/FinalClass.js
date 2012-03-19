@@ -7,7 +7,6 @@ define([
     Class
 ) {
 
-
     return function FinalClass(params) {
 
         var def = new Class(params);
