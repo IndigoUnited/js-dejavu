@@ -1744,8 +1744,8 @@ define([
         if (isAbstract) {
             obfuscateProperty(classify, '$abstract_' + random, true, true); // Signal it has abstract
         }
-//>>includeEnd('strict');
 
+//>>includeEnd('strict');
         // Parse class members
         parseClass(params, classify);
 
@@ -1778,8 +1778,8 @@ define([
         if (parent && parent[$abstract] && !isAbstract) {
             parent[$abstract].check(classify);
         }
-//>>includeEnd('strict');
 
+//>>includeEnd('strict');
         // Handle interfaces
         if (hasOwn(params, '$implements')) {
             handleInterfaces(params.$implements, classify);

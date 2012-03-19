@@ -484,7 +484,6 @@ define([
             classify.prototype.$static = staticAlias;
         }
 
-
         // Parse class members
         parseClass(params, classify);
 
@@ -497,7 +496,6 @@ define([
 
         // Parse binds
         parseBinds(classify);
-
 
         // Handle interfaces
         if (hasOwn(params, '$implements')) {
