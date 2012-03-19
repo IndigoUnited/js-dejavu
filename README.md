@@ -368,7 +368,7 @@ define(['path/to/classify/Class', function (Class) {
             // ...
         },
 
-        $finals: {                 // Classes that extend this one are not allowed to change the members below
+        $finals: {                 // Classes that extend this one are not allowed to override the members below
 
             someMethod: function () {
                 // ...
