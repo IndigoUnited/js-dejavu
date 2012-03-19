@@ -24,7 +24,7 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 * Method signature checks
 * Custom instanceOf that also works with interfaces
 * Has two builds, one regular and one AMD based
-* Loose build (the one to be used in production) has 9.71Kb minified and 3.1Kb minified + gziped
+* Loose build (the one to be used in production) has 9.71Kb minified and 3.4Kb minified + gziped
 
 
 
@@ -55,9 +55,9 @@ The loose version also has lower memory footprint and less size in bytes.
 Also there is an alternative to $super() inside your functions. The alternative is relatively faster than the original $super() and can be used in critical code.
 See below for more information.
 
-NOTE: The strict mode works well with "use strict".
+_NOTE_: The strict mode works well with "use strict".
       Though, to improve performance, the loose version is not compatible with "use strict".
-      Run a preprocessor to remove "use strict" from all your code in production.
+      Run a preprocessor to remove "use strict" from all production code.
 
 ## Usage ##
 
