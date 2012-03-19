@@ -28,8 +28,8 @@ define([
 
     var random = randomAccessor(),
         $class = '$class_' + random;
-//>>includeEnd('strict');
 
+//>>includeEnd('strict');
     return function FinalClass(params) {
 
         var def = new Class(params);
