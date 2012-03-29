@@ -16,7 +16,6 @@ define([
     'Utils/array/intersection',
     'Utils/array/unique',
     'Utils/array/compact',
-    'Utils/object/mixIn',
     'Utils/object/keys',
     './common/checkKeywords',
     './common/testKeywords',
@@ -28,6 +27,7 @@ define([
     './common/randomAccessor',
     './common/isPrimitiveType',
     './common/hasDefineProperty',
+    './common/mixIn',
 //>>includeEnd('strict');
     'Utils/object/hasOwn',
     'Utils/lang/toArray'
@@ -41,7 +41,6 @@ define([
     intersection,
     unique,
     compact,
-    mixIn,
     keys,
     checkKeywords,
     testKeywords,
@@ -53,6 +52,7 @@ define([
     randomAccessor,
     isPrimitiveType,
     hasDefineProperty,
+    mixIn,
 //>>includeEnd('strict');
     hasOwn,
     toArray

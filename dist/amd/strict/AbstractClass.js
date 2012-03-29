@@ -7,7 +7,6 @@ define([
     'Utils/lang/isString',
     'Utils/lang/toArray',
     'Utils/lang/bind',
-    'Utils/object/mixIn',
     'Utils/array/combine',
     './common/functionMeta',
     './common/isFunctionEmpty',
@@ -17,6 +16,7 @@ define([
     './common/checkObjectPrototype',
     './common/hasDefineProperty',
     './common/randomAccessor',
+    './common/mixIn',
     'Utils/object/hasOwn',
     './Class'
 ], function AbstractClassWrapper(
@@ -25,7 +25,6 @@ define([
     isString,
     toArray,
     bind,
-    mixIn,
     combine,
     functionMeta,
     isFunctionEmpty,
@@ -35,6 +34,7 @@ define([
     checkObjectPrototype,
     hasDefineProperty,
     randomAccessor,
+    mixIn,
     hasOwn,
     Class
 ) {

@@ -10,7 +10,6 @@ define([
     'Utils/array/intersection',
     'Utils/array/unique',
     'Utils/array/compact',
-    'Utils/object/mixIn',
     'Utils/object/keys',
     './common/checkKeywords',
     './common/testKeywords',
@@ -22,6 +21,7 @@ define([
     './common/randomAccessor',
     './common/isPrimitiveType',
     './common/hasDefineProperty',
+    './common/mixIn',
     'Utils/object/hasOwn',
     'Utils/lang/toArray'
 ], function InterfaceWrapper(
@@ -33,7 +33,6 @@ define([
     intersection,
     unique,
     compact,
-    mixIn,
     keys,
     checkKeywords,
     testKeywords,
@@ -45,6 +44,7 @@ define([
     randomAccessor,
     isPrimitiveType,
     hasDefineProperty,
+    mixIn,
     hasOwn,
     toArray
 ) {

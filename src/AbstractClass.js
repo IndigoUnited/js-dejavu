@@ -13,7 +13,6 @@ define([
     'Utils/lang/isString',
     'Utils/lang/toArray',
     'Utils/lang/bind',
-    'Utils/object/mixIn',
     'Utils/array/combine',
     './common/functionMeta',
     './common/isFunctionEmpty',
@@ -23,6 +22,7 @@ define([
     './common/checkObjectPrototype',
     './common/hasDefineProperty',
     './common/randomAccessor',
+    './common/mixIn',
 //>>includeEnd('strict');
     'Utils/object/hasOwn',
     './Class'
@@ -33,7 +33,6 @@ define([
     isString,
     toArray,
     bind,
-    mixIn,
     combine,
     functionMeta,
     isFunctionEmpty,
@@ -43,6 +42,7 @@ define([
     checkObjectPrototype,
     hasDefineProperty,
     randomAccessor,
+    mixIn,
 //>>includeEnd('strict');
     hasOwn,
     Class

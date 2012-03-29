@@ -31,10 +31,10 @@ define([
     'Utils/lang/isDate',
     'Utils/lang/isUndefined',
     'Utils/lang/createObject',
-    'Utils/object/mixIn',
     'Utils/object/hasOwn',
     'Utils/array/combine',
     'Utils/array/contains',
+     './common/mixIn',
 //>>excludeStart('strict', pragmas.strict);
     'Utils/array/append',
     'Utils/array/insert',
@@ -66,10 +66,10 @@ define([
     isDate,
     isUndefined,
     createObject,
-    mixIn,
     hasOwn,
     combine,
     contains,
+    mixIn,
 //>>excludeStart('strict', pragmas.strict);
     append,
     insert,

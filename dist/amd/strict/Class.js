@@ -24,10 +24,10 @@ define([
     'Utils/lang/isDate',
     'Utils/lang/isUndefined',
     'Utils/lang/createObject',
-    'Utils/object/mixIn',
     'Utils/object/hasOwn',
     'Utils/array/combine',
     'Utils/array/contains',
+     './common/mixIn',
     'Utils/lang/bind',
     'Utils/lang/toArray'
 ], function ClassWrapper(
@@ -53,10 +53,10 @@ define([
     isDate,
     isUndefined,
     createObject,
-    mixIn,
     hasOwn,
     combine,
     contains,
+    mixIn,
     bind,
     toArray
 ) {
