@@ -1,4 +1,9 @@
-/*jslint forin:true, newcap:true, callee:true, eqeq:true*/
+//>>includeStart('strict', pragmas.strict);
+/*jslint forin:true, newcap:true, eqeq:true*/
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+/*jslint sloppy:true, forin:true, newcap:true, callee:true, eqeq:true*/
+//>>excludeEnd('strict');
 /*global define*/
 
 define([
@@ -88,13 +93,15 @@ define([
         nextId = 0,
         caller,
         toStringInstance,
-        toStringConstructor;
+        toStringConstructor,
+        staticAlias;
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
     var Class,
         nextId = 0,
         $class = '$class',
-        $interface = '$interface';
+        $interface = '$interface',
+        staticAlias;
 //>>excludeEnd('strict');
 
     /**
@@ -763,10 +770,8 @@ define([
             delete params.$abstracts;
         }
 
-        var teste = [];
         for (key in params) {
 
-            teste.push(key);
             value = params[key];
 
 //>>includeStart('strict', pragmas.strict);
@@ -1550,9 +1555,9 @@ define([
      *
      * @return {Function} The function
      */
-    function staticAlias() {
+    staticAlias = function () {
         return this.$constructor;
-    }
+    };
 
     /**
      * Creates a function that will be used to call a parent static method.

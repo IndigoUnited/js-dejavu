@@ -1,4 +1,9 @@
+//>>includeStart('strict', pragmas.strict);
 /*jslint nomen:true, newcap:true, forin:true*/
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+/*jslint sloppy:true, nomen:true, newcap:true, forin:true*/
+//>>excludeEnd('strict');
 /*global define*/
 
 define([

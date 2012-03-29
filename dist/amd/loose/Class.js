@@ -1,4 +1,4 @@
-/*jslint forin:true, newcap:true, callee:true, eqeq:true*/
+/*jslint sloppy:true, forin:true, newcap:true, callee:true, eqeq:true*/
 /*global define*/
 
 define([
@@ -36,7 +36,8 @@ define([
     var Class,
         nextId = 0,
         $class = '$class',
-        $interface = '$interface';
+        $interface = '$interface',
+        staticAlias;
 
     /**
      * Clones a property in order to make them unique for the instance.
@@ -231,10 +232,8 @@ define([
             delete params.$abstracts;
         }
 
-        var teste = [];
         for (key in params) {
 
-            teste.push(key);
             value = params[key];
 
             if (isFunction(value) && !value[$class] && !value[$interface]) {
@@ -428,9 +427,9 @@ define([
      *
      * @return {Function} The function
      */
-    function staticAlias() {
+    staticAlias = function () {
         return this.$constructor;
-    }
+    };
 
     /**
      * Creates a function that will be used to call a parent static method.

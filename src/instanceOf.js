@@ -1,3 +1,6 @@
+//>>excludeStart('strict', pragmas.strict);
+/*jslint sloppy:true*/
+//>>excludeEnd('strict');
 /*global define*/
 
 define([
