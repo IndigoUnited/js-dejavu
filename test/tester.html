@@ -13,11 +13,7 @@
                 var build = getBuild();
                 mocha.setup('bdd');
 
-                require(['./' + build, 'Utils/array/indexOf'], function(dummy, indexOf) {
-
-                    if (!Array.prototype.indexOf) {
-                        Array.prototype.indexOf = indexOf;
-                    }
+                require(['./' + build], function(dummy) {
 
                     var elem = document.getElementById(build.replace(/\//g, '_'));
                     if (elem) {

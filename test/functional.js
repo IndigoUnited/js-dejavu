@@ -62,10 +62,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 example2 = new Example();
 
             it('should return a valid instance', function () {
-
                 expect(instanceOf(example, Example)).to.be.equal(true);
-                expect(example).to.be.a('object');
-
+                expect(example).to.be.an('object');
             });
 
             it('should have 4 methods', function () {
@@ -177,11 +175,11 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             }),
                 Andre = Class({
                     $extends: Person,
-                    name: 'André'
+                    $name: 'André'
                 }),
                 SuperAndre = Class({
                     $extends: Andre,
-                    name: 'SuperAndre'
+                    $name: 'SuperAndre'
                 }),
                 PersonAbstract = AbstractClass({
                     status: null,
@@ -191,11 +189,11 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }),
                 AndreAbstract = AbstractClass({
                     $extends: PersonAbstract,
-                    name: 'André'
+                    $name: 'André'
                 }),
                 SuperAndre2 = Class({
                     $extends: AndreAbstract,
-                    name: 'SuperAndre'
+                    $name: 'SuperAndre'
                 });
 
             it('should invoke the parent constructor automatically', function () {
@@ -215,12 +213,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         describe('$super()', function () {
 
             var SomeClass = Class({
-                _first$name: null,
+                _firstName: null,
                 initialize: function () {
-                    this._first$name = 'andre';
+                    this._firstName = 'andre';
                 },
-                getFull$name: function () {
-                    return this._first$name;
+                getFullName: function () {
+                    return this._firstName;
                 },
                 $statics: {
                     _fruit: 'potato',
@@ -231,13 +229,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             }),
                 OtherClass = Class({
                     $extends: SomeClass,
-                    _last$name: null,
+                    _lastName: null,
                     initialize: function () {
                         this.$super();
-                        this._last$name = 'cruz';
+                        this._lastName = 'cruz';
                     },
-                    getFull$name: function () {
-                        return this.$super() + ' ' + this._last$name;
+                    getFullName: function () {
+                        return this.$super() + ' ' + this._lastName;
                     },
                     $statics: {
                         getFruit: function () {
@@ -247,7 +245,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }),
                 HiClass = Class({
                     $extends: OtherClass,
-                    getFull$name: function () {
+                    getFullName: function () {
                         return 'hi ' + this.$super();
                     },
                     $statics: {
@@ -259,8 +257,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             it('should call the parent method', function () {
 
-                expect(new OtherClass().getFull$name()).to.be.equal('andre cruz');
-                expect(new HiClass().getFull$name()).to.be.equal('hi andre cruz');
+                expect(new OtherClass().getFullName()).to.be.equal('andre cruz');
+                expect(new HiClass().getFullName()).to.be.equal('hi andre cruz');
 
             });
 
@@ -363,6 +361,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         describe('Instantiation of inheritance Cat -> Pet', function () {
 
             var Pet = Class({
+                $name: 'Pet',
                 name: 'Pet',
                 position: 0,
                 initialize: function () {
@@ -372,7 +371,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 walk: function () {
                     this.position += 1;
                 },
-                get$name: function () {
+                getName: function () {
                     return this.name;
                 },
                 getPosition: function () {
@@ -394,6 +393,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 cat;
 
             Cat = Class({
+                $name: 'Cat',
                 $extends: Pet,
                 initialize: function () {
                     this.name = 'Cat';
@@ -444,8 +444,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             it('should have the right name', function () {
 
-                expect(pet.get$name()).to.be.equal('Pet');
-                expect(cat.get$name()).to.be.equal('Cat');
+                expect(pet.getName()).to.be.equal('Pet');
+                expect(cat.getName()).to.be.equal('Cat');
 
             });
 
@@ -526,22 +526,28 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }
             }),
                 SomeClass = Class({
+                    $name: "SomeClass",
                     $implements: SomeInterface
                 }),
                 OtherClass = Class({
+                    $name: "OtherClass",
                     $extends: SomeClass
                 }),
                 SomeOtherClass = Class({
+                    $name: "SomeOtherClass",
                     $extends: SomeClass,
                     $implements: SomeInterface
                 }),
                 SomeAbstractClass = AbstractClass({
+                    $name: "SomeAbstractClass",
                     $implements: SomeInterface
                 }),
                 OtherAbstractClass = AbstractClass({
+                    $name: "OtherAbstractClass",
                     $extends: SomeAbstractClass
                 }),
                 SomeOtherAbstractClass = Class({
+                    $name: "SomeOtherAbstractClass",
                     $extends: SomeAbstractClass,
                     $implements: SomeInterface
                 });
