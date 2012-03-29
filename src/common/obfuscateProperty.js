@@ -11,7 +11,7 @@ define(['./hasDefineProperty'], function (hasDefineProperty) {
      *
      * @param {Object}  obj                  The object
      * @param {String}  key                  The key
-     * @param {Mixin}   value                The value
+     * @param {Mixed}   value                The value
      * @param {Boolean} [isWritable="false"] True to be writable, false otherwise
      */
     function obfuscateProperty(obj, key, value, isWritable) {
