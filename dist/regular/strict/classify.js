@@ -753,7 +753,7 @@ define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefinePr
      *
      * @param {Object}  obj                  The object
      * @param {String}  key                  The key
-     * @param {Mixin}   value                The value
+     * @param {Mixed}   value                The value
      * @param {Boolean} [isWritable="false"] True to be writable, false otherwise
      */
     function obfuscateProperty(obj, key, value, isWritable) {
@@ -1212,6 +1212,35 @@ define('common/testKeywords',[
     return testKeywords;
 });
 
+define('common/mixIn',[],function() {
+
+    /**
+     * This method does exactly the same as the amd counterpart but
+     * does not perform hasOwn for each key in the objects.
+     *
+     * @param {object}    target  Target Object
+     * @param {...object} objects Objects to be combined (0...n objects)
+     *
+     * @return {object} Target Object
+     */
+    function mixIn(target, objects) {
+
+        var x = 1,
+            length = arguments.length,
+            key, curr;
+        for (; x < length; x += 1) {
+            curr = arguments[x];
+            for(key in arguments[x]){
+                target[key] = curr[key];
+            }
+        }
+
+        return target;
+    }
+
+    return mixIn;
+});
+
 define('Utils/lang/bind',[],function(){
 
     function slice(arr, offset){
@@ -1307,10 +1336,10 @@ define('Class',[
     'Utils/lang/isDate',
     'Utils/lang/isUndefined',
     'Utils/lang/createObject',
-    'Utils/object/mixIn',
     'Utils/object/hasOwn',
     'Utils/array/combine',
     'Utils/array/contains',
+     './common/mixIn',
     'Utils/lang/bind',
     'Utils/lang/toArray'
 ], function ClassWrapper(
@@ -1336,10 +1365,10 @@ define('Class',[
     isDate,
     isUndefined,
     createObject,
-    mixIn,
     hasOwn,
     combine,
     contains,
+    mixIn,
     bind,
     toArray
 ) {
@@ -2832,7 +2861,6 @@ define('AbstractClass',[
     'Utils/lang/isString',
     'Utils/lang/toArray',
     'Utils/lang/bind',
-    'Utils/object/mixIn',
     'Utils/array/combine',
     './common/functionMeta',
     './common/isFunctionEmpty',
@@ -2842,6 +2870,7 @@ define('AbstractClass',[
     './common/checkObjectPrototype',
     './common/hasDefineProperty',
     './common/randomAccessor',
+    './common/mixIn',
     'Utils/object/hasOwn',
     './Class'
 ], function AbstractClassWrapper(
@@ -2850,7 +2879,6 @@ define('AbstractClass',[
     isString,
     toArray,
     bind,
-    mixIn,
     combine,
     functionMeta,
     isFunctionEmpty,
@@ -2860,6 +2888,7 @@ define('AbstractClass',[
     checkObjectPrototype,
     hasDefineProperty,
     randomAccessor,
+    mixIn,
     hasOwn,
     Class
 ) {
@@ -3182,7 +3211,6 @@ define('Interface',[
     'Utils/array/intersection',
     'Utils/array/unique',
     'Utils/array/compact',
-    'Utils/object/mixIn',
     'Utils/object/keys',
     './common/checkKeywords',
     './common/testKeywords',
@@ -3194,6 +3222,7 @@ define('Interface',[
     './common/randomAccessor',
     './common/isPrimitiveType',
     './common/hasDefineProperty',
+    './common/mixIn',
     'Utils/object/hasOwn',
     'Utils/lang/toArray'
 ], function InterfaceWrapper(
@@ -3205,7 +3234,6 @@ define('Interface',[
     intersection,
     unique,
     compact,
-    mixIn,
     keys,
     checkKeywords,
     testKeywords,
@@ -3217,6 +3245,7 @@ define('Interface',[
     randomAccessor,
     isPrimitiveType,
     hasDefineProperty,
+    mixIn,
     hasOwn,
     toArray
 ) {
