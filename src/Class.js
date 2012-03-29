@@ -129,7 +129,7 @@ define([
      * Wraps a method.
      * This is just to avoid using Function.caller because is deprecated.
      *
-     * @param {Function} method   The method to wrap
+     * @param {Function} method The method to wrap
      *
      * @return {Function} The wrapper
      */
@@ -331,6 +331,8 @@ define([
         } else if (isStatic) {
             if (!isConst) {
                 constructor[name] = cloneProperty(value);
+            } else {
+                constructor[name] = value;
             }
             metadata.value = value;
         } else {
@@ -761,8 +763,10 @@ define([
             delete params.$abstracts;
         }
 
+        var teste = [];
         for (key in params) {
 
+            teste.push(key);
             value = params[key];
 
 //>>includeStart('strict', pragmas.strict);
@@ -1726,8 +1730,19 @@ define([
 //>>excludeEnd('strict');
             classify[$class].id = nextId += 1;
             classify.prototype = params;
+        }
 
-            // Assign aliases
+//>>includeStart('strict', pragmas.strict);
+        if (isAbstract) {
+            obfuscateProperty(classify, '$abstract_' + random, true, true); // Signal it has abstract
+        }
+
+//>>includeEnd('strict');
+        // Parse class members
+        parseClass(params, classify);
+
+        // Assign aliases
+        if (!classify.$parent) {
 //>>excludeStart('strict', pragmas.strict);
             classify.prototype.$super = superAlias(classify[$class].id);
             classify.prototype.$self = selfAlias(classify[$class].id);
@@ -1740,16 +1755,6 @@ define([
 //>>includeEnd('strict');
         }
 
-//>>includeStart('strict', pragmas.strict);
-        if (isAbstract) {
-            obfuscateProperty(classify, '$abstract_' + random, true, true); // Signal it has abstract
-        }
-
-//>>includeEnd('strict');
-        // Parse class members
-        parseClass(params, classify);
-
-        // Assign constructor & static parent alias
 //>>excludeStart('strict', pragmas.strict);
         classify.prototype.$constructor = classify;
         classify.$super = superStaticAlias(classify[$class].id);

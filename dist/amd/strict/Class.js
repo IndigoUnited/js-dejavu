@@ -108,7 +108,7 @@ define([
      * Wraps a method.
      * This is just to avoid using Function.caller because is deprecated.
      *
-     * @param {Function} method   The method to wrap
+     * @param {Function} method The method to wrap
      *
      * @return {Function} The wrapper
      */
@@ -310,6 +310,8 @@ define([
         } else if (isStatic) {
             if (!isConst) {
                 constructor[name] = cloneProperty(value);
+            } else {
+                constructor[name] = value;
             }
             metadata.value = value;
         } else {
@@ -621,8 +623,10 @@ define([
             delete params.$abstracts;
         }
 
+        var teste = [];
         for (key in params) {
 
+            teste.push(key);
             value = params[key];
 
             if (isFunction(value) && !value[$class] && !value[$interface]) {
@@ -1456,11 +1460,6 @@ define([
             classify = createConstructor(isAbstract);
             classify[$class].id = nextId += 1;
             classify.prototype = params;
-
-            // Assign aliases
-            obfuscateProperty(classify.prototype, '$super', superAlias(classify[$class].id));
-            obfuscateProperty(classify.prototype, '$self', selfAlias(classify[$class].id));
-            obfuscateProperty(classify.prototype, '$static', staticAlias);
         }
 
         if (isAbstract) {
@@ -1470,7 +1469,13 @@ define([
         // Parse class members
         parseClass(params, classify);
 
-        // Assign constructor & static parent alias
+        // Assign aliases
+        if (!classify.$parent) {
+            obfuscateProperty(classify.prototype, '$super', superAlias(classify[$class].id));
+            obfuscateProperty(classify.prototype, '$self', selfAlias(classify[$class].id));
+            obfuscateProperty(classify.prototype, '$static', staticAlias);
+        }
+
         obfuscateProperty(classify.prototype, '$constructor', classify);
         obfuscateProperty(classify, '$super', superStaticAlias(classify[$class].id));
 

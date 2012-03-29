@@ -231,8 +231,10 @@ define([
             delete params.$abstracts;
         }
 
+        var teste = [];
         for (key in params) {
 
+            teste.push(key);
             value = params[key];
 
             if (isFunction(value) && !value[$class] && !value[$interface]) {
@@ -477,17 +479,18 @@ define([
             classify = createConstructor();
             classify[$class].id = nextId += 1;
             classify.prototype = params;
-
-            // Assign aliases
-            classify.prototype.$super = superAlias(classify[$class].id);
-            classify.prototype.$self = selfAlias(classify[$class].id);
-            classify.prototype.$static = staticAlias;
         }
 
         // Parse class members
         parseClass(params, classify);
 
-        // Assign constructor & static parent alias
+        // Assign aliases
+        if (!classify.$parent) {
+            classify.prototype.$super = superAlias(classify[$class].id);
+            classify.prototype.$self = selfAlias(classify[$class].id);
+            classify.prototype.$static = staticAlias;
+        }
+
         classify.prototype.$constructor = classify;
         classify.$super = superStaticAlias(classify[$class].id);
 
