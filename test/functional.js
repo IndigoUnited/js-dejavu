@@ -51,7 +51,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     foo: 'bar'
                 },
                 $constants: {
-                    SOME_CONST: 'bar'
+                    SOME_CONST: 'const'
                 },
                 $statics: {
                     staticMethod: function () {},
@@ -90,12 +90,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             });
 
-            it('should have 1 static methods and 1 static property', function () {
+            it('should have 1 static methods, 1 static property and 1 constant', function () {
 
                 expect(Example.staticMethod).to.be.a('function');
                 expect(Example).to.have.property('staticMethod');
                 expect(Example.staticSome).to.be.equal('property');
                 expect(Example).to.have.property('staticSome');
+                expect(Example.SOME_CONST).to.be.equal('const');
+                expect(Example).to.have.property('SOME_CONST');
 
             });
 
@@ -914,8 +916,10 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 });
 
             it('should be accessible in a similiar way as static members', function () {
+
                 expect(SomeClass.FOO).to.be.equal('bar');
                 expect(SomeInterface.FOO).to.be.equal('bar');
+
             });
 
             if (/strict/.test(global.build) && hasDefineProperty) {
