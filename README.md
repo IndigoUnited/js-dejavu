@@ -55,6 +55,10 @@ The loose version also has lower memory footprint and less size in bytes.
 Also there is an alternative to $super() inside your functions. The alternative is relatively faster than the original $super() and can be used in critical code.
 See below for more information.
 
+I've publish a [version](http://jsperf.com/oop-benchmark/11) comparing Classify with other OOP libraries.
+The version running is the regular (loose build). Classify uses a wrapper for the constructor function therefore its performance can't be compared to JSFace or my.Class.
+The constructor wrapper is needed in order to apply binds and to make mutable types unique for each instance (for example, if an property is an array, the array should not be shared among instances, but in JSFace and my.Class, they actually are).
+
 _NOTE_: The strict mode works well with "use strict".
       Though, to improve performance, the loose version is not compatible with "use strict".
       Run a preprocessor to remove "use strict" from all production code.
