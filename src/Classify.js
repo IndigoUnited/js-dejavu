@@ -1,12 +1,19 @@
 /*global define,module,exports,window,global*/
 
 define([
+//>>includeStart('strict', pragmas.strict);
+    'Utils/lang/isFunction',
+//>>includeEnd('strict');
+    './Class',
     './Class',
     './AbstractClass',
     './Interface',
     './FinalClass',
     'instanceOf'
 ], function (
+//>>includeStart('strict', pragmas.strict);
+    isFunction,
+//>>includeEnd('strict');
     Class,
     AbstractClass,
     Interface,
@@ -35,5 +42,12 @@ define([
             throw new Error('Could not grab global object.');
         }
         target.Classify = Classify;
+   }
+
+//>>includeStart('strict', pragmas.strict);
+    if (isFunction(Object.freeze)) {
+        Object.freeze(Classify);
     }
+
+//>>includeEnd('strict');
 });

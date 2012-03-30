@@ -312,6 +312,16 @@ define('Utils/lang/isKind',['./kindOf'], function (kindOf) {
     return isKind;
 });
 
+define('Utils/lang/isFunction',['./isKind'], function (isKind) {
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isFunction(val) {
+        return isKind(val, 'Function');
+    }
+    return isFunction;
+});
+
 define('Utils/lang/isString',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
@@ -593,6 +603,63 @@ define('Utils/array/some',['require'],function (forEach) {
     return some;
 });
 
+/*global define*/
+
+define('common/hasDefineProperty',['Utils/lang/isFunction'], function (isFunction) {
+
+    "use strict";
+
+    var hasDefineProperty = (function () {
+
+        if (!isFunction(Object.defineProperty)) {
+            return false;
+        }
+
+        // Avoid IE8 bug
+        try {
+            Object.defineProperty({}, 'x', {});
+        } catch (e) {
+            return false;
+        }
+
+        return true;
+    }());
+
+    return hasDefineProperty;
+});
+
+/*global define*/
+
+define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefineProperty) {
+
+    "use strict";
+
+    /**
+     * Sets the key of object with the specified value.
+     * The property is obfuscated, by not being enumerable, configurable and writable.
+     *
+     * @param {Object}  obj                  The object
+     * @param {String}  key                  The key
+     * @param {Mixed}   value                The value
+     * @param {Boolean} [isWritable="false"] True to be writable, false otherwise
+     */
+    function obfuscateProperty(obj, key, value, isWritable) {
+
+        if (hasDefineProperty) {
+            Object.defineProperty(obj, key, {
+                value: value,
+                configurable: false,
+                writable: isWritable || false,
+                enumerable: false
+            });
+        } else {
+            obj[key] = value;
+        }
+    }
+
+    return obfuscateProperty;
+});
+
 /*jslint forin:true*/
 /*global define,console*/
 
@@ -621,6 +688,38 @@ define('common/isObjectPrototypeSpoiled',[],function () {
 
     return isObjectPrototypeSpoiled;
 });
+
+/*jslint forin:true*/
+/*global define,console*/
+
+define('common/checkObjectPrototype',[
+    './isObjectPrototypeSpoiled',
+    'Utils/lang/isFunction'
+], function (
+    isObjectPrototypeSpoiled,
+    isFunction
+) {
+
+    "use strict";
+
+    /**
+     * Checks object prototype, throwing an error if it has enumerable properties.
+     * Also seals it, preventing any additions or deletions.
+     */
+    function checkObjectPrototype() {
+
+        if (isObjectPrototypeSpoiled()) {
+            throw new Error('Classify will not work properly if Object.prototype has enumerable properties!');
+        }
+
+        if (isFunction(Object.seal)) {
+            Object.seal(Object.prototype);
+        }
+    }
+
+    return isObjectPrototypeSpoiled;
+});
+
 
 /*global define,console*/
 
@@ -705,105 +804,6 @@ define('common/isPrimitiveType',[
 
     return isPrimitiveType;
 });
-
-define('Utils/lang/isFunction',['./isKind'], function (isKind) {
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isFunction(val) {
-        return isKind(val, 'Function');
-    }
-    return isFunction;
-});
-
-/*global define*/
-
-define('common/hasDefineProperty',['Utils/lang/isFunction'], function (isFunction) {
-
-    "use strict";
-
-    var hasDefineProperty = (function () {
-
-        if (!isFunction(Object.defineProperty)) {
-            return false;
-        }
-
-        // Avoid IE8 bug
-        try {
-            Object.defineProperty({}, 'x', {});
-        } catch (e) {
-            return false;
-        }
-
-        return true;
-    }());
-
-    return hasDefineProperty;
-});
-
-/*global define*/
-
-define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefineProperty) {
-
-    "use strict";
-
-    /**
-     * Sets the key of object with the specified value.
-     * The property is obfuscated, by not being enumerable, configurable and writable.
-     *
-     * @param {Object}  obj                  The object
-     * @param {String}  key                  The key
-     * @param {Mixed}   value                The value
-     * @param {Boolean} [isWritable="false"] True to be writable, false otherwise
-     */
-    function obfuscateProperty(obj, key, value, isWritable) {
-
-        if (hasDefineProperty) {
-            Object.defineProperty(obj, key, {
-                value: value,
-                configurable: false,
-                writable: isWritable || false,
-                enumerable: false
-            });
-        } else {
-            obj[key] = value;
-        }
-    }
-
-    return obfuscateProperty;
-});
-
-/*jslint forin:true*/
-/*global define,console*/
-
-define('common/checkObjectPrototype',[
-    './isObjectPrototypeSpoiled',
-    'Utils/lang/isFunction'
-], function (
-    isObjectPrototypeSpoiled,
-    isFunction
-) {
-
-    "use strict";
-
-    /**
-     * Checks object prototype, throwing an error if it has enumerable properties.
-     * Also seals it, preventing any additions or deletions.
-     */
-    function checkObjectPrototype() {
-
-        if (isObjectPrototypeSpoiled()) {
-            throw new Error('Classify will not work properly if Object.prototype has enumerable properties!');
-        }
-
-        if (isFunction(Object.seal)) {
-            Object.seal(Object.prototype);
-        }
-    }
-
-    return isObjectPrototypeSpoiled;
-});
-
 
 define('Utils/lang/isObject',['./isKind'], function (isKind) {
     /**
@@ -3734,12 +3734,15 @@ define('instanceOf',[
 /*global define,module,exports,window,global*/
 
 define('classify',[
+    'Utils/lang/isFunction',
+    './Class',
     './Class',
     './AbstractClass',
     './Interface',
     './FinalClass',
     'instanceOf'
 ], function (
+    isFunction,
     Class,
     AbstractClass,
     Interface,
@@ -3766,6 +3769,11 @@ define('classify',[
             throw new Error('Could not grab global object.');
         }
         target.Classify = Classify;
+   }
+
+    if (isFunction(Object.freeze)) {
+        Object.freeze(Classify);
     }
+
 });
 }());
