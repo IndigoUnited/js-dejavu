@@ -27,7 +27,7 @@ define([
     'Utils/object/hasOwn',
     'Utils/array/combine',
     'Utils/array/contains',
-     './common/mixIn',
+    './common/mixIn',
     'Utils/lang/bind',
     'Utils/lang/toArray'
 ], function ClassWrapper(
@@ -290,7 +290,7 @@ define([
             } else {
                 metadata = propertyMeta(value, name);
                 if (!metadata) {
-                    throw new Error('Value of property "' + name + '"  in class "' + constructor.prototype.$name + '" cannot be parsed (undefined/class/instances are not allowed).');
+                    throw new Error('Value of property "' + name + '"  in class "' + constructor.prototype.$name + '" cannot be parsed (undefined/classes/instances are not allowed).');
                 }
                 isFinal = !!opts.isFinal;
                 isConst = !!opts.isConst;
@@ -317,6 +317,7 @@ define([
             metadata.value = value;
         } else {
             constructor.prototype[name] = value;
+            metadata.isPrimitive = isPrimitiveType(value);
         }
 
         // Check the metadata was fine (if not then the property is undefined)
@@ -976,8 +977,10 @@ define([
                 configurable: false,
                 enumerable: false
             });
-        } else {
+        } else if (!meta.isPrimitive) {
             instance[name] = cloneProperty(instance[name]);
+        } else {
+            instance[name] = instance.$constructor.prototype[name];
         }
     }
 
@@ -1146,7 +1149,8 @@ define([
 
         var Instance = function () {
 
-            var key;
+            var x,
+                properties;
 
             // If it's abstract, it cannot be instantiated
             if (isAbstract) {
@@ -1160,13 +1164,18 @@ define([
                 protectInstance(this);
             } else {
                 // Reset some types of the object in order for each instance to have their variables
-                for (key in this) {
-                    this[key] = cloneProperty(this[key]);
+                properties = this.$constructor[$class].properties;
+                for (x in properties) {
+                    if (!properties[x].isPrimitive) {
+                        this[x] = cloneProperty(this[x]);
+                    }
                 }
             }
 
             // Apply binds
-            applyBinds(this.$constructor[$class].binds, this, this);
+            if (this.$constructor[$class].binds.length) {
+                applyBinds(this.$constructor[$class].binds, this, this);
+            }
 
             delete this.$initializing;
 
@@ -1204,17 +1213,11 @@ define([
             }
         }
 
-        // Inherit static methods and properties
         inheriting = true;
 
         // Grab methods and properties definitions
-        for (key in parent[$class].methods) {
-            constructor[$class].methods[key] = parent[$class].methods[key];
-        }
-
-        for (key in parent[$class].properties) {
-            constructor[$class].properties[key] = parent[$class].properties[key];
-        }
+        mixIn(constructor[$class].methods,  parent[$class].methods);
+        mixIn(constructor[$class].properties,  parent[$class].properties);
 
         // Inherit static methods and properties
         for (key in parent[$class].staticMethods) {
