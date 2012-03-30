@@ -2,6 +2,7 @@
 /*global define*/
 
 define([
+    './common/isPrimitiveType',
     'Utils/lang/isFunction',
     'Utils/lang/isObject',
     'Utils/lang/isArray',
@@ -11,12 +12,13 @@ define([
     'Utils/object/hasOwn',
     'Utils/array/combine',
     'Utils/array/contains',
-     './common/mixIn',
+    './common/mixIn',
     'Utils/array/append',
     'Utils/array/insert',
     'Utils/lang/bind',
     'Utils/lang/toArray'
 ], function ClassWrapper(
+    isPrimitiveType,
     isFunction,
     isObject,
     isArray,
@@ -96,6 +98,8 @@ define([
                         if (isFunction(value) && !value[$class] && !value[$interface]) {
                             value['$prototype_' + constructor[$class].id] = constructor.prototype;
                             value.$name = key;
+                        } else if (!isPrimitiveType(value)) {
+                            insert(constructor[$class].properties, value);
                         }
                     }
                 }
@@ -239,6 +243,10 @@ define([
             if (isFunction(value) && !value[$class] && !value[$interface]) {
                 value['$prototype_' + constructor[$class].id] = constructor.prototype;
                 value.$name = key;
+                // We should remove the key here because a class may override from primitive to non primitive,
+                // but we skip it because the cloneProperty already handles it
+            } else if (!isPrimitiveType(value)) {
+                insert(constructor[$class].properties, key);
             }
 
             if (isFinal) {
@@ -326,21 +334,25 @@ define([
 
         var Instance = function () {
 
-            var key;
+            var x,
+                properties;
 
             // Reset some types of the object in order for each instance to have their variables
-            for (key in this) {
-                this[key] = cloneProperty(this[key]);
+            properties = this.$constructor[$class].properties;
+            for (x = properties.length; x >= 0; x -= 1) {
+                this[properties[x]] = cloneProperty(this[properties[x]]);
             }
 
             // Apply binds
-            applyBinds(this.$constructor[$class].binds, this, this);
+            if (this.$constructor[$class].binds.length) {
+                applyBinds(this.$constructor[$class].binds, this, this);
+            }
 
             // Call initialize
             this.initialize.apply(this, arguments);
         };
 
-        Instance[$class] = { staticMethods: [], staticProperties: {}, interfaces: [], binds: [] };
+        Instance[$class] = { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] };
 
         return Instance;
     }
@@ -364,6 +376,9 @@ define([
                 constructor[$class].binds.push(binds[x]);
             }
         }
+
+        // Grab properties
+        append(constructor[$class].properties, parent[$class].properties);
 
         // Inherit static methods and properties
         append(constructor[$class].staticMethods, parent[$class].staticMethods);
