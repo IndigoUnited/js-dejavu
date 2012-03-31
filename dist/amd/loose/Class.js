@@ -339,7 +339,7 @@ define([
 
             // Reset some types of the object in order for each instance to have their variables
             properties = this.$constructor[$class].properties;
-            for (x = properties.length; x >= 0; x -= 1) {
+            for (x = properties.length - 1; x >= 0; x -= 1) {
                 this[properties[x]] = cloneProperty(this[properties[x]]);
             }
 
