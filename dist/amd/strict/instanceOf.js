@@ -2,13 +2,13 @@
 
 define([
     './common/randomAccessor'
-], function (
+], function instanceOfWrapper(
     randomAccessor
 ) {
 
     "use strict";
 
-    var random = randomAccessor(),
+    var random = randomAccessor('instanceOfWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random;
 

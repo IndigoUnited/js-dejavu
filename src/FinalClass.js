@@ -31,7 +31,7 @@ define([
 
     checkObjectPrototype();
 
-    var random = randomAccessor(),
+    var random = randomAccessor('FinalClassWrapper'),
         $class = '$class_' + random;
 
 //>>includeEnd('strict');

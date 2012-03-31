@@ -1,16 +1,17 @@
 //>>includeStart('strict', pragmas.strict);
 /*global define,console*/
 
-define(function () {
+define(['Utils/array/contains'], function (contains) {
 
     "use strict";
 
     var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
-        nrAccesses = 0;
+        nrAccesses = 0,
+        allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'FinalClassWrapper', 'instanceOfWrapper'];
 
-    function randomAccessor() {
+    function randomAccessor(caller) {
 
-        if (nrAccesses > 5) {
+        if (nrAccesses > 5 || !contains(allowed, caller)) {
             throw new Error('Can\'t access random identifier.');
         }
 

@@ -51,7 +51,7 @@ define([
 
     "use strict";
 
-    var random = randomAccessor(),
+    var random = randomAccessor('InterfaceWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
         checkClass;

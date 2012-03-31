@@ -7,7 +7,7 @@ define([
 //>>includeStart('strict', pragmas.strict);
     './common/randomAccessor'
 //>>includeEnd('strict');
-], function (
+], function instanceOfWrapper(
 //>>includeStart('strict', pragmas.strict);
     randomAccessor
 //>>includeEnd('strict');
@@ -16,7 +16,7 @@ define([
 //>>includeStart('strict', pragmas.strict);
     "use strict";
 
-    var random = randomAccessor(),
+    var random = randomAccessor('instanceOfWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random;
 //>>includeEnd('strict');
