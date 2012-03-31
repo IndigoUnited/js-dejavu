@@ -721,29 +721,6 @@ define('common/checkObjectPrototype',[
 });
 
 
-/*global define,console*/
-
-define('common/randomAccessor',[],function () {
-
-    "use strict";
-
-    var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
-        nrAccesses = 0;
-
-    function randomAccessor() {
-
-        if (nrAccesses > 5) {
-            throw new Error('Can\'t access random identifier.');
-        }
-
-        nrAccesses += 1;
-
-        return random;
-    }
-
-    return randomAccessor;
-});
-
 define('Utils/lang/isNumber',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
@@ -1212,6 +1189,30 @@ define('common/testKeywords',[
     return testKeywords;
 });
 
+/*global define,console*/
+
+define('common/randomAccessor',['Utils/array/contains'], function (contains) {
+
+    "use strict";
+
+    var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
+        nrAccesses = 0,
+        allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'FinalClassWrapper', 'instanceOfWrapper'];
+
+    function randomAccessor(caller) {
+
+        if (nrAccesses > 5 || !contains(allowed, caller)) {
+            throw new Error('Can\'t access random identifier.');
+        }
+
+        nrAccesses += 1;
+
+        return random;
+    }
+
+    return randomAccessor;
+});
+
 /*jslint forin:true*/
 /*global define*/
 
@@ -1386,7 +1387,7 @@ define('Class',[
     checkObjectPrototype();
 
     var Class,
-        random = randomAccessor(),
+        random = randomAccessor('ClassWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
         $abstract = '$abstract_' + random,
@@ -2906,7 +2907,7 @@ define('AbstractClass',[
 
     "use strict";
 
-    var random = randomAccessor(),
+    var random = randomAccessor('AbstractClassWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
         $abstract = '$abstract_' + random,
@@ -3263,7 +3264,7 @@ define('Interface',[
 
     "use strict";
 
-    var random = randomAccessor(),
+    var random = randomAccessor('InterfaceWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
         checkClass;
@@ -3639,7 +3640,7 @@ define('FinalClass',[
 
     checkObjectPrototype();
 
-    var random = randomAccessor(),
+    var random = randomAccessor('FinalClassWrapper'),
         $class = '$class_' + random;
 
     return function FinalClass(params) {
@@ -3655,13 +3656,13 @@ define('FinalClass',[
 
 define('instanceOf',[
     './common/randomAccessor'
-], function (
+], function instanceOfWrapper(
     randomAccessor
 ) {
 
     "use strict";
 
-    var random = randomAccessor(),
+    var random = randomAccessor('instanceOfWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random;
 

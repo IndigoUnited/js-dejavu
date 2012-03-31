@@ -2,7 +2,7 @@
 /*global define*/
 
 define([
-], function (
+], function instanceOfWrapper(
 ) {
 
     var $class = '$class',

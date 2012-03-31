@@ -41,7 +41,7 @@ define([
 
     "use strict";
 
-    var random = randomAccessor(),
+    var random = randomAccessor('AbstractClassWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
         $abstract = '$abstract_' + random,

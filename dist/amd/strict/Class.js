@@ -66,7 +66,7 @@ define([
     checkObjectPrototype();
 
     var Class,
-        random = randomAccessor(),
+        random = randomAccessor('ClassWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
         $abstract = '$abstract_' + random,
