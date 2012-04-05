@@ -382,7 +382,6 @@ define([
                 mixins = toArray(constructor.prototype.$borrows),
                 i = mixins.length,
                 key,
-                value,
                 opts = {};
 
             // Verify argument type

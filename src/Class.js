@@ -411,7 +411,6 @@ define([
                 mixins = toArray(constructor.prototype.$borrows),
                 i = mixins.length,
                 key,
-                value,
                 opts = {};
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
