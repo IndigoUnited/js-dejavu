@@ -2,10 +2,10 @@
 /*global define,console*/
 
 define([
-    'Utils/lang/isNumber',
-    'Utils/lang/isRegExp',
-    'Utils/lang/isString',
-    'Utils/lang/isBoolean'
+    'amd-utils/lang/isNumber',
+    'amd-utils/lang/isRegExp',
+    'amd-utils/lang/isString',
+    'amd-utils/lang/isBoolean'
 ], function (
     isNumber,
     isRegExp,

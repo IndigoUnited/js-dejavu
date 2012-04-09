@@ -8,15 +8,15 @@
 
 define([
 //>>includeStart('strict', pragmas.strict);
-    'Utils/lang/isObject',
-    'Utils/lang/isFunction',
-    'Utils/lang/isArray',
-    'Utils/lang/isString',
-    'Utils/lang/bind',
-    'Utils/array/intersection',
-    'Utils/array/unique',
-    'Utils/array/compact',
-    'Utils/object/keys',
+    'amd-utils/lang/isObject',
+    'amd-utils/lang/isFunction',
+    'amd-utils/lang/isArray',
+    'amd-utils/lang/isString',
+    'amd-utils/lang/bind',
+    'amd-utils/array/intersection',
+    'amd-utils/array/unique',
+    'amd-utils/array/compact',
+    'amd-utils/object/keys',
     './common/checkKeywords',
     './common/testKeywords',
     './common/functionMeta',
@@ -29,8 +29,8 @@ define([
     './common/hasDefineProperty',
     './common/mixIn',
 //>>includeEnd('strict');
-    'Utils/object/hasOwn',
-    'Utils/lang/toArray'
+    'amd-utils/object/hasOwn',
+    'amd-utils/lang/toArray'
 ], function InterfaceWrapper(
 //>>includeStart('strict', pragmas.strict);
     isObject,

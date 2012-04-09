@@ -3,7 +3,7 @@
 
 define([
     './isObjectPrototypeSpoiled',
-    'Utils/lang/isFunction'
+    'amd-utils/lang/isFunction'
 ], function (
     isObjectPrototypeSpoiled,
     isFunction

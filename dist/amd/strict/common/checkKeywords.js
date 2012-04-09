@@ -2,7 +2,7 @@
 /*global define*/
 
 define([
-    'Utils/object/hasOwn'
+    'amd-utils/object/hasOwn'
 ], function (
     hasOwn
 ) {

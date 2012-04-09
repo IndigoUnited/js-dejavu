@@ -1,6 +1,6 @@
 /*global define,console*/
 
-define(['Utils/lang/isFunction'], function (isFunction) {
+define(['amd-utils/lang/isFunction'], function (isFunction) {
 
     "use strict";
 

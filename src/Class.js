@@ -8,12 +8,12 @@
 
 define([
 //>>includeStart('strict', pragmas.strict);
-    'Utils/lang/isString',
-    'Utils/array/intersection',
-    'Utils/array/unique',
-    'Utils/array/compact',
-    'Utils/array/remove',
-    'Utils/object/keys',
+    'amd-utils/lang/isString',
+    'amd-utils/array/intersection',
+    'amd-utils/array/unique',
+    'amd-utils/array/compact',
+    'amd-utils/array/remove',
+    'amd-utils/object/keys',
     './common/functionMeta',
     './common/propertyMeta',
     './common/isFunctionCompatible',
@@ -25,22 +25,22 @@ define([
     './common/randomAccessor',
 //>>includeEnd('strict');
     './common/isPrimitiveType',
-    'Utils/lang/isFunction',
-    'Utils/lang/isObject',
-    'Utils/lang/isArray',
-    'Utils/lang/isDate',
-    'Utils/lang/isUndefined',
-    'Utils/lang/createObject',
-    'Utils/object/hasOwn',
-    'Utils/array/combine',
-    'Utils/array/contains',
+    'amd-utils/lang/isFunction',
+    'amd-utils/lang/isObject',
+    'amd-utils/lang/isArray',
+    'amd-utils/lang/isDate',
+    'amd-utils/lang/isUndefined',
+    'amd-utils/lang/createObject',
+    'amd-utils/object/hasOwn',
+    'amd-utils/array/combine',
+    'amd-utils/array/contains',
     './common/mixIn',
 //>>excludeStart('strict', pragmas.strict);
-    'Utils/array/append',
-    'Utils/array/insert',
+    'amd-utils/array/append',
+    'amd-utils/array/insert',
 //>>excludeEnd('strict');
-    'Utils/lang/bind',
-    'Utils/lang/toArray'
+    'amd-utils/lang/bind',
+    'amd-utils/lang/toArray'
 ], function ClassWrapper(
 //>>includeStart('strict', pragmas.strict);
     isString,
