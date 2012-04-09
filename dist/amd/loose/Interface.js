@@ -2,8 +2,8 @@
 /*global define*/
 
 define([
-    'Utils/object/hasOwn',
-    'Utils/lang/toArray'
+    'amd-utils/object/hasOwn',
+    'amd-utils/lang/toArray'
 ], function InterfaceWrapper(
     hasOwn,
     toArray

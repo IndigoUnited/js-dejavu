@@ -279,7 +279,7 @@ var requirejs, require, define;
 
 define("../vendor/almond/almond.js", function(){});
 
-define('Utils/lang/kindOf',[],function () {
+define('amd-utils/lang/kindOf',[],function () {
 
     var _rKind = /^\[object (.*)\]$/,
         _toString = Object.prototype.toString,
@@ -301,7 +301,7 @@ define('Utils/lang/kindOf',[],function () {
     return kindOf;
 });
 
-define('Utils/lang/isKind',['./kindOf'], function (kindOf) {
+define('amd-utils/lang/isKind',['./kindOf'], function (kindOf) {
     /**
      * Check if value is from a specific "kind".
      * @version 0.1.0 (2011/10/31)
@@ -312,7 +312,7 @@ define('Utils/lang/isKind',['./kindOf'], function (kindOf) {
     return isKind;
 });
 
-define('Utils/lang/isFunction',['./isKind'], function (isKind) {
+define('amd-utils/lang/isFunction',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
      */
@@ -322,7 +322,7 @@ define('Utils/lang/isFunction',['./isKind'], function (isKind) {
     return isFunction;
 });
 
-define('Utils/lang/isString',['./isKind'], function (isKind) {
+define('amd-utils/lang/isString',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
      */
@@ -332,7 +332,7 @@ define('Utils/lang/isString',['./isKind'], function (isKind) {
     return isString;
 });
 
-define('Utils/array/forEach',[],function () {
+define('amd-utils/array/forEach',[],function () {
 
     /**
      * ES5 Array.forEach
@@ -356,7 +356,7 @@ define('Utils/array/forEach',[],function () {
 
 });
 
-define('Utils/array/filter',['./forEach'], function (forEach) {
+define('amd-utils/array/filter',['./forEach'], function (forEach) {
 
     /**
      * ES5 Array.filter
@@ -380,7 +380,7 @@ define('Utils/array/filter',['./forEach'], function (forEach) {
 
 });
 
-define('Utils/array/every',[],function () {
+define('amd-utils/array/every',[],function () {
 
     /**
      * ES5 Array.every
@@ -407,7 +407,7 @@ define('Utils/array/every',[],function () {
     return every;
 });
 
-define('Utils/array/indexOf',[],function () {
+define('amd-utils/array/indexOf',[],function () {
 
     /**
      * ES5 Array.indexOf
@@ -432,7 +432,7 @@ define('Utils/array/indexOf',[],function () {
     return indexOf;
 });
 
-define('Utils/array/unique',['./indexOf', './filter'], function(indexOf, filter){
+define('amd-utils/array/unique',['./indexOf', './filter'], function(indexOf, filter){
 
     /**
      * @return {array} Array of unique items
@@ -450,7 +450,7 @@ define('Utils/array/unique',['./indexOf', './filter'], function(indexOf, filter)
 });
 
 
-define('Utils/array/compact',['./filter'], function (filter) {
+define('amd-utils/array/compact',['./filter'], function (filter) {
 
     /**
      * Remove all null/undefined items from array.
@@ -465,7 +465,7 @@ define('Utils/array/compact',['./filter'], function (filter) {
     return compact;
 });
 
-define('Utils/array/remove',['./indexOf'], function(indexOf){
+define('amd-utils/array/remove',['./indexOf'], function(indexOf){
 
     /**
      * Remove a single item from the array.
@@ -576,7 +576,7 @@ define('common/isFunctionCompatible',[],function () {
     return isFunctionCompatible;
 });
 
-define('Utils/array/some',['require'],function (forEach) {
+define('amd-utils/array/some',['require'],function (forEach) {
 
     /**
      * ES5 Array.some
@@ -605,7 +605,7 @@ define('Utils/array/some',['require'],function (forEach) {
 
 /*global define*/
 
-define('common/hasDefineProperty',['Utils/lang/isFunction'], function (isFunction) {
+define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFunction) {
 
     "use strict";
 
@@ -694,7 +694,7 @@ define('common/isObjectPrototypeSpoiled',[],function () {
 
 define('common/checkObjectPrototype',[
     './isObjectPrototypeSpoiled',
-    'Utils/lang/isFunction'
+    'amd-utils/lang/isFunction'
 ], function (
     isObjectPrototypeSpoiled,
     isFunction
@@ -721,7 +721,7 @@ define('common/checkObjectPrototype',[
 });
 
 
-define('Utils/lang/isNumber',['./isKind'], function (isKind) {
+define('amd-utils/lang/isNumber',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
      */
@@ -731,7 +731,7 @@ define('Utils/lang/isNumber',['./isKind'], function (isKind) {
     return isNumber;
 });
 
-define('Utils/lang/isRegExp',['./isKind'], function (isKind) {
+define('amd-utils/lang/isRegExp',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
      */
@@ -741,7 +741,7 @@ define('Utils/lang/isRegExp',['./isKind'], function (isKind) {
     return isRegExp;
 });
 
-define('Utils/lang/isBoolean',['./isKind'], function (isKind) {
+define('amd-utils/lang/isBoolean',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
      */
@@ -755,10 +755,10 @@ define('Utils/lang/isBoolean',['./isKind'], function (isKind) {
 /*global define,console*/
 
 define('common/isPrimitiveType',[
-    'Utils/lang/isNumber',
-    'Utils/lang/isRegExp',
-    'Utils/lang/isString',
-    'Utils/lang/isBoolean'
+    'amd-utils/lang/isNumber',
+    'amd-utils/lang/isRegExp',
+    'amd-utils/lang/isString',
+    'amd-utils/lang/isBoolean'
 ], function (
     isNumber,
     isRegExp,
@@ -782,7 +782,7 @@ define('common/isPrimitiveType',[
     return isPrimitiveType;
 });
 
-define('Utils/lang/isObject',['./isKind'], function (isKind) {
+define('amd-utils/lang/isObject',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
      */
@@ -792,7 +792,7 @@ define('Utils/lang/isObject',['./isKind'], function (isKind) {
     return isObject;
 });
 
-define('Utils/lang/isArray',['./isKind'], function (isKind) {
+define('amd-utils/lang/isArray',['./isKind'], function (isKind) {
     /**
      * @version 0.2.0 (2011/12/06)
      */
@@ -802,7 +802,7 @@ define('Utils/lang/isArray',['./isKind'], function (isKind) {
     return isArray;
 });
 
-define('Utils/lang/isDate',['./isKind'], function (isKind) {
+define('amd-utils/lang/isDate',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
      */
@@ -812,7 +812,7 @@ define('Utils/lang/isDate',['./isKind'], function (isKind) {
     return isDate;
 });
 
-define('Utils/lang/isUndefined',[],function () {
+define('amd-utils/lang/isUndefined',[],function () {
     var UNDEF;
 
     /**
@@ -828,9 +828,9 @@ define('Utils/lang/isUndefined',[],function () {
 /*global define*/
 
 define('common/propertyMeta',[
-    'Utils/lang/isUndefined',
-    'Utils/lang/isObject',
-    'Utils/lang/isFunction'
+    'amd-utils/lang/isUndefined',
+    'amd-utils/lang/isObject',
+    'amd-utils/lang/isFunction'
 ], function (
     isUndefined,
     isObject,
@@ -891,7 +891,7 @@ define('common/propertyMeta',[
     return propertyMeta;
 });
 
-define('Utils/object/hasOwn',[],function () {
+define('amd-utils/object/hasOwn',[],function () {
 
     /**
      * Safer Object.hasOwnProperty
@@ -905,7 +905,7 @@ define('Utils/object/hasOwn',[],function () {
 
 });
 
-define('Utils/object/forOwn',['../lang/isObject', './hasOwn'], function (isObject, hasOwn) {
+define('amd-utils/object/forOwn',['../lang/isObject', './hasOwn'], function (isObject, hasOwn) {
 
     var _hasDontEnumBug,
         _dontEnums;
@@ -965,7 +965,7 @@ define('Utils/object/forOwn',['../lang/isObject', './hasOwn'], function (isObjec
 
 });
 
-define('Utils/object/keys',['./forOwn'], function (forOwn) {
+define('amd-utils/object/keys',['./forOwn'], function (forOwn) {
 
     /**
      * Get object keys
@@ -987,7 +987,7 @@ define('Utils/object/keys',['./forOwn'], function (forOwn) {
 /*global define*/
 
 define('common/checkKeywords',[
-    'Utils/object/hasOwn'
+    'amd-utils/object/hasOwn'
 ], function (
     hasOwn
 ) {
@@ -1023,7 +1023,7 @@ define('common/checkKeywords',[
     return checkKeywords;
 });
 
-define('Utils/object/mixIn',['./hasOwn'], function(hasOwn){
+define('amd-utils/object/mixIn',['./hasOwn'], function(hasOwn){
 
     /**
     * Combine properties from all the objects into first one.
@@ -1050,7 +1050,7 @@ define('Utils/object/mixIn',['./hasOwn'], function(hasOwn){
     return mixIn;
 });
 
-define('Utils/lang/createObject',['../object/mixIn'], function(mixIn){
+define('amd-utils/lang/createObject',['../object/mixIn'], function(mixIn){
 
     /**
      * Create Object using prototypal inheritance and setting custom properties.
@@ -1070,7 +1070,7 @@ define('Utils/lang/createObject',['../object/mixIn'], function(mixIn){
 });
 
 
-define('Utils/array/combine',['./indexOf'], function (indexOf) {
+define('amd-utils/array/combine',['./indexOf'], function (indexOf) {
 
     /**
      * Combines an array with all the items of another.
@@ -1092,7 +1092,7 @@ define('Utils/array/combine',['./indexOf'], function (indexOf) {
     return combine;
 });
 
-define('Utils/array/contains',['./indexOf'], function (indexOf) {
+define('amd-utils/array/contains',['./indexOf'], function (indexOf) {
 
     /**
      * If array contains values.
@@ -1104,7 +1104,7 @@ define('Utils/array/contains',['./indexOf'], function (indexOf) {
     return contains;
 });
 
-define('Utils/array/intersection',['./unique', './filter', './every', './contains'], function (unique, filter, every, contains) {
+define('amd-utils/array/intersection',['./unique', './filter', './every', './contains'], function (unique, filter, every, contains) {
 
 
     /**
@@ -1126,7 +1126,7 @@ define('Utils/array/intersection',['./unique', './filter', './every', './contain
 
 });
 
-define('Utils/array/difference',['./unique', './filter', './some', './contains'], function (unique, filter, some, contains) {
+define('amd-utils/array/difference',['./unique', './filter', './some', './contains'], function (unique, filter, some, contains) {
 
 
     /**
@@ -1150,8 +1150,8 @@ define('Utils/array/difference',['./unique', './filter', './some', './contains']
 /*global define*/
 
 define('common/testKeywords',[
-    'Utils/array/difference',
-    'Utils/object/hasOwn'
+    'amd-utils/array/difference',
+    'amd-utils/object/hasOwn'
 ], function (
     difference,
     hasOwn
@@ -1191,7 +1191,7 @@ define('common/testKeywords',[
 
 /*global define,console*/
 
-define('common/randomAccessor',['Utils/array/contains'], function (contains) {
+define('common/randomAccessor',['amd-utils/array/contains'], function (contains) {
 
     "use strict";
 
@@ -1250,7 +1250,7 @@ define('common/mixIn',[],function () {
     return mixIn;
 });
 
-define('Utils/lang/bind',[],function(){
+define('amd-utils/lang/bind',[],function(){
 
     function slice(arr, offset){
         return Array.prototype.slice.call(arr, offset || 0);
@@ -1275,7 +1275,7 @@ define('Utils/lang/bind',[],function(){
 });
 
 
-define('Utils/lang/isArguments',['./isKind'], function (isKind) {
+define('amd-utils/lang/isArguments',['./isKind'], function (isKind) {
 
     /**
      * @version 0.2.0 (2011/12/05)
@@ -1292,7 +1292,7 @@ define('Utils/lang/isArguments',['./isKind'], function (isKind) {
     return isArgs;
 });
 
-define('Utils/lang/toArray',['./isArray', './isObject', './isArguments'], function (isArray, isObject, isArguments) {
+define('amd-utils/lang/toArray',['./isArray', './isObject', './isArguments'], function (isArray, isObject, isArguments) {
 
     var _win = this;
 
@@ -1323,12 +1323,12 @@ define('Utils/lang/toArray',['./isArray', './isObject', './isArguments'], functi
 /*global define*/
 
 define('Class',[
-    'Utils/lang/isString',
-    'Utils/array/intersection',
-    'Utils/array/unique',
-    'Utils/array/compact',
-    'Utils/array/remove',
-    'Utils/object/keys',
+    'amd-utils/lang/isString',
+    'amd-utils/array/intersection',
+    'amd-utils/array/unique',
+    'amd-utils/array/compact',
+    'amd-utils/array/remove',
+    'amd-utils/object/keys',
     './common/functionMeta',
     './common/propertyMeta',
     './common/isFunctionCompatible',
@@ -1339,18 +1339,18 @@ define('Class',[
     './common/checkObjectPrototype',
     './common/randomAccessor',
     './common/isPrimitiveType',
-    'Utils/lang/isFunction',
-    'Utils/lang/isObject',
-    'Utils/lang/isArray',
-    'Utils/lang/isDate',
-    'Utils/lang/isUndefined',
-    'Utils/lang/createObject',
-    'Utils/object/hasOwn',
-    'Utils/array/combine',
-    'Utils/array/contains',
+    'amd-utils/lang/isFunction',
+    'amd-utils/lang/isObject',
+    'amd-utils/lang/isArray',
+    'amd-utils/lang/isDate',
+    'amd-utils/lang/isUndefined',
+    'amd-utils/lang/createObject',
+    'amd-utils/object/hasOwn',
+    'amd-utils/array/combine',
+    'amd-utils/array/contains',
     './common/mixIn',
-    'Utils/lang/bind',
-    'Utils/lang/toArray'
+    'amd-utils/lang/bind',
+    'amd-utils/lang/toArray'
 ], function ClassWrapper(
     isString,
     intersection,
@@ -2867,12 +2867,12 @@ define('common/isFunctionEmpty',[],function () {
 /*global define*/
 
 define('AbstractClass',[
-    'Utils/lang/isObject',
-    'Utils/lang/isFunction',
-    'Utils/lang/isString',
-    'Utils/lang/toArray',
-    'Utils/lang/bind',
-    'Utils/array/combine',
+    'amd-utils/lang/isObject',
+    'amd-utils/lang/isFunction',
+    'amd-utils/lang/isString',
+    'amd-utils/lang/toArray',
+    'amd-utils/lang/bind',
+    'amd-utils/array/combine',
     './common/functionMeta',
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',
@@ -2882,7 +2882,7 @@ define('AbstractClass',[
     './common/hasDefineProperty',
     './common/randomAccessor',
     './common/mixIn',
-    'Utils/object/hasOwn',
+    'amd-utils/object/hasOwn',
     './Class'
 ], function AbstractClassWrapper(
     isObject,
@@ -3214,15 +3214,15 @@ define('AbstractClass',[
 /*global define*/
 
 define('Interface',[
-    'Utils/lang/isObject',
-    'Utils/lang/isFunction',
-    'Utils/lang/isArray',
-    'Utils/lang/isString',
-    'Utils/lang/bind',
-    'Utils/array/intersection',
-    'Utils/array/unique',
-    'Utils/array/compact',
-    'Utils/object/keys',
+    'amd-utils/lang/isObject',
+    'amd-utils/lang/isFunction',
+    'amd-utils/lang/isArray',
+    'amd-utils/lang/isString',
+    'amd-utils/lang/bind',
+    'amd-utils/array/intersection',
+    'amd-utils/array/unique',
+    'amd-utils/array/compact',
+    'amd-utils/object/keys',
     './common/checkKeywords',
     './common/testKeywords',
     './common/functionMeta',
@@ -3234,8 +3234,8 @@ define('Interface',[
     './common/isPrimitiveType',
     './common/hasDefineProperty',
     './common/mixIn',
-    'Utils/object/hasOwn',
-    'Utils/lang/toArray'
+    'amd-utils/object/hasOwn',
+    'amd-utils/lang/toArray'
 ], function InterfaceWrapper(
     isObject,
     isFunction,
@@ -3734,7 +3734,7 @@ define('instanceOf',[
 /*global define,module,exports,window,global*/
 
 define('classify',[
-    'Utils/lang/isFunction',
+    'amd-utils/lang/isFunction',
     './Class',
     './Class',
     './AbstractClass',

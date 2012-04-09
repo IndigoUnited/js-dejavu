@@ -2,15 +2,15 @@
 /*global define*/
 
 define([
-    'Utils/lang/isObject',
-    'Utils/lang/isFunction',
-    'Utils/lang/isArray',
-    'Utils/lang/isString',
-    'Utils/lang/bind',
-    'Utils/array/intersection',
-    'Utils/array/unique',
-    'Utils/array/compact',
-    'Utils/object/keys',
+    'amd-utils/lang/isObject',
+    'amd-utils/lang/isFunction',
+    'amd-utils/lang/isArray',
+    'amd-utils/lang/isString',
+    'amd-utils/lang/bind',
+    'amd-utils/array/intersection',
+    'amd-utils/array/unique',
+    'amd-utils/array/compact',
+    'amd-utils/object/keys',
     './common/checkKeywords',
     './common/testKeywords',
     './common/functionMeta',
@@ -22,8 +22,8 @@ define([
     './common/isPrimitiveType',
     './common/hasDefineProperty',
     './common/mixIn',
-    'Utils/object/hasOwn',
-    'Utils/lang/toArray'
+    'amd-utils/object/hasOwn',
+    'amd-utils/lang/toArray'
 ], function InterfaceWrapper(
     isObject,
     isFunction,

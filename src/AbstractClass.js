@@ -8,12 +8,12 @@
 
 define([
 //>>includeStart('strict', pragmas.strict);
-    'Utils/lang/isObject',
-    'Utils/lang/isFunction',
-    'Utils/lang/isString',
-    'Utils/lang/toArray',
-    'Utils/lang/bind',
-    'Utils/array/combine',
+    'amd-utils/lang/isObject',
+    'amd-utils/lang/isFunction',
+    'amd-utils/lang/isString',
+    'amd-utils/lang/toArray',
+    'amd-utils/lang/bind',
+    'amd-utils/array/combine',
     './common/functionMeta',
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',
@@ -24,7 +24,7 @@ define([
     './common/randomAccessor',
     './common/mixIn',
 //>>includeEnd('strict');
-    'Utils/object/hasOwn',
+    'amd-utils/object/hasOwn',
     './Class'
 ], function AbstractClassWrapper(
 //>>includeStart('strict', pragmas.strict);

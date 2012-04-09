@@ -1,6 +1,6 @@
 /*global define,console*/
 
-define(['Utils/array/contains'], function (contains) {
+define(['amd-utils/array/contains'], function (contains) {
 
     "use strict";
 

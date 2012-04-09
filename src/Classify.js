@@ -2,7 +2,7 @@
 
 define([
 //>>includeStart('strict', pragmas.strict);
-    'Utils/lang/isFunction',
+    'amd-utils/lang/isFunction',
 //>>includeEnd('strict');
     './Class',
     './Class',

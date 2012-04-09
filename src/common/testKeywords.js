@@ -2,8 +2,8 @@
 /*global define*/
 
 define([
-    'Utils/array/difference',
-    'Utils/object/hasOwn'
+    'amd-utils/array/difference',
+    'amd-utils/object/hasOwn'
 ], function (
     difference,
     hasOwn

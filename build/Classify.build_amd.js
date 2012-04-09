@@ -7,7 +7,7 @@
     baseUrl: '../dist',
     dir : '../dist',
     paths : {
-        'Utils': '../vendor/amd-utils/src'
+        'amd-utils': '../vendor/amd-utils/src'
     },
     /*pragmas: {
         'strict': true

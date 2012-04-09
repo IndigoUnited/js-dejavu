@@ -7,7 +7,7 @@ if (!(typeof window !== 'undefined' && window.navigator && window.document)) { /
     requirejs.config({
         baseUrl: __dirname + '/../',
         paths: {
-            'Utils': '../vendor/amd-utils/src'
+            'amd-utils': '../vendor/amd-utils/src'
         },
         nodeRequire: require
     });
@@ -28,7 +28,7 @@ if (!(typeof window !== 'undefined' && window.navigator && window.document)) { /
     require({
         baseUrl : './',
         paths: {
-            'Utils': '../vendor/amd-utils/src'
+            'amd-utils': '../vendor/amd-utils/src'
         },
         waitSeconds : (window.location.protocol === 'file:' || window.location.href.indexOf('://localhost') !== -1) ? 5 : 45, //fail early locally
         urlArgs : 'bust=' + (+new Date())

@@ -3,20 +3,20 @@
 
 define([
     './common/isPrimitiveType',
-    'Utils/lang/isFunction',
-    'Utils/lang/isObject',
-    'Utils/lang/isArray',
-    'Utils/lang/isDate',
-    'Utils/lang/isUndefined',
-    'Utils/lang/createObject',
-    'Utils/object/hasOwn',
-    'Utils/array/combine',
-    'Utils/array/contains',
+    'amd-utils/lang/isFunction',
+    'amd-utils/lang/isObject',
+    'amd-utils/lang/isArray',
+    'amd-utils/lang/isDate',
+    'amd-utils/lang/isUndefined',
+    'amd-utils/lang/createObject',
+    'amd-utils/object/hasOwn',
+    'amd-utils/array/combine',
+    'amd-utils/array/contains',
     './common/mixIn',
-    'Utils/array/append',
-    'Utils/array/insert',
-    'Utils/lang/bind',
-    'Utils/lang/toArray'
+    'amd-utils/array/append',
+    'amd-utils/array/insert',
+    'amd-utils/lang/bind',
+    'amd-utils/lang/toArray'
 ], function ClassWrapper(
     isPrimitiveType,
     isFunction,

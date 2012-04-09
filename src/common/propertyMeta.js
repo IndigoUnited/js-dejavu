@@ -3,9 +3,9 @@
 /*global define*/
 
 define([
-    'Utils/lang/isUndefined',
-    'Utils/lang/isObject',
-    'Utils/lang/isFunction'
+    'amd-utils/lang/isUndefined',
+    'amd-utils/lang/isObject',
+    'amd-utils/lang/isFunction'
 ], function (
     isUndefined,
     isObject,
