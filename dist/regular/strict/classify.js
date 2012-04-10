@@ -1476,7 +1476,7 @@ define('Class',[
             return returns;
         };
 
-        obfuscateProperty(wrapped, '$wrapped', true);
+        obfuscateProperty(wrapped, '$wrapped', method);
 
         if (method.$name) {
             obfuscateProperty(wrapped, '$name', method.$name);
@@ -1570,7 +1570,7 @@ define('Class',[
             method = wrapMethod(method, name);
             obfuscateProperty(method, '$name', name);
         } else {
-            originalMethod = method;
+            originalMethod = method.$wrapped;
         }
 
         // If the function is protected/private we delete it from the target because they will be protected later
