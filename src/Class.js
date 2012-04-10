@@ -1354,7 +1354,7 @@ define([
     function createConstructor() {
 //>>excludeEnd('strict');
 
-        var Instance = function () {
+        var Instance = function Instance() {
 
             var x,
                 properties;
