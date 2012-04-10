@@ -534,7 +534,7 @@ For example, if you use [RequireJS](http://requirejs.org/):
 
 ```js
     paths : {
-        'Utils': '../vendor/amd-utils/src'
+        'amd-utils': '../vendor/amd-utils/src'
     },
 ```
 
