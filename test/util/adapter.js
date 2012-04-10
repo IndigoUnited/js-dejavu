@@ -30,7 +30,7 @@ if (!(typeof window !== 'undefined' && window.navigator && window.document)) { /
         paths: {
             'amd-utils': '../vendor/amd-utils/src'
         },
-        waitSeconds : (window.location.protocol === 'file:' || window.location.href.indexOf('://localhost') !== -1) ? 5 : 45, //fail early locally
+        waitSeconds : (window.location.protocol === 'file:' || window.location.href.indexOf('://localhost') !== -1) ? 5 : 45, // Fail early locally
         urlArgs : 'bust=' + (+new Date())
     });
 }
