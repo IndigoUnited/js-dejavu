@@ -1157,7 +1157,7 @@ define([
      */
     function createConstructor(isAbstract) {
 
-        var Instance = function () {
+        var Instance = function Instance() {
 
             var x,
                 properties;

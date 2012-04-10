@@ -332,7 +332,7 @@ define([
      */
     function createConstructor() {
 
-        var Instance = function () {
+        var Instance = function Instance() {
 
             var x,
                 properties;
