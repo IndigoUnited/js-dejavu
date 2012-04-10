@@ -1940,15 +1940,23 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Class({
-                        $borrows: AbstractClass({})
+                        $borrows: AbstractClass({
+                            $abstracts: {
+                                some: function () {}
+                            }
+                        })
                     });
-                }).to.throwException(/not a valid class\/object/);
+                }).to.throwException(/abstract class with abstract members/);
 
                 expect(function () {
                     return Class({
-                        $borrows: [AbstractClass({})]
+                        $borrows: [AbstractClass({
+                            $abstracts: {
+                                some: function () {}
+                            }
+                        })]
                     });
-                }).to.throwException(/not a valid class\/object/);
+                }).to.throwException(/abstract class with abstract members/);
 
                 expect(function () {
                     return Class({
@@ -1990,6 +1998,20 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Class({
                         $borrows: [Class({})]
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass({
+                        $borrows: AbstractClass({
+                            $abstracts: {}
+                        })
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass({
+                        $borrows: [AbstractClass({})]
                     });
                 }).to.not.throwException();
 

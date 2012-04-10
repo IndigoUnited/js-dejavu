@@ -983,6 +983,24 @@ define('amd-utils/object/keys',['./forOwn'], function (forOwn) {
 
 });
 
+define('amd-utils/object/size',['./forOwn'], function (forOwn) {
+
+    /**
+     * Get object size
+     * @version 0.1.1 (2012/01/28)
+     */
+    function size(obj) {
+        var count = 0;
+        forOwn(obj, function(){
+            count++;
+        });
+        return count;
+    }
+
+    return size;
+
+});
+
 /*jslint forin:true*/
 /*global define*/
 
@@ -1329,6 +1347,7 @@ define('Class',[
     'amd-utils/array/compact',
     'amd-utils/array/remove',
     'amd-utils/object/keys',
+    'amd-utils/object/size',
     './common/functionMeta',
     './common/propertyMeta',
     './common/isFunctionCompatible',
@@ -1358,6 +1377,7 @@ define('Class',[
     compact,
     remove,
     keys,
+    size,
     functionMeta,
     propertyMeta,
     isFunctionCompatible,
@@ -1717,9 +1737,13 @@ define('Class',[
             for (i -= 1; i >= 0; i -= 1) {
 
                 // Verify each mixin
-                if ((!isFunction(mixins[i]) || !mixins[i][$class] || mixins[i][$abstract]) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
+                if ((!isFunction(mixins[i]) || !mixins[i][$class]) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
                     throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
                 }
+
+                // TODO: should we inherit interfaces of the borrowed class?!
+                // TODO: allow subclass classes
+                // TODO: allow abstract members fully
 
                 if (isObject(mixins[i])) {
                     try {
@@ -1732,9 +1756,14 @@ define('Class',[
                     current = mixins[i].prototype;
                 }
 
+                // Verify if is an abstract class with members
+                if (current.$constructor[$abstract] && (size(current.$constructor[$abstract].methods) > 0 || size(current.$constructor[$abstract].staticMethods) > 0)) {
+                    throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is an abstract class with abstract members, which are not allowed.');
+                }
+
                 // Verify if it has parent
                 if (current.$constructor.$parent) {
-                    throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is an inherited class (only root classes not supported).');
+                    throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is an inherited class (only root classes are supported).');
                 }
 
                 delete opts.isStatic;
@@ -2785,7 +2814,7 @@ define('Class',[
         }
 
         if (isAbstract) {
-            obfuscateProperty(classify, '$abstract_' + random, true, true); // Signal it has abstract
+            obfuscateProperty(classify, $abstract, true, true); // Signal it has abstract
         }
 
         // Parse class members
@@ -3157,7 +3186,7 @@ define('AbstractClass',[
         }
 
         var def,
-            abstractObj = { methods: {}, staticMethods: {}, interfaces: [] },
+            abstractObj = { methods: {}, staticMethods: {} },
             saved = {};
 
         // If we are extending an abstract class also, inherit the abstract methods
@@ -3166,7 +3195,6 @@ define('AbstractClass',[
             if (params.$extends[$abstract]) {
                 mixIn(abstractObj.methods, params.$extends[$abstract].methods);
                 mixIn(abstractObj.staticMethods, params.$extends[$abstract].staticMethods);
-                combine(abstractObj.interfaces, params.$extends[$abstract].interfaces);
             }
         }
 

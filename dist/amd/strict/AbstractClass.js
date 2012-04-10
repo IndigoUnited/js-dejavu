@@ -292,7 +292,7 @@ define([
         }
 
         var def,
-            abstractObj = { methods: {}, staticMethods: {}, interfaces: [] },
+            abstractObj = { methods: {}, staticMethods: {} },
             saved = {};
 
         // If we are extending an abstract class also, inherit the abstract methods
@@ -301,7 +301,6 @@ define([
             if (params.$extends[$abstract]) {
                 mixIn(abstractObj.methods, params.$extends[$abstract].methods);
                 mixIn(abstractObj.staticMethods, params.$extends[$abstract].staticMethods);
-                combine(abstractObj.interfaces, params.$extends[$abstract].interfaces);
             }
         }
 
