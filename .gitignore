@@ -39,7 +39,7 @@ Desktop.ini
 
 # NetBeans #
 ############
-nbproject/private/
+nbproject/
 nbbuild/
 nbdist/
 nbactions.xml
