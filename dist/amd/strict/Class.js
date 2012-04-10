@@ -242,12 +242,12 @@ define([
             } else {
                 delete constructor[name];
             }
-
-            metadata.implementation = method;
         } else {
             target = isStatic ? constructor : constructor.prototype;
             target[name] = method;
         }
+
+        metadata.implementation = method;
 
         if (isFinal) {
             metadata.isFinal = isFinal;
@@ -797,10 +797,9 @@ define([
      */
     function protectMethod(name, meta, instance) {
 
+        instance[cacheKeyword].methods[name] = meta.implementation;
+
         if (meta.isPrivate) {
-
-            instance[cacheKeyword].methods[name] = meta.implementation;
-
             Object.defineProperty(instance, name, {
                 get: function get() {
 
@@ -826,9 +825,6 @@ define([
                 enumerable: false
             });
         } else if (meta.isProtected) {
-
-            instance[cacheKeyword].methods[name] = meta.implementation;
-
             Object.defineProperty(instance, name, {
                 get: function get() {
 
@@ -855,6 +851,21 @@ define([
                 configurable: false,
                 enumerable: false
             });
+        } else {
+            Object.defineProperty(instance, name, {
+                get: function get() {
+                    return this[cacheKeyword].methods[name];
+                },
+                set: function set(newVal) {
+                    if (this.$initializing) {
+                        this[cacheKeyword].methods[name] = newVal;
+                    } else {
+                        throw new Error('Cannot set public method "' + name + '" of class "' + this.$name + '".');
+                    }
+                },
+                configurable: false,
+                enumerable: false
+            });
         }
     }
 
@@ -867,10 +878,9 @@ define([
      */
     function protectStaticMethod(name, meta, constructor) {
 
+        constructor[cacheKeyword].methods[name] = meta.implementation;
+
         if (meta.isPrivate) {
-
-            constructor[cacheKeyword].methods[name] = meta.implementation;
-
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
@@ -890,9 +900,6 @@ define([
                 enumerable: false
             });
         } else if (meta.isProtected) {
-
-            constructor[cacheKeyword].methods[name] = meta.implementation;
-
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
@@ -919,6 +926,17 @@ define([
                 configurable: false,
                 enumerable: false
             });
+        } else {
+            Object.defineProperty(constructor, name, {
+                get: function get() {
+                    return this[cacheKeyword].methods[name];
+                },
+                set: function set(newVal) {
+                    throw new Error('Cannot set public static method "' + name + '" of class "' + this.$name + '".');
+                },
+                configurable: false,
+                enumerable: false
+            });
         }
     }
 
@@ -932,7 +950,6 @@ define([
     function protectProperty(name, meta, instance) {
 
         if (meta.isPrivate) {
-
             instance[cacheKeyword].properties[name] = cloneProperty(meta.value);
 
             Object.defineProperty(instance, name, {
@@ -956,7 +973,6 @@ define([
                 enumerable: false
             });
         } else if (meta.isProtected) {
-
             instance[cacheKeyword].properties[name] = cloneProperty(meta.value);
 
             Object.defineProperty(instance, name, {
@@ -1004,7 +1020,6 @@ define([
     function protectStaticProperty(name, meta, constructor) {
 
         if (meta.isPrivate) {
-
             constructor[cacheKeyword].properties[name] = !meta.isConst ? cloneProperty(meta.value) : meta.value;
 
             Object.defineProperty(constructor, name, {
@@ -1034,7 +1049,6 @@ define([
                 enumerable: false
             });
         } else if (meta.isProtected) {
-
             constructor[cacheKeyword].properties[name] = !meta.isConst ? cloneProperty(meta.value) : meta.value;
 
             Object.defineProperty(constructor, name, {
@@ -1081,7 +1095,6 @@ define([
                 enumerable: false
             });
         } else if (meta.isConst) {
-
             constructor[cacheKeyword].properties[name] = meta.value;
 
             Object.defineProperty(constructor, name, {
@@ -1143,7 +1156,9 @@ define([
         // Prevent any properties/methods to be added and deleted
         if (isFunction(Object.seal)) {
             Object.seal(constructor);
-            Object.seal(constructor.prototype);
+        }
+        if (isFunction(Object.freeze)) {
+            Object.freeze(constructor.prototype);
         }
     }
 
@@ -1187,7 +1202,11 @@ define([
                 applyBinds(this.$constructor[$class].binds, this, this);
             }
 
-            delete this.$initializing;
+            if (hasDefineProperty) {
+                obfuscateProperty(this, '$initializing', false);
+            } else {
+                delete this.$initializing;
+            }
 
             // Prevent any properties/methods to be added and deleted
             if (isFunction(Object.seal)) {
