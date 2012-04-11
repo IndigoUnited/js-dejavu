@@ -1558,7 +1558,7 @@ define('Class',[
                 throw new Error('Cannot override final method "' + name + '" in class "' + constructor.prototype.$name + '".');
             }
             // Are they compatible?
-            if (!isFunctionCompatible(metadata, target[name])) {
+            if (metadata.checkCompatibility && !isFunctionCompatible(metadata, target[name])) {
                 throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '(' + metadata.signature + ')" defined in abstract class "' + constructor.prototype.$name + '" overrides its ancestor but it is not compatible with its signature: "' + name + '(' + target[name].signature + ')".');
             }
         }
@@ -3018,6 +3018,8 @@ define('AbstractClass',[
                 throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '(' + metadata.signature + ')" defined in abstract class "' + constructor.prototype.$name + '" overrides its ancestor but it is not compatible with its signature: "' + name + '(' + target[name].signature + ')".');
             }
         }
+
+        metadata.checkCompatibility = true;
 
         target[name] = metadata;
     }

@@ -106,6 +106,8 @@ define([
             }
         }
 
+        metadata.checkCompatibility = true;
+
         target[name] = metadata;
     }
 
