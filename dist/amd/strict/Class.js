@@ -18,6 +18,7 @@ define([
     './common/hasDefineProperty',
     './common/checkObjectPrototype',
     './common/randomAccessor',
+    './common/hasFreezeBug',
     './common/isPrimitiveType',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
@@ -48,6 +49,7 @@ define([
     hasDefineProperty,
     checkObjectPrototype,
     randomAccessor,
+    hasFreezeBug,
     isPrimitiveType,
     isFunction,
     isObject,
@@ -63,7 +65,7 @@ define([
     toArray
 ) {
 
-    "use strict";
+    'use strict';
 
     checkObjectPrototype();
 
@@ -236,7 +238,6 @@ define([
 
         // If the function is protected/private we delete it from the target because they will be protected later
         if (!metadata.isPublic && hasDefineProperty) {
-
             if (!isStatic) {
                 delete constructor.prototype[name];
             } else {
@@ -1157,8 +1158,10 @@ define([
         if (isFunction(Object.seal)) {
             Object.seal(constructor);
         }
-        if (isFunction(Object.freeze)) {
+        if (isFunction(Object.freeze) && !hasFreezeBug) {
             Object.freeze(constructor.prototype);
+        } if (isFunction(Object.seal)) {
+            Object.seal(constructor.prototype);
         }
     }
 

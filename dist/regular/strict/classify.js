@@ -485,7 +485,7 @@ define('amd-utils/array/remove',['./indexOf'], function(indexOf){
 
 define('common/functionMeta',[],function () {
 
-    "use strict";
+    'use strict';
 
     /**
      * Extract meta data from a function.
@@ -559,7 +559,7 @@ define('common/functionMeta',[],function () {
 
 define('common/isFunctionCompatible',[],function () {
 
-    "use strict";
+    'use strict';
 
     /**
      * Check if a function signature is compatible with another.
@@ -607,7 +607,7 @@ define('amd-utils/array/some',['require'],function (forEach) {
 
 define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFunction) {
 
-    "use strict";
+    'use strict';
 
     var hasDefineProperty = (function () {
 
@@ -632,7 +632,7 @@ define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFun
 
 define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefineProperty) {
 
-    "use strict";
+    'use strict';
 
     /**
      * Sets the key of object with the specified value.
@@ -663,16 +663,16 @@ define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefinePr
 /*jslint forin:true*/
 /*global define,console*/
 
-define('common/isObjectPrototypeSpoiled',[],function () {
+define('common/hasObjectPrototypeSpoiled',[],function () {
 
-    "use strict";
+    'use strict';
 
     /**
      * Checks if object prototype has non enumerable properties attached.
      *
      * @return {Boolean} True if it is, false otherwise
      */
-    function isObjectPrototypeSpoiled() {
+    function hasObjectPrototypeSpoiled() {
 
         var obj = {},
             key;
@@ -686,21 +686,21 @@ define('common/isObjectPrototypeSpoiled',[],function () {
         return false;
     }
 
-    return isObjectPrototypeSpoiled;
+    return hasObjectPrototypeSpoiled();
 });
 
 /*jslint forin:true*/
 /*global define,console*/
 
 define('common/checkObjectPrototype',[
-    './isObjectPrototypeSpoiled',
+    './hasObjectPrototypeSpoiled',
     'amd-utils/lang/isFunction'
 ], function (
-    isObjectPrototypeSpoiled,
+    hasObjectPrototypeSpoiled,
     isFunction
 ) {
 
-    "use strict";
+    'use strict';
 
     /**
      * Checks object prototype, throwing an error if it has enumerable properties.
@@ -708,18 +708,57 @@ define('common/checkObjectPrototype',[
      */
     function checkObjectPrototype() {
 
-        if (isObjectPrototypeSpoiled()) {
+        if (hasObjectPrototypeSpoiled) {
             throw new Error('Classify will not work properly if Object.prototype has enumerable properties!');
         }
 
-        if (isFunction(Object.seal)) {
+        if (isFunction(Object.seal) && !Object.isSealed(Object.prototype)) {
             Object.seal(Object.prototype);
         }
     }
 
-    return isObjectPrototypeSpoiled;
+    return checkObjectPrototype;
 });
 
+
+/*jslint forin:true*/
+/*global define*/
+
+define('common/hasFreezeBug',[],function () {
+
+    'use strict';
+
+    /**
+     * Checks if the browser has Object.freeze bug.
+     *
+     * @see https://bugzilla.mozilla.org/show_bug.cgi?id=744494
+     *
+     * @return {Boolean} True if it has, false otherwise
+     */
+    function checkHasFreezeBug() {
+
+        // Create a constructor
+        var A = function () {};
+        A.prototype.foo = '';
+        Object.freeze(A.prototype);   // freeze prototype
+
+        // Create an instance
+        var a = new A();
+
+        try {
+            a.foo = 'baz';   // throws a['foo'] is read only
+            if (a.foo !== 'baz') {
+                return true;
+            }
+        } catch (e) {
+            return true;
+        }
+
+        return false;
+    }
+
+    return checkHasFreezeBug();
+});
 
 define('amd-utils/lang/isNumber',['./isKind'], function (isKind) {
     /**
@@ -766,7 +805,7 @@ define('common/isPrimitiveType',[
     isBoolean
 ) {
 
-    "use strict";
+    'use strict';
 
     /**
      * Checks if a value is a primitive type.
@@ -837,7 +876,7 @@ define('common/propertyMeta',[
     isFunction
 ) {
 
-    "use strict";
+    'use strict';
 
     var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
 
@@ -1010,7 +1049,7 @@ define('common/checkKeywords',[
     hasOwn
 ) {
 
-    "use strict";
+    'use strict';
 
     var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
         reservedStatics = ['$parent', '$super'];
@@ -1175,7 +1214,7 @@ define('common/testKeywords',[
     hasOwn
 ) {
 
-    "use strict";
+    'use strict';
 
     var keywords = [
         '$name', '$extends', '$implements', '$borrows', '$binds',
@@ -1211,7 +1250,7 @@ define('common/testKeywords',[
 
 define('common/randomAccessor',['amd-utils/array/contains'], function (contains) {
 
-    "use strict";
+    'use strict';
 
     var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
         nrAccesses = 0,
@@ -1236,7 +1275,7 @@ define('common/randomAccessor',['amd-utils/array/contains'], function (contains)
 
 define('common/mixIn',[],function () {
 
-    "use strict";
+    'use strict';
 
     /**
      * This method does exactly the same as the amd counterpart but
@@ -1357,6 +1396,7 @@ define('Class',[
     './common/hasDefineProperty',
     './common/checkObjectPrototype',
     './common/randomAccessor',
+    './common/hasFreezeBug',
     './common/isPrimitiveType',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
@@ -1387,6 +1427,7 @@ define('Class',[
     hasDefineProperty,
     checkObjectPrototype,
     randomAccessor,
+    hasFreezeBug,
     isPrimitiveType,
     isFunction,
     isObject,
@@ -1402,7 +1443,7 @@ define('Class',[
     toArray
 ) {
 
-    "use strict";
+    'use strict';
 
     checkObjectPrototype();
 
@@ -1575,7 +1616,6 @@ define('Class',[
 
         // If the function is protected/private we delete it from the target because they will be protected later
         if (!metadata.isPublic && hasDefineProperty) {
-
             if (!isStatic) {
                 delete constructor.prototype[name];
             } else {
@@ -2496,8 +2536,10 @@ define('Class',[
         if (isFunction(Object.seal)) {
             Object.seal(constructor);
         }
-        if (isFunction(Object.freeze)) {
+        if (isFunction(Object.freeze) && !hasFreezeBug) {
             Object.freeze(constructor.prototype);
+        } if (isFunction(Object.seal)) {
+            Object.seal(constructor.prototype);
         }
     }
 
@@ -2895,7 +2937,7 @@ define('Class',[
 
 define('common/isFunctionEmpty',[],function () {
 
-    "use strict";
+    'use strict';
 
     /**
      * Check if a function has no body.
@@ -2952,7 +2994,7 @@ define('AbstractClass',[
     Class
 ) {
 
-    "use strict";
+    'use strict';
 
     var random = randomAccessor('AbstractClassWrapper'),
         $class = '$class_' + random,
@@ -3310,7 +3352,7 @@ define('Interface',[
     toArray
 ) {
 
-    "use strict";
+    'use strict';
 
     var random = randomAccessor('InterfaceWrapper'),
         $class = '$class_' + random,
@@ -3684,7 +3726,7 @@ define('FinalClass',[
     checkObjectPrototype
 ) {
 
-    "use strict";
+    'use strict';
 
     checkObjectPrototype();
 
@@ -3708,7 +3750,7 @@ define('instanceOf',[
     randomAccessor
 ) {
 
-    "use strict";
+    'use strict';
 
     var random = randomAccessor('instanceOfWrapper'),
         $class = '$class_' + random,
@@ -3799,7 +3841,7 @@ define('classify',[
     instanceOf
 ) {
 
-    "use strict";
+    'use strict';
 
     var Classify = {},
         target;

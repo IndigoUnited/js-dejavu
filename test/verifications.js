@@ -2545,7 +2545,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                                 get: function (a) {}
                             })
                         }),
-                        get: function(a, b) {}
+                        get: function (a, b) {}
                     });
                 }).to.not.throwException();
 
@@ -2556,7 +2556,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                                 get: function (a) {}
                             })
                         }),
-                        get: function() {}
+                        get: function () {}
                     });
                 }).to.not.throwException();
 

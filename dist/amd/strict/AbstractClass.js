@@ -39,7 +39,7 @@ define([
     Class
 ) {
 
-    "use strict";
+    'use strict';
 
     var random = randomAccessor('AbstractClassWrapper'),
         $class = '$class_' + random,

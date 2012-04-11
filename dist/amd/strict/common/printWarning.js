@@ -2,7 +2,7 @@
 
 define(['amd-utils/lang/isFunction'], function (isFunction) {
 
-    "use strict";
+    'use strict';
 
     function printWarning(message) {
 

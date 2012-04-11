@@ -2,14 +2,14 @@
 /*global define,console*/
 
 define([
-    './isObjectPrototypeSpoiled',
+    './hasObjectPrototypeSpoiled',
     'amd-utils/lang/isFunction'
 ], function (
-    isObjectPrototypeSpoiled,
+    hasObjectPrototypeSpoiled,
     isFunction
 ) {
 
-    "use strict";
+    'use strict';
 
     /**
      * Checks object prototype, throwing an error if it has enumerable properties.
@@ -17,15 +17,15 @@ define([
      */
     function checkObjectPrototype() {
 
-        if (isObjectPrototypeSpoiled()) {
+        if (hasObjectPrototypeSpoiled) {
             throw new Error('Classify will not work properly if Object.prototype has enumerable properties!');
         }
 
-        if (isFunction(Object.seal)) {
+        if (isFunction(Object.seal) && !Object.isSealed(Object.prototype)) {
             Object.seal(Object.prototype);
         }
     }
 
-    return isObjectPrototypeSpoiled;
+    return checkObjectPrototype;
 });
 

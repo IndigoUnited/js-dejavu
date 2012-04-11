@@ -27,7 +27,7 @@ define([
 ) {
 
 //>>includeStart('strict', pragmas.strict);
-    "use strict";
+    'use strict';
 
     checkObjectPrototype();
 
