@@ -6,7 +6,7 @@ define([
     randomAccessor
 ) {
 
-    "use strict";
+    'use strict';
 
     var random = randomAccessor('instanceOfWrapper'),
         $class = '$class_' + random,

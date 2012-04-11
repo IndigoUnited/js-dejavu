@@ -63,7 +63,7 @@ define([
 
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
-    "use strict";
+    'use strict';
 
     var random = randomAccessor('InterfaceWrapper'),
         $class = '$class_' + random,

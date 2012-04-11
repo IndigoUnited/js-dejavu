@@ -7,7 +7,7 @@ define([
     hasOwn
 ) {
 
-    "use strict";
+    'use strict';
 
     var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
         reservedStatics = ['$parent', '$super'];

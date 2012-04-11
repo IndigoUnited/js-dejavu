@@ -24,6 +24,7 @@ define([
     './common/hasDefineProperty',
     './common/checkObjectPrototype',
     './common/randomAccessor',
+    './common/hasFreezeBug',
 //>>includeEnd('strict');
     './common/isPrimitiveType',
     'amd-utils/lang/isFunction',
@@ -60,6 +61,7 @@ define([
     hasDefineProperty,
     checkObjectPrototype,
     randomAccessor,
+    hasFreezeBug,
 //>>includeEnd('strict');
     isPrimitiveType,
     isFunction,
@@ -81,7 +83,7 @@ define([
 ) {
 
 //>>includeStart('strict', pragmas.strict);
-    "use strict";
+    'use strict';
 
     checkObjectPrototype();
 
@@ -263,7 +265,6 @@ define([
 
         // If the function is protected/private we delete it from the target because they will be protected later
         if (!metadata.isPublic && hasDefineProperty) {
-
             if (!isStatic) {
                 delete constructor.prototype[name];
             } else {
@@ -1344,8 +1345,10 @@ define([
         if (isFunction(Object.seal)) {
             Object.seal(constructor);
         }
-        if (isFunction(Object.freeze)) {
+        if (isFunction(Object.freeze) && !hasFreezeBug) {
             Object.freeze(constructor.prototype);
+        } if (isFunction(Object.seal)) {
+            Object.seal(constructor.prototype);
         }
     }
 

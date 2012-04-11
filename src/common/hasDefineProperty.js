@@ -3,7 +3,7 @@
 
 define(['amd-utils/lang/isFunction'], function (isFunction) {
 
-    "use strict";
+    'use strict';
 
     var hasDefineProperty = (function () {
 
