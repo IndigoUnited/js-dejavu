@@ -15,16 +15,18 @@ define(function () {
     function checkHasFreezeBug() {
 
         // Create a constructor
-        var A = function () {};
+        var A = function () {},
+            a;
+
         A.prototype.foo = '';
         Object.freeze(A.prototype);   // freeze prototype
 
         // Create an instance
-        var a = new A();
+        a = new A();
 
         try {
-            a.foo = 'baz';   // throws a['foo'] is read only
-            if (a.foo !== 'baz') {
+            a.foo = 'baz';            // throws a['foo'] is read only
+            if (a.foo !== 'baz') {    // or fails silently
                 return true;
             }
         } catch (e) {
