@@ -1,7 +1,6 @@
-/*jslint forin:true*/
 /*global define*/
 
-define(function () {
+define(['amd-utils/lang/isFunction'], function (isFunction) {
 
     'use strict';
 
@@ -14,19 +13,23 @@ define(function () {
      */
     function checkHasFreezeBug() {
 
+        if (!isFunction(Object.freeze)) {
+            return false;
+        }
+
         // Create a constructor
         var A = function () {},
             a;
 
         A.prototype.foo = '';
-        Object.freeze(A.prototype);   // freeze prototype
+        Object.freeze(A.prototype);   // Freeze prototype
 
         // Create an instance
         a = new A();
 
         try {
-            a.foo = 'baz';            // throws a['foo'] is read only
-            if (a.foo !== 'baz') {    // or fails silently
+            a.foo = 'baz';            // Throws a['foo'] is read only
+            if (a.foo !== 'baz') {    // Or fails silently in at least
                 return true;
             }
         } catch (e) {
