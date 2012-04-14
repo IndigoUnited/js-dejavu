@@ -26,7 +26,7 @@ define([
     './common/randomAccessor',
     './common/hasFreezeBug',
 //>>includeEnd('strict');
-    './common/isNonEmutable',
+    './common/isImmutable',
     './common/isPlainObject',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
@@ -64,7 +64,7 @@ define([
     randomAccessor,
     hasFreezeBug,
 //>>includeEnd('strict');
-    isNonEmutable,
+    isImmutable,
     isPlainObject,
     isFunction,
     isObject,
@@ -138,6 +138,8 @@ define([
             return temp;
         }
 
+        // TODO: test if the regexp object can be cloned using new RegExp(regexp.source)
+        
         return prop;
     }
 
@@ -353,7 +355,7 @@ define([
             metadata.value = value;
         } else {
             constructor.prototype[name] = value;
-            metadata.isNonEmutable = isNonEmutable(value);
+            metadata.isImmutable = isImmutable(value);
         }
 
         // Check if the metadata was fine (if not then the property is undefined)
@@ -489,7 +491,7 @@ define([
                         if (isFunction(value) && !value[$class] && !value[$interface]) {
                             value['$prototype_' + constructor[$class].id] = constructor.prototype;
                             value.$name = key;
-                        } else if (!isNonEmutable(value)) {
+                        } else if (!isImmutable(value)) {
                             insert(constructor[$class].properties, value);
                         }
                     }
@@ -807,7 +809,7 @@ define([
                 value.$name = key;
                 // We should remove the key here because a class may override from primitive to non primitive,
                 // but we skip it because the cloneProperty already handles it
-            } else if (!isNonEmutable(value)) {
+            } else if (!isImmutable(value)) {
                 insert(constructor[$class].properties, key);
             }
 
@@ -939,8 +941,8 @@ define([
                 value = saved.$constants[key];
 
 //>>includeStart('strict', pragmas.strict);
-                if (isFunction(value) || !isNonEmutable(value)) {
-                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a primitive type.');
+                if (!isImmutable(value)) {
+                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a primitive type (immutable).');
                 }
 
                 addProperty(key, value, constructor, opts);

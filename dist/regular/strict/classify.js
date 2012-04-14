@@ -663,7 +663,7 @@ define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefinePr
 /*jslint forin:true*/
 /*global define,console*/
 
-define('common/hasObjectPrototypeSpoiled',[],function () {
+define('common/isObjectPrototypeSpoiled',[],function () {
 
     'use strict';
 
@@ -672,7 +672,7 @@ define('common/hasObjectPrototypeSpoiled',[],function () {
      *
      * @return {Boolean} True if it is, false otherwise
      */
-    function hasObjectPrototypeSpoiled() {
+    function isObjectPrototypeSpoiled() {
 
         var obj = {},
             key;
@@ -686,17 +686,17 @@ define('common/hasObjectPrototypeSpoiled',[],function () {
         return false;
     }
 
-    return hasObjectPrototypeSpoiled();
+    return isObjectPrototypeSpoiled;
 });
 
 /*jslint forin:true*/
 /*global define,console*/
 
 define('common/checkObjectPrototype',[
-    './hasObjectPrototypeSpoiled',
+    './isObjectPrototypeSpoiled',
     'amd-utils/lang/isFunction'
 ], function (
-    hasObjectPrototypeSpoiled,
+    isObjectPrototypeSpoiled,
     isFunction
 ) {
 
@@ -708,7 +708,7 @@ define('common/checkObjectPrototype',[
      */
     function checkObjectPrototype() {
 
-        if (hasObjectPrototypeSpoiled) {
+        if (isObjectPrototypeSpoiled()) {
             throw new Error('Classify will not work properly if Object.prototype has enumerable properties!');
         }
 
@@ -798,7 +798,7 @@ define('amd-utils/lang/isBoolean',['./isKind'], function (isKind) {
 /*jslint eqeq:true*/
 /*global define,console*/
 
-define('common/isNonEmutable',[
+define('common/isImmutable',[
     'amd-utils/lang/isNumber',
     'amd-utils/lang/isRegExp',
     'amd-utils/lang/isString',
@@ -815,17 +815,17 @@ define('common/isNonEmutable',[
     'use strict';
 
     /**
-     * Checks if a value is primitive.
+     * Checks if a value is immutable.
      *
      * @param {Mixed} value The value
      *
      * @return {Boolean} True if it is, false otherwise
      */
-    function isNonEmutable(value) {
-        return value == null || isBoolean(value) || isNumber(value) || isString(value) || isRegExp(value) || isFunction(value);
+    function isImmutable(value) {
+        return value == null || isBoolean(value) || isNumber(value) || isString(value);
     }
 
-    return isNonEmutable;
+    return isImmutable;
 });
 
 define('amd-utils/lang/isObject',['./isKind'], function (isKind) {
@@ -1099,6 +1099,7 @@ define('common/isPlainObject',[
             return false;
         }
 
+        // TODO: test this with window, or other dom objects (see jquery)
         if (obj.constructor && !hasOwn(obj, 'constructor') && !hasOwn(obj.constructor.prototype, 'isPrototypeOf')) {
             return false;
         }
@@ -1428,7 +1429,7 @@ define('Class',[
     './common/checkObjectPrototype',
     './common/randomAccessor',
     './common/hasFreezeBug',
-    './common/isNonEmutable',
+    './common/isImmutable',
     './common/isPlainObject',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
@@ -1460,7 +1461,7 @@ define('Class',[
     checkObjectPrototype,
     randomAccessor,
     hasFreezeBug,
-    isNonEmutable,
+    isImmutable,
     isPlainObject,
     isFunction,
     isObject,
@@ -1521,6 +1522,8 @@ define('Class',[
             return temp;
         }
 
+        // TODO: test if the regexp object can be cloned using new RegExp(regexp.source)
+        
         return prop;
     }
 
@@ -1735,7 +1738,7 @@ define('Class',[
             metadata.value = value;
         } else {
             constructor.prototype[name] = value;
-            metadata.isNonEmutable = isNonEmutable(value);
+            metadata.isImmutable = isImmutable(value);
         }
 
         // Check if the metadata was fine (if not then the property is undefined)
@@ -2169,8 +2172,8 @@ define('Class',[
 
                 value = saved.$constants[key];
 
-                if (isFunction(value) || !isNonEmutable(value)) {
-                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a primitive type.');
+                if (!isImmutable(value)) {
+                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a primitive type (immutable).');
                 }
 
                 addProperty(key, value, constructor, opts);
@@ -3359,7 +3362,7 @@ define('Interface',[
     './common/checkObjectPrototype',
     './common/obfuscateProperty',
     './common/randomAccessor',
-    './common/isNonEmutable',
+    './common/isImmutable',
     './common/hasDefineProperty',
     './common/mixIn',
     'amd-utils/object/hasOwn',
@@ -3382,7 +3385,7 @@ define('Interface',[
     checkObjectPrototype,
     obfuscateProperty,
     randomAccessor,
-    isNonEmutable,
+    isImmutable,
     hasDefineProperty,
     mixIn,
     hasOwn,
@@ -3526,7 +3529,7 @@ define('Interface',[
             throw new Error('Interface "' + interf.prototype.$name + '" contains an unallowed non public method: "' + name + '".');
         }
         // Check if it is a primitive value
-        if (isFunction(value) || !isNonEmutable(value)) {
+        if (!isImmutable(value)) {
             throw new Error('Value for constant property "' + name + '" defined in interface "' + interf.prototype.$name + '" must be a primitive type.');
         }
 
