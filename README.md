@@ -27,8 +27,8 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 * Loose build (the one to be used in production) has 9.71Kb minified and 3.7Kb minified + gziped
 * Classes and instances are locked, members cannot be changed or added (only applicable to some browsers, such as Chrome)
 
-Users are encouraged to use 'use strict' while using the strict build otherwise some code can fail [silently](https://developer.mozilla.org/en/JavaScript/Strict_mode)
-because Classify uses Object.freeze and/or Object.seal if available to lock classes and instances.
+Users are encouraged to declare 'use strict' while using the strict build otherwise some code can fail [silently](https://developer.mozilla.org/en/JavaScript/Strict_mode).
+This is because Classify uses Object.freeze and/or Object.seal to lock classes and instances, guarateeing that nobody changes the behaviour of your classes the wrong way (replacing methods, etc).
 The regular build is __not__ compatible with the 'use strict' because it uses the deprecated .caller property to provide better performance (avoiding wrappers for methods in order to support the $super()).
 Run a preprocessor to remove 'use strict' from all production code (e.g.: requirejs optimizer tool).
 
