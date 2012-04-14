@@ -328,7 +328,8 @@ define(['path/to/classify/Class', function (Class) {
          * Class constructor.
          */
         initialize: function () {
-            // ...
+            this.$self().FOO;  // 'bar'
+            SomeClass.FOO;     // 'bar' (is the same as above)
         }
     });
 
@@ -377,16 +378,13 @@ define(['path/to/classify/Class', function (Class) {
             someMethod: function () {
                 // ...
             },
-            someProperty: function () {
-                // ...
-            }
+            someProperty: 'foo',
 
             $statics: {             // We can also define static methods as final
                 staticMethod: function () {
                     // ...
                 },
-                staticProperty: function () {
-                }
+                staticProperty: 'bar'
             }
     });
 
@@ -481,11 +479,12 @@ var OtherComplexClass = Class({
 
 To call static methods inside an instance you can use $self() and $static().
 $self gives access to the class itself and $static gives access to the called class in a context of static inheritance.
+$self is the same as using the class variable itself.
 
 ```js
 var Example1 = Class({
     foo: function (param1) {
-        return this.$self().bar;
+        return this.$self().bar;    // same as Example1.bar;
     },
     $statics: {
         bar: 'hello'
