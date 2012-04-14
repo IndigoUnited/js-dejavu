@@ -196,7 +196,6 @@ function (EventsInterface, AbstractClass) {
 ```
 
 Abstract classes can extend other abstract classes or concrete classes while implementing other interfaces.
-Be aware that they must obey their base signature.
 
 ```js
 define([
