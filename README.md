@@ -449,11 +449,19 @@ With this syntax it also gives you the flexibility to call other parent methods.
 ### Signature check ###
 
 All functions are virtual functions. A method can override another if they obey their signature (their signature must be equal or augmented with additional optional arguments).
-Arguments prefixed with a $ are evaluated as optional. The signature check is made for every class, abstract class and interface.
+Arguments prefixed with a $ are evaluated as optional. The signature check for every abstract functions (interface functions are considered abstract) is made for every class, abstract class and interface.
 
 ```js
+var SomeAbstractClass = AbstractClass({
+    $abstracts: {
+        foo: function (param1) {}
+    }
+});
+
 var SomeClass = Class({
-    foo: function (param1) {
+    $extends: SomeAbstractClass,
+
+    foo: function (param1) {             // Signature is equal, it's valid
         // Do something here
     }
 });
@@ -461,7 +469,7 @@ var SomeClass = Class({
 var ComplexClass = Class({
     $extends: SomeClass,
 
-    foo: function (param1, $param2) {    // It's ok, was augmented with an additional optional argument
+    foo: function (param1, $param2) {    // Although it's signature is not equal, was augmented with an additional optional argument, so it's valid
         // Do something here
     }
 });
@@ -469,7 +477,7 @@ var ComplexClass = Class({
 var OtherComplexClass = Class({
     $extends: SomeClass,
 
-    foo: function (param1, param2) {     // Will throw an error because foo(param1, param2) is not compatible with foo(param1, $param2)
+    foo: function (param1, param2) {     // Will throw an error because foo(param1) is not compatible with foo(param1, param2)
         // Do something here
     }
 });
