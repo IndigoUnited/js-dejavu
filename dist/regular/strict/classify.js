@@ -3845,7 +3845,11 @@ define('instanceOf',[
      */
     function instanceOf(instance, target) {
 
-        if (instance && instance.$constructor && instance.$constructor[$class] && target[$interface]) {
+        if (instance instanceof target) {
+            return true;
+        }
+
+        if (instance && instance.$constructor && instance.$constructor[$class] && target && target[$interface]) {
             return instanceOfInterface(instance, target);
         }
 
