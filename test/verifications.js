@@ -466,7 +466,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
-            it('should throw an error when it extends multiple ones with incopatible duplicate methods', function () {
+            it('should throw an error when it extends multiple ones with incompatible duplicate methods', function () {
 
                 expect(function () {
                     return Interface({
