@@ -448,7 +448,7 @@ With this syntax it also gives you the flexibility to call other parent methods.
 
 ### Signature check ###
 
-All functions are virtual functions, there it can be overriden except if it is classified as final.
+All functions are virtual functions, therefore it can be overriden except if it is classified as final.
 Aditionally, if a method is abstract, a subclass can only implement/override if they obey their signature (must be equal or augmented with additional optional arguments).
 Arguments prefixed with a $ are evaluated as optional. The signature check is done for all abstract functions (interface functions are also considered abstract).
 
