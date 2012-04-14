@@ -798,32 +798,34 @@ define('amd-utils/lang/isBoolean',['./isKind'], function (isKind) {
 /*jslint eqeq:true*/
 /*global define,console*/
 
-define('common/isPrimitiveType',[
+define('common/isNonEmutable',[
     'amd-utils/lang/isNumber',
     'amd-utils/lang/isRegExp',
     'amd-utils/lang/isString',
-    'amd-utils/lang/isBoolean'
+    'amd-utils/lang/isBoolean',
+    'amd-utils/lang/isFunction'
 ], function (
     isNumber,
     isRegExp,
     isString,
-    isBoolean
+    isBoolean,
+    isFunction
 ) {
 
     'use strict';
 
     /**
-     * Checks if a value is a primitive type.
+     * Checks if a value is primitive.
      *
      * @param {Mixed} value The value
      *
      * @return {Boolean} True if it is, false otherwise
      */
-    function isPrimitiveType(value) {
-        return isNumber(value) || isString(value) || isBoolean(value) || isRegExp(value) || value == null;
+    function isNonEmutable(value) {
+        return value == null || isBoolean(value) || isNumber(value) || isString(value) || isRegExp(value) || isFunction(value);
     }
 
-    return isPrimitiveType;
+    return isNonEmutable;
 });
 
 define('amd-utils/lang/isObject',['./isKind'], function (isKind) {
@@ -873,17 +875,11 @@ define('amd-utils/lang/isUndefined',[],function () {
 
 define('common/propertyMeta',[
     'amd-utils/lang/isUndefined',
-    'amd-utils/lang/isObject',
-    'amd-utils/lang/isFunction'
 ], function (
-    isUndefined,
-    isObject,
-    isFunction
+    isUndefined
 ) {
 
     'use strict';
-
-    var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
 
     /**
      * Extract meta data from a property.
@@ -896,23 +892,10 @@ define('common/propertyMeta',[
      */
     function propertyMeta(prop, name) {
 
-        var ret = {},
-            proto;
+        var ret = {};
 
         // Is it undefined?
         if (isUndefined(prop)) {
-            return null;
-        }
-        // If is a object, check if it is a plain object
-        if (isObject(prop)) {
-            proto = '__proto__';
-            proto = hasObjectPrototypeOf ? Object.getPrototypeOf(prop) : prop[proto];
-            if (proto && proto !== Object.prototype) {
-                return null;
-            }
-        }
-        // Is it a function?
-        if (isFunction(prop)) {
             return null;
         }
 
@@ -1083,6 +1066,49 @@ define('common/checkKeywords',[
     }
 
     return checkKeywords;
+});
+
+/*jslint forin:true*/
+/*globals define*/
+
+define('common/isPlainObject',[
+    'amd-utils/lang/isFunction',
+    'amd-utils/object/hasOwn'
+], function (
+    isFunction,
+    hasOwn
+) {
+
+    'use strict';
+
+    var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
+
+    /**
+     * Checks if a given object is a plain object.
+     *
+     * @param {Object} obj The object
+     */
+    function isPlainObject(obj) {
+
+        var proto = '__proto__',
+            key;
+
+        proto = hasObjectPrototypeOf ? Object.getPrototypeOf(obj) : obj[proto];
+
+        if (proto && proto !== Object.prototype) {
+            return false;
+        }
+
+        if (obj.constructor && !hasOwn(obj, 'constructor') && !hasOwn(obj.constructor.prototype, 'isPrototypeOf')) {
+            return false;
+        }
+
+        for (key in obj) {}
+
+        return key === undefined || hasOwn(obj, key);
+    }
+
+    return isPlainObject;
 });
 
 define('amd-utils/object/mixIn',['./hasOwn'], function(hasOwn){
@@ -1402,7 +1428,8 @@ define('Class',[
     './common/checkObjectPrototype',
     './common/randomAccessor',
     './common/hasFreezeBug',
-    './common/isPrimitiveType',
+    './common/isNonEmutable',
+    './common/isPlainObject',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
@@ -1433,7 +1460,8 @@ define('Class',[
     checkObjectPrototype,
     randomAccessor,
     hasFreezeBug,
-    isPrimitiveType,
+    isNonEmutable,
+    isPlainObject,
     isFunction,
     isObject,
     isArray,
@@ -1481,7 +1509,11 @@ define('Class',[
             return [].concat(prop);
         }
         if (isObject(prop)) {
-            return mixIn({}, prop);
+            if (isPlainObject(prop)) {
+                return mixIn({}, prop);
+            } else {
+                return createObject(prop);
+            }
         }
         if (isDate(prop)) {
             temp = new Date();
@@ -1703,10 +1735,10 @@ define('Class',[
             metadata.value = value;
         } else {
             constructor.prototype[name] = value;
-            metadata.isPrimitive = isPrimitiveType(value);
+            metadata.isNonEmutable = isNonEmutable(value);
         }
 
-        // Check the metadata was fine (if not then the property is undefined)
+        // Check if the metadata was fine (if not then the property is undefined)
         if (!metadata) {
             throw new Error('Value of ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + '" defined in class "' + constructor.prototype.$name + '" can\'t be undefined (use null instead).');
         }
@@ -2137,7 +2169,7 @@ define('Class',[
 
                 value = saved.$constants[key];
 
-                if (!isPrimitiveType(value)) {
+                if (isFunction(value) || !isNonEmutable(value)) {
                     throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a primitive type.');
                 }
 
@@ -3327,7 +3359,7 @@ define('Interface',[
     './common/checkObjectPrototype',
     './common/obfuscateProperty',
     './common/randomAccessor',
-    './common/isPrimitiveType',
+    './common/isNonEmutable',
     './common/hasDefineProperty',
     './common/mixIn',
     'amd-utils/object/hasOwn',
@@ -3350,7 +3382,7 @@ define('Interface',[
     checkObjectPrototype,
     obfuscateProperty,
     randomAccessor,
-    isPrimitiveType,
+    isNonEmutable,
     hasDefineProperty,
     mixIn,
     hasOwn,
@@ -3489,17 +3521,12 @@ define('Interface',[
 
         var target;
 
-        // Check if it is a primitive type
-        if (!isPrimitiveType(value)) {
-            throw new Error('Value for constant "' + name + '" defined in class "' + interf.prototype.$name + '" must be a primitive type.');
-        }
-
         // Check if it is public
         if (name.charAt(0) === '_') {
             throw new Error('Interface "' + interf.prototype.$name + '" contains an unallowed non public method: "' + name + '".');
         }
         // Check if it is a primitive value
-        if (!isPrimitiveType(value)) {
+        if (isFunction(value) || !isNonEmutable(value)) {
             throw new Error('Value for constant property "' + name + '" defined in interface "' + interf.prototype.$name + '" must be a primitive type.');
         }
 
@@ -3818,7 +3845,7 @@ define('instanceOf',[
      */
     function instanceOf(instance, target) {
 
-        if (instance.$constructor[$class] && target[$interface]) {
+        if (instance && instance.$constructor && instance.$constructor[$class] && target[$interface]) {
             return instanceOfInterface(instance, target);
         }
 

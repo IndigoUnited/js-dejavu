@@ -5,26 +5,28 @@ define([
     'amd-utils/lang/isNumber',
     'amd-utils/lang/isRegExp',
     'amd-utils/lang/isString',
-    'amd-utils/lang/isBoolean'
+    'amd-utils/lang/isBoolean',
+    'amd-utils/lang/isFunction'
 ], function (
     isNumber,
     isRegExp,
     isString,
-    isBoolean
+    isBoolean,
+    isFunction
 ) {
 
     'use strict';
 
     /**
-     * Checks if a value is a primitive type.
+     * Checks if a value is primitive.
      *
      * @param {Mixed} value The value
      *
      * @return {Boolean} True if it is, false otherwise
      */
-    function isPrimitiveType(value) {
-        return isNumber(value) || isString(value) || isBoolean(value) || isRegExp(value) || value == null;
+    function isNonEmutable(value) {
+        return value == null || isBoolean(value) || isNumber(value) || isString(value) || isRegExp(value) || isFunction(value);
     }
 
-    return isPrimitiveType;
+    return isNonEmutable;
 });

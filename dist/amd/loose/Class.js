@@ -2,7 +2,8 @@
 /*global define*/
 
 define([
-    './common/isPrimitiveType',
+    './common/isNonEmutable',
+    './common/isPlainObject',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
@@ -18,7 +19,8 @@ define([
     'amd-utils/lang/bind',
     'amd-utils/lang/toArray'
 ], function ClassWrapper(
-    isPrimitiveType,
+    isNonEmutable,
+    isPlainObject,
     isFunction,
     isObject,
     isArray,
@@ -57,7 +59,11 @@ define([
             return [].concat(prop);
         }
         if (isObject(prop)) {
-            return mixIn({}, prop);
+            if (isPlainObject(prop)) {
+                return mixIn({}, prop);
+            } else {
+                return createObject(prop);
+            }
         }
         if (isDate(prop)) {
             temp = new Date();
@@ -98,7 +104,7 @@ define([
                         if (isFunction(value) && !value[$class] && !value[$interface]) {
                             value['$prototype_' + constructor[$class].id] = constructor.prototype;
                             value.$name = key;
-                        } else if (!isPrimitiveType(value)) {
+                        } else if (!isNonEmutable(value)) {
                             insert(constructor[$class].properties, value);
                         }
                     }
@@ -245,7 +251,7 @@ define([
                 value.$name = key;
                 // We should remove the key here because a class may override from primitive to non primitive,
                 // but we skip it because the cloneProperty already handles it
-            } else if (!isPrimitiveType(value)) {
+            } else if (!isNonEmutable(value)) {
                 insert(constructor[$class].properties, key);
             }
 

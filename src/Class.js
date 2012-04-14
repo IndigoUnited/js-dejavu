@@ -26,7 +26,8 @@ define([
     './common/randomAccessor',
     './common/hasFreezeBug',
 //>>includeEnd('strict');
-    './common/isPrimitiveType',
+    './common/isNonEmutable',
+    './common/isPlainObject',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
@@ -63,7 +64,8 @@ define([
     randomAccessor,
     hasFreezeBug,
 //>>includeEnd('strict');
-    isPrimitiveType,
+    isNonEmutable,
+    isPlainObject,
     isFunction,
     isObject,
     isArray,
@@ -124,7 +126,11 @@ define([
             return [].concat(prop);
         }
         if (isObject(prop)) {
-            return mixIn({}, prop);
+            if (isPlainObject(prop)) {
+                return mixIn({}, prop);
+            } else {
+                return createObject(prop);
+            }
         }
         if (isDate(prop)) {
             temp = new Date();
@@ -347,10 +353,10 @@ define([
             metadata.value = value;
         } else {
             constructor.prototype[name] = value;
-            metadata.isPrimitive = isPrimitiveType(value);
+            metadata.isNonEmutable = isNonEmutable(value);
         }
 
-        // Check the metadata was fine (if not then the property is undefined)
+        // Check if the metadata was fine (if not then the property is undefined)
         if (!metadata) {
             throw new Error('Value of ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + '" defined in class "' + constructor.prototype.$name + '" can\'t be undefined (use null instead).');
         }
@@ -483,7 +489,7 @@ define([
                         if (isFunction(value) && !value[$class] && !value[$interface]) {
                             value['$prototype_' + constructor[$class].id] = constructor.prototype;
                             value.$name = key;
-                        } else if (!isPrimitiveType(value)) {
+                        } else if (!isNonEmutable(value)) {
                             insert(constructor[$class].properties, value);
                         }
                     }
@@ -801,7 +807,7 @@ define([
                 value.$name = key;
                 // We should remove the key here because a class may override from primitive to non primitive,
                 // but we skip it because the cloneProperty already handles it
-            } else if (!isPrimitiveType(value)) {
+            } else if (!isNonEmutable(value)) {
                 insert(constructor[$class].properties, key);
             }
 
@@ -933,7 +939,7 @@ define([
                 value = saved.$constants[key];
 
 //>>includeStart('strict', pragmas.strict);
-                if (!isPrimitiveType(value)) {
+                if (isFunction(value) || !isNonEmutable(value)) {
                     throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a primitive type.');
                 }
 
