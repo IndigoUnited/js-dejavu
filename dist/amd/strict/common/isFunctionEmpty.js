@@ -3,7 +3,7 @@
 
 define(function () {
 
-    "use strict";
+    'use strict';
 
     /**
      * Check if a function has no body.

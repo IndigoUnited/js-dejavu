@@ -39,7 +39,7 @@ define([
     Class
 ) {
 
-    "use strict";
+    'use strict';
 
     var random = randomAccessor('AbstractClassWrapper'),
         $class = '$class_' + random,
@@ -105,6 +105,8 @@ define([
                 throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '(' + metadata.signature + ')" defined in abstract class "' + constructor.prototype.$name + '" overrides its ancestor but it is not compatible with its signature: "' + name + '(' + target[name].signature + ')".');
             }
         }
+
+        metadata.checkCompatibility = true;
 
         target[name] = metadata;
     }
@@ -292,7 +294,7 @@ define([
         }
 
         var def,
-            abstractObj = { methods: {}, staticMethods: {}, interfaces: [] },
+            abstractObj = { methods: {}, staticMethods: {} },
             saved = {};
 
         // If we are extending an abstract class also, inherit the abstract methods
@@ -301,7 +303,6 @@ define([
             if (params.$extends[$abstract]) {
                 mixIn(abstractObj.methods, params.$extends[$abstract].methods);
                 mixIn(abstractObj.staticMethods, params.$extends[$abstract].staticMethods);
-                combine(abstractObj.interfaces, params.$extends[$abstract].interfaces);
             }
         }
 

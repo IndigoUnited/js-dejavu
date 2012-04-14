@@ -8,7 +8,7 @@ define([
     hasOwn
 ) {
 
-    "use strict";
+    'use strict';
 
     var keywords = [
         '$name', '$extends', '$implements', '$borrows', '$binds',

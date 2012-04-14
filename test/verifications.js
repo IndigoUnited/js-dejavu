@@ -1940,15 +1940,23 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Class({
-                        $borrows: AbstractClass({})
+                        $borrows: AbstractClass({
+                            $abstracts: {
+                                some: function () {}
+                            }
+                        })
                     });
-                }).to.throwException(/not a valid class\/object/);
+                }).to.throwException(/abstract class with abstract members/);
 
                 expect(function () {
                     return Class({
-                        $borrows: [AbstractClass({})]
+                        $borrows: [AbstractClass({
+                            $abstracts: {
+                                some: function () {}
+                            }
+                        })]
                     });
-                }).to.throwException(/not a valid class\/object/);
+                }).to.throwException(/abstract class with abstract members/);
 
                 expect(function () {
                     return Class({
@@ -1990,6 +1998,20 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                 expect(function () {
                     return Class({
                         $borrows: [Class({})]
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass({
+                        $borrows: AbstractClass({
+                            $abstracts: {}
+                        })
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass({
+                        $borrows: [AbstractClass({})]
                     });
                 }).to.not.throwException();
 
@@ -2467,7 +2489,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         initialize: function (a) {},
                         method1: function (a) {}
                     });
-                }).to.throwException(/not compatible with/);
+                }).to.not.throwException();
 
                 expect(function () {
                     return Class({
@@ -2479,7 +2501,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         initialize: function (a, b) {},
                         method1: function (a) {}
                     });
-                }).to.throwException(/not compatible with/);
+                }).to.not.throwException();
 
                 expect(function () {
                     return Class({
@@ -2515,6 +2537,51 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         initialize: function (a, $b, $c) {}
                     });
                 }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        $extends: Class({
+                            $extends: Class({
+                                get: function (a) {}
+                            })
+                        }),
+                        get: function (a, b) {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        $extends: Class({
+                            $extends: Class({
+                                get: function (a) {}
+                            })
+                        }),
+                        get: function () {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        $extends: Class({
+                            $extends: Class({
+                                get: function (a) {}
+                            })
+                        }),
+                        get: function ($a) {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return Class({
+                        $extends: Class({
+                            $extends: Class({
+                                get: function (a) {}
+                            })
+                        }),
+                        get: function (a, $b) {}
+                    });
+                }).to.not.throwException();
+
             });
 
         });

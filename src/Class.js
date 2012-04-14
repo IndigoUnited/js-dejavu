@@ -14,6 +14,7 @@ define([
     'amd-utils/array/compact',
     'amd-utils/array/remove',
     'amd-utils/object/keys',
+    'amd-utils/object/size',
     './common/functionMeta',
     './common/propertyMeta',
     './common/isFunctionCompatible',
@@ -23,6 +24,7 @@ define([
     './common/hasDefineProperty',
     './common/checkObjectPrototype',
     './common/randomAccessor',
+    './common/hasFreezeBug',
 //>>includeEnd('strict');
     './common/isPrimitiveType',
     'amd-utils/lang/isFunction',
@@ -49,6 +51,7 @@ define([
     compact,
     remove,
     keys,
+    size,
     functionMeta,
     propertyMeta,
     isFunctionCompatible,
@@ -58,6 +61,7 @@ define([
     hasDefineProperty,
     checkObjectPrototype,
     randomAccessor,
+    hasFreezeBug,
 //>>includeEnd('strict');
     isPrimitiveType,
     isFunction,
@@ -79,7 +83,7 @@ define([
 ) {
 
 //>>includeStart('strict', pragmas.strict);
-    "use strict";
+    'use strict';
 
     checkObjectPrototype();
 
@@ -162,7 +166,7 @@ define([
             return returns;
         };
 
-        obfuscateProperty(wrapped, '$wrapped', true);
+        obfuscateProperty(wrapped, '$wrapped', method);
 
         if (method.$name) {
             obfuscateProperty(wrapped, '$name', method.$name);
@@ -244,7 +248,7 @@ define([
                 throw new Error('Cannot override final method "' + name + '" in class "' + constructor.prototype.$name + '".');
             }
             // Are they compatible?
-            if (!isFunctionCompatible(metadata, target[name])) {
+            if (metadata.checkCompatibility && !isFunctionCompatible(metadata, target[name])) {
                 throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '(' + metadata.signature + ')" defined in abstract class "' + constructor.prototype.$name + '" overrides its ancestor but it is not compatible with its signature: "' + name + '(' + target[name].signature + ')".');
             }
         }
@@ -256,23 +260,22 @@ define([
             method = wrapMethod(method, name);
             obfuscateProperty(method, '$name', name);
         } else {
-            originalMethod = method;
+            originalMethod = method.$wrapped;
         }
 
         // If the function is protected/private we delete it from the target because they will be protected later
         if (!metadata.isPublic && hasDefineProperty) {
-
             if (!isStatic) {
                 delete constructor.prototype[name];
             } else {
                 delete constructor[name];
             }
-
-            metadata.implementation = method;
         } else {
             target = isStatic ? constructor : constructor.prototype;
             target[name] = method;
         }
+
+        metadata.implementation = method;
 
         if (isFinal) {
             metadata.isFinal = isFinal;
@@ -437,9 +440,13 @@ define([
 
 //>>includeStart('strict', pragmas.strict);
                 // Verify each mixin
-                if ((!isFunction(mixins[i]) || !mixins[i][$class] || mixins[i][$abstract]) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
+                if ((!isFunction(mixins[i]) || !mixins[i][$class]) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
                     throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
                 }
+
+                // TODO: should we inherit interfaces of the borrowed class?!
+                // TODO: allow subclass classes
+                // TODO: allow abstract members fully
 
                 if (isObject(mixins[i])) {
                     try {
@@ -452,9 +459,14 @@ define([
                     current = mixins[i].prototype;
                 }
 
+                // Verify if is an abstract class with members
+                if (current.$constructor[$abstract] && (size(current.$constructor[$abstract].methods) > 0 || size(current.$constructor[$abstract].staticMethods) > 0)) {
+                    throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is an abstract class with abstract members, which are not allowed.');
+                }
+
                 // Verify if it has parent
                 if (current.$constructor.$parent) {
-                    throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is an inherited class (only root classes not supported).');
+                    throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is an inherited class (only root classes are supported).');
                 }
 
 //>>includeEnd('strict');
@@ -973,10 +985,9 @@ define([
      */
     function protectMethod(name, meta, instance) {
 
+        instance[cacheKeyword].methods[name] = meta.implementation;
+
         if (meta.isPrivate) {
-
-            instance[cacheKeyword].methods[name] = meta.implementation;
-
             Object.defineProperty(instance, name, {
                 get: function get() {
 
@@ -1002,9 +1013,6 @@ define([
                 enumerable: false
             });
         } else if (meta.isProtected) {
-
-            instance[cacheKeyword].methods[name] = meta.implementation;
-
             Object.defineProperty(instance, name, {
                 get: function get() {
 
@@ -1031,6 +1039,21 @@ define([
                 configurable: false,
                 enumerable: false
             });
+        } else {
+            Object.defineProperty(instance, name, {
+                get: function get() {
+                    return this[cacheKeyword].methods[name];
+                },
+                set: function set(newVal) {
+                    if (this.$initializing) {
+                        this[cacheKeyword].methods[name] = newVal;
+                    } else {
+                        throw new Error('Cannot set public method "' + name + '" of class "' + this.$name + '".');
+                    }
+                },
+                configurable: false,
+                enumerable: false
+            });
         }
     }
 
@@ -1043,10 +1066,9 @@ define([
      */
     function protectStaticMethod(name, meta, constructor) {
 
+        constructor[cacheKeyword].methods[name] = meta.implementation;
+
         if (meta.isPrivate) {
-
-            constructor[cacheKeyword].methods[name] = meta.implementation;
-
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
@@ -1066,9 +1088,6 @@ define([
                 enumerable: false
             });
         } else if (meta.isProtected) {
-
-            constructor[cacheKeyword].methods[name] = meta.implementation;
-
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
@@ -1095,6 +1114,17 @@ define([
                 configurable: false,
                 enumerable: false
             });
+        } else {
+            Object.defineProperty(constructor, name, {
+                get: function get() {
+                    return this[cacheKeyword].methods[name];
+                },
+                set: function set(newVal) {
+                    throw new Error('Cannot set public static method "' + name + '" of class "' + this.$name + '".');
+                },
+                configurable: false,
+                enumerable: false
+            });
         }
     }
 
@@ -1108,7 +1138,6 @@ define([
     function protectProperty(name, meta, instance) {
 
         if (meta.isPrivate) {
-
             instance[cacheKeyword].properties[name] = cloneProperty(meta.value);
 
             Object.defineProperty(instance, name, {
@@ -1132,7 +1161,6 @@ define([
                 enumerable: false
             });
         } else if (meta.isProtected) {
-
             instance[cacheKeyword].properties[name] = cloneProperty(meta.value);
 
             Object.defineProperty(instance, name, {
@@ -1180,7 +1208,6 @@ define([
     function protectStaticProperty(name, meta, constructor) {
 
         if (meta.isPrivate) {
-
             constructor[cacheKeyword].properties[name] = !meta.isConst ? cloneProperty(meta.value) : meta.value;
 
             Object.defineProperty(constructor, name, {
@@ -1210,7 +1237,6 @@ define([
                 enumerable: false
             });
         } else if (meta.isProtected) {
-
             constructor[cacheKeyword].properties[name] = !meta.isConst ? cloneProperty(meta.value) : meta.value;
 
             Object.defineProperty(constructor, name, {
@@ -1257,7 +1283,6 @@ define([
                 enumerable: false
             });
         } else if (meta.isConst) {
-
             constructor[cacheKeyword].properties[name] = meta.value;
 
             Object.defineProperty(constructor, name, {
@@ -1319,6 +1344,10 @@ define([
         // Prevent any properties/methods to be added and deleted
         if (isFunction(Object.seal)) {
             Object.seal(constructor);
+        }
+        if (isFunction(Object.freeze) && !hasFreezeBug) {
+            Object.freeze(constructor.prototype);
+        } if (isFunction(Object.seal)) {
             Object.seal(constructor.prototype);
         }
     }
@@ -1343,7 +1372,7 @@ define([
     function createConstructor() {
 //>>excludeEnd('strict');
 
-        var Instance = function () {
+        var Instance = function Instance() {
 
             var x,
                 properties;
@@ -1383,7 +1412,11 @@ define([
             }
 
 //>>includeStart('strict', pragmas.strict);
-            delete this.$initializing;
+            if (hasDefineProperty) {
+                obfuscateProperty(this, '$initializing', false);
+            } else {
+                delete this.$initializing;
+            }
 
             // Prevent any properties/methods to be added and deleted
             if (isFunction(Object.seal)) {
@@ -1752,7 +1785,7 @@ define([
 
 //>>includeStart('strict', pragmas.strict);
         if (isAbstract) {
-            obfuscateProperty(classify, '$abstract_' + random, true, true); // Signal it has abstract
+            obfuscateProperty(classify, $abstract, true, true); // Signal it has abstract
         }
 
 //>>includeEnd('strict');

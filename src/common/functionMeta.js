@@ -4,7 +4,7 @@
 
 define(function () {
 
-    "use strict";
+    'use strict';
 
     /**
      * Extract meta data from a function.

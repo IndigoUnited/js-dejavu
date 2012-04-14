@@ -3,7 +3,7 @@
 
 define(['amd-utils/array/contains'], function (contains) {
 
-    "use strict";
+    'use strict';
 
     var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
         nrAccesses = 0,
