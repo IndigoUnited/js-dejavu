@@ -1,16 +1,17 @@
+//>>includeStart('strict', pragmas.strict);
 /*jslint forin:true*/
 /*global define,console*/
 
 define(function () {
 
-    "use strict";
+    'use strict';
 
     /**
      * Checks if object prototype has non enumerable properties attached.
      *
      * @return {Boolean} True if it is, false otherwise
      */
-    function isObjectPrototypeSpoiled() {
+    function hasObjectPrototypeSpoiled() {
 
         var obj = {},
             key;
@@ -24,5 +25,6 @@ define(function () {
         return false;
     }
 
-    return isObjectPrototypeSpoiled;
+    return hasObjectPrototypeSpoiled();
 });
+//>>includeEnd('strict');

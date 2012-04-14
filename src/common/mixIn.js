@@ -9,7 +9,7 @@
 define(function () {
 
 //>>includeStart('strict', pragmas.strict);
-    "use strict";
+    'use strict';
 
 //>>includeEnd('strict');
     /**

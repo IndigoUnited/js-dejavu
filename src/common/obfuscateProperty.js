@@ -3,7 +3,7 @@
 
 define(['./hasDefineProperty'], function (hasDefineProperty) {
 
-    "use strict";
+    'use strict';
 
     /**
      * Sets the key of object with the specified value.

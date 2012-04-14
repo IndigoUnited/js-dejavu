@@ -13,7 +13,7 @@ define([
     isBoolean
 ) {
 
-    "use strict";
+    'use strict';
 
     /**
      * Checks if a value is a primitive type.

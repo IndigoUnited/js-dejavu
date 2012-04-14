@@ -2,7 +2,7 @@
 
 define(function () {
 
-    "use strict";
+    'use strict';
 
     /**
      * Check if a function signature is compatible with another.

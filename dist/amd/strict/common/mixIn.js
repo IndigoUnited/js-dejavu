@@ -3,7 +3,7 @@
 
 define(function () {
 
-    "use strict";
+    'use strict';
 
     /**
      * This method does exactly the same as the amd counterpart but

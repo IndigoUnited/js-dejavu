@@ -11,7 +11,7 @@ define([
     isFunction
 ) {
 
-    "use strict";
+    'use strict';
 
     var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
 

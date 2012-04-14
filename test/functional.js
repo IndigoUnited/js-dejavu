@@ -1264,6 +1264,25 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return (new SomeClass()).getConst3();
                     }())).to.be.equal('foo');
 
+                    expect(function () {
+                        var SomeClass = Class({
+                            __someVar: 'foo',
+                            __someMethod: function () {},
+                            test: function () {
+                                return this.__someVar;
+                            },
+                            test2: function () {
+                                this.__someMethod();
+                            }
+                        }), OtherClass = Class({
+                            $borrows: SomeClass
+                        }),
+                            myOtherClass = new OtherClass();
+
+                        myOtherClass.test();
+                        myOtherClass.test2();
+                    }).to.not.throwException();
+
                 });
 
                 it('cannot be overrided', function () {
@@ -1560,6 +1579,25 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     expect((function () {
                         return (new SomeClass()).getConst3();
                     }())).to.be.equal('foo');
+
+                    expect(function () {
+                        var SomeClass = Class({
+                            _someVar: 'foo',
+                            _someMethod: function () {},
+                            test: function () {
+                                return this._someVar;
+                            },
+                            test2: function () {
+                                this._someMethod();
+                            }
+                        }), OtherClass = Class({
+                            $borrows: SomeClass
+                        }),
+                            myOtherClass = new OtherClass();
+
+                        myOtherClass.test();
+                        myOtherClass.test2();
+                    }).to.not.throwException();
 
                 });
 

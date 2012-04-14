@@ -11,7 +11,7 @@ define([
     checkObjectPrototype
 ) {
 
-    "use strict";
+    'use strict';
 
     checkObjectPrototype();
 
