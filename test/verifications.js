@@ -722,15 +722,6 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.not.throwException();
-
-                expect(function () {
-                    return Interface({
-                        $constants: {
-                            SOME: /DSA/
-                        }
-                    });
-                }).to.not.throwException();
-
             });
 
             it('should throw an error when it extends multiple ones with same constants but different values', function () {
@@ -1556,14 +1547,6 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         $constants: {
                             SOME: 1
-                        }
-                    });
-                }).to.not.throwException();
-
-                expect(function () {
-                    return Class({
-                        $constants: {
-                            SOME: /DSA/
                         }
                     });
                 }).to.not.throwException();

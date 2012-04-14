@@ -19,7 +19,7 @@ define([
     './common/checkObjectPrototype',
     './common/randomAccessor',
     './common/hasFreezeBug',
-    './common/isNonEmutable',
+    './common/isImmutable',
     './common/isPlainObject',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
@@ -51,7 +51,7 @@ define([
     checkObjectPrototype,
     randomAccessor,
     hasFreezeBug,
-    isNonEmutable,
+    isImmutable,
     isPlainObject,
     isFunction,
     isObject,
@@ -112,6 +112,8 @@ define([
             return temp;
         }
 
+        // TODO: test if the regexp object can be cloned using new RegExp(regexp.source)
+        
         return prop;
     }
 
@@ -326,7 +328,7 @@ define([
             metadata.value = value;
         } else {
             constructor.prototype[name] = value;
-            metadata.isNonEmutable = isNonEmutable(value);
+            metadata.isImmutable = isImmutable(value);
         }
 
         // Check if the metadata was fine (if not then the property is undefined)
@@ -760,8 +762,8 @@ define([
 
                 value = saved.$constants[key];
 
-                if (isFunction(value) || !isNonEmutable(value)) {
-                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a primitive type.');
+                if (!isImmutable(value)) {
+                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a primitive type (immutable).');
                 }
 
                 addProperty(key, value, constructor, opts);

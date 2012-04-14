@@ -19,7 +19,7 @@ define([
     './common/checkObjectPrototype',
     './common/obfuscateProperty',
     './common/randomAccessor',
-    './common/isNonEmutable',
+    './common/isImmutable',
     './common/hasDefineProperty',
     './common/mixIn',
     'amd-utils/object/hasOwn',
@@ -42,7 +42,7 @@ define([
     checkObjectPrototype,
     obfuscateProperty,
     randomAccessor,
-    isNonEmutable,
+    isImmutable,
     hasDefineProperty,
     mixIn,
     hasOwn,
@@ -186,7 +186,7 @@ define([
             throw new Error('Interface "' + interf.prototype.$name + '" contains an unallowed non public method: "' + name + '".');
         }
         // Check if it is a primitive value
-        if (isFunction(value) || !isNonEmutable(value)) {
+        if (!isImmutable(value)) {
             throw new Error('Value for constant property "' + name + '" defined in interface "' + interf.prototype.$name + '" must be a primitive type.');
         }
 

@@ -29,6 +29,7 @@ define([
             return false;
         }
 
+        // TODO: test this with window, or other dom objects (see jquery)
         if (obj.constructor && !hasOwn(obj, 'constructor') && !hasOwn(obj.constructor.prototype, 'isPrototypeOf')) {
             return false;
         }

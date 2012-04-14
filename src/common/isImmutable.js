@@ -25,15 +25,15 @@ define([
 
 //>>includeEnd('strict');
     /**
-     * Checks if a value is primitive.
+     * Checks if a value is immutable.
      *
      * @param {Mixed} value The value
      *
      * @return {Boolean} True if it is, false otherwise
      */
-    function isNonEmutable(value) {
-        return value == null || isBoolean(value) || isNumber(value) || isString(value) || isRegExp(value) || isFunction(value);
+    function isImmutable(value) {
+        return value == null || isBoolean(value) || isNumber(value) || isString(value);
     }
 
-    return isNonEmutable;
+    return isImmutable;
 });
