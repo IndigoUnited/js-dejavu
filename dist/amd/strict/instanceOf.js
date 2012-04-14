@@ -77,7 +77,7 @@ define([
             return instanceOfInterface(instance, target);
         }
 
-        return instance instanceof target;
+        return false;
     }
 
     return instanceOf;
