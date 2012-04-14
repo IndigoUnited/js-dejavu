@@ -9,8 +9,6 @@ define([
     hasOwn
 ) {
 
-    
-
     var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
 
     /**

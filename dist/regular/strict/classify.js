@@ -752,7 +752,7 @@ define('common/hasFreezeBug',['amd-utils/lang/isFunction'], function (isFunction
 
         try {
             a.foo = 'baz';            // Throws a['foo'] is read only
-            if (a.foo !== 'baz') {    // Or fails silently in at least
+            if (a.foo !== 'baz') {    // Or fails silently in at least IE9
                 return true;
             }
         } catch (e) {
@@ -1708,7 +1708,7 @@ define('Class',[
             } else {
                 metadata = propertyMeta(value, name);
                 if (!metadata) {
-                    throw new Error('Value of property "' + name + '"  in class "' + constructor.prototype.$name + '" cannot be parsed (undefined/classes/instances are not allowed).');
+                    throw new Error('Value of property "' + name + '"  in class "' + constructor.prototype.$name + '" cannot be parsed (undefined values are not allowed).');
                 }
                 isFinal = !!opts.isFinal;
                 isConst = !!opts.isConst;

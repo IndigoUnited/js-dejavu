@@ -9,8 +9,10 @@ define([
     hasOwn
 ) {
 
+//>>includeStart('strict', pragmas.strict);
     'use strict';
 
+//>>includeEnd('strict');
     var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
 
     /**

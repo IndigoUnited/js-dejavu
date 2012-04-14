@@ -299,7 +299,7 @@ define([
             } else {
                 metadata = propertyMeta(value, name);
                 if (!metadata) {
-                    throw new Error('Value of property "' + name + '"  in class "' + constructor.prototype.$name + '" cannot be parsed (undefined/classes/instances are not allowed).');
+                    throw new Error('Value of property "' + name + '"  in class "' + constructor.prototype.$name + '" cannot be parsed (undefined values are not allowed).');
                 }
                 isFinal = !!opts.isFinal;
                 isConst = !!opts.isConst;
