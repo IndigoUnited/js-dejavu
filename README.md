@@ -61,7 +61,7 @@ The constructor wrapper is needed in order to apply binds and to make mutable ty
 
 _NOTE_: The strict mode works well with "use strict".
       Though, to improve performance, the loose version is not compatible with "use strict".
-      Run a preprocessor to remove "use strict" from all production code.
+      Run a preprocessor to remove "use strict" from all production code (e.g.: requirejs optimizer tool).
 
 ## Usage ##
 
