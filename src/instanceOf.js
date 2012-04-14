@@ -82,7 +82,7 @@ define([
      */
     function instanceOf(instance, target) {
 
-        if (instance.$constructor[$class] && target[$interface]) {
+        if (instance && instance.$constructor && instance.$constructor[$class] && target[$interface]) {
             return instanceOfInterface(instance, target);
         }
 

@@ -3,17 +3,11 @@
 
 define([
     'amd-utils/lang/isUndefined',
-    'amd-utils/lang/isObject',
-    'amd-utils/lang/isFunction'
 ], function (
-    isUndefined,
-    isObject,
-    isFunction
+    isUndefined
 ) {
 
     'use strict';
-
-    var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
 
     /**
      * Extract meta data from a property.
@@ -26,23 +20,10 @@ define([
      */
     function propertyMeta(prop, name) {
 
-        var ret = {},
-            proto;
+        var ret = {};
 
         // Is it undefined?
         if (isUndefined(prop)) {
-            return null;
-        }
-        // If is a object, check if it is a plain object
-        if (isObject(prop)) {
-            proto = '__proto__';
-            proto = hasObjectPrototypeOf ? Object.getPrototypeOf(prop) : prop[proto];
-            if (proto && proto !== Object.prototype) {
-                return null;
-            }
-        }
-        // Is it a function?
-        if (isFunction(prop)) {
             return null;
         }
 

@@ -1217,60 +1217,17 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Class({
-                        some: Class({})
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return Class({
-                        some: new Class({})
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return Class({
                         $finals: {
                             some: undefined
                         }
                     });
                 }).to.throwException(/cannot be parsed/);
 
-                expect(function () {
-                    return Class({
-                        $finals: {
-                            some: Class({})
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return Class({
-                        $finals: {
-                            some: new Class({})
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
 
                 expect(function () {
                     return Class({
                         $statics: {
                             some: undefined
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return Class({
-                        $statics: {
-                            some: Class({})
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return Class({
-                        $statics: {
-                            some: new Class({})
                         }
                     });
                 }).to.throwException(/cannot be parsed/);
@@ -1283,18 +1240,6 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return AbstractClass({
-                        some: Class({})
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return AbstractClass({
-                        some: new Class({})
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return AbstractClass({
                         $finals: {
                             some: undefined
                         }
@@ -1303,40 +1248,8 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return AbstractClass({
-                        $finals: {
-                            some: Class({})
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return AbstractClass({
-                        $finals: {
-                            some: new Class({})
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return AbstractClass({
                         $statics: {
                             some: undefined
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return AbstractClass({
-                        $statics: {
-                            some: Class({})
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return AbstractClass({
-                        $statics: {
-                            some: new Class({})
                         }
                     });
                 }).to.throwException(/cannot be parsed/);
