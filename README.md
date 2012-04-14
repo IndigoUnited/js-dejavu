@@ -25,8 +25,12 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 * Custom instanceOf that also works with interfaces
 * Has two builds, one regular and one AMD based
 * Loose build (the one to be used in production) has 9.71Kb minified and 3.7Kb minified + gziped
+* Classes and instances are locked, members cannot be changed or added (only applicable to some browsers, such as Chrome)
 
-
+Users are encouraged to use 'use strict' while using the strict build otherwise some code can fail [silently](https://developer.mozilla.org/en/JavaScript/Strict_mode)
+because we are using Object.freeze and/or Object.seal to lock classes and instances.
+The regular build is __not__ compatible with the 'use strict' because it uses the depecrated .caller property.
+Run a preprocessor to remove 'use strict' from all production code (e.g.: requirejs optimizer tool).
 
 ## Works on ##
 
@@ -58,10 +62,6 @@ See below for more information.
 I've publish a new test revision on [jsperf](http://jsperf.com/oop-benchmark/13) comparing Classify with other OOP libraries.
 The version running is the regular (loose build). Classify uses a wrapper for the constructor function therefore its performance can't be compared to JSFace or my.Class.
 The constructor wrapper is needed in order to apply binds and to make mutable types unique for each instance (for example, if an property is an array, the array should not be shared among instances, but in JSFace and my.Class they actually are).
-
-_NOTE_: The strict mode works well with "use strict".
-      Though, to improve performance, the loose version is not compatible with "use strict".
-      Run a preprocessor to remove "use strict" from all production code (e.g.: requirejs optimizer tool).
 
 ## Usage ##
 
