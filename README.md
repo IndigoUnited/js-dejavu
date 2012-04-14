@@ -448,8 +448,9 @@ With this syntax it also gives you the flexibility to call other parent methods.
 
 ### Signature check ###
 
-All functions are virtual functions. A method can override another if they obey their signature (their signature must be equal or augmented with additional optional arguments).
-Arguments prefixed with a $ are evaluated as optional. The signature check for every abstract functions (interface functions are considered abstract) is made for every class, abstract class and interface.
+All functions are virtual functions, there it can be overriden except if it is classified as final.
+Aditionally, if a method is abstract, a subclass can only implement/override if they obey their signature (must be equal or augmented with additional optional arguments).
+Arguments prefixed with a $ are evaluated as optional. The signature check is done for all abstract functions (interface functions are also considered abstract).
 
 ```js
 var SomeAbstractClass = AbstractClass({
