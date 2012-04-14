@@ -29,7 +29,7 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 
 Users are encouraged to use 'use strict' while using the strict build otherwise some code can fail [silently](https://developer.mozilla.org/en/JavaScript/Strict_mode)
 because Classify uses Object.freeze and/or Object.seal if available to lock classes and instances.
-The regular build is __not__ compatible with the 'use strict' because it uses the depecrated .caller property to provide better performance (avoiding wrappers for methods in order to support the $super()).
+The regular build is __not__ compatible with the 'use strict' because it uses the deprecated .caller property to provide better performance (avoiding wrappers for methods in order to support the $super()).
 Run a preprocessor to remove 'use strict' from all production code (e.g.: requirejs optimizer tool).
 
 ## Works on ##
