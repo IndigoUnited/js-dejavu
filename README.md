@@ -47,10 +47,10 @@ The regular build is also compatible with CommonJS modules, so it works well wit
 Please avoid using object constructors for strings, objects, booleans and numbers:
 
 ```js
-    var MyClass = Class({
-        foo: new String('bar'),  // Don't use this
-        foz: 'bar'               // Ok
-    });
+var MyClass = Class({
+    foo: new String('bar'),  // Don't use this
+    foz: 'bar'               // Ok
+});
 ```
 
 ## Performance ##
