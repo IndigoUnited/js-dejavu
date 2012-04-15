@@ -17,6 +17,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     someDate: new Date(),
                     someClass: SomeClass,
                     someInstance: new SomeClass(),
+                    someRegExp: /some/ig,
                     options: {
                         option1: 'property'
                     },
@@ -157,6 +158,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(example.otherInstance).to.not.be.equal(example2.otherInstance);
                 expect(instanceOf(example.otherInstance, SomeClass)).to.be.equal(true);
                 expect(instanceOf(example2.otherInstance, SomeClass)).to.be.equal(true);
+
+                expect(example.someRegExp).to.not.be.equal(example2.someRegExp);
+                expect(example.someRegExp.toString()).to.be.equal(example2.someRegExp.toString());
 
             });
 

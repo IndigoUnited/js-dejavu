@@ -32,6 +32,7 @@ define([
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
     'amd-utils/lang/isDate',
+    'amd-utils/lang/isRegExp',
     'amd-utils/lang/isUndefined',
     'amd-utils/lang/createObject',
     'amd-utils/object/hasOwn',
@@ -70,6 +71,7 @@ define([
     isObject,
     isArray,
     isDate,
+    isRegExp,
     isUndefined,
     createObject,
     hasOwn,
@@ -128,18 +130,22 @@ define([
         if (isObject(prop)) {
             if (isPlainObject(prop)) {
                 return mixIn({}, prop);
-            } else {
-                return createObject(prop);
             }
+
+            return createObject(prop);
         }
         if (isDate(prop)) {
             temp = new Date();
             temp.setTime(prop.getTime());
+
             return temp;
         }
+        if (isRegExp(prop)) {
+            temp = (prop.toString()).replace(/[\s\S]+\//, '');
 
-        // TODO: test if the regexp object can be cloned using new RegExp(regexp.source)
-        
+            return new RegExp(prop.source, temp);
+        }
+
         return prop;
     }
 
@@ -1355,7 +1361,7 @@ define([
         }
         if (isFunction(Object.freeze) && !hasFreezeBug) {
             Object.freeze(constructor.prototype);
-        } if (isFunction(Object.seal)) {
+        } else if (isFunction(Object.seal)) {
             Object.seal(constructor.prototype);
         }
     }
