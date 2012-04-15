@@ -25,18 +25,25 @@ define([
         var proto = '__proto__',
             key;
 
-        proto = hasObjectPrototypeOf ? Object.getPrototypeOf(obj) : obj[proto];
-
-        if (proto && proto !== Object.prototype) {
+        if (obj.nodeType || obj === obj.window) {
             return false;
         }
 
-        // TODO: test this with window, or other dom objects (see jquery)
-        if (obj.constructor && !hasOwn(obj, 'constructor') && !hasOwn(obj.constructor.prototype, 'isPrototypeOf')) {
-            return false;
+        try {
+            proto = hasObjectPrototypeOf ? Object.getPrototypeOf(obj) : obj[proto];
+
+            if (proto && proto !== Object.prototype) {
+                return false;
+            }
+
+            if (obj.constructor && !hasOwn(obj, 'constructor') && !hasOwn(obj.constructor.prototype, 'isPrototypeOf')) {
+                return false;
+            }
+        } catch (e) {
+            return false;       // IE8,9 Will throw exceptions on certain host objects
         }
 
-        for (key in obj) {}
+        for (key in obj) {}     // Ignore JSLint warning regarding 'empty block'
 
         return key === undefined || hasOwn(obj, key);
     }

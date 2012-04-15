@@ -3,16 +3,12 @@
 
 define([
     'amd-utils/lang/isNumber',
-    'amd-utils/lang/isRegExp',
     'amd-utils/lang/isString',
-    'amd-utils/lang/isBoolean',
-    'amd-utils/lang/isFunction'
+    'amd-utils/lang/isBoolean'
 ], function (
     isNumber,
-    isRegExp,
     isString,
-    isBoolean,
-    isFunction
+    isBoolean
 ) {
 
     /**

@@ -775,16 +775,6 @@ define('amd-utils/lang/isNumber',['./isKind'], function (isKind) {
     return isNumber;
 });
 
-define('amd-utils/lang/isRegExp',['./isKind'], function (isKind) {
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isRegExp(val) {
-        return isKind(val, 'RegExp');
-    }
-    return isRegExp;
-});
-
 define('amd-utils/lang/isBoolean',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
@@ -800,16 +790,12 @@ define('amd-utils/lang/isBoolean',['./isKind'], function (isKind) {
 
 define('common/isImmutable',[
     'amd-utils/lang/isNumber',
-    'amd-utils/lang/isRegExp',
     'amd-utils/lang/isString',
-    'amd-utils/lang/isBoolean',
-    'amd-utils/lang/isFunction'
+    'amd-utils/lang/isBoolean'
 ], function (
     isNumber,
-    isRegExp,
     isString,
-    isBoolean,
-    isFunction
+    isBoolean
 ) {
 
     'use strict';
@@ -856,6 +842,16 @@ define('amd-utils/lang/isDate',['./isKind'], function (isKind) {
         return isKind(val, 'Date');
     }
     return isDate;
+});
+
+define('amd-utils/lang/isRegExp',['./isKind'], function (isKind) {
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isRegExp(val) {
+        return isKind(val, 'RegExp');
+    }
+    return isRegExp;
 });
 
 define('amd-utils/lang/isUndefined',[],function () {
@@ -1093,15 +1089,22 @@ define('common/isPlainObject',[
         var proto = '__proto__',
             key;
 
-        proto = hasObjectPrototypeOf ? Object.getPrototypeOf(obj) : obj[proto];
-
-        if (proto && proto !== Object.prototype) {
+        if (obj.nodeType || (obj != null && obj === obj.window)) {
             return false;
         }
 
-        // TODO: test this with window, or other dom objects (see jquery)
-        if (obj.constructor && !hasOwn(obj, 'constructor') && !hasOwn(obj.constructor.prototype, 'isPrototypeOf')) {
-            return false;
+        try {
+            proto = hasObjectPrototypeOf ? Object.getPrototypeOf(obj) : obj[proto];
+
+            if (proto && proto !== Object.prototype) {
+                return false;
+            }
+
+            if (obj.constructor && !hasOwn(obj, 'constructor') && !hasOwn(obj.constructor.prototype, 'isPrototypeOf')) {
+                return false;
+            }
+        } catch (e) {
+            return false;   // IE8,9 Will throw exceptions on certain host objects
         }
 
         for (key in obj) {}
@@ -1435,6 +1438,7 @@ define('Class',[
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
     'amd-utils/lang/isDate',
+    'amd-utils/lang/isRegExp',
     'amd-utils/lang/isUndefined',
     'amd-utils/lang/createObject',
     'amd-utils/object/hasOwn',
@@ -1467,6 +1471,7 @@ define('Class',[
     isObject,
     isArray,
     isDate,
+    isRegExp,
     isUndefined,
     createObject,
     hasOwn,
@@ -1512,18 +1517,22 @@ define('Class',[
         if (isObject(prop)) {
             if (isPlainObject(prop)) {
                 return mixIn({}, prop);
-            } else {
-                return createObject(prop);
             }
+
+            return createObject(prop);
         }
         if (isDate(prop)) {
             temp = new Date();
             temp.setTime(prop.getTime());
+
             return temp;
         }
+        if (isRegExp(prop)) {
+            temp = (prop.toString()).replace(/[\s\S]+\//, '');
 
-        // TODO: test if the regexp object can be cloned using new RegExp(regexp.source)
-        
+            return new RegExp(prop.source, temp);
+        }
+
         return prop;
     }
 
@@ -2578,7 +2587,7 @@ define('Class',[
         }
         if (isFunction(Object.freeze) && !hasFreezeBug) {
             Object.freeze(constructor.prototype);
-        } if (isFunction(Object.seal)) {
+        } else if (isFunction(Object.seal)) {
             Object.seal(constructor.prototype);
         }
     }
