@@ -44,11 +44,13 @@ Some features like private and protected members access management are only avai
 Still, the library provide fallbacks for those cases.
 The regular build is also compatible with CommonJS modules, so it works well with Node and Rhino.
 
-Please avoid using object constructors for strings, objects, booleans and other types:
+Please avoid using object constructors for strings, objects, booleans and numbers:
 
 ```js
-    var someString = new String('foo');     // Don't use this
-    var otherString = 'foo';                // Ok
+    var MyClass = Class({
+        foo: new String('bar'),  // Don't use this
+        foz: 'bar'               // Ok
+    });
 ```
 
 ## Performance ##
