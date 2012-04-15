@@ -34,7 +34,8 @@ Run a preprocessor to remove 'use strict' from all production code (e.g.: requir
 
 ## Works on ##
 
-* IE6+
+* IE (6+?)
+* Chrome (4+?)
 * Safari (3+?)
 * Firefox (3.6+?)
 * Opera (9+?)
