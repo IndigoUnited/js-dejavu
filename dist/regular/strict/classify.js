@@ -1089,7 +1089,7 @@ define('common/isPlainObject',[
         var proto = '__proto__',
             key;
 
-        if (obj.nodeType || (obj != null && obj === obj.window)) {
+        if (obj.nodeType || obj === obj.window) {
             return false;
         }
 
@@ -1104,10 +1104,10 @@ define('common/isPlainObject',[
                 return false;
             }
         } catch (e) {
-            return false;   // IE8,9 Will throw exceptions on certain host objects
+            return false;       // IE8,9 Will throw exceptions on certain host objects
         }
 
-        for (key in obj) {}
+        for (key in obj) {}     // Ignore JSLint warning regarding 'empty block'
 
         return key === undefined || hasOwn(obj, key);
     }
@@ -3011,7 +3011,6 @@ define('AbstractClass',[
     'amd-utils/lang/isString',
     'amd-utils/lang/toArray',
     'amd-utils/lang/bind',
-    'amd-utils/array/combine',
     './common/functionMeta',
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',
@@ -3029,7 +3028,6 @@ define('AbstractClass',[
     isString,
     toArray,
     bind,
-    combine,
     functionMeta,
     isFunctionEmpty,
     isFunctionCompatible,

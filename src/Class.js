@@ -1579,7 +1579,7 @@ define([
             return alias.implementation.apply(this, arguments);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-            var caller = parent.caller || arguments.callee.caller || arguments.caller;
+            var caller = parent.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
 
             return caller['$prototype_' + classId].$constructor.$parent.prototype[caller.$name].apply(this, arguments);
 //>>excludeEnd('strict');
@@ -1603,7 +1603,7 @@ define([
             }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-            var caller = self.caller || arguments.callee.caller || arguments.caller;
+            var caller = self.caller || arguments.callee.caller || arguments.caller;    // Ignore JSLint error regarding .caller and callee
 //>>excludeEnd('strict');
 
             return caller['$prototype_' + classId].$constructor;
@@ -1668,7 +1668,7 @@ define([
             return alias.implementation.apply(this, arguments);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-            var caller = parent.caller || arguments.callee.caller || arguments.caller;
+            var caller = parent.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
 
             return caller['$constructor_' + classId].$parent[caller.$name].apply(this, arguments);
 //>>excludeEnd('strict');
