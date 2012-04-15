@@ -1,7 +1,7 @@
 /*jslint sloppy:true, newcap:true, regexp:true, nomen:true*/
 /*global global,define,describe,it*/
 
-define(global.modules, function (Class, AbstractClass, Interface) {
+define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
 
     var expect = global.expect;
 
@@ -3865,6 +3865,25 @@ define(global.modules, function (Class, AbstractClass, Interface) {
             it('should throw an error while using new', function () {
 
                 expect(function () { return new AbstractExample(); }).to.throwException(/cannot be instantiated/);
+
+            });
+
+        });
+
+        describe('Instantiation of Concrete Classes without using the new keyword', function () {
+
+            it('should throw an error', function () {
+
+                var SomeClass = Class({}),
+                    OtherClass = FinalClass({});
+
+                expect(function () {
+                    return SomeClass();
+                }).to.throwException(/called as a function/);
+
+                expect(function () {
+                    return OtherClass();
+                }).to.throwException(/called as a function/);
 
             });
 

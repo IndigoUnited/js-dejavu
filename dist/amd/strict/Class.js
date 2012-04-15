@@ -1194,6 +1194,11 @@ define([
             var x,
                 properties;
 
+            // Check if the user forgot the new keyword
+            if (!(this instanceof Instance)) {
+                throw new Error('Constructor called as a function, use the new keyword instead.');
+            }
+
             // If it's abstract, it cannot be instantiated
             if (isAbstract) {
                 throw new Error('An abstract class cannot be instantiated.');
