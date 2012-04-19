@@ -589,6 +589,10 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             it('should grab the borrowed members to their own', function () {
 
+                var CommonMixin = AbstractClass({
+                    method1: function () {}
+                });
+
                 (function () {
                     var SomeImplementation = Class({
                         $borrows: {
@@ -701,6 +705,19 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     expect(someImplementation.some()).to.be.equal('property');
 
                 }());
+
+                //expect(function () {
+                    var SomeClass = Class({}),
+                        Common1 = Class({
+                            $extends: SomeClass,
+                            $borrows: CommonMixin
+                        }),
+                        Common2 = Class({
+                            $extends: SomeClass,
+                            $borrows: CommonMixin
+                        });
+                //}).to.not.throwException();
+
             });
 
             it('should grab the borrowed members, respecting the precedence order and not replace self methods', function () {
