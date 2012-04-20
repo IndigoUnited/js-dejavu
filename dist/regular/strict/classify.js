@@ -878,14 +878,14 @@ define('common/propertyMeta',[
     'use strict';
 
     /**
-     * Extract meta data from a property.
-     * It returns an object containing the value and visibility.
-     *
-     * @param {Mixed}  prop The property
-     * @param {String} name The name of the property
-     *
-     * @return {Object} An object containg the metadata
-     */
+* Extract meta data from a property.
+* It returns an object containing the value and visibility.
+*
+* @param {Mixed} prop The property
+* @param {String} name The name of the property
+*
+* @return {Object} An object containg the metadata
+*/
     function propertyMeta(prop, name) {
 
         var ret = {};
@@ -913,7 +913,6 @@ define('common/propertyMeta',[
 
     return propertyMeta;
 });
-
 define('amd-utils/object/hasOwn',[],function () {
 
     /**
