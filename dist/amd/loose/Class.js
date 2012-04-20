@@ -2,11 +2,13 @@
 /*global define*/
 
 define([
-    './common/isPrimitiveType',
+    './common/isImmutable',
+    './common/isPlainObject',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
     'amd-utils/lang/isDate',
+    'amd-utils/lang/isRegExp',
     'amd-utils/lang/isUndefined',
     'amd-utils/lang/createObject',
     'amd-utils/object/hasOwn',
@@ -18,11 +20,13 @@ define([
     'amd-utils/lang/bind',
     'amd-utils/lang/toArray'
 ], function ClassWrapper(
-    isPrimitiveType,
+    isImmutable,
+    isPlainObject,
     isFunction,
     isObject,
     isArray,
     isDate,
+    isRegExp,
     isUndefined,
     createObject,
     hasOwn,
@@ -57,12 +61,22 @@ define([
             return [].concat(prop);
         }
         if (isObject(prop)) {
-            return mixIn({}, prop);
+            if (isPlainObject(prop)) {
+                return mixIn({}, prop);
+            }
+
+            return createObject(prop);
         }
         if (isDate(prop)) {
             temp = new Date();
             temp.setTime(prop.getTime());
+
             return temp;
+        }
+        if (isRegExp(prop)) {
+            temp = (prop.toString()).replace(/[\s\S]+\//, '');
+
+            return new RegExp(prop.source, temp);
         }
 
         return prop;
@@ -98,7 +112,7 @@ define([
                         if (isFunction(value) && !value[$class] && !value[$interface]) {
                             value['$prototype_' + constructor[$class].id] = constructor.prototype;
                             value.$name = key;
-                        } else if (!isPrimitiveType(value)) {
+                        } else if (!isImmutable(value)) {
                             insert(constructor[$class].properties, value);
                         }
                     }
@@ -245,7 +259,7 @@ define([
                 value.$name = key;
                 // We should remove the key here because a class may override from primitive to non primitive,
                 // but we skip it because the cloneProperty already handles it
-            } else if (!isPrimitiveType(value)) {
+            } else if (!isImmutable(value)) {
                 insert(constructor[$class].properties, key);
             }
 
@@ -414,7 +428,7 @@ define([
 
         return function parent() {
 
-            var caller = parent.caller || arguments.callee.caller || arguments.caller;
+            var caller = parent.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
 
             return caller['$prototype_' + classId].$constructor.$parent.prototype[caller.$name].apply(this, arguments);
         };
@@ -431,7 +445,7 @@ define([
 
         return function self() {
 
-            var caller = self.caller || arguments.callee.caller || arguments.caller;
+            var caller = self.caller || arguments.callee.caller || arguments.caller;    // Ignore JSLint error regarding .caller and callee
 
             return caller['$prototype_' + classId].$constructor;
         };
@@ -457,7 +471,7 @@ define([
 
         return function parent() {
 
-            var caller = parent.caller || arguments.callee.caller || arguments.caller;
+            var caller = parent.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
 
             return caller['$constructor_' + classId].$parent[caller.$name].apply(this, arguments);
         };

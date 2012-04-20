@@ -19,11 +19,13 @@ define([
     './common/checkObjectPrototype',
     './common/randomAccessor',
     './common/hasFreezeBug',
-    './common/isPrimitiveType',
+    './common/isImmutable',
+    './common/isPlainObject',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
     'amd-utils/lang/isDate',
+    'amd-utils/lang/isRegExp',
     'amd-utils/lang/isUndefined',
     'amd-utils/lang/createObject',
     'amd-utils/object/hasOwn',
@@ -50,11 +52,13 @@ define([
     checkObjectPrototype,
     randomAccessor,
     hasFreezeBug,
-    isPrimitiveType,
+    isImmutable,
+    isPlainObject,
     isFunction,
     isObject,
     isArray,
     isDate,
+    isRegExp,
     isUndefined,
     createObject,
     hasOwn,
@@ -98,12 +102,22 @@ define([
             return [].concat(prop);
         }
         if (isObject(prop)) {
-            return mixIn({}, prop);
+            if (isPlainObject(prop)) {
+                return mixIn({}, prop);
+            }
+
+            return createObject(prop);
         }
         if (isDate(prop)) {
             temp = new Date();
             temp.setTime(prop.getTime());
+
             return temp;
+        }
+        if (isRegExp(prop)) {
+            temp = (prop.toString()).replace(/[\s\S]+\//, '');
+
+            return new RegExp(prop.source, temp);
         }
 
         return prop;
@@ -293,7 +307,7 @@ define([
             } else {
                 metadata = propertyMeta(value, name);
                 if (!metadata) {
-                    throw new Error('Value of property "' + name + '"  in class "' + constructor.prototype.$name + '" cannot be parsed (undefined/classes/instances are not allowed).');
+                    throw new Error('Value of property "' + name + '"  in class "' + constructor.prototype.$name + '" cannot be parsed (undefined values are not allowed).');
                 }
                 isFinal = !!opts.isFinal;
                 isConst = !!opts.isConst;
@@ -320,10 +334,10 @@ define([
             metadata.value = value;
         } else {
             constructor.prototype[name] = value;
-            metadata.isPrimitive = isPrimitiveType(value);
+            metadata.isImmutable = isImmutable(value);
         }
 
-        // Check the metadata was fine (if not then the property is undefined)
+        // Check if the metadata was fine (if not then the property is undefined)
         if (!metadata) {
             throw new Error('Value of ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + '" defined in class "' + constructor.prototype.$name + '" can\'t be undefined (use null instead).');
         }
@@ -754,8 +768,8 @@ define([
 
                 value = saved.$constants[key];
 
-                if (!isPrimitiveType(value)) {
-                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a primitive type.');
+                if (!isImmutable(value)) {
+                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a primitive type (immutable).');
                 }
 
                 addProperty(key, value, constructor, opts);
@@ -1160,7 +1174,7 @@ define([
         }
         if (isFunction(Object.freeze) && !hasFreezeBug) {
             Object.freeze(constructor.prototype);
-        } if (isFunction(Object.seal)) {
+        } else if (isFunction(Object.seal)) {
             Object.seal(constructor.prototype);
         }
     }
@@ -1179,6 +1193,11 @@ define([
 
             var x,
                 properties;
+
+            // Check if the user forgot the new keyword
+            if (!(this instanceof Instance)) {
+                throw new Error('Constructor called as a function, use the new keyword instead.');
+            }
 
             // If it's abstract, it cannot be instantiated
             if (isAbstract) {

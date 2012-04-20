@@ -19,7 +19,7 @@ define([
     './common/checkObjectPrototype',
     './common/obfuscateProperty',
     './common/randomAccessor',
-    './common/isPrimitiveType',
+    './common/isImmutable',
     './common/hasDefineProperty',
     './common/mixIn',
     'amd-utils/object/hasOwn',
@@ -42,7 +42,7 @@ define([
     checkObjectPrototype,
     obfuscateProperty,
     randomAccessor,
-    isPrimitiveType,
+    isImmutable,
     hasDefineProperty,
     mixIn,
     hasOwn,
@@ -181,17 +181,12 @@ define([
 
         var target;
 
-        // Check if it is a primitive type
-        if (!isPrimitiveType(value)) {
-            throw new Error('Value for constant "' + name + '" defined in class "' + interf.prototype.$name + '" must be a primitive type.');
-        }
-
         // Check if it is public
         if (name.charAt(0) === '_') {
             throw new Error('Interface "' + interf.prototype.$name + '" contains an unallowed non public method: "' + name + '".');
         }
         // Check if it is a primitive value
-        if (!isPrimitiveType(value)) {
+        if (!isImmutable(value)) {
             throw new Error('Value for constant property "' + name + '" defined in interface "' + interf.prototype.$name + '" must be a primitive type.');
         }
 

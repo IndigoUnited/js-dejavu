@@ -1,3 +1,4 @@
+//>>includeStart('strict', pragmas.strict);
 /*jslint forin:true*/
 /*global define,console*/
 
@@ -10,7 +11,7 @@ define(function () {
      *
      * @return {Boolean} True if it is, false otherwise
      */
-    function hasObjectPrototypeSpoiled() {
+    function isObjectPrototypeSpoiled() {
 
         var obj = {},
             key;
@@ -24,5 +25,6 @@ define(function () {
         return false;
     }
 
-    return hasObjectPrototypeSpoiled();
+    return isObjectPrototypeSpoiled;
 });
+//>>includeEnd('strict');

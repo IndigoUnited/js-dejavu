@@ -24,13 +24,18 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 * Method signature checks
 * Custom instanceOf that also works with interfaces
 * Has two builds, one regular and one AMD based
-* Loose build (the one to be used in production) has 9.71Kb minified and 3.4Kb minified + gziped
+* Loose build (the one to be used in production) has 9.71Kb minified and 3.7Kb minified + gziped
+* Classes and instances are locked, members cannot be changed or added (only applicable to some browsers, such as Chrome)
 
-
+Users are encouraged to declare 'use strict' while using the strict build otherwise some code can fail [silently](https://developer.mozilla.org/en/JavaScript/Strict_mode).
+This is because Classify uses Object.freeze and/or Object.seal to lock classes and instances, guarateeing that nobody changes the behaviour of your classes the wrong way (replacing methods, etc).
+The regular build is __not__ compatible with the 'use strict' because it uses the deprecated .caller property to provide better performance (avoiding wrappers for methods in order to support the $super()).
+Run a preprocessor to remove 'use strict' from all production code (e.g.: requirejs optimizer tool).
 
 ## Works on ##
 
-* IE6+
+* IE (6+?)
+* Chrome (4+?)
 * Safari (3+?)
 * Firefox (3.6+?)
 * Opera (9+?)
@@ -40,7 +45,14 @@ Some features like private and protected members access management are only avai
 Still, the library provide fallbacks for those cases.
 The regular build is also compatible with CommonJS modules, so it works well with Node and Rhino.
 
+Please avoid using object constructors for strings, objects, booleans and numbers:
 
+```js
+var MyClass = Class({
+    foo: new String('bar'),  // Don't use this
+    foz: 'bar'               // Ok
+});
+```
 
 ## Performance ##
 
@@ -57,11 +69,7 @@ See below for more information.
 
 I've publish a new test revision on [jsperf](http://jsperf.com/oop-benchmark/13) comparing Classify with other OOP libraries.
 The version running is the regular (loose build). Classify uses a wrapper for the constructor function therefore its performance can't be compared to JSFace or my.Class.
-The constructor wrapper is needed in order to apply binds and to make mutable types unique for each instance (for example, if an property is an array, the array should not be shared among instances, but in JSFace and my.Class they actually are).
-
-_NOTE_: The strict mode works well with "use strict".
-      Though, to improve performance, the loose version is not compatible with "use strict".
-      Run a preprocessor to remove "use strict" from all production code.
+The constructor wrapper is needed in order to apply binds and to make mutable types unique for each instance (for example, if an property is an array it should not be shared among instances, but in JSFace and my.Class they actually are).
 
 ## Usage ##
 
@@ -196,7 +204,6 @@ function (EventsInterface, AbstractClass) {
 ```
 
 Abstract classes can extend other abstract classes or concrete classes while implementing other interfaces.
-Be aware that they must obey their base signature.
 
 ```js
 define([
@@ -328,7 +335,8 @@ define(['path/to/classify/Class', function (Class) {
          * Class constructor.
          */
         initialize: function () {
-            // ...
+            this.$self().FOO;  // 'bar'
+            SomeClass.FOO;     // 'bar' (is the same as above)
         }
     });
 
@@ -377,16 +385,13 @@ define(['path/to/classify/Class', function (Class) {
             someMethod: function () {
                 // ...
             },
-            someProperty: function () {
-                // ...
-            }
+            someProperty: 'foo',
 
             $statics: {             // We can also define static methods as final
                 staticMethod: function () {
                     // ...
                 },
-                staticProperty: function () {
-                }
+                staticProperty: 'bar'
             }
     });
 
@@ -450,12 +455,21 @@ With this syntax it also gives you the flexibility to call other parent methods.
 
 ### Signature check ###
 
-All functions are virtual functions. A method can override another if they obey their signature (their signature must be equal or augmented with additional optional arguments).
-Arguments prefixed with a $ are evaluated as optional. The signature check is made for every class, abstract class and interface.
+All functions are virtual functions, therefore it can be overriden except if it's classified as final.
+Aditionally, if a method is abstract, a subclass can only implement/override it if they obey their signature (must be equal or augmented with additional optional arguments).
+Arguments prefixed with a $ are evaluated as optional. The signature check is done for all abstract functions (interface functions are also considered abstract).
 
 ```js
+var SomeAbstractClass = AbstractClass({
+    $abstracts: {
+        foo: function (param1) {}
+    }
+});
+
 var SomeClass = Class({
-    foo: function (param1) {
+    $extends: SomeAbstractClass,
+
+    foo: function (param1) {             // Signature is equal, it's valid
         // Do something here
     }
 });
@@ -463,7 +477,7 @@ var SomeClass = Class({
 var ComplexClass = Class({
     $extends: SomeClass,
 
-    foo: function (param1, $param2) {    // It's ok, was augmented with an additional optional argument
+    foo: function (param1, $param2) {    // Although it's signature is not equal, was augmented with an additional optional argument, so it's valid
         // Do something here
     }
 });
@@ -471,7 +485,7 @@ var ComplexClass = Class({
 var OtherComplexClass = Class({
     $extends: SomeClass,
 
-    foo: function (param1, param2) {     // Will throw an error because foo(param1, param2) is not compatible with foo(param1, $param2)
+    foo: function (param1, param2) {     // Will throw an error because foo(param1) is not compatible with foo(param1, param2)
         // Do something here
     }
 });
@@ -481,11 +495,12 @@ var OtherComplexClass = Class({
 
 To call static methods inside an instance you can use $self() and $static().
 $self gives access to the class itself and $static gives access to the called class in a context of static inheritance.
+$self is the same as using the class variable itself.
 
 ```js
 var Example1 = Class({
     foo: function (param1) {
-        return this.$self().bar;
+        return this.$self().bar;    // same as Example1.bar;
     },
     $statics: {
         bar: 'hello'
