@@ -34,7 +34,7 @@ define([
         if (isUndefined(prop)) {
             return null;
         }
-        // If is a object, check if it is a plain object
+        // If is an object, check if it is a plain object
         if (isObject(prop)) {
             proto = '__proto__';
             proto = hasObjectPrototypeOf ? Object.getPrototypeOf(prop) : prop[proto];
@@ -43,7 +43,7 @@ define([
             }
         }
         // Is it a function?
-        if (isFunction(prop)) {
+        else if (isFunction(prop)) {
             return null;
         }
 
