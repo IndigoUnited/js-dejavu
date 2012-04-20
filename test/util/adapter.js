@@ -2,7 +2,6 @@
 /*global window,navigator,document,global:true,define:true,require,expect,__dirname,process*/
 
 if (!(typeof window !== 'undefined' && window.navigator && window.document)) { // Test if we are at command line
-
     var requirejs = require('../../vendor/r.js/dist/r.js');
     requirejs.config({
         baseUrl: __dirname + '/../',
@@ -16,11 +15,9 @@ if (!(typeof window !== 'undefined' && window.navigator && window.document)) { /
     global.browser = false;
     global.expect = require('../../vendor/expect.js/expect.js');
 
-    // change working directory due to some issues related with requirejs
+    // Change working directory due to some issues related with requirejs
     process.chdir(__dirname + '/..');
-
 } else {
-
     global = window;
     global.expect = expect;
     global.browser = true;

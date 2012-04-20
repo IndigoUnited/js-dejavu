@@ -663,7 +663,7 @@ define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefinePr
 /*jslint forin:true*/
 /*global define,console*/
 
-define('common/hasObjectPrototypeSpoiled',[],function () {
+define('common/isObjectPrototypeSpoiled',[],function () {
 
     'use strict';
 
@@ -672,7 +672,7 @@ define('common/hasObjectPrototypeSpoiled',[],function () {
      *
      * @return {Boolean} True if it is, false otherwise
      */
-    function hasObjectPrototypeSpoiled() {
+    function isObjectPrototypeSpoiled() {
 
         var obj = {},
             key;
@@ -686,17 +686,17 @@ define('common/hasObjectPrototypeSpoiled',[],function () {
         return false;
     }
 
-    return hasObjectPrototypeSpoiled();
+    return isObjectPrototypeSpoiled;
 });
 
 /*jslint forin:true*/
 /*global define,console*/
 
 define('common/checkObjectPrototype',[
-    './hasObjectPrototypeSpoiled',
+    './isObjectPrototypeSpoiled',
     'amd-utils/lang/isFunction'
 ], function (
-    hasObjectPrototypeSpoiled,
+    isObjectPrototypeSpoiled,
     isFunction
 ) {
 
@@ -708,7 +708,7 @@ define('common/checkObjectPrototype',[
      */
     function checkObjectPrototype() {
 
-        if (hasObjectPrototypeSpoiled) {
+        if (isObjectPrototypeSpoiled()) {
             throw new Error('Classify will not work properly if Object.prototype has enumerable properties!');
         }
 
@@ -752,7 +752,7 @@ define('common/hasFreezeBug',['amd-utils/lang/isFunction'], function (isFunction
 
         try {
             a.foo = 'baz';            // Throws a['foo'] is read only
-            if (a.foo !== 'baz') {    // Or fails silently in at least
+            if (a.foo !== 'baz') {    // Or fails silently in at least IE9
                 return true;
             }
         } catch (e) {
@@ -775,16 +775,6 @@ define('amd-utils/lang/isNumber',['./isKind'], function (isKind) {
     return isNumber;
 });
 
-define('amd-utils/lang/isRegExp',['./isKind'], function (isKind) {
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isRegExp(val) {
-        return isKind(val, 'RegExp');
-    }
-    return isRegExp;
-});
-
 define('amd-utils/lang/isBoolean',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
@@ -798,14 +788,12 @@ define('amd-utils/lang/isBoolean',['./isKind'], function (isKind) {
 /*jslint eqeq:true*/
 /*global define,console*/
 
-define('common/isPrimitiveType',[
+define('common/isImmutable',[
     'amd-utils/lang/isNumber',
-    'amd-utils/lang/isRegExp',
     'amd-utils/lang/isString',
     'amd-utils/lang/isBoolean'
 ], function (
     isNumber,
-    isRegExp,
     isString,
     isBoolean
 ) {
@@ -813,17 +801,17 @@ define('common/isPrimitiveType',[
     'use strict';
 
     /**
-     * Checks if a value is a primitive type.
+     * Checks if a value is immutable.
      *
      * @param {Mixed} value The value
      *
      * @return {Boolean} True if it is, false otherwise
      */
-    function isPrimitiveType(value) {
-        return isNumber(value) || isString(value) || isBoolean(value) || isRegExp(value) || value == null;
+    function isImmutable(value) {
+        return value == null || isBoolean(value) || isNumber(value) || isString(value);
     }
 
-    return isPrimitiveType;
+    return isImmutable;
 });
 
 define('amd-utils/lang/isObject',['./isKind'], function (isKind) {
@@ -856,6 +844,16 @@ define('amd-utils/lang/isDate',['./isKind'], function (isKind) {
     return isDate;
 });
 
+define('amd-utils/lang/isRegExp',['./isKind'], function (isKind) {
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isRegExp(val) {
+        return isKind(val, 'RegExp');
+    }
+    return isRegExp;
+});
+
 define('amd-utils/lang/isUndefined',[],function () {
     var UNDEF;
 
@@ -873,17 +871,11 @@ define('amd-utils/lang/isUndefined',[],function () {
 
 define('common/propertyMeta',[
     'amd-utils/lang/isUndefined',
-    'amd-utils/lang/isObject',
-    'amd-utils/lang/isFunction'
 ], function (
-    isUndefined,
-    isObject,
-    isFunction
+    isUndefined
 ) {
 
     'use strict';
-
-    var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
 
     /**
      * Extract meta data from a property.
@@ -896,23 +888,10 @@ define('common/propertyMeta',[
      */
     function propertyMeta(prop, name) {
 
-        var ret = {},
-            proto;
+        var ret = {};
 
         // Is it undefined?
         if (isUndefined(prop)) {
-            return null;
-        }
-        // If is a object, check if it is a plain object
-        if (isObject(prop)) {
-            proto = '__proto__';
-            proto = hasObjectPrototypeOf ? Object.getPrototypeOf(prop) : prop[proto];
-            if (proto && proto !== Object.prototype) {
-                return null;
-            }
-        }
-        // Is it a function?
-        if (isFunction(prop)) {
             return null;
         }
 
@@ -1083,6 +1062,57 @@ define('common/checkKeywords',[
     }
 
     return checkKeywords;
+});
+
+/*jslint forin:true*/
+/*globals define*/
+
+define('common/isPlainObject',[
+    'amd-utils/lang/isFunction',
+    'amd-utils/object/hasOwn'
+], function (
+    isFunction,
+    hasOwn
+) {
+
+    'use strict';
+
+    var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
+
+    /**
+     * Checks if a given object is a plain object.
+     *
+     * @param {Object} obj The object
+     */
+    function isPlainObject(obj) {
+
+        var proto = '__proto__',
+            key;
+
+        if (obj.nodeType || obj === obj.window) {
+            return false;
+        }
+
+        try {
+            proto = hasObjectPrototypeOf ? Object.getPrototypeOf(obj) : obj[proto];
+
+            if (proto && proto !== Object.prototype) {
+                return false;
+            }
+
+            if (obj.constructor && !hasOwn(obj, 'constructor') && !hasOwn(obj.constructor.prototype, 'isPrototypeOf')) {
+                return false;
+            }
+        } catch (e) {
+            return false;       // IE8,9 Will throw exceptions on certain host objects
+        }
+
+        for (key in obj) {}     // Ignore JSLint warning regarding 'empty block'
+
+        return key === undefined || hasOwn(obj, key);
+    }
+
+    return isPlainObject;
 });
 
 define('amd-utils/object/mixIn',['./hasOwn'], function(hasOwn){
@@ -1402,11 +1432,13 @@ define('Class',[
     './common/checkObjectPrototype',
     './common/randomAccessor',
     './common/hasFreezeBug',
-    './common/isPrimitiveType',
+    './common/isImmutable',
+    './common/isPlainObject',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
     'amd-utils/lang/isDate',
+    'amd-utils/lang/isRegExp',
     'amd-utils/lang/isUndefined',
     'amd-utils/lang/createObject',
     'amd-utils/object/hasOwn',
@@ -1433,11 +1465,13 @@ define('Class',[
     checkObjectPrototype,
     randomAccessor,
     hasFreezeBug,
-    isPrimitiveType,
+    isImmutable,
+    isPlainObject,
     isFunction,
     isObject,
     isArray,
     isDate,
+    isRegExp,
     isUndefined,
     createObject,
     hasOwn,
@@ -1481,12 +1515,22 @@ define('Class',[
             return [].concat(prop);
         }
         if (isObject(prop)) {
-            return mixIn({}, prop);
+            if (isPlainObject(prop)) {
+                return mixIn({}, prop);
+            }
+
+            return createObject(prop);
         }
         if (isDate(prop)) {
             temp = new Date();
             temp.setTime(prop.getTime());
+
             return temp;
+        }
+        if (isRegExp(prop)) {
+            temp = (prop.toString()).replace(/[\s\S]+\//, '');
+
+            return new RegExp(prop.source, temp);
         }
 
         return prop;
@@ -1676,7 +1720,7 @@ define('Class',[
             } else {
                 metadata = propertyMeta(value, name);
                 if (!metadata) {
-                    throw new Error('Value of property "' + name + '"  in class "' + constructor.prototype.$name + '" cannot be parsed (undefined/classes/instances are not allowed).');
+                    throw new Error('Value of property "' + name + '"  in class "' + constructor.prototype.$name + '" cannot be parsed (undefined values are not allowed).');
                 }
                 isFinal = !!opts.isFinal;
                 isConst = !!opts.isConst;
@@ -1703,10 +1747,10 @@ define('Class',[
             metadata.value = value;
         } else {
             constructor.prototype[name] = value;
-            metadata.isPrimitive = isPrimitiveType(value);
+            metadata.isImmutable = isImmutable(value);
         }
 
-        // Check the metadata was fine (if not then the property is undefined)
+        // Check if the metadata was fine (if not then the property is undefined)
         if (!metadata) {
             throw new Error('Value of ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + '" defined in class "' + constructor.prototype.$name + '" can\'t be undefined (use null instead).');
         }
@@ -2137,8 +2181,8 @@ define('Class',[
 
                 value = saved.$constants[key];
 
-                if (!isPrimitiveType(value)) {
-                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a primitive type.');
+                if (!isImmutable(value)) {
+                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a primitive type (immutable).');
                 }
 
                 addProperty(key, value, constructor, opts);
@@ -2543,7 +2587,7 @@ define('Class',[
         }
         if (isFunction(Object.freeze) && !hasFreezeBug) {
             Object.freeze(constructor.prototype);
-        } if (isFunction(Object.seal)) {
+        } else if (isFunction(Object.seal)) {
             Object.seal(constructor.prototype);
         }
     }
@@ -2562,6 +2606,11 @@ define('Class',[
 
             var x,
                 properties;
+
+            // Check if the user forgot the new keyword
+            if (!(this instanceof Instance)) {
+                throw new Error('Constructor called as a function, use the new keyword instead.');
+            }
 
             // If it's abstract, it cannot be instantiated
             if (isAbstract) {
@@ -2967,7 +3016,6 @@ define('AbstractClass',[
     'amd-utils/lang/isString',
     'amd-utils/lang/toArray',
     'amd-utils/lang/bind',
-    'amd-utils/array/combine',
     './common/functionMeta',
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',
@@ -2985,7 +3033,6 @@ define('AbstractClass',[
     isString,
     toArray,
     bind,
-    combine,
     functionMeta,
     isFunctionEmpty,
     isFunctionCompatible,
@@ -3327,7 +3374,7 @@ define('Interface',[
     './common/checkObjectPrototype',
     './common/obfuscateProperty',
     './common/randomAccessor',
-    './common/isPrimitiveType',
+    './common/isImmutable',
     './common/hasDefineProperty',
     './common/mixIn',
     'amd-utils/object/hasOwn',
@@ -3350,7 +3397,7 @@ define('Interface',[
     checkObjectPrototype,
     obfuscateProperty,
     randomAccessor,
-    isPrimitiveType,
+    isImmutable,
     hasDefineProperty,
     mixIn,
     hasOwn,
@@ -3489,17 +3536,12 @@ define('Interface',[
 
         var target;
 
-        // Check if it is a primitive type
-        if (!isPrimitiveType(value)) {
-            throw new Error('Value for constant "' + name + '" defined in class "' + interf.prototype.$name + '" must be a primitive type.');
-        }
-
         // Check if it is public
         if (name.charAt(0) === '_') {
             throw new Error('Interface "' + interf.prototype.$name + '" contains an unallowed non public method: "' + name + '".');
         }
         // Check if it is a primitive value
-        if (!isPrimitiveType(value)) {
+        if (!isImmutable(value)) {
             throw new Error('Value for constant property "' + name + '" defined in interface "' + interf.prototype.$name + '" must be a primitive type.');
         }
 
@@ -3818,11 +3860,15 @@ define('instanceOf',[
      */
     function instanceOf(instance, target) {
 
-        if (instance.$constructor[$class] && target[$interface]) {
+        if (instance instanceof target) {
+            return true;
+        }
+
+        if (instance && instance.$constructor && instance.$constructor[$class] && target && target[$interface]) {
             return instanceOfInterface(instance, target);
         }
 
-        return instance instanceof target;
+        return false;
     }
 
     return instanceOf;

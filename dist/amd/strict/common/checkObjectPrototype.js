@@ -2,10 +2,10 @@
 /*global define,console*/
 
 define([
-    './hasObjectPrototypeSpoiled',
+    './isObjectPrototypeSpoiled',
     'amd-utils/lang/isFunction'
 ], function (
-    hasObjectPrototypeSpoiled,
+    isObjectPrototypeSpoiled,
     isFunction
 ) {
 
@@ -17,7 +17,7 @@ define([
      */
     function checkObjectPrototype() {
 
-        if (hasObjectPrototypeSpoiled) {
+        if (isObjectPrototypeSpoiled()) {
             throw new Error('Classify will not work properly if Object.prototype has enumerable properties!');
         }
 

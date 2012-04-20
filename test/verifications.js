@@ -1,7 +1,7 @@
 /*jslint sloppy:true, newcap:true, regexp:true, nomen:true*/
 /*global global,define,describe,it*/
 
-define(global.modules, function (Class, AbstractClass, Interface) {
+define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
 
     var expect = global.expect;
 
@@ -466,7 +466,7 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
             });
 
-            it('should throw an error when it extends multiple ones with incopatible duplicate methods', function () {
+            it('should throw an error when it extends multiple ones with incompatible duplicate methods', function () {
 
                 expect(function () {
                     return Interface({
@@ -722,15 +722,6 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                         }
                     });
                 }).to.not.throwException();
-
-                expect(function () {
-                    return Interface({
-                        $constants: {
-                            SOME: /DSA/
-                        }
-                    });
-                }).to.not.throwException();
-
             });
 
             it('should throw an error when it extends multiple ones with same constants but different values', function () {
@@ -1217,60 +1208,17 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return Class({
-                        some: Class({})
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return Class({
-                        some: new Class({})
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return Class({
                         $finals: {
                             some: undefined
                         }
                     });
                 }).to.throwException(/cannot be parsed/);
 
-                expect(function () {
-                    return Class({
-                        $finals: {
-                            some: Class({})
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return Class({
-                        $finals: {
-                            some: new Class({})
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
 
                 expect(function () {
                     return Class({
                         $statics: {
                             some: undefined
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return Class({
-                        $statics: {
-                            some: Class({})
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return Class({
-                        $statics: {
-                            some: new Class({})
                         }
                     });
                 }).to.throwException(/cannot be parsed/);
@@ -1283,18 +1231,6 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return AbstractClass({
-                        some: Class({})
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return AbstractClass({
-                        some: new Class({})
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return AbstractClass({
                         $finals: {
                             some: undefined
                         }
@@ -1303,40 +1239,8 @@ define(global.modules, function (Class, AbstractClass, Interface) {
 
                 expect(function () {
                     return AbstractClass({
-                        $finals: {
-                            some: Class({})
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return AbstractClass({
-                        $finals: {
-                            some: new Class({})
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return AbstractClass({
                         $statics: {
                             some: undefined
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return AbstractClass({
-                        $statics: {
-                            some: Class({})
-                        }
-                    });
-                }).to.throwException(/cannot be parsed/);
-
-                expect(function () {
-                    return AbstractClass({
-                        $statics: {
-                            some: new Class({})
                         }
                     });
                 }).to.throwException(/cannot be parsed/);
@@ -1643,14 +1547,6 @@ define(global.modules, function (Class, AbstractClass, Interface) {
                     return Class({
                         $constants: {
                             SOME: 1
-                        }
-                    });
-                }).to.not.throwException();
-
-                expect(function () {
-                    return Class({
-                        $constants: {
-                            SOME: /DSA/
                         }
                     });
                 }).to.not.throwException();
@@ -3969,6 +3865,25 @@ define(global.modules, function (Class, AbstractClass, Interface) {
             it('should throw an error while using new', function () {
 
                 expect(function () { return new AbstractExample(); }).to.throwException(/cannot be instantiated/);
+
+            });
+
+        });
+
+        describe('Instantiation of Concrete Classes without using the new keyword', function () {
+
+            it('should throw an error', function () {
+
+                var SomeClass = Class({}),
+                    OtherClass = FinalClass({});
+
+                expect(function () {
+                    return SomeClass();
+                }).to.throwException(/called as a function/);
+
+                expect(function () {
+                    return OtherClass();
+                }).to.throwException(/called as a function/);
 
             });
 

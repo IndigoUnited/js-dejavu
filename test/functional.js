@@ -9,55 +9,61 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
         describe('Instantiation of a simple Class', function () {
 
-            var Example = Class({
-                $binds: ['method1', 'method2', 'method3', '_method4', '__method5'],
-                some: 'property',
-                someOther: null,
-                someDate: new Date(),
-                options: {
-                    option1: 'property'
-                },
-                someArray: ['some'],
-                initialize: function () {
-                    this.someOther = 'property';
-                },
-                method1: function () {
-                    this.some = 'test';
-                },
-                method2: function () {
-                    this.some = 'test2';
-                },
-                method3: function () {
-                    this.some = 'test3';
-                },
-                _method4: function () {
-                    this.some = 'test4';
-                },
-                __method5: function () {
-                    this.some = 'test5';
-                },
-                method4: function () {
-                    return this._method4;
-                },
-                method5: function () {
-                    return this.__method5;
-                },
-                test: function () {
-                    this.some = 'test';
-                    this.options.option1 = 'test';
-                    this.someArray.push('other');
-                },
-                $finals: {
-                    foo: 'bar'
-                },
-                $constants: {
-                    SOME_CONST: 'const'
-                },
-                $statics: {
-                    staticMethod: function () {},
-                    staticSome: 'property'
-                }
-            }),
+            var SomeClass = Class({}),
+                Example = Class({
+                    $binds: ['method1', 'method2', 'method3', '_method4', '__method5'],
+                    some: 'property',
+                    someOther: null,
+                    someDate: new Date(),
+                    someClass: SomeClass,
+                    someInstance: new SomeClass(),
+                    someRegExp: /some/ig,
+                    options: {
+                        option1: 'property'
+                    },
+                    someArray: ['some'],
+                    initialize: function () {
+                        this.someOther = 'property';
+                    },
+                    method1: function () {
+                        this.some = 'test';
+                    },
+                    method2: function () {
+                        this.some = 'test2';
+                    },
+                    method3: function () {
+                        this.some = 'test3';
+                    },
+                    _method4: function () {
+                        this.some = 'test4';
+                    },
+                    __method5: function () {
+                        this.some = 'test5';
+                    },
+                    method4: function () {
+                        return this._method4;
+                    },
+                    method5: function () {
+                        return this.__method5;
+                    },
+                    test: function () {
+                        this.some = 'test';
+                        this.options.option1 = 'test';
+                        this.someArray.push('other');
+                    },
+                    $finals: {
+                        foo: 'bar',
+                        otherClass: SomeClass,
+                        otherInstance: new SomeClass()
+                    },
+                    $constants: {
+                        SOME_CONST: 'const'
+                    },
+                    $statics: {
+                        staticMethod: function () {},
+                        staticSome: 'property'
+                    }
+                }),
                 example = new Example(),
                 example2 = new Example();
 
@@ -142,6 +148,19 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(example2.someArray.length).to.be.equal(2);
                 expect(example.someArray.length).to.be.equal(1);
                 expect(example.someDate).to.not.be.equal(example2.someDate);
+
+                expect(example.someClass).to.be.equal(example2.someClass);
+                expect(example.someInstance).to.not.be.equal(example2.someInstance);
+                expect(instanceOf(example.someInstance, SomeClass)).to.be.equal(true);
+                expect(instanceOf(example2.someInstance, SomeClass)).to.be.equal(true);
+
+                expect(example.otherClass).to.be.equal(example2.otherClass);
+                expect(example.otherInstance).to.not.be.equal(example2.otherInstance);
+                expect(instanceOf(example.otherInstance, SomeClass)).to.be.equal(true);
+                expect(instanceOf(example2.otherInstance, SomeClass)).to.be.equal(true);
+
+                expect(example.someRegExp).to.not.be.equal(example2.someRegExp);
+                expect(example.someRegExp.toString()).to.be.equal(example2.someRegExp.toString());
 
             });
 
@@ -570,6 +589,10 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             it('should grab the borrowed members to their own', function () {
 
+                var CommonMixin = AbstractClass({
+                    method1: function () {}
+                });
+
                 (function () {
                     var SomeImplementation = Class({
                         $borrows: {
@@ -682,6 +705,19 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     expect(someImplementation.some()).to.be.equal('property');
 
                 }());
+
+                //expect(function () {
+                    var SomeClass = Class({}),
+                        Common1 = Class({
+                            $extends: SomeClass,
+                            $borrows: CommonMixin
+                        }),
+                        Common2 = Class({
+                            $extends: SomeClass,
+                            $borrows: CommonMixin
+                        });
+                //}).to.not.throwException();
+
             });
 
             it('should grab the borrowed members, respecting the precedence order and not replace self methods', function () {

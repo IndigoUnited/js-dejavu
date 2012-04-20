@@ -29,7 +29,7 @@ define(['amd-utils/lang/isFunction'], function (isFunction) {
 
         try {
             a.foo = 'baz';            // Throws a['foo'] is read only
-            if (a.foo !== 'baz') {    // Or fails silently in at least
+            if (a.foo !== 'baz') {    // Or fails silently in at least IE9
                 return true;
             }
         } catch (e) {
