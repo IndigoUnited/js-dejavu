@@ -1,4 +1,3 @@
-//>>includeStart('strict', pragmas.strict);
 /*jslint regexp:true*/
 /*global define*/
 
@@ -11,32 +10,20 @@ define([
     'use strict';
 
     /**
-     * Extract meta data from a property.
-     * It returns an object containing the value and visibility.
-     *
-     * @param {Mixed}  prop The property
-     * @param {String} name The name of the property
-     *
-     * @return {Object} An object containg the metadata
-     */
+* Extract meta data from a property.
+* It returns an object containing the value and visibility.
+*
+* @param {Mixed} prop The property
+* @param {String} name The name of the property
+*
+* @return {Object} An object containg the metadata
+*/
     function propertyMeta(prop, name) {
 
         var ret = {};
 
         // Is it undefined?
         if (isUndefined(prop)) {
-            return null;
-        }
-        // If is a object, check if it is a plain object
-        if (isObject(prop)) {
-            proto = '__proto__';
-            proto = hasObjectPrototypeOf ? Object.getPrototypeOf(prop) : prop[proto];
-            if (proto && proto !== Object.prototype) {
-                return null;
-            }
-        }
-        // Is it a function?
-        else if (isFunction(prop)) {
             return null;
         }
 
@@ -58,4 +45,3 @@ define([
 
     return propertyMeta;
 });
-//>>includeEnd('strict');
