@@ -83,6 +83,26 @@ define([
     }
 
     /**
+     * Wraps a method.
+     * This is just used in mixins.
+     *
+     * @param {Function} method       The method to wrap
+     *
+     * @return {Function} The wrapper
+     */
+    function wrapMethod(method) {
+
+        if (method.$wrapped) {
+            method = method.$wrapped;
+        }
+
+        // TODO: Detect if $self, $static or other special operator is found, otherwise do not wrap.
+
+        return function wrapper() {
+            return method.apply(this, arguments);
+        };
+    }
+    /**
      * Parse borrows (mixins).
      *
      * @param {Function} constructor The constructor
@@ -108,12 +128,15 @@ define([
                     value = current[key];
 
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
-                        constructor.prototype[key] = value;
                         if (isFunction(value) && !value[$class] && !value[$interface]) {
+                            constructor.prototype[key] = wrapMethod(value);
                             value['$prototype_' + constructor[$class].id] = constructor.prototype;
                             value.$name = key;
-                        } else if (!isImmutable(value)) {
-                            insert(constructor[$class].properties, value);
+                        } else {
+                            constructor.prototype[key] = value;
+                            if (!isImmutable(value)) {
+                                insert(constructor[$class].properties, value);
+                            }
                         }
                     }
                 }
@@ -513,12 +536,11 @@ define([
         parseClass(params, classify);
 
         // Assign aliases
-        if (!classify.$parent) {
+        if (!parent) {
             classify.prototype.$super = superAlias(classify[$class].id);
             classify.prototype.$self = selfAlias(classify[$class].id);
             classify.prototype.$static = staticAlias;
         }
-
         classify.prototype.$constructor = classify;
         classify.$super = superStaticAlias(classify[$class].id);
 

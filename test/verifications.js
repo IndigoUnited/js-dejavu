@@ -3146,7 +3146,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
             }
 
             function createAbstractClass() {
-                SomeAbstractClass = AbstractClass({         // Simple abstract class
+                SomeAbstractClass = AbstractClass({        // Simple abstract class
                     $implements: SomeInterface
                 });
             }
