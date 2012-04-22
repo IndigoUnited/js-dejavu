@@ -86,7 +86,7 @@ define([
      * Wraps a method.
      * This is just used in mixins.
      *
-     * @param {Function} method       The method to wrap
+     * @param {Function} method The method to wrap
      *
      * @return {Function} The wrapper
      */

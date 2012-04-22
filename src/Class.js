@@ -156,7 +156,7 @@ define([
      * Wraps a method.
      * This is just used in mixins.
      *
-     * @param {Function} method       The method to wrap
+     * @param {Function} method The method to wrap
      *
      * @return {Function} The wrapper
      */
@@ -178,9 +178,9 @@ define([
      * Wraps a method.
      * This is just to avoid using Function.caller because is deprecated.
      *
-     * @param {Function} method  The method to wrap
-     * @param {String}   classId The class id
-     * @param {String}   classId The class base id
+     * @param {Function} method      The method to wrap
+     * @param {String}   classId     The class id
+     * @param {String}   classBaseId The class base id
      *
      * @return {Function} The wrapper
      */
