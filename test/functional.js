@@ -706,7 +706,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 }());
 
-                //expect(function () {
+                expect(function () {
                     var SomeClass = Class({}),
                         Common1 = Class({
                             $extends: SomeClass,
@@ -715,8 +715,33 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         Common2 = Class({
                             $extends: SomeClass,
                             $borrows: CommonMixin
-                        });
-                //}).to.not.throwException();
+                        }),
+                        common1 = new Common1(),
+                        common2  = new Common2();
+                }).to.not.throwException();
+
+                expect(function () {
+                    var SomeClass = Class({
+                        _protectedProp: 'foo',
+                        _privateProp: 'bar'
+                    }),
+                        Common1 = Class({
+                            $extends: SomeClass
+                        }),
+                        Common2 = Class({
+                            $extends: SomeClass,
+                            accessProtected: function (inst) {
+                                return inst._protectedProp;
+                            },
+                            accessPrivate: function (inst) {
+                                return inst._protectedProp;
+                            }
+                        }),
+                        common1 = new Common1(),
+                        common2  = new Common2();
+
+                    common2.accessProtected(common1);
+                }).to.not.throwException();
 
             });
 
@@ -757,10 +782,10 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     otherClass = new OtherClass(),
                     someOtherClass = new SomeOtherClass();
 
-                expect(someClass.method1).to.be.equal(OtherMixin.prototype.method1);
-                expect(SomeClass.staticMethod1).to.be.equal(OtherMixin.staticMethod1);
-                expect(otherClass.method1).to.be.equal(SomeMixin.prototype.method1);
-                expect(OtherClass.staticMethod1).to.be.equal(SomeMixin.staticMethod1);
+                expect(someClass.method1.$wrapped).to.be.equal(OtherMixin.prototype.method1.$wrapped);
+                expect(SomeClass.staticMethod1.$wrapped).to.be.equal(OtherMixin.staticMethod1.$wrapped);
+                expect(otherClass.method1.$wrapped).to.be.equal(SomeMixin.prototype.method1.$wrapped);
+                expect(OtherClass.staticMethod1.$wrapped).to.be.equal(SomeMixin.staticMethod1.$wrapped);
                 expect(someOtherClass.method1()).to.be.equal('foo');
                 expect(SomeOtherClass.staticMethod1()).to.be.equal('bar');
 
@@ -1301,7 +1326,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     }())).to.be.equal('foo');
 
                     expect(function () {
-                        var SomeClass = Class({
+                        var SomeTestClass = Class({
                             __someVar: 'foo',
                             __someMethod: function () {},
                             test: function () {
@@ -1311,7 +1336,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 this.__someMethod();
                             }
                         }), OtherClass = Class({
-                            $borrows: SomeClass
+                            $borrows: SomeTestClass
                         }),
                             myOtherClass = new OtherClass();
 
