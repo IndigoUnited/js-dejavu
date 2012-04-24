@@ -1693,9 +1693,9 @@ define('Class',[
         }
 
         if (metadata.isProtected) {
-            allowed = [constructor[$class].baseId];
+            allowed = constructor[$class].baseId;
         } else if (metadata.isPrivate) {
-            allowed = [constructor[$class].id];
+            allowed = constructor[$class].id;
         }
 
         // Store a reference to the prototype/constructor
@@ -1709,7 +1709,7 @@ define('Class',[
 
         if (allowed) {
             if (metadata.allowed) {
-                allowed = allowed.concat(metadata.allowed);
+                allowed = toArray(allowed).concat(metadata.allowed);
             }
             metadata.allowed = allowed;
         }
@@ -1818,14 +1818,14 @@ define('Class',[
 
 
         if (metadata.isProtected) {
-            allowed = [constructor[$class].baseId];
+            allowed = constructor[$class].baseId;
         } else if (metadata.isPrivate) {
-            allowed = [constructor[$class].id];
+            allowed = constructor[$class].id;
         }
 
         if (allowed) {
             if (metadata.allowed) {
-                allowed.concat(metadata.allowed);
+                allowed = toArray(allowed).concat(metadata.allowed);
             }
             metadata.allowed = allowed;
         }
@@ -2265,7 +2265,7 @@ define('Class',[
 
                     var method = this[cacheKeyword].methods[name];
 
-                    if (this.$initializing || contains(meta.allowed, callerClassId)) {
+                    if (this.$initializing || meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))) {
                         return method;
                     }
 
@@ -2288,7 +2288,7 @@ define('Class',[
 
                     var method = this[cacheKeyword].methods[name];
 
-                    if (this.$initializing || contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)) {
+                    if (this.$initializing || meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))) {
                         return method;
                     }
 
@@ -2340,7 +2340,7 @@ define('Class',[
 
                     var method = this[cacheKeyword].methods[name];
 
-                    if (inheriting || contains(meta.allowed, callerClassId)) {
+                    if (inheriting || meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))) {
                         return method;
                     }
 
@@ -2358,7 +2358,7 @@ define('Class',[
 
                     var method = this[cacheKeyword].methods[name];
 
-                    if (inheriting || contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)) {
+                    if (inheriting || meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))) {
                         return method;
                     }
 
@@ -2399,7 +2399,7 @@ define('Class',[
             Object.defineProperty(instance, name, {
                 get: function get() {
 
-                    if (this.$initializing || contains(meta.allowed, callerClassId)) {
+                    if (this.$initializing || meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -2407,7 +2407,7 @@ define('Class',[
                 },
                 set: function set(newValue) {
 
-                    if (this.$initializing || contains(meta.allowed, callerClassId)) {
+                    if (this.$initializing || meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
                         throw new Error('Cannot set private property "' + name + '" of class "' + this.$name + '".');
@@ -2422,7 +2422,7 @@ define('Class',[
             Object.defineProperty(instance, name, {
                 get: function get() {
 
-                    if (this.$initializing || contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)) {
+                    if (this.$initializing || meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -2430,7 +2430,7 @@ define('Class',[
                 },
                 set: function set(newValue) {
 
-                    if (this.$initializing || contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)) {
+                    if (this.$initializing || meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
                         throw new Error('Cannot set protected property "' + name + '" of class "' + this.$name + '".');
@@ -2461,7 +2461,7 @@ define('Class',[
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
-                    if (inheriting || contains(meta.allowed, callerClassId)) {
+                    if (inheriting || meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -2473,7 +2473,7 @@ define('Class',[
                         } :
                         function set(newValue) {
 
-                            if (contains(meta.allowed, callerClassId)) {
+                            if (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))) {
                                 this[cacheKeyword].properties[name] = newValue;
                             } else {
                                 throw new Error('Cannot set private property "' + name + '" of class "' + this.prototype.$name + '".');
@@ -2488,7 +2488,7 @@ define('Class',[
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
-                    if (inheriting || contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)) {
+                    if (inheriting || meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))) {
                         return constructor[cacheKeyword].properties[name];
                     }
 
@@ -2500,7 +2500,7 @@ define('Class',[
                         } :
                         function set(newValue) {
 
-                            if (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)) {
+                            if (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))) {
                                 this[cacheKeyword].properties[name] = newValue;
                             } else {
                                 throw new Error('Cannot set protected static property "' + name + '" of class "' + this.prototype.$name + '".');
