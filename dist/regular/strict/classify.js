@@ -1709,7 +1709,7 @@ define('Class',[
 
         if (allowed) {
             if (metadata.allowed) {
-                allowed.concat(metadata.allowed);
+                allowed = allowed.concat(metadata.allowed);
             }
             metadata.allowed = allowed;
         }
