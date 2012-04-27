@@ -554,7 +554,7 @@ define([
                         } else {
                             constructor.prototype[key] = value;
                             if (!isImmutable(value)) {
-                                insert(constructor[$class].properties, value);
+                                insert(constructor[$class].properties, key);
                             }
                         }
                     }
