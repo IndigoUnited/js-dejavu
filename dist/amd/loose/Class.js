@@ -451,7 +451,7 @@ define([
 
         return function parent() {
 
-            var caller = parent.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+            var caller = parent.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
 
             return caller['$prototype_' + classId].$constructor.$parent.prototype[caller.$name].apply(this, arguments);
         };
@@ -468,7 +468,7 @@ define([
 
         return function self() {
 
-            var caller = self.caller || arguments.callee.caller || arguments.caller;    // Ignore JSLint error regarding .caller and callee
+            var caller = self.caller || arguments.callee.caller || arguments.caller;    // Ignore JSLint error regarding .caller and .callee
 
             return caller['$prototype_' + classId].$constructor;
         };
@@ -494,7 +494,7 @@ define([
 
         return function parent() {
 
-            var caller = parent.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+            var caller = parent.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
 
             return caller['$constructor_' + classId].$parent[caller.$name].apply(this, arguments);
         };
