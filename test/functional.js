@@ -1344,6 +1344,66 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         myOtherClass.test2();
                     }).to.not.throwException();
 
+                    expect(function () {
+                        var SomeClass = Class({
+                            __someVar: 'foo',
+                            exec: function (func) {
+                                func();
+                            }
+                        }),
+                            someClass = new SomeClass();
+
+                        return someClass.exec(function () {
+                            return someClass.__someVar;
+                        });
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
+                        var SomeClass = Class({
+                            __someFunc: function () {},
+                            exec: function (func) {
+                                func();
+                            }
+                        }),
+                            someClass = new SomeClass();
+
+                        return someClass.exec(function () {
+                            return someClass.__someFunc;
+                        });
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
+                        var SomeClass = Class({
+                            $statics: {
+                                __someVar: 'foo'
+                            },
+                            exec: function (func) {
+                                func();
+                            }
+                        }),
+                            someClass = new SomeClass();
+
+                        return someClass.exec(function () {
+                            return SomeClass.__someVar;
+                        });
+                    }).to.throwException(/access private/);
+
+                    expect(function () {
+                        var SomeClass = Class({
+                            $statics: {
+                                __someFunc: function () {}
+                            },
+                            exec: function (func) {
+                                func();
+                            }
+                        }),
+                            someClass = new SomeClass();
+
+                        return someClass.exec(function () {
+                            return SomeClass.__someFunc;
+                        });
+                    }).to.throwException(/access private/);
+
                 });
 
                 it('cannot be overrided', function () {
@@ -1659,6 +1719,66 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         myOtherClass.test();
                         myOtherClass.test2();
                     }).to.not.throwException();
+
+                    expect(function () {
+                        var SomeClass = Class({
+                            _someVar: 'foo',
+                            exec: function (func) {
+                                func();
+                            }
+                        }),
+                            someClass = new SomeClass();
+
+                        return someClass.exec(function () {
+                            return someClass._someVar;
+                        });
+                    }).to.throwException(/access protected/);
+
+                    expect(function () {
+                        var SomeClass = Class({
+                            _someFunc: function () {},
+                            exec: function (func) {
+                                func();
+                            }
+                        }),
+                            someClass = new SomeClass();
+
+                        return someClass.exec(function () {
+                            return someClass._someFunc;
+                        });
+                    }).to.throwException(/access protected/);
+
+                    expect(function () {
+                        var SomeClass = Class({
+                            $statics: {
+                                _someVar: 'foo'
+                            },
+                            exec: function (func) {
+                                func();
+                            }
+                        }),
+                            someClass = new SomeClass();
+
+                        return someClass.exec(function () {
+                            return SomeClass._someVar;
+                        });
+                    }).to.throwException(/access protected/);
+
+                    expect(function () {
+                        var SomeClass = Class({
+                            $statics: {
+                                _someFunc: function () {}
+                            },
+                            exec: function (func) {
+                                func();
+                            }
+                        }),
+                            someClass = new SomeClass();
+
+                        return someClass.exec(function () {
+                            return SomeClass._someFunc;
+                        });
+                    }).to.throwException(/access protected/);
 
                 });
 
