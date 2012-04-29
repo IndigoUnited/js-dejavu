@@ -1491,6 +1491,7 @@ define('Class',[
         cacheKeyword = '$cache_' + random,
         inheriting,
         nextId = 0,
+        caller,
         callerClassId,
         callerClassBaseId,
         toStringInstance,
@@ -1552,16 +1553,19 @@ define('Class',[
 
         var wrapped = function wrapper() {
 
-            var prevCallerClassId = callerClassId,
+            var prevCaller = caller,
+                prevCallerClassId = callerClassId,
                 prevCallerClassBaseId = callerClassBaseId,
                 returns;
 
+            caller = method;
             callerClassId = classId;
             callerClassBaseId = classBaseId;
 
             try {
                 returns = method.apply(this, arguments);
             } finally {
+                caller = prevCaller;
                 callerClassId = prevCallerClassId;
                 callerClassBaseId = prevCallerClassBaseId;
             }
@@ -2257,10 +2261,15 @@ define('Class',[
                 get: function get() {
 
                     var method = this[cacheKeyword].methods[name],
-                        caller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                        currCaller;
 
+                    try {
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    } catch (e) {
+                        currCaller = caller;
+                    }
 
-                    if (this.$initializing || (caller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                    if (this.$initializing || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
                         return method;
                     }
 
@@ -2282,9 +2291,15 @@ define('Class',[
                 get: function get() {
 
                     var method = this[cacheKeyword].methods[name],
-                        caller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                        currCaller;
 
-                    if (this.$initializing || (caller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                    try {
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    } catch (e) {
+                        currCaller = caller;
+                    }
+
+                    if (this.$initializing || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
                         return method;
                     }
 
@@ -2335,9 +2350,15 @@ define('Class',[
                 get: function get() {
 
                     var method = this[cacheKeyword].methods[name],
-                        caller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                        currCaller;
 
-                    if (inheriting || (caller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                    try {
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    } catch (e) {
+                        currCaller = caller;
+                    }
+
+                    if (inheriting || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
                         return method;
                     }
 
@@ -2354,9 +2375,15 @@ define('Class',[
                 get: function get() {
 
                     var method = this[cacheKeyword].methods[name],
-                        caller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                        currCaller;
 
-                    if (inheriting || (caller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                    try {
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    } catch (e) {
+                        currCaller = caller;
+                    }
+
+                    if (inheriting || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
                         return method;
                     }
 
@@ -2397,9 +2424,15 @@ define('Class',[
             Object.defineProperty(instance, name, {
                 get: function get() {
 
-                    var caller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    var currCaller;
 
-                    if (this.$initializing || (caller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                    try {
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    } catch (e) {
+                        currCaller = caller;
+                    }
+
+                    if (this.$initializing || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -2407,9 +2440,15 @@ define('Class',[
                 },
                 set: function set(newValue) {
 
-                    var caller = set.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    var currCaller;
 
-                    if (this.$initializing || (caller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                    try {
+                        currCaller = set.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    } catch (e) {
+                        currCaller = caller;
+                    }
+
+                    if (this.$initializing || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
                         throw new Error('Cannot set private property "' + name + '" of class "' + this.$name + '".');
@@ -2424,9 +2463,15 @@ define('Class',[
             Object.defineProperty(instance, name, {
                 get: function get() {
 
-                    var caller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    var currCaller;
 
-                    if (this.$initializing || (caller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                    try {
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    } catch (e) {
+                        currCaller = caller;
+                    }
+
+                    if (this.$initializing || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -2434,9 +2479,15 @@ define('Class',[
                 },
                 set: function set(newValue) {
 
-                    var caller = set.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    var currCaller;
 
-                    if (this.$initializing || (caller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                    try {
+                        currCaller = set.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    } catch (e) {
+                        currCaller = caller;
+                    }
+
+                    if (this.$initializing || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
                         throw new Error('Cannot set protected property "' + name + '" of class "' + this.$name + '".');
@@ -2467,9 +2518,15 @@ define('Class',[
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
-                    var caller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    var currCaller;
 
-                    if (inheriting || (caller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                    try {
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    } catch (e) {
+                        currCaller = caller;
+                    }
+
+                    if (inheriting || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -2481,9 +2538,15 @@ define('Class',[
                         } :
                         function set(newValue) {
 
-                            var caller = set.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                            var currCaller;
 
-                            if (meta.allowed === callerClassId || (caller['$name_' + random] && ((isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                            try {
+                                currCaller = set.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                            } catch (e) {
+                                currCaller = caller;
+                            }
+
+                            if (currCaller && caller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId)))) {
                                 this[cacheKeyword].properties[name] = newValue;
                             } else {
                                 throw new Error('Cannot set private property "' + name + '" of class "' + this.prototype.$name + '".');
@@ -2498,9 +2561,15 @@ define('Class',[
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
-                    var caller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    var currCaller;
 
-                    if (inheriting || (caller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                    try {
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                    } catch (e) {
+                        currCaller = caller;
+                    }
+
+                    if (inheriting || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
                         return constructor[cacheKeyword].properties[name];
                     }
 
@@ -2512,9 +2581,15 @@ define('Class',[
                         } :
                         function set(newValue) {
 
-                            var caller = set.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                            var currCaller;
 
-                            if (meta.allowed === callerClassId || (caller['$name_' + random] && (meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                            try {
+                                currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                            } catch (e) {
+                                currCaller = caller;
+                            }
+
+                            if (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId))))) {
                                 this[cacheKeyword].properties[name] = newValue;
                             } else {
                                 throw new Error('Cannot set protected static property "' + name + '" of class "' + this.prototype.$name + '".');
@@ -2718,46 +2793,42 @@ define('Class',[
      */
     function superAlias() {
 
-        return function parent() {
+        var meta,
+            alias,
+            classId = callerClassId,
+            name = caller['$name_' + random];
 
-            var meta,
-                alias,
-                classId = callerClassId,
-                caller = parent.caller || arguments.callee.caller || arguments.caller,  // Ignore JSLint error regarding .caller and callee
-                name = caller['$name_' + random];
+        if (!caller || !name || !caller['$prototype_' + classId]) {
+            throw new Error('Calling parent method within an unknown function.');
+        }
+        if (!caller['$prototype_' + classId].$constructor.$parent) {
+            throw new Error('Cannot call parent method "' + (name || 'N/A') + '" in class "' + this.$name + '".');
+        }
 
-            if (!caller || !name || !caller['$prototype_' + classId]) {
-                throw new Error('Calling parent method within an unknown function.');
-            }
-            if (!caller['$prototype_' + classId].$constructor.$parent) {
-                throw new Error('Cannot call parent method "' + (name || 'N/A') + '" in class "' + this.$name + '".');
-            }
+        meta = caller['$prototype_' + classId].$constructor[$class].methods[name];
 
-            meta = caller['$prototype_' + classId].$constructor[$class].methods[name];
+        if (meta.isPrivate) {
+            throw new Error('Cannot call $super() within private methods in class "' + this.$name + '".');
+        }
 
-            if (meta.isPrivate) {
-                throw new Error('Cannot call $super() within private methods in class "' + this.$name + '".');
-            }
+        if (meta.isPublic || !hasDefineProperty) {
 
-            if (meta.isPublic || !hasDefineProperty) {
-
-                alias = caller['$prototype_' + classId].$constructor.$parent.prototype[name];
-
-                if (!alias) {
-                    throw new Error('Cannot call parent method "' + (name || 'N/A') + '" in class "' + this.$name + '".');
-                }
-
-                return alias.apply(this, arguments);
-            }
-
-            alias = caller['$prototype_' + classId].$constructor.$parent[$class].methods[name];
+            alias = caller['$prototype_' + classId].$constructor.$parent.prototype[name];
 
             if (!alias) {
                 throw new Error('Cannot call parent method "' + (name || 'N/A') + '" in class "' + this.$name + '".');
             }
 
-            return alias.implementation.apply(this, arguments);
-        };
+            return alias.apply(this, arguments);
+        }
+
+        alias = caller['$prototype_' + classId].$constructor.$parent[$class].methods[name];
+
+        if (!alias) {
+            throw new Error('Cannot call parent method "' + (name || 'N/A') + '" in class "' + this.$name + '".');
+        }
+
+        return alias.implementation.apply(this, arguments);
     }
 
     /**
@@ -2767,16 +2838,11 @@ define('Class',[
      */
     function selfAlias() {
 
-        return function self() {
+        if (!caller || !caller['$prototype_' + callerClassId]) {
+            throw new Error('Cannot retrieve self alias within an unknown function.');
+        }
 
-            var caller = self.caller || arguments.callee.caller || arguments.caller;    // Ignore JSLint error regarding .caller and callee
-
-            if (!caller || !caller['$prototype_' + callerClassId]) {
-                throw new Error('Cannot retrieve self alias within an unknown function.');
-            }
-
-            return caller['$prototype_' + callerClassId].$constructor;
-        };
+        return caller['$prototype_' + callerClassId].$constructor;
     }
 
     /**
@@ -2795,47 +2861,43 @@ define('Class',[
      */
     function superStaticAlias() {
 
-        return function parent() {
+        var meta,
+            alias,
+            classId = callerClassId,
+            name = caller['$name_' + random];
 
-            var meta,
-                alias,
-                classId = callerClassId,
-                caller = parent.caller || arguments.callee.caller || arguments.caller,    // Ignore JSLint error regarding .caller and callee
-                name = caller['$name_' + random];
+        if (!caller || !name || !caller['$constructor_' + classId]) {
+            throw new Error('Calling parent static method within an unknown function.');
+        }
 
-            if (!caller || !name || !caller['$constructor_' + classId]) {
-                throw new Error('Calling parent static method within an unknown function.');
-            }
+        if (!caller['$constructor_' + classId].$parent) {
+            throw new Error('Cannot call parent static method "' + name || 'N/A' + '" in class "' + this.$name + '".');
+        }
 
-            if (!caller['$constructor_' + classId].$parent) {
-                throw new Error('Cannot call parent static method "' + name || 'N/A' + '" in class "' + this.$name + '".');
-            }
+        meta = caller['$constructor_' + classId][$class].staticMethods[name];
 
-            meta = caller['$constructor_' + classId][$class].staticMethods[name];
+        if (meta.isPrivate) {
+            throw new Error('Cannot call $super() within private static methods in class "' + this.$name + '".');
+        }
 
-            if (meta.isPrivate) {
-                throw new Error('Cannot call $super() within private static methods in class "' + this.$name + '".');
-            }
+        if (meta.isPublic || !hasDefineProperty) {
 
-            if (meta.isPublic || !hasDefineProperty) {
-
-                alias = caller['$constructor_' + classId].$parent[name];
-
-                if (!alias) {
-                    throw new Error('Cannot call parent static method "' + name || 'N/A' + '" in class "' + this.$name + '".');
-                }
-
-                return alias.apply(this, arguments);
-            }
-
-            alias = caller['$constructor_' + classId].$parent[$class].staticMethods[name];
+            alias = caller['$constructor_' + classId].$parent[name];
 
             if (!alias) {
                 throw new Error('Cannot call parent static method "' + name || 'N/A' + '" in class "' + this.$name + '".');
             }
 
-            return alias.implementation.apply(this, arguments);
-        };
+            return alias.apply(this, arguments);
+        }
+
+        alias = caller['$constructor_' + classId].$parent[$class].staticMethods[name];
+
+        if (!alias) {
+            throw new Error('Cannot call parent static method "' + name || 'N/A' + '" in class "' + this.$name + '".');
+        }
+
+        return alias.implementation.apply(this, arguments);
     }
 
     /**
@@ -2941,12 +3003,12 @@ define('Class',[
 
         // Assign aliases
         if (!parent) {
-            obfuscateProperty(classify.prototype, '$super', superAlias());
-            obfuscateProperty(classify.prototype, '$self', selfAlias());
+            obfuscateProperty(classify.prototype, '$super', superAlias);
+            obfuscateProperty(classify.prototype, '$self', selfAlias);
             obfuscateProperty(classify.prototype, '$static', staticAlias);
         }
         obfuscateProperty(classify.prototype, '$constructor', classify);
-        obfuscateProperty(classify, '$super', superStaticAlias());
+        obfuscateProperty(classify, '$super', superStaticAlias);
 
         // Parse mixins
         parseBorrows(classify);
