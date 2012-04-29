@@ -1122,6 +1122,7 @@ define([
                     return this[cacheKeyword].methods[name];
                 },
                 set: function set(newVal) {
+                    
                     if (this.$initializing) {
                         this[cacheKeyword].methods[name] = newVal;
                     } else {
