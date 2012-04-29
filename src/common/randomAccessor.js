@@ -9,6 +9,14 @@ define(['amd-utils/array/contains'], function (contains) {
         nrAccesses = 0,
         allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'FinalClassWrapper', 'instanceOfWrapper'];
 
+    /**
+     * Provides access to a random string that allows acceess to some hidden properties
+     * used through this library.
+     *
+     * @param {Function} caller The function that is trying to access
+     *
+     * @return {String} The random string
+     */
     function randomAccessor(caller) {
 
         if (nrAccesses > 5 || !contains(allowed, caller)) {
