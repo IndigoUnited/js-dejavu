@@ -851,9 +851,9 @@ define([
                     var method = this[cacheKeyword].methods[name],
                         currCaller;
 
-                    try {
+                    if (!this.$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
-                    } catch (e) {
+                    } else {
                         currCaller = caller;
                     }
 
@@ -881,9 +881,9 @@ define([
                     var method = this[cacheKeyword].methods[name],
                         currCaller;
 
-                    try {
+                    if (!this.$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
-                    } catch (e) {
+                    } else {
                         currCaller = caller;
                     }
 
@@ -940,9 +940,9 @@ define([
                     var method = this[cacheKeyword].methods[name],
                         currCaller;
 
-                    try {
+                    if (!this[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
-                    } catch (e) {
+                    } else {
                         currCaller = caller;
                     }
 
@@ -965,9 +965,9 @@ define([
                     var method = this[cacheKeyword].methods[name],
                         currCaller;
 
-                    try {
+                    if (!this[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
-                    } catch (e) {
+                    } else {
                         currCaller = caller;
                     }
 
@@ -1014,9 +1014,9 @@ define([
 
                     var currCaller;
 
-                    try {
+                    if (!this.$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
-                    } catch (e) {
+                    } else {
                         currCaller = caller;
                     }
 
@@ -1030,9 +1030,9 @@ define([
 
                     var currCaller;
 
-                    try {
+                    if (!this.$underStrict) {
                         currCaller = set.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
-                    } catch (e) {
+                    } else {
                         currCaller = caller;
                     }
 
@@ -1053,9 +1053,9 @@ define([
 
                     var currCaller;
 
-                    try {
+                    if (!this.$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
-                    } catch (e) {
+                    } else {
                         currCaller = caller;
                     }
 
@@ -1069,9 +1069,9 @@ define([
 
                     var currCaller;
 
-                    try {
+                    if (!this.$underStrict) {
                         currCaller = set.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
-                    } catch (e) {
+                    } else {
                         currCaller = caller;
                     }
 
@@ -1108,9 +1108,9 @@ define([
 
                     var currCaller;
 
-                    try {
+                    if (!this[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
-                    } catch (e) {
+                    } else {
                         currCaller = caller;
                     }
 
@@ -1128,9 +1128,9 @@ define([
 
                             var currCaller;
 
-                            try {
+                            if (!this[$class].$underStrict) {
                                 currCaller = set.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
-                            } catch (e) {
+                            } else {
                                 currCaller = caller;
                             }
 
@@ -1151,9 +1151,9 @@ define([
 
                     var currCaller;
 
-                    try {
+                    if (!this[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
-                    } catch (e) {
+                    } else {
                         currCaller = caller;
                     }
 
@@ -1171,9 +1171,9 @@ define([
 
                             var currCaller;
 
-                            try {
-                                currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
-                            } catch (e) {
+                            if (!this[$class].$underStrict) {
+                                currCaller = set.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and callee
+                            } else {
                                 currCaller = caller;
                             }
 
@@ -1281,6 +1281,14 @@ define([
                 throw new Error('An abstract class cannot be instantiated.');
             }
 
+            // Check if we are under strict mode
+            try {
+                Instance.caller || arguments.callee.caller || arguments.caller;
+                obfuscateProperty(this, '$underStrict', false);
+            } catch (e) {
+                obfuscateProperty(this, '$underStrict', true);
+            }
+
             this.$initializing = true;    // Mark it in order to let abstract classes run their initialize
 
             // Apply private/protected members
@@ -1311,7 +1319,6 @@ define([
             if (isFunction(Object.seal)) {
                 Object.seal(this);
             }
-
             // Call initialize
             this.initialize.apply(this, arguments);
         };
@@ -1384,11 +1391,15 @@ define([
         var meta,
             alias,
             classId = callerClassId,
-            name = caller['$name_' + random];
+            name,
+            currCaller;
 
-        if (!caller || !name || !caller['$prototype_' + classId]) {
+        if (!caller || !caller['$name_' + random] || !caller['$prototype_' + classId]) {
             throw new Error('Calling parent method within an unknown function.');
         }
+
+        name = caller['$name_' + random];
+
         if (!caller['$prototype_' + classId].$constructor.$parent) {
             throw new Error('Cannot call parent method "' + (name || 'N/A') + '" in class "' + this.$name + '".');
         }
@@ -1452,11 +1463,13 @@ define([
         var meta,
             alias,
             classId = callerClassId,
-            name = caller['$name_' + random];
+            name;
 
-        if (!caller || !name || !caller['$constructor_' + classId]) {
+        if (!caller || !caller['$name_' + random] || !caller['$constructor_' + classId]) {
             throw new Error('Calling parent static method within an unknown function.');
         }
+
+        name = caller['$name_' + random];
 
         if (!caller['$constructor_' + classId].$parent) {
             throw new Error('Cannot call parent static method "' + name || 'N/A' + '" in class "' + this.$name + '".');
@@ -1584,6 +1597,14 @@ define([
 
         if (isAbstract) {
             obfuscateProperty(classify, $abstract, true, true); // Signal it has abstract
+        }
+
+        // Check if we are under strict mode
+        try {
+            Class.caller || arguments.callee.caller || arguments.caller;
+            classify[$class].$underStrict = false;
+        } catch (e) {
+            classify[$class].$underStrict = true;
         }
 
         // Parse class members
