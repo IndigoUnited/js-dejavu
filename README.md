@@ -28,8 +28,7 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 * Classes and instances are locked, members cannot be changed or added (only applicable to some browsers, such as Chrome)
 
 Users are encouraged to declare 'use strict' while using the strict build otherwise some code can fail [silently](https://developer.mozilla.org/en/JavaScript/Strict_mode).
-This is because Classify uses Object.freeze and/or Object.seal to lock classes and instances, guarateeing that nobody changes the behaviour of your classes the wrong way (replacing methods, etc).
-The regular build is __not__ compatible with the 'use strict' because it uses the deprecated .caller property to provide better performance (avoiding wrappers for methods in order to support the $super()).
+This is because Classify uses Object.freeze and/or Object.seal to lock classes and instances, guaranteeing that nobody changes the behaviour of your classes the wrong way (replacing methods, etc).
 Run a preprocessor to remove 'use strict' from all production code (e.g.: requirejs optimizer tool).
 
 ## Works on ##
@@ -44,15 +43,6 @@ Run a preprocessor to remove 'use strict' from all production code (e.g.: requir
 Some features like private and protected members access management are only available in modern JavaScript engines (the ones that support Object.defineProperty).
 Still, the library provide fallbacks for those cases.
 The regular build is also compatible with CommonJS modules, so it works well with Node and Rhino.
-
-Please avoid using object constructors for strings, objects, booleans and numbers:
-
-```js
-var MyClass = Class({
-    foo: new String('bar'),  // Don't use this
-    foz: 'bar'               // Ok
-});
-```
 
 ## Performance ##
 
@@ -268,7 +258,7 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
     var ConcreteClass = Class({
         $extends: SomeClass,
         $implements: [SomeInterface, OtherInterface],
-        $borrows: OtherClass,                            // We can add mixins by specifying them in here
+        $borrows: OtherClass,                           // We can add mixins by specifying them in here
                                                         // You can specify multiple mixins in an array
 
         $binds: 'handleClick',                          // $binds let you automatically bind the function to the instance
@@ -380,7 +370,7 @@ define(['path/to/classify/Class', function (Class) {
             // ...
         },
 
-        $finals: {                 // Classes that extend this one are not allowed to override the members below
+        $finals: {                  // Classes that extend this one are not allowed to override the members below
 
             someMethod: function () {
                 // ...
@@ -455,8 +445,8 @@ With this syntax it also gives you the flexibility to call other parent methods.
 
 ### Signature check ###
 
-All functions are virtual functions, therefore it can be overriden except if it's classified as final.
-Aditionally, if a method is abstract, a subclass can only implement/override it if they obey their signature (must be equal or augmented with additional optional arguments).
+All functions are virtual functions, therefore they can be overriden except if it's classified as final.
+additionally, if a method is abstract, a subclass can only implement/override it if they obey their signature (must be equal or augmented with additional optional arguments).
 Arguments prefixed with a $ are evaluated as optional. The signature check is done for all abstract functions (interface functions are also considered abstract).
 
 ```js
@@ -539,6 +529,16 @@ Example4.foo(); // bye
 The instanceOf function works exactly the same way as the native instanceof except that it also works for interfaces.
 
 
+### Notes ###
+
+Please avoid using object constructors for strings, objects, booleans and numbers:
+
+```js
+var MyClass = Class({
+    foo: new String('bar'),  // Don't use this
+    foz: 'bar'               // Ok
+});
+```
 
 ## Dependencies ##
 
