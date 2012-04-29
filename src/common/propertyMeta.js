@@ -2,7 +2,7 @@
 /*global define*/
 
 define([
-    'amd-utils/lang/isUndefined',
+    'amd-utils/lang/isUndefined'
 ], function (
     isUndefined
 ) {
@@ -10,14 +10,14 @@ define([
     'use strict';
 
     /**
-* Extract meta data from a property.
-* It returns an object containing the value and visibility.
-*
-* @param {Mixed} prop The property
-* @param {String} name The name of the property
-*
-* @return {Object} An object containg the metadata
-*/
+     * Extract meta data from a property.
+     * It returns an object containing the value and visibility.
+     *
+     * @param {Mixed} prop The property
+     * @param {String} name The name of the property
+     *
+     * @return {Object} An object containg the metadata
+     */
     function propertyMeta(prop, name) {
 
         var ret = {};

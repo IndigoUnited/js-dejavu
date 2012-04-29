@@ -609,7 +609,13 @@ define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFun
 
     'use strict';
 
-    var hasDefineProperty = (function () {
+    /**
+     * Check if the environment supports Object.hasDefineProperty.
+     * There is some quirks related to IE that is handled inside.
+     *
+     * @return {Boolean} True if it supports, false otherwise
+     */
+    function hasDefineProperty() {
 
         if (!isFunction(Object.defineProperty)) {
             return false;
@@ -623,9 +629,9 @@ define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFun
         }
 
         return true;
-    }());
+    }
 
-    return hasDefineProperty;
+    return hasDefineProperty();
 });
 
 /*global define*/
@@ -870,7 +876,7 @@ define('amd-utils/lang/isUndefined',[],function () {
 /*global define*/
 
 define('common/propertyMeta',[
-    'amd-utils/lang/isUndefined',
+    'amd-utils/lang/isUndefined'
 ], function (
     isUndefined
 ) {
@@ -878,14 +884,14 @@ define('common/propertyMeta',[
     'use strict';
 
     /**
-* Extract meta data from a property.
-* It returns an object containing the value and visibility.
-*
-* @param {Mixed} prop The property
-* @param {String} name The name of the property
-*
-* @return {Object} An object containg the metadata
-*/
+     * Extract meta data from a property.
+     * It returns an object containing the value and visibility.
+     *
+     * @param {Mixed} prop The property
+     * @param {String} name The name of the property
+     *
+     * @return {Object} An object containg the metadata
+     */
     function propertyMeta(prop, name) {
 
         var ret = {};
@@ -1290,6 +1296,14 @@ define('common/randomAccessor',['amd-utils/array/contains'], function (contains)
         nrAccesses = 0,
         allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'FinalClassWrapper', 'instanceOfWrapper'];
 
+    /**
+     * Provides access to a random string that allows acceess to some hidden properties
+     * used through this library.
+     *
+     * @param {Function} caller The function that is trying to access
+     *
+     * @return {String} The random string
+     */
     function randomAccessor(caller) {
 
         if (nrAccesses > 5 || !contains(allowed, caller)) {
