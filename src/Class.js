@@ -1064,7 +1064,7 @@ define([
                         currCaller;
 
                     if (!this.$underStrict && !this.$constructor[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
                     }
@@ -1094,7 +1094,7 @@ define([
                         currCaller;
 
                     if (!this.$underStrict && !this.$constructor[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
                     }
@@ -1122,7 +1122,7 @@ define([
                     return this[cacheKeyword].methods[name];
                 },
                 set: function set(newVal) {
-                    
+
                     if (this.$initializing) {
                         this[cacheKeyword].methods[name] = newVal;
                     } else {
@@ -1154,7 +1154,7 @@ define([
                         currCaller;
 
                     if (!this[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
                     }
@@ -1179,7 +1179,7 @@ define([
                         currCaller;
 
                     if (!this[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
                     }
@@ -1228,7 +1228,7 @@ define([
                     var currCaller;
 
                     if (!this.$underStrict && !this.$constructor[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
                     }
@@ -1244,7 +1244,7 @@ define([
                     var currCaller;
 
                     if (!this.$underStrict && !this.$constructor[$class].$underStrict) {
-                        currCaller = set.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
+                        currCaller = set.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
                     }
@@ -1267,7 +1267,7 @@ define([
                     var currCaller;
 
                     if (!this.$underStrict && !this.$constructor[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
                     }
@@ -1283,7 +1283,7 @@ define([
                     var currCaller;
 
                     if (!this.$underStrict && !this.$constructor[$class].$underStrict) {
-                        currCaller = set.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
+                        currCaller = set.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
                     }
@@ -1322,7 +1322,7 @@ define([
                     var currCaller;
 
                     if (!this[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
                     }
@@ -1342,7 +1342,7 @@ define([
                             var currCaller;
 
                             if (!this[$class].$underStrict) {
-                                currCaller = set.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
+                                currCaller = set.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                             } else {
                                 currCaller = caller;
                             }
@@ -1365,7 +1365,7 @@ define([
                     var currCaller;
 
                     if (!this[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
+                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
                     }
@@ -1385,7 +1385,7 @@ define([
                             var currCaller;
 
                             if (!this[$class].$underStrict) {
-                                currCaller = set.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
+                                currCaller = set.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                             } else {
                                 currCaller = caller;
                             }
