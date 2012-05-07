@@ -89,7 +89,7 @@ define(['path/to/classify/Interface'], function (Interface) {
 ```
 
 Interfaces can extend multiple interfaces. They can also define static functions signature.
-Be aware that all functions must obey it's base signature (see explanation later in this document).
+Be aware that all functions must obey its base signature (see explanation later in this document).
 
 ```js
 define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (EventsInterface, Interface) {
