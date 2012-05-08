@@ -1303,6 +1303,22 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
                     });
                 }).to.throwException(/contains optional arguments before mandatory ones/);
 
+                expect(function () {
+                    var $ = function () {}
+                    return Class({
+                        _handleKeydownSubmit: function(e) {
+                            if (e.which == 13) {
+                                $(e.currentTarget).blur();
+                            }
+                        },
+                        _other: function _other(e) {
+                            if (e.which == 13) {
+                                $(e.currentTarget).blur();
+                            }
+                        }
+                    });
+                }).to.not.throwException();
+
             });
 
             it('should throw an error if $statics is not an object', function () {
