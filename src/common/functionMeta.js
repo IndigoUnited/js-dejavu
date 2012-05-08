@@ -20,7 +20,7 @@ define(function () {
      */
     function functionMeta(func, name) {
 
-        var matches = /^function\s+[a-zA-Z0-9_$]*\s*\(([^\(]*)\)/m.exec(func.toString()),
+        var matches = /^function(\s+[a-zA-Z0-9_$]*)*\s*\(([^\(]*)\)/m.exec(func.toString()),
             ret,
             split,
             optionalReached = false,
@@ -32,7 +32,7 @@ define(function () {
             return null;
         }
 
-        split = (matches[1] || '').split(/\s*,\s*/gm);
+        split = (matches[2] || '').split(/\s*,\s*/gm);
         length = split.length;
 
         ret = { mandatory: 0, optional: 0, signature: '' };

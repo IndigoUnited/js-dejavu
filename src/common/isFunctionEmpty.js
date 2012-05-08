@@ -14,7 +14,7 @@ define(function () {
      * @return {Boolean} True if it's empty, false otherwise
      */
     function isFunctionEmpty(func) {
-        return (/^function\s+\([^\(]*\)\s*\{\s*(["']use strict["'];)?\s*\}$/m).test(func.toString());
+        return (/^function\s*\([^\(]*\)\s*\{\s*(["']use strict["'];)?\s*\}$/m).test(func.toString());
     }
 
     return isFunctionEmpty;
