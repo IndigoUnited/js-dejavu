@@ -1424,7 +1424,7 @@ define('amd-utils/lang/toArray',['./isArray', './isObject', './isArguments'], fu
     return toArray;
 });
 
-/*jslint sloppy:true, forin:true, newcap:true, callee:true, eqeq:true*/
+/*jslint sloppy:true, forin:true, newcap:true, eqeq:true*/
 /*global define*/
 
 define('Class',[
