@@ -1,4 +1,4 @@
-/*/*jslint browser:true, devel:true, nomen:true*/
+/*jslint browser:true, devel:true, nomen:true*/
 /*global define*/
 
 /**
@@ -6,7 +6,7 @@
  *
  * @author André Cruz <andremiguelcruz@msn.com>
  */
-define(['classify/Class', './base'], function (Class, Base) {
+define(['dejavu/Class', './base'], function (Class, Base) {
 
     "use strict";
 
@@ -20,5 +20,5 @@ define(['classify/Class', './base'], function (Class, Base) {
         }
     };
 
-    return Class(SomeModule);
+    return new Class(SomeModule);
 });

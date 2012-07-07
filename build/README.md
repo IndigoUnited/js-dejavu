@@ -1,19 +1,17 @@
-# Building Classify #
+# Building dejavu #
 
 The build process will create two kind of builds: AMD and regular.
 
 ## Tools needed ##
 
-1. [nodejs](http://nodejs.org)
-2. [mocha](http://visionmedia.github.com/mocha/) (npm install -g mocha)
-
-Then just run build/make.js on node (node build/make.js).
-This will create the builds described bellow in the [dist](https://github.com/TrinityJS/Classify/tree/master/dist) folder.
+Simply run npm install to install all the tools needed.
+Then just run build/make.js on node (`node build/make`).
+This will create the builds described bellow in the [dist](https://github.com/IndigoUnited/dejavu/tree/master/dist) folder.
 Also the tests are automatically executed at the end of the build process.
 
 ## AMD Build ##
 
-The [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD) build is located in the [dist/amd](https://github.com/TrinityJS/Classify/tree/master/dist/amd) folder.
+The [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD) build is located in the [dist/amd](https://github.com/IndigoUnited/dejavu/tree/master/dist/amd) folder.
 There are two versions available: __strict__ and __loose__.
 
 The __strict__ version has all kind of validations to ensure that your classes are well defined and obey all the common rules of classic inheritance.
@@ -24,6 +22,6 @@ The __loose__ build has all the overhead of validations removed. If your classes
 ## Regular Build ##
 
 The regular build is a standalone file that has all the functionality built in.
-All the functionality is wrapped in the global Classify (e.g.: Class is available through Classify.Class).
+All the functionality is wrapped in the global dejavu (e.g.: Class is available through dejavu.Class).
 Similar to the AMD build, there is a strict and loose build.
 The loose build is already minified (with uglify).

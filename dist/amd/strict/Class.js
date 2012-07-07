@@ -1560,7 +1560,7 @@ define([
         // Verify reserved words
         checkKeywords(params);
 
-        var classify,
+        var dejavu,
             parent;
 
         if (hasOwn(params, '$extends')) {
@@ -1581,68 +1581,68 @@ define([
                 obfuscateProperty(params.initialize, '$inherited', true);
             }
 
-            classify = createConstructor(isAbstract);
-            obfuscateProperty(classify, '$parent', parent);
-            classify[$class].baseId = parent[$class].baseId;
-            classify[$class].id = nextId += 1;
-            classify.prototype = createObject(parent.prototype, params);
+            dejavu = createConstructor(isAbstract);
+            obfuscateProperty(dejavu, '$parent', parent);
+            dejavu[$class].baseId = parent[$class].baseId;
+            dejavu[$class].id = nextId += 1;
+            dejavu.prototype = createObject(parent.prototype, params);
 
-            inheritParent(classify, parent);
+            inheritParent(dejavu, parent);
         } else {
             params.initialize = params.initialize || function () {};
-            classify = createConstructor(isAbstract);
-            classify[$class].baseId = nextId += 1;
-            classify[$class].id = classify[$class].baseId;
-            classify.prototype = params;
+            dejavu = createConstructor(isAbstract);
+            dejavu[$class].baseId = nextId += 1;
+            dejavu[$class].id = dejavu[$class].baseId;
+            dejavu.prototype = params;
         }
 
         if (isAbstract) {
-            obfuscateProperty(classify, $abstract, true, true); // Signal it has abstract
+            obfuscateProperty(dejavu, $abstract, true, true); // Signal it has abstract
         }
 
         // Check if we are under strict mode
         try {
             Class.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
-            classify[$class].$underStrict = false;
+            dejavu[$class].$underStrict = false;
         } catch (e) {
-            classify[$class].$underStrict = true;
+            dejavu[$class].$underStrict = true;
         }
 
         // Parse class members
-        parseClass(params, classify);
+        parseClass(params, dejavu);
 
         // Assign aliases
         if (!parent) {
-            obfuscateProperty(classify.prototype, '$super', superAlias);
-            obfuscateProperty(classify.prototype, '$self', selfAlias);
-            obfuscateProperty(classify.prototype, '$static', staticAlias);
+            obfuscateProperty(dejavu.prototype, '$super', superAlias);
+            obfuscateProperty(dejavu.prototype, '$self', selfAlias);
+            obfuscateProperty(dejavu.prototype, '$static', staticAlias);
         }
-        obfuscateProperty(classify.prototype, '$constructor', classify);
-        obfuscateProperty(classify, '$super', superStaticAlias);
+        obfuscateProperty(dejavu.prototype, '$constructor', dejavu);
+        obfuscateProperty(dejavu, '$super', superStaticAlias);
 
         // Parse mixins
-        parseBorrows(classify);
+        parseBorrows(dejavu);
 
         // Parse binds
-        parseBinds(classify);
+        parseBinds(dejavu);
 
         // Add toString() if not defined yet
         if (params.toString === Object.prototype.toString) {
-            obfuscateProperty(classify.prototype, 'toString', toStringInstance, true);
+            obfuscateProperty(dejavu.prototype, 'toString', toStringInstance, true);
         }
-        if (classify.toString === Function.prototype.toString) {
-            obfuscateProperty(classify, 'toString', toStringConstructor, true);
+        if (dejavu.toString === Function.prototype.toString) {
+            obfuscateProperty(dejavu, 'toString', toStringConstructor, true);
         }
 
         // If we are a concrete class that extends an abstract class, we need to verify the methods existence
         if (parent && parent[$abstract] && !isAbstract) {
-            parent[$abstract].check(classify);
+            parent[$abstract].check(dejavu);
         }
 
         // Handle interfaces
         if (hasOwn(params, '$implements')) {
-            handleInterfaces(params.$implements, classify);
-            delete classify.prototype.$implements;
+            handleInterfaces(params.$implements, dejavu);
+            delete dejavu.prototype.$implements;
         }
 
         // Remove abstracts reference
@@ -1652,10 +1652,10 @@ define([
 
         // Prevent any properties/methods to be added and deleted
         if (hasDefineProperty) {
-            protectConstructor(classify);
+            protectConstructor(dejavu);
         }
 
-        return classify;
+        return dejavu;
     };
 
     return Class;

@@ -19,7 +19,7 @@
     },
     wrap: true,
     modules: [{
-        name: 'classify',
+        name: 'dejavu',
         include: ['../vendor/almond/almond.js']
     }]
 })
