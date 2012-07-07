@@ -6,10 +6,10 @@
 	url = git://github.com/visionmedia/mocha.git
 [submodule "vendor/amd-utils"]
 	path = vendor/amd-utils
-	url = https://github.com/millermedeiros/amd-utils.git
+	url = git://github.com/millermedeiros/amd-utils.git
 [submodule "vendor/expect.js"]
 	path = vendor/expect.js
-	url = https://github.com/LearnBoost/expect.js.git
+	url = git://github.com/LearnBoost/expect.js.git
 [submodule "vendor/almond"]
 	path = vendor/almond
 	url = git://github.com/jrburke/almond.git
