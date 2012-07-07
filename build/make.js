@@ -1,10 +1,13 @@
-/*jslint node:true, nomen:true, sloppy:true*/
+/*jslint nomen:true, node:true, stupid:true*/
+
+"use strict";
 
 var cp = require('child_process'),
     fs = require('fs'),
     tests,
     command,
     distDir = __dirname + '/../dist/',
+    mochaBin,
     currentDistDir,
     currentBuild,
     files,
@@ -35,12 +38,21 @@ function emptyDir(dir) {
     });
 }
 
+// Find mocha binary
+// We use statSync instead of existsSync because it is in path package in older node versions and in fs package in earlier ones
+try {
+    fs.statSync(__dirname + '/../node_modules/.bin/mocha');
+    mochaBin = __dirname + '/../node_modules/.bin/mocha';
+} catch (e) {
+    mochaBin = 'mocha';
+}
+
 // Clear directory
 emptyDir(distDir);
 
 // Build amd strict
 currentBuild = 'amd';
-command = 'node "' + __dirname + '/../vendor/r.js/dist/r.js" -o ' + __dirname + '/Classify.build_' + currentBuild + '.js';
+command = 'node "' + __dirname + '/../vendor/r.js/dist/r.js" -o ' + __dirname + '/dejavu.build_' + currentBuild + '.js';
 currentDistDir = distDir + 'amd/strict/';
 cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
 
@@ -53,7 +65,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
     }
 
     fs.unlinkSync(currentDistDir + 'build.txt');
-    fs.unlinkSync(currentDistDir + 'classify.js');
+    fs.unlinkSync(currentDistDir + 'dejavu.js');
 
     // Build amd loose
     currentDistDir = distDir + 'amd/loose/';
@@ -68,7 +80,17 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
         }
 
         fs.unlinkSync(currentDistDir + 'build.txt');
-        fs.unlinkSync(currentDistDir + 'classify.js');
+        fs.unlinkSync(currentDistDir + 'dejavu.js');
+
+        // Delete empty files
+        files = fs.readdirSync(currentDistDir + 'common');
+        files.forEach(function (file) {
+            file = currentDistDir + 'common/' + file;
+            var content = fs.readFileSync(file);
+            if ((/^\s*$/).test(content.toString())) {
+                fs.unlinkSync(file);
+            }
+        });
 
         // Create regular directories
         fs.mkdirSync(distDir + 'regular');
@@ -77,7 +99,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
 
         // Build regular loose
         currentBuild = 'regular';
-        command = 'node "' + __dirname + '/../vendor/r.js/dist/r.js" -o ' + __dirname + '/Classify.build_' + currentBuild + '.js';
+        command = 'node "' + __dirname + '/../vendor/r.js/dist/r.js" -o ' + __dirname + '/dejavu.build_' + currentBuild + '.js';
         currentDistDir = __dirname + '/../tmp/';
 
         emptyDir(currentDistDir);
@@ -93,7 +115,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
             }
 
             // Move concatenated file
-            fs.renameSync(currentDistDir + 'classify.js', distDir + 'regular/loose/classify.js');
+            fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/loose/dejavu.js');
 
             emptyDir(currentDistDir);
 
@@ -108,15 +130,16 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                 }
 
                 // Move concatenated file
-                fs.renameSync(currentDistDir + 'classify.js', distDir + 'regular/strict/classify.js');
+                fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/strict/dejavu.js');
 
                 emptyDir(currentDistDir);
-                fs.rmdirSync(currentDistDir)           ;
+                fs.rmdirSync(currentDistDir);
 
                 // Run tests
                 process.chdir(__dirname + '/..');
 
-                command = 'mocha -R list test/amd/strict.js';
+
+                command = mochaBin + ' -R list test/amd/strict.js';
 
                 console.log('Running amd/strict tests..');
                 console.log('-------------------------------------------------');
@@ -136,7 +159,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                         exitCode = 0;
                     }
 
-                    command = 'mocha -R list test/amd/loose.js';
+                    command = mochaBin + ' -R list test/amd/loose.js';
 
                     console.log('Running amd/loose tests..');
                     console.log('-------------------------------------------------');

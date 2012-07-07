@@ -5,7 +5,6 @@ define([
     'amd-utils/lang/isFunction',
 //>>includeEnd('strict');
     './Class',
-    './Class',
     './AbstractClass',
     './Interface',
     './FinalClass',
@@ -25,28 +24,28 @@ define([
     'use strict';
 
 //>>includeEnd('strict');
-    var Classify = {},
+    var dejavu = {},
         target;
 
-    Classify.Class = Class;
-    Classify.AbstractClass = AbstractClass;
-    Classify.Interface = Interface;
-    Classify.FinalClass = FinalClass;
-    Classify.instanceOf = instanceOf;
+    dejavu.Class = Class;
+    dejavu.AbstractClass = AbstractClass;
+    dejavu.Interface = Interface;
+    dejavu.FinalClass = FinalClass;
+    dejavu.instanceOf = instanceOf;
 
     if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.exports) {
-        module.exports = Classify;
+        module.exports = dejavu;
     } else {
         target = (typeof window !== 'undefined' && window.navigator && window.document) ? window : global;
         if (!target) {
             throw new Error('Could not grab global object.');
         }
-        target.Classify = Classify;
-   }
+        target.dejavu = dejavu;
+    }
 
 //>>includeStart('strict', pragmas.strict);
     if (isFunction(Object.freeze)) {
-        Object.freeze(Classify);
+        Object.freeze(dejavu);
     }
 
 //>>includeEnd('strict');

@@ -19,7 +19,7 @@ define([
     function checkObjectPrototype() {
 
         if (isObjectPrototypeSpoiled()) {
-            throw new Error('Classify will not work properly if Object.prototype has enumerable properties!');
+            throw new Error('dejavu will not work properly if Object.prototype has enumerable properties!');
         }
 
         if (isFunction(Object.seal) && !Object.isSealed(Object.prototype)) {

@@ -1,9 +1,9 @@
-# Classify, a set of object-oriented tools for JavaScript #
+# dejavu, a set of object-oriented tools for JavaScript #
 
 ---
 
 Prototypal inheritance is powerful and flexible, yet difficult to understand and to use on large projects.
-Classify is a library that delivers classic inheritance on top of JavaScript prototypal inheritance.
+dejavu is a library that delivers classic inheritance on top of JavaScript prototypal inheritance.
 
 
 ## Why another? ##
@@ -28,7 +28,7 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 * Classes and instances are locked, members cannot be changed or added (only applicable to some browsers, such as Chrome)
 
 Users are encouraged to declare 'use strict' while using the strict build otherwise some code can fail [silently](https://developer.mozilla.org/en/JavaScript/Strict_mode).
-This is because Classify uses Object.freeze and/or Object.seal to lock classes and instances, guaranteeing that nobody changes the behaviour of your classes the wrong way (replacing methods, etc).
+This is because dejavu uses Object.freeze and/or Object.seal to lock classes and instances, guaranteeing that nobody changes the behaviour of your classes the wrong way (replacing methods, etc).
 Run a preprocessor to remove 'use strict' from all production code (e.g.: requirejs optimizer tool).
 
 ## Works on ##
@@ -57,8 +57,8 @@ The loose version also has lower memory footprint and less size in bytes.
 Also there is an alternative to $super() inside your functions. The alternative is relatively faster than the original $super() and can be used in critical code.
 See below for more information.
 
-I've publish a new test revision on [jsperf](http://jsperf.com/oop-benchmark/13) comparing Classify with other OOP libraries.
-The version running is the regular (loose build). Classify uses a wrapper for the constructor function therefore its performance can't be compared to JSFace or my.Class.
+I've publish a new test revision on [jsperf](http://jsperf.com/oop-benchmark/13) comparing dejavu with other OOP libraries.
+The version running is the regular (loose build). dejavu uses a wrapper for the constructor function therefore its performance can't be compared to JSFace or my.Class.
 The constructor wrapper is needed in order to apply binds and to make mutable types unique for each instance (for example, if an property is an array it should not be shared among instances, but in JSFace and my.Class they actually are).
 
 ## Usage ##
@@ -73,7 +73,7 @@ Object interfaces allow you to create code which specifies which methods a class
 Below there's an example of an _EventsInterface_ that has the role of adding event listeners and fire events:
 
 ```js
-define(['path/to/classify/Interface'], function (Interface) {
+define(['path/to/dejavu/Interface'], function (Interface) {
 
     var EventsInterface = Interface({
 
@@ -92,7 +92,7 @@ Interfaces can extend multiple interfaces. They can also define static functions
 Be aware that all functions must obey its base signature (see explanation later in this document).
 
 ```js
-define(['path/to/EventsInterface', 'path/to/classify/Interface'], function (EventsInterface, Interface) {
+define(['path/to/EventsInterface', 'path/to/dejavu/Interface'], function (EventsInterface, Interface) {
 
     var SomeEventsInterface = Interface({
         $extends: EventsInterface,   // This interface extends EventsInterface
@@ -120,7 +120,7 @@ Following the previous example we can define a concrete class - _EventsEmitter_ 
 ```js
 define([
     'path/to/EventsInterface',
-    'path/to/classify/Class'
+    'path/to/dejavu/Class'
 ], function (EventsInterface, Class) {
 
     var EventsEmitter = Class({
@@ -156,7 +156,7 @@ Below there is an example of an abstract class - _AbstractEmitter_ - that implem
 ```js
 define([
     'path/to/EventsInterface',
-    'path/to/classify/AbstractClass'
+    'path/to/dejavu/AbstractClass'
 ],
 function (EventsInterface, AbstractClass) {
 
@@ -200,7 +200,7 @@ define([
     'path/to/some/class',
     'path/to/some/interface',
     'path/to/other/interfaces',
-    'path/to/classify/AbstractClass'
+    'path/to/dejavu/AbstractClass'
 ],
 function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
 
@@ -251,7 +251,7 @@ define([
     'path/to/other/class',
     'path/to/some/interface',
     'path/to/other/interfaces',
-    'path/to/classify/Class'
+    'path/to/dejavu/Class'
 ],
 function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
 
@@ -313,7 +313,7 @@ If Object.defineProperty is available, any attempt to modify the constant value 
 Constants can be defined in classes, abstract classes and interfaces.
 
 ```js
-define(['path/to/classify/Class', function (Class) {
+define(['path/to/dejavu/Class', function (Class) {
 
     var SomeClass = Class({
         $constants: {
@@ -344,7 +344,7 @@ Members that are declared as final cannot be overriden by a child class.
 If the class itself is being defined final then it cannot be extended.
 
 ```js
-define(['path/to/classify/FinalClass', function (FinalClass) {
+define(['path/to/dejavu/FinalClass', function (FinalClass) {
 
     var SomeClass = FinalClass({        // This class cannot be extended
 
@@ -359,7 +359,7 @@ define(['path/to/classify/FinalClass', function (FinalClass) {
     return SomeClass;
 });
 
-define(['path/to/classify/Class', function (Class) {
+define(['path/to/dejavu/Class', function (Class) {
 
     var SomeClass = Class({
 
@@ -403,7 +403,7 @@ As mentioned above, $super() can be slow compared to its alternative.
 Its alternative is as simple as ClassName.$parent.prototype.method.call(this, args1, ...) for instances and ClassName.$parent.method.call(this, args1, ...) from within static context:
 
 ```js
-define(['path/to/classify/Class'], function (Class) {
+define(['path/to/dejavu/Class'], function (Class) {
 
     var SomeClass = Class({
         foo: function () {
@@ -542,7 +542,7 @@ var MyClass = Class({
 
 ## Dependencies ##
 
-Classify depends on [amd-utils](https://github.com/millermedeiros/amd-utils).
+dejavu depends on [amd-utils](https://github.com/millermedeiros/amd-utils).
 If you use the regular build, you don't need to worry because all functions used from amd-utils are bundled for you.
 If you use the AMD build, you must specify the path to amd-utils.
 For example, if you use [RequireJS](http://requirejs.org/):
@@ -555,15 +555,15 @@ For example, if you use [RequireJS](http://requirejs.org/):
 
 
 
-## Bulding Classify ##
+## Bulding dejavu ##
 
-Please take a look at the [build](https://github.com/TrinityJS/Classify/tree/master/build) section.
+Please take a look at the [build](https://github.com/TrinityJS/dejavu/tree/master/build) section.
 
 
 
-## Testing Classify ##
+## Testing dejavu ##
 
-Please take a look at the [test](https://github.com/TrinityJS/Classify/tree/master/test) section.
+Please take a look at the [test](https://github.com/TrinityJS/dejavu/tree/master/test) section.
 
 
 
