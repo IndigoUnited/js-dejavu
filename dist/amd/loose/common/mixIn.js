@@ -1,7 +1,7 @@
 /*jslint sloppy:true, forin:true*/
 /*global define*/
 
-define(function () {
+define([],function () {
 
     /**
      * This method does exactly the same as the amd counterpart but

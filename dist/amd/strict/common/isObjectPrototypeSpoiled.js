@@ -1,7 +1,7 @@
 /*jslint forin:true*/
 /*global define,console*/
 
-define(function () {
+define([],function () {
 
     'use strict';
 
