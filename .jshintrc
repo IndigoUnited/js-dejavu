@@ -2,10 +2,7 @@
     "predef": [
         "console",
         "require",
-        "define",
-        "expect",
-        "it",
-        "describe"
+        "define"
     ],
 
     "browser": true,
