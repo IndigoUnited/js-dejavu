@@ -1,5 +1,5 @@
 /*jslint node:true, sloppy:true*/
-/*globals define*/
+/*global define*/
 
 if (!global.evaluated) {
     require('../util/adapter.js');
@@ -8,4 +8,4 @@ if (!global.evaluated) {
 var path = '../dist/amd/loose';
 global.modules = [path + '/Class.js', path + '/AbstractClass', path + '/Interface', path + '/FinalClass', path + '/instanceOf'];
 global.build = 'amd/loose';
-define(['../functional'], function () { });
+define(['../functional'], function () {});

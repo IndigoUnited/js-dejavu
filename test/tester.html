@@ -10,19 +10,19 @@
         <script src="util/browser.js"></script>
         <script src="util/adapter.js"></script>
         <script>
-                var build = getBuild();
-                mocha.setup('bdd');
+            var build = getBuild();
+            mocha.setup('bdd');
 
-                require(['./' + build], function(dummy) {
+            require(['./' + build], function (dummy) {
 
-                    var elem = document.getElementById(build.replace(/\//g, '_'));
-                    if (elem) {
-                        elem.className = 'active';
-                    }
+                var elem = document.getElementById(build.replace(/\//g, '_'));
+                if (elem) {
+                    elem.className = 'active';
+                }
 
-                    mocha
-                    .run();
-                });
+                mocha
+                .run();
+            });
         </script>
         <style>
             #build {
