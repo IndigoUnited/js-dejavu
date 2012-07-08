@@ -1,5 +1,5 @@
 /*jslint sloppy:true, regexp:true*/
-/*globals location*/
+/*global location*/
 
 /**
  * Returns an object with the keys and values extract from a query string.

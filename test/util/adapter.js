@@ -1,13 +1,14 @@
 /*jslint nomen:true*/
 /*global window,navigator,document,global:true,define:true,require,expect,__dirname,process*/
+var paths = {
+    'amd-utils': '../vendor/amd-utils/src'
+};
 
 if (!(typeof window !== 'undefined' && window.navigator && window.document)) { // Test if we are at command line
     var requirejs = require('../../vendor/r.js/dist/r.js');
     requirejs.config({
         baseUrl: __dirname + '/../',
-        paths: {
-            'amd-utils': '../vendor/amd-utils/src'
-        },
+        paths: paths,
         nodeRequire: require
     });
 
@@ -24,9 +25,7 @@ if (!(typeof window !== 'undefined' && window.navigator && window.document)) { /
 
     require({
         baseUrl : './',
-        paths: {
-            'amd-utils': '../vendor/amd-utils/src'
-        },
+        paths: paths,
         waitSeconds : (window.location.protocol === 'file:' || window.location.href.indexOf('://localhost') !== -1) ? 5 : 45, // Fail early locally
         urlArgs : 'bust=' + (+new Date())
     });

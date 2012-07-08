@@ -10,8 +10,8 @@ To test in the command line you:
 First run npm install to install all the tools needed.
 Then you can run all build tests individually:
 
-* Run `mocha test/amd/scrict` to test the [amd/strict](https://github.com/IndigoUnited/dejavu/tree/master/dist/amd/loose) build
-* Run `mocha test/amd/loose.js` to test the [amd/loose](https://github.com/IndigoUnited/dejavu/tree/master/dist/amd/loose) build
+* Run `"node_modules/.bin/mocha" test/amd/strict` to test the [amd/strict](https://github.com/IndigoUnited/dejavu/tree/master/dist/amd/loose) build
+* Run `"node_modules/.bin/mocha" test/amd/loose` to test the [amd/loose](https://github.com/IndigoUnited/dejavu/tree/master/dist/amd/loose) build
 
 _Tip_: You can use `mocha -R list [file]` to give you a full list of the tests.
 
