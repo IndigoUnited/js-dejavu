@@ -13,7 +13,7 @@ Then you can run all build tests individually:
 * Run `"node_modules/.bin/mocha" test/amd/strict` to test the [amd/strict](https://github.com/IndigoUnited/dejavu/tree/master/dist/amd/loose) build
 * Run `"node_modules/.bin/mocha" test/amd/loose` to test the [amd/loose](https://github.com/IndigoUnited/dejavu/tree/master/dist/amd/loose) build
 
-_Tip_: You can use `mocha -R list [file]` to give you a full list of the tests.
+_Tip_: You can use the `-R list [file]` option to give you a full list of the tests.
 
 ## Browser ##
 
