@@ -4,6 +4,14 @@
         <meta charset="utf-8">
         <title>dejavu tests</title>
         <link rel="stylesheet" href="../vendor/mocha/mocha.css" />
+        <script>
+            // TODO: remove this once mocha fixes this(https://github.com/visionmedia/mocha/issues/501)
+            if (!String.prototype.trim) {
+                String.prototype.trim = function () {
+                    return this.replace(/^[\s\uFEFF]+|[\s\uFEFF]+$/g, '');
+                };
+            }
+        </script>
         <script src="../vendor/mocha/mocha.js"></script>
         <script src="../vendor/expect.js/expect.js"></script>
         <script src="../vendor/r.js/require.js"></script>
