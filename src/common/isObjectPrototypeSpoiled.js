@@ -1,7 +1,4 @@
 //>>includeStart('strict', pragmas.strict);
-/*jslint forin:true*/
-/*global define,console*/
-
 define(function () {
 
     'use strict';

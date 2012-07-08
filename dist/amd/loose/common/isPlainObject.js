@@ -1,5 +1,4 @@
-/*jslint forin:true*/
-/*globals define*/
+/*jshint strict:false*/
 
 define([
     'amd-utils/lang/isFunction',
@@ -39,7 +38,7 @@ define([
             return false;       // IE8,9 Will throw exceptions on certain host objects
         }
 
-        for (key in obj) {}     // Ignore JSLint warning regarding 'empty block'
+        for (key in obj) {}
 
         return key === undefined || hasOwn(obj, key);
     }

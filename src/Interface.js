@@ -1,11 +1,7 @@
-//>>includeStart('strict', pragmas.strict);
-/*jslint forin:true*/
-//>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-/*jslint sloppy:true, forin:true*/
-//>>excludeEnd('strict');
-/*global define*/
+/*jshint strict:false*/
 
+//>>excludeEnd('strict');
 define([
 //>>includeStart('strict', pragmas.strict);
     'amd-utils/lang/isObject',

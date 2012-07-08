@@ -1,14 +1,17 @@
-/*jslint regexp:true*/
-/*global define*/
+//>>excludeStart('strict', pragmas.strict);
+/*jshint strict:false*/
 
+//>>excludeEnd('strict');
 define([
     'amd-utils/lang/isUndefined'
 ], function (
     isUndefined
 ) {
 
+//>>includeStart('strict', pragmas.strict);
     'use strict';
 
+//>>includeEnd('strict');
     /**
      * Extract meta data from a property.
      * It returns an object containing the value and visibility.

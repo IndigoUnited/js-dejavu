@@ -1,5 +1,3 @@
-/*global define*/
-
 define(['amd-utils/lang/isFunction'], function (isFunction) {
 
     'use strict';

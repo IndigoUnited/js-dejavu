@@ -1,11 +1,7 @@
-//>>includeStart('strict', pragmas.strict);
-/*jslint eqeq:true*/
-//>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-/*jslint sloppy:true, eqeq:true*/
-//>>excludeEnd('strict');
-/*global define,console*/
+/*jshint strict:false*/
 
+//>>excludeEnd('strict');
 define([
     'amd-utils/lang/isNumber',
     'amd-utils/lang/isString',

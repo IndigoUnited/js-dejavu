@@ -1,6 +1,4 @@
 //>>includeStart('strict', pragmas.strict);
-/*global define*/
-
 define(['amd-utils/lang/isFunction'], function (isFunction) {
 
     'use strict';

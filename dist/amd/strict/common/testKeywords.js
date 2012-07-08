@@ -1,5 +1,3 @@
-/*global define*/
-
 define([
     'amd-utils/array/difference',
     'amd-utils/object/hasOwn'

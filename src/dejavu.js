@@ -1,4 +1,4 @@
-/*global define,module,exports,window,global*/
+/*global global*/
 
 define([
 //>>includeStart('strict', pragmas.strict);

@@ -1,6 +1,4 @@
 //>>includeStart('strict', pragmas.strict);
-/*global define*/
-
 define(['./hasDefineProperty'], function (hasDefineProperty) {
 
     'use strict';

@@ -671,8 +671,7 @@ define('amd-utils/object/size',['./forOwn'], function (forOwn) {
 
 });
 
-/*jslint regexp:true*/
-/*global define*/
+/*jshint regexp:false*/
 
 define('common/functionMeta',[],function () {
 
@@ -758,9 +757,6 @@ define('amd-utils/lang/isUndefined',[],function () {
     return isUndef;
 });
 
-/*jslint regexp:true*/
-/*global define*/
-
 define('common/propertyMeta',[
     'amd-utils/lang/isUndefined'
 ], function (
@@ -805,8 +801,6 @@ define('common/propertyMeta',[
 
     return propertyMeta;
 });
-/*global define*/
-
 define('common/isFunctionCompatible',[],function () {
 
     'use strict';
@@ -825,9 +819,6 @@ define('common/isFunctionCompatible',[],function () {
 
     return isFunctionCompatible;
 });
-
-/*jslint forin:true*/
-/*global define*/
 
 define('common/checkKeywords',[
     'amd-utils/object/hasOwn'
@@ -916,8 +907,6 @@ define('amd-utils/array/difference',['./unique', './filter', './some', './contai
 
 });
 
-/*global define*/
-
 define('common/testKeywords',[
     'amd-utils/array/difference',
     'amd-utils/object/hasOwn'
@@ -958,8 +947,6 @@ define('common/testKeywords',[
     return testKeywords;
 });
 
-/*global define*/
-
 define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFunction) {
 
     'use strict';
@@ -988,8 +975,6 @@ define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFun
 
     return hasDefineProperty();
 });
-
-/*global define*/
 
 define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefineProperty) {
 
@@ -1021,9 +1006,6 @@ define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefinePr
     return obfuscateProperty;
 });
 
-/*jslint forin:true*/
-/*global define,console*/
-
 define('common/isObjectPrototypeSpoiled',[],function () {
 
     'use strict';
@@ -1049,9 +1031,6 @@ define('common/isObjectPrototypeSpoiled',[],function () {
 
     return isObjectPrototypeSpoiled;
 });
-
-/*jslint forin:true*/
-/*global define,console*/
 
 define('common/checkObjectPrototype',[
     './isObjectPrototypeSpoiled',
@@ -1082,8 +1061,6 @@ define('common/checkObjectPrototype',[
 });
 
 
-/*global define,console*/
-
 define('common/randomAccessor',['amd-utils/array/contains'], function (contains) {
 
     'use strict';
@@ -1113,8 +1090,6 @@ define('common/randomAccessor',['amd-utils/array/contains'], function (contains)
 
     return randomAccessor;
 });
-
-/*global define*/
 
 define('common/hasFreezeBug',['amd-utils/lang/isFunction'], function (isFunction) {
 
@@ -1178,9 +1153,6 @@ define('amd-utils/lang/isBoolean',['./isKind'], function (isKind) {
     return isBoolean;
 });
 
-/*jslint eqeq:true*/
-/*global define,console*/
-
 define('common/isImmutable',[
     'amd-utils/lang/isNumber',
     'amd-utils/lang/isString',
@@ -1206,9 +1178,6 @@ define('common/isImmutable',[
 
     return isImmutable;
 });
-
-/*jslint forin:true*/
-/*globals define*/
 
 define('common/isPlainObject',[
     'amd-utils/lang/isFunction',
@@ -1250,7 +1219,7 @@ define('common/isPlainObject',[
             return false;       // IE8,9 Will throw exceptions on certain host objects
         }
 
-        for (key in obj) {}     // Ignore JSLint warning regarding 'empty block'
+        for (key in obj) {}
 
         return key === undefined || hasOwn(obj, key);
     }
@@ -1356,10 +1325,7 @@ define('amd-utils/array/combine',['./indexOf'], function (indexOf) {
     return combine;
 });
 
-/*jslint forin:true*/
-/*global define*/
-
-define('common/mixIn',[],function () {
+define('common/mixIn',[], function () {
 
     'use strict';
 
@@ -1478,8 +1444,7 @@ define('amd-utils/array/insert',['./difference', '../lang/toArray'], function (d
     return insert;
 });
 
-/*jslint sloppy:true, forin:true, newcap:true, eqeq:true*/
-/*global define*/
+/*jshint strict:false, noarg:false, expr:true*/
 
 define([
     'amd-utils/lang/isString',
@@ -3108,8 +3073,7 @@ define([
     return Class;
 });
 
-/*jslint regexp:true*/
-/*global define*/
+/*jshint regexp:false*/
 
 define('common/isFunctionEmpty',[],function () {
 
@@ -3128,9 +3092,6 @@ define('common/isFunctionEmpty',[],function () {
 
     return isFunctionEmpty;
 });
-
-/*jslint nomen:true, newcap:true, forin:true*/
-/*global define*/
 
 define('AbstractClass',[
     'amd-utils/lang/isObject',
@@ -3480,9 +3441,6 @@ define('AbstractClass',[
 
     return AbstractClass;
 });
-
-/*jslint forin:true*/
-/*global define*/
 
 define('Interface',[
     'amd-utils/lang/isObject',
@@ -3888,9 +3846,6 @@ define('Interface',[
     return Interface;
 });
 
-/*jslint newcap:true*/
-/*global define*/
-
 define([
     './Class',
     './common/randomAccessor',
@@ -3916,8 +3871,6 @@ define([
         return def;
     };
 });
-
-/*global define*/
 
 define('instanceOf',[
     './common/randomAccessor'
@@ -4001,7 +3954,7 @@ define('instanceOf',[
 
     return instanceOf;
 });
-/*global define,module,exports,window,global*/
+/*global global*/
 
 define('dejavu',[
     'amd-utils/lang/isFunction',

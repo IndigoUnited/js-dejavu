@@ -1,5 +1,4 @@
-/*jslint sloppy:true, forin:true, newcap:true, eqeq:true*/
-/*global define*/
+/*jshint strict:false, noarg:false*/
 
 define([
     './common/isImmutable',
@@ -253,7 +252,7 @@ define([
                 }
 
                 // We should remove the key here because a class may override from primitive to non primitive,
-                // but we skip it because the cloneProperty already handles it                
+                // but we skip it because the cloneProperty already handles it
             } else if (!isImmutable(value)) {
                 insert(constructor[$class].properties, key);
             }

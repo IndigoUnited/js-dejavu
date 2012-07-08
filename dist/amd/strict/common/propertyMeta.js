@@ -1,6 +1,3 @@
-/*jslint regexp:true*/
-/*global define*/
-
 define([
     'amd-utils/lang/isUndefined'
 ], function (

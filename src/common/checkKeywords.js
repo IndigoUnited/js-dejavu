@@ -1,7 +1,4 @@
 //>>includeStart('strict', pragmas.strict);
-/*jslint forin:true*/
-/*global define*/
-
 define([
     'amd-utils/object/hasOwn'
 ], function (

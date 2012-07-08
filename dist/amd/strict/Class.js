@@ -1,5 +1,4 @@
-/*jslint sloppy:true, forin:true, newcap:true, eqeq:true*/
-/*global define*/
+/*jshint strict:false, noarg:false, expr:true*/
 
 define([
     'amd-utils/lang/isString',

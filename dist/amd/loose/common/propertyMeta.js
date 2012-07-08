@@ -1,13 +1,10 @@
-/*jslint regexp:true*/
-/*global define*/
+/*jshint strict:false*/
 
 define([
     'amd-utils/lang/isUndefined'
 ], function (
     isUndefined
 ) {
-
-    
 
     /**
      * Extract meta data from a property.

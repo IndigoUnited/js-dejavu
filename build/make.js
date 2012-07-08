@@ -1,6 +1,6 @@
-/*jslint nomen:true, node:true, stupid:true*/
+/*jshint node:true*/
 
-"use strict";
+'use strict';
 
 var cp = require('child_process'),
     fs = require('fs'),
