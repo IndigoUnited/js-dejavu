@@ -146,28 +146,6 @@ define([
         return prop;
     }
 
-//>>excludeStart('strict', pragmas.strict);
-    /**
-     * Wraps a method.
-     * This is just used in mixins.
-     *
-     * @param {Function} method The method to wrap
-     *
-     * @return {Function} The wrapper
-     */
-    function wrapMethod(method) {
-
-        if (method.$wrapped) {
-            method = method.$wrapped;
-        }
-
-        // TODO: Detect if $self, $static or other special operator is found, otherwise do not wrap.
-
-        return function wrapper() {
-            return method.apply(this, arguments);
-        };
-    }
-//>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
     /**
      * Wraps a method.
@@ -549,7 +527,7 @@ define([
 
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
                         if (isFunction(value) && !value[$class] && !value[$interface]) {
-                            constructor.prototype[key] = wrapMethod(value);
+                            constructor.prototype[key] = value;
                             value['$prototype_' + constructor[$class].id] = constructor.prototype;
                             value.$name = key;
 
