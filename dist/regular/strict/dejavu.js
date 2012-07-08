@@ -673,7 +673,7 @@ define('amd-utils/object/size',['./forOwn'], function (forOwn) {
 
 /*jshint regexp:false*/
 
-define('common/functionMeta',[],function () {
+define('common/functionMeta',[], function () {
 
     'use strict';
 
@@ -801,7 +801,7 @@ define('common/propertyMeta',[
 
     return propertyMeta;
 });
-define('common/isFunctionCompatible',[],function () {
+define('common/isFunctionCompatible',[], function () {
 
     'use strict';
 
@@ -1006,7 +1006,7 @@ define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefinePr
     return obfuscateProperty;
 });
 
-define('common/isObjectPrototypeSpoiled',[],function () {
+define('common/isObjectPrototypeSpoiled',[], function () {
 
     'use strict';
 
@@ -3075,7 +3075,7 @@ define([
 
 /*jshint regexp:false*/
 
-define('common/isFunctionEmpty',[],function () {
+define('common/isFunctionEmpty',[], function () {
 
     'use strict';
 

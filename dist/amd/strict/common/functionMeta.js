@@ -1,6 +1,6 @@
 /*jshint regexp:false*/
 
-define([],function () {
+define([], function () {
 
     'use strict';
 
