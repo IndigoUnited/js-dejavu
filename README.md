@@ -2,6 +2,7 @@
 
 ---
 
+Have you have had the feeling that something you saw is somewhat familiar? Thats the feeling you will if you use this library.
 Prototypal inheritance is powerful and flexible, yet difficult to understand and to use on large projects.
 dejavu is a library that delivers classic inheritance on top of JavaScript prototypal inheritance.
 
