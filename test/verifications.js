@@ -1,6 +1,3 @@
-/*jslint sloppy:true, newcap:true, regexp:true, nomen:true*/
-/*global global,define,describe,it*/
-
 define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
 
     var expect = global.expect;
@@ -1298,7 +1295,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
                 }).to.throwException(/contains optional arguments before mandatory ones/);
 
                 expect(function () {
-                    var $ = function () {}
+                    var $ = function () {};
                     return Class({
                         _handleKeydownSubmit: function(e) {
                             if (e.which == 13) {

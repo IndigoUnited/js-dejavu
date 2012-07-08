@@ -1,6 +1,3 @@
-/*jslint browser:true, devel:true, nomen:true, sloppy: true*/
-/*global define*/
-
 /**
  * Module/Class description.
  *

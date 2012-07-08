@@ -1,6 +1,3 @@
-/*jslint sloppy:true, newcap:true, nomen:true*/
-/*global global,define,describe,it*/
-
 define(global.modules, function (Class, AbstractClass, Interface, FinalClass, instanceOf, hasDefineProperty) {
 
     var expect = global.expect;
@@ -815,7 +812,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }.$bound(),
                             method2: function () {
                                 this.some = 'test2';
-                            }.$bound(),
+                            }.$bound()
                         }),
                         some: 'property'
                     }),
@@ -832,9 +829,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     }),
                     SomeOtherImplementation = Class({
                         $borrows: [Class({
-                            method2: function () {}.$bound(),
+                            method2: function () {}.$bound()
                         }), Class({
-                            method2: function () {}.$bound(),
+                            method2: function () {}.$bound()
                         })],
                         method1: function () {
                             this.some = 'test';
@@ -847,7 +844,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     AbstractUsageImplementation = Class({
                         $extends: AbstractClass({
                             $abstracts: {
-                                method1: function () {}.$bound(),
+                                method1: function () {}.$bound()
                             }
                         }),
                         method1: function () {
