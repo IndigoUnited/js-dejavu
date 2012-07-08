@@ -1,0 +1,10 @@
+{
+    "predef": [
+        "expect",
+        "it",
+        "describe",
+        "global",
+        "__dirname",
+        "console"
+    ]
+}

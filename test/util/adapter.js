@@ -1,5 +1,3 @@
-/*jslint nomen:true, sloppy:true*/
-/*global window,navigator,document,global:true,define:true,require,expect,__dirname,process*/
 var paths = {
     'amd-utils': '../vendor/amd-utils/src',
     'domReady': '../vendor/domReady/domReady'

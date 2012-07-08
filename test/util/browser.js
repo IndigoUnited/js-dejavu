@@ -1,6 +1,3 @@
-/*jslint sloppy:true, regexp:true*/
-/*global location*/
-
 /**
  * Returns an object with the keys and values extract from a query string.
  *

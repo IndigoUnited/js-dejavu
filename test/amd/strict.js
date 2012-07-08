@@ -1,6 +1,3 @@
-/*jslint node:true, sloppy:true*/
-/*global define*/
-
 if (!global.evaluated) {
     require('../util/adapter.js');
 }
