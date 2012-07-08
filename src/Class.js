@@ -36,10 +36,10 @@ define([
     './common/mixIn',
 //>>excludeStart('strict', pragmas.strict);
     'amd-utils/array/append',
-    'amd-utils/array/insert',
 //>>excludeEnd('strict');
     'amd-utils/lang/bind',
-    'amd-utils/lang/toArray'
+    'amd-utils/lang/toArray',
+    'amd-utils/array/insert'
 ], function ClassWrapper(
 //>>includeStart('strict', pragmas.strict);
     isString,
@@ -75,10 +75,10 @@ define([
     mixIn,
 //>>excludeStart('strict', pragmas.strict);
     append,
-    insert,
 //>>excludeEnd('strict');
     bind,
-    toArray
+    toArray,
+    insert
 ) {
 
 //>>includeStart('strict', pragmas.strict);
@@ -89,6 +89,7 @@ define([
         $class = '$class_' + random,
         $interface = '$interface_' + random,
         $abstract = '$abstract_' + random,
+        $bound = '$bound_' + random,
         cacheKeyword = '$cache_' + random,
         inheriting,
         nextId = 0,
@@ -104,6 +105,7 @@ define([
         nextId = 0,
         $class = '$class',
         $interface = '$interface',
+        $bound = '$bound_dejavu',
         staticAlias;
 //>>excludeEnd('strict');
 
@@ -295,6 +297,7 @@ define([
 
         target[name] = metadata;
 
+        // Unwrap method if already wrapped
         if (method.$wrapped) {
             method = method.$wrapped;
         }
@@ -331,6 +334,11 @@ define([
         if (!isStatic) {
             obfuscateProperty(method, '$prototype_' + constructor[$class].id, constructor.prototype);
             obfuscateProperty(originalMethod, '$prototype_' + constructor[$class].id, constructor.prototype);
+
+            // If the function is specified to be bound, add it to the binds
+            if (originalMethod[$bound]) {
+                insert(constructor[$class].binds, name);
+            }
         } else {
             obfuscateProperty(method, '$constructor_' + constructor[$class].id, constructor);
             obfuscateProperty(originalMethod, '$constructor_' + constructor[$class].id, constructor);
@@ -544,6 +552,11 @@ define([
                             constructor.prototype[key] = wrapMethod(value);
                             value['$prototype_' + constructor[$class].id] = constructor.prototype;
                             value.$name = key;
+
+                            // If the function is specified to be bound, add it to the binds
+                            if (value[$bound]) {
+                                insert(constructor[$class].binds, key);
+                            }
                         } else {
                             constructor.prototype[key] = value;
                             if (!isImmutable(value)) {
@@ -699,54 +712,6 @@ define([
     }
 
     /**
-     * Parse binds.
-     *
-     * @param {Function} constructor The constructor
-     */
-    function parseBinds(constructor) {
-
-        if (hasOwn(constructor.prototype, '$binds')) {
-//>>includeStart('strict', pragmas.strict);
-            var binds = toArray(constructor.prototype.$binds),
-                x = binds.length,
-                common;
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
-            var binds = toArray(constructor.prototype.$binds);
-//>>excludeEnd('strict');
-
-//>>includeStart('strict', pragmas.strict);
-            // Verify arguments type
-            if (!x && !isArray(constructor.prototype.$binds)) {
-                throw new Error('$binds of class "' + constructor.prototype.$name + '" must be a string or an array of strings.');
-            }
-            // Verify duplicate binds
-            if (x !== unique(binds).length && compact(binds).length === x) {
-                throw new Error('There are duplicate entries in $binds of class "' + constructor.prototype.$name + '".');
-            }
-            // Verify duplicate binds already provided in mixins
-            common = intersection(constructor[$class].binds, binds);
-            if (common.length) {
-                throw new Error('There are ambiguous members defined in class in "' + constructor.prototype.$name + '" that are already being bound by the parent class and/or mixin: "' + common.join('", ') + '".');
-            }
-
-            // Verify if all binds are strings reference existent methods
-            for (x -= 1; x >= 0; x -= 1) {
-                if (!isString(binds[x])) {
-                    throw new Error('Entry at index ' + x + ' in $borrows of class "' + constructor.prototype.$name + '" is not a string.');
-                }
-                if (!constructor[$class].methods[binds[x]] && (!constructor.prototype.$abstracts || !constructor.prototype.$abstracts[binds[x]])) {
-                    throw new ReferenceError('Method "' + binds[x] + '" referenced in class "' + constructor.prototype.$name + '" binds does not exist.');
-                }
-            }
-
-//>>includeEnd('strict');
-            combine(constructor[$class].binds, binds);
-            delete constructor.prototype.$binds;
-        }
-    }
-
-    /**
      * Parse an object members.
      *
      * @param {Object}   params      The parameters
@@ -828,11 +793,6 @@ define([
         }
 
 //>>includeEnd('strict');
-        if (hasOwn(params, '$binds')) {
-            cache.$binds = params.$binds;
-            delete params.$binds;
-        }
-
         if (hasOwn(params, '$borrows')) {
             cache.$borrows = params.$borrows;
             delete params.$borrows;
@@ -863,8 +823,14 @@ define([
             if (isFunction(value) && !value[$class] && !value[$interface]) {
                 value['$prototype_' + constructor[$class].id] = constructor.prototype;
                 value.$name = key;
+
+                // If the function is specified to be bound, add it to the binds
+                if (value[$bound]) {
+                    insert(constructor[$class].binds, key);
+                }
+
                 // We should remove the key here because a class may override from primitive to non primitive,
-                // but we skip it because the cloneProperty already handles it
+                // but we skip it because the cloneProperty already handles it                
             } else if (!isImmutable(value)) {
                 insert(constructor[$class].properties, key);
             }
@@ -1993,9 +1959,6 @@ define([
         // Parse mixins
         parseBorrows(dejavu);
 
-        // Parse binds
-        parseBinds(dejavu);
-
 //>>includeStart('strict', pragmas.strict);
         // Add toString() if not defined yet
         if (params.toString === Object.prototype.toString) {
@@ -2030,6 +1993,13 @@ define([
 //>>includeEnd('strict');
 
         return dejavu;
+    };
+
+    // Add custom bound function to supply binds
+    Function.prototype.$bound = function () {
+        this[$bound] = true;
+
+        return this;
     };
 
     return Class;

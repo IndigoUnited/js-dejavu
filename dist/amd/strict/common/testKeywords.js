@@ -11,7 +11,7 @@ define([
     'use strict';
 
     var keywords = [
-        '$name', '$extends', '$implements', '$borrows', '$binds',
+        '$name', '$extends', '$implements', '$borrows',
         '$statics', '$finals', '$abstracts', '$constants'
     ];
 

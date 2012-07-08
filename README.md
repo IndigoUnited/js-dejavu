@@ -261,10 +261,6 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
         $borrows: OtherClass,                           // We can add mixins by specifying them in here
                                                         // You can specify multiple mixins in an array
 
-        $binds: 'handleClick',                          // $binds let you automatically bind the function to the instance
-                                                        // Useful for handlers/callbacks
-                                                        // You can specify multiple binds in an array
-
         /**
          * Class constructor.
          */
@@ -280,7 +276,9 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
          */
         handleClick: function () {
             // Handle click here
-        },
+        }.$bound(),                                     // $bound() let you automatically bind the function to the instance
+                                                        // Useful for handlers/callbacks
+                                                        // You can specify multiple binds in an array
 
         $statics: {
             // Some class static members
@@ -301,7 +299,7 @@ If clashes occur with multiple mixins, that last one takes precedence.
 
 ### Binds ###
 
-The $binds keyword allows you to specify functions that should be bound to the instance.
+The $bound() function allows you to bind a function to the instance.
 This is useful if certain functions are meant to be used as callbacks or handlers.
 You don't need to bind the function manually, it will be bound for you automatically.
 

@@ -11,7 +11,6 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             var SomeClass = Class({}),
                 Example = Class({
-                    $binds: ['method1', 'method2', 'method3', '_method4', '__method5'],
                     some: 'property',
                     someOther: null,
                     someDate: new Date(),
@@ -27,19 +26,19 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     },
                     method1: function () {
                         this.some = 'test';
-                    },
+                    }.$bound(),
                     method2: function () {
                         this.some = 'test2';
-                    },
+                    }.$bound(),
                     method3: function () {
                         this.some = 'test3';
-                    },
+                    }.$bound(),
                     _method4: function () {
                         this.some = 'test4';
-                    },
+                    }.$bound(),
                     __method5: function () {
                         this.some = 'test5';
-                    },
+                    }.$bound(),
                     method4: function () {
                         return this._method4;
                     },
@@ -119,12 +118,6 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             });
 
-            it('should not have the $binds property', function () {
-
-                return expect(example.$binds).to.be.equal(undefined);
-
-            });
-
             it('should not have the $finals property', function () {
 
                 return expect(example.$finals).to.be.equal(undefined);
@@ -164,7 +157,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             });
 
-            it('should have bound the methods into the instance context specified in $binds', function () {
+            it('should have bound the methods into the instance context', function () {
 
                 example.method1.call(this);
                 expect(example.some).to.be.equal('test');
@@ -817,52 +810,44 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 var SomeImplementation = Class({
                         $borrows: Class({
-                            $binds: ['method1', 'method2'],
                             method1: function () {
                                 this.some = 'test';
-                            },
+                            }.$bound(),
                             method2: function () {
                                 this.some = 'test2';
-                            }
+                            }.$bound(),
                         }),
                         some: 'property'
                     }),
                     OtherImplementation = Class({
-                        $binds: ['method2'],
                         $borrows: Class({
-                            $binds: ['method1'],
                             method1: function () {
                                 this.some = 'test';
-                            }
+                            }.$bound()
                         }),
                         method2: function () {
                             this.some = 'test2';
-                        },
+                        }.$bound(),
                         some: 'property'
                     }),
                     SomeOtherImplementation = Class({
-                        $binds: ['method1'],
                         $borrows: [Class({
-                            $binds: ['method2'],
-                            method2: function () {}
+                            method2: function () {}.$bound(),
                         }), Class({
-                            $binds: ['method2'],
-                            method2: function () {}
+                            method2: function () {}.$bound(),
                         })],
                         method1: function () {
                             this.some = 'test';
-                        },
+                        }.$bound(),
                         method2: function () {
                             this.some = 'test2';
                         },
                         some: 'property'
                     }),
                     AbstractUsageImplementation = Class({
-                        $binds: ['method2'],
                         $extends: AbstractClass({
-                            $binds: ['method1'],
                             $abstracts: {
-                                method1: function () {}
+                                method1: function () {}.$bound(),
                             }
                         }),
                         method1: function () {
@@ -870,18 +855,17 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         },
                         method2: function () {
                             this.some = 'test2';
-                        },
+                        }.$bound(),
                         some: 'property'
                     }),
                     OtherAbstractUsageImplementation = Class({
                         $extends: AbstractClass({
-                            $binds: ['method1', 'method2'],
                             $abstracts: {
-                                method1: function () {}
+                                method1: function () {}.$bound()
                             },
                             method2: function () {
                                 this.some = 'test2';
-                            }
+                            }.$bound()
                         }),
                         method1: function () {
                             this.some = 'test';
@@ -1003,10 +987,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         describe('Private members', function () {
 
             var SomeClass = Class({
-                $binds: ['__privateMethod'],
                 __privateMethod: function () {
                     this.__privateProperty = 'test';
-                },
+                }.$bound(),
                 __privateProperty: 'property',
                 setProp: function () {
                     this.__privateMethod();
@@ -1431,10 +1414,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         describe('Protected members', function () {
 
             var SomeClass = Class({
-                $binds: ['_protectedMethod'],
                 _protectedMethod: function () {
                     this._protectedProperty = 'test';
-                },
+                }.$bound(),
                 _protectedProperty: 'property',
                 setProp: function () {
                     this._protectedMethod();

@@ -33,7 +33,8 @@ define([
     'amd-utils/array/contains',
     './common/mixIn',
     'amd-utils/lang/bind',
-    'amd-utils/lang/toArray'
+    'amd-utils/lang/toArray',
+    'amd-utils/array/insert'
 ], function ClassWrapper(
     isString,
     intersection,
@@ -66,7 +67,8 @@ define([
     contains,
     mixIn,
     bind,
-    toArray
+    toArray,
+    insert
 ) {
 
     checkObjectPrototype();
@@ -76,6 +78,7 @@ define([
         $class = '$class_' + random,
         $interface = '$interface_' + random,
         $abstract = '$abstract_' + random,
+        $bound = '$bound_' + random,
         cacheKeyword = '$cache_' + random,
         inheriting,
         nextId = 0,
@@ -251,6 +254,7 @@ define([
 
         target[name] = metadata;
 
+        // Unwrap method if already wrapped
         if (method.$wrapped) {
             method = method.$wrapped;
         }
@@ -287,6 +291,11 @@ define([
         if (!isStatic) {
             obfuscateProperty(method, '$prototype_' + constructor[$class].id, constructor.prototype);
             obfuscateProperty(originalMethod, '$prototype_' + constructor[$class].id, constructor.prototype);
+
+            // If the function is specified to be bound, add it to the binds
+            if (originalMethod[$bound]) {
+                insert(constructor[$class].binds, name);
+            }
         } else {
             obfuscateProperty(method, '$constructor_' + constructor[$class].id, constructor);
             obfuscateProperty(originalMethod, '$constructor_' + constructor[$class].id, constructor);
@@ -565,47 +574,6 @@ define([
     }
 
     /**
-     * Parse binds.
-     *
-     * @param {Function} constructor The constructor
-     */
-    function parseBinds(constructor) {
-
-        if (hasOwn(constructor.prototype, '$binds')) {
-            var binds = toArray(constructor.prototype.$binds),
-                x = binds.length,
-                common;
-
-            // Verify arguments type
-            if (!x && !isArray(constructor.prototype.$binds)) {
-                throw new Error('$binds of class "' + constructor.prototype.$name + '" must be a string or an array of strings.');
-            }
-            // Verify duplicate binds
-            if (x !== unique(binds).length && compact(binds).length === x) {
-                throw new Error('There are duplicate entries in $binds of class "' + constructor.prototype.$name + '".');
-            }
-            // Verify duplicate binds already provided in mixins
-            common = intersection(constructor[$class].binds, binds);
-            if (common.length) {
-                throw new Error('There are ambiguous members defined in class in "' + constructor.prototype.$name + '" that are already being bound by the parent class and/or mixin: "' + common.join('", ') + '".');
-            }
-
-            // Verify if all binds are strings reference existent methods
-            for (x -= 1; x >= 0; x -= 1) {
-                if (!isString(binds[x])) {
-                    throw new Error('Entry at index ' + x + ' in $borrows of class "' + constructor.prototype.$name + '" is not a string.');
-                }
-                if (!constructor[$class].methods[binds[x]] && (!constructor.prototype.$abstracts || !constructor.prototype.$abstracts[binds[x]])) {
-                    throw new ReferenceError('Method "' + binds[x] + '" referenced in class "' + constructor.prototype.$name + '" binds does not exist.');
-                }
-            }
-
-            combine(constructor[$class].binds, binds);
-            delete constructor.prototype.$binds;
-        }
-    }
-
-    /**
      * Parse an object members.
      *
      * @param {Object}   params      The parameters
@@ -658,11 +626,6 @@ define([
         if (hasOwn(params, '$name')) {
             cache.$name = params.$name;
             delete params.$name;
-        }
-
-        if (hasOwn(params, '$binds')) {
-            cache.$binds = params.$binds;
-            delete params.$binds;
         }
 
         if (hasOwn(params, '$borrows')) {
@@ -1623,9 +1586,6 @@ define([
         // Parse mixins
         parseBorrows(dejavu);
 
-        // Parse binds
-        parseBinds(dejavu);
-
         // Add toString() if not defined yet
         if (params.toString === Object.prototype.toString) {
             obfuscateProperty(dejavu.prototype, 'toString', toStringInstance, true);
@@ -1656,6 +1616,13 @@ define([
         }
 
         return dejavu;
+    };
+
+    // Add custom bound function to supply binds
+    Function.prototype.$bound = function () {
+        this[$bound] = true;
+
+        return this;
     };
 
     return Class;
