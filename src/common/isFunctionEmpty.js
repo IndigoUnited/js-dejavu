@@ -1,7 +1,7 @@
 //>>includeStart('strict', pragmas.strict);
 /*jshint regexp:false*/
 
-define(function () {
+define([], function () {
 
     'use strict';
 
