@@ -16,9 +16,9 @@ define([
     'amd-utils/array/contains',
     './common/mixIn',
     'amd-utils/array/append',
-    'amd-utils/array/insert',
     'amd-utils/lang/bind',
-    'amd-utils/lang/toArray'
+    'amd-utils/lang/toArray',
+    'amd-utils/array/insert'
 ], function ClassWrapper(
     isImmutable,
     isPlainObject,
@@ -34,15 +34,16 @@ define([
     contains,
     mixIn,
     append,
-    insert,
     bind,
-    toArray
+    toArray,
+    insert
 ) {
 
     var Class,
         nextId = 0,
         $class = '$class',
         $interface = '$interface',
+        $bound = '$bound_dejavu',
         staticAlias;
 
     /**
@@ -132,6 +133,11 @@ define([
                             constructor.prototype[key] = wrapMethod(value);
                             value['$prototype_' + constructor[$class].id] = constructor.prototype;
                             value.$name = key;
+
+                            // If the function is specified to be bound, add it to the binds
+                            if (value[$bound]) {
+                                insert(constructor[$class].binds, key);
+                            }
                         } else {
                             constructor.prototype[key] = value;
                             if (!isImmutable(value)) {
@@ -205,21 +211,6 @@ define([
     }
 
     /**
-     * Parse binds.
-     *
-     * @param {Function} constructor The constructor
-     */
-    function parseBinds(constructor) {
-
-        if (hasOwn(constructor.prototype, '$binds')) {
-            var binds = toArray(constructor.prototype.$binds);
-
-            combine(constructor[$class].binds, binds);
-            delete constructor.prototype.$binds;
-        }
-    }
-
-    /**
      * Parse an object members.
      *
      * @param {Object}   params      The parameters
@@ -253,11 +244,6 @@ define([
         }
 
         // Save certain keywords in the cache for the loop bellow to work faster
-        if (hasOwn(params, '$binds')) {
-            cache.$binds = params.$binds;
-            delete params.$binds;
-        }
-
         if (hasOwn(params, '$borrows')) {
             cache.$borrows = params.$borrows;
             delete params.$borrows;
@@ -280,8 +266,14 @@ define([
             if (isFunction(value) && !value[$class] && !value[$interface]) {
                 value['$prototype_' + constructor[$class].id] = constructor.prototype;
                 value.$name = key;
+
+                // If the function is specified to be bound, add it to the binds
+                if (value[$bound]) {
+                    insert(constructor[$class].binds, key);
+                }
+
                 // We should remove the key here because a class may override from primitive to non primitive,
-                // but we skip it because the cloneProperty already handles it
+                // but we skip it because the cloneProperty already handles it                
             } else if (!isImmutable(value)) {
                 insert(constructor[$class].properties, key);
             }
@@ -547,9 +539,6 @@ define([
         // Parse mixins
         parseBorrows(dejavu);
 
-        // Parse binds
-        parseBinds(dejavu);
-
         // Handle interfaces
         if (hasOwn(params, '$implements')) {
             handleInterfaces(params.$implements, dejavu);
@@ -562,6 +551,13 @@ define([
         }
 
         return dejavu;
+    };
+
+    // Add custom bound function to supply binds
+    Function.prototype.$bound = function () {
+        this[$bound] = true;
+
+        return this;
     };
 
     return Class;

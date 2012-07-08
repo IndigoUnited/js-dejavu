@@ -17,6 +17,7 @@ define([
     './common/randomAccessor',
     './common/mixIn',
     'amd-utils/object/hasOwn',
+    'amd-utils/array/insert',
     './Class'
 ], function AbstractClassWrapper(
     isObject,
@@ -34,6 +35,7 @@ define([
     randomAccessor,
     mixIn,
     hasOwn,
+    insert,
     Class
 ) {
 
@@ -102,6 +104,10 @@ define([
             if (!isFunctionCompatible(metadata, target[name])) {
                 throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '(' + metadata.signature + ')" defined in abstract class "' + constructor.prototype.$name + '" overrides its ancestor but it is not compatible with its signature: "' + name + '(' + target[name].signature + ')".');
             }
+        }
+
+        if (!isStatic) {
+            insert(constructor[$class].binds, name);
         }
 
         metadata.checkCompatibility = true;

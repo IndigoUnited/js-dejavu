@@ -97,12 +97,6 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
                     });
                 }).to.throwException(/unallowed/);
 
-                expect(function () {
-                    return Interface({
-                        $binds: []
-                    });
-                }).to.throwException(/unallowed/);
-
             });
 
             it('should throw an error when defining ambiguous members', function () {
@@ -1620,144 +1614,6 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
                 }).to.throwException(/override constant/);
             });
 
-            it('should throw an error if $binds is not a string or an array of strings', function () {
-
-                expect(function () {
-                    return Class({
-                        $binds: {}
-                    });
-                }).to.throwException(/is not a string/);
-
-                expect(function () {
-                    return Class({
-                        $binds: undefined
-                    });
-                }).to.throwException(/must be a string or an array of strings/);
-
-                expect(function () {
-                    return Class({
-                        $binds: null
-                    });
-                }).to.throwException(/must be a string or an array of strings/);
-
-                expect(function () {
-                    return Class({
-                        $binds: [undefined]
-                    });
-                }).to.throwException(/is not a string/);
-
-                expect(function () {
-                    return Class({
-                        $binds: [undefined, undefined]
-                    });
-                }).to.throwException(/is not a string/);
-
-                expect(function () {
-                    return Class({
-                        $binds: [null]
-                    });
-                }).to.throwException(/is not a string/);
-
-                expect(function () {
-                    return Class({
-                        $binds: [null, null]
-                    });
-                }).to.throwException(/is not a string/);
-
-                expect(function () {
-                    return Class({
-                        $binds: [{}, 'method1'],
-                        'method1': function () {}
-                    });
-                }).to.throwException(/is not a string/);
-
-                expect(function () {
-                    return Class({
-                        $binds: []
-                    });
-                }).to.not.throwException();
-
-                expect(function () {
-                    return Class({
-                        $binds: ['method1'],
-                        'method1': function () {}
-                    });
-                }).to.not.throwException();
-
-            });
-
-            it('should throw an error when specifying binds poiting to non existent methods', function () {
-
-                expect(function () {
-                    return Class({
-                        $binds: ['method4']
-                    });
-                }).to.throwException(/does not exist/);
-
-                expect(function () {
-                    return Class({
-                        $extends: Class({
-                            $binds: ['method1'],
-                            method1: function () {}
-                        }),
-                        $binds: ['method2']
-                    });
-                }).to.throwException(/does not exist/);
-
-            });
-
-            it('should throw an error when specifying duplicate binds', function () {
-
-                expect(function () {
-                    return Class({
-                        $binds: ['method1', 'method1'],
-                        method1: function () {}
-                    });
-                }).to.throwException(/duplicate entries/);
-
-                expect(function () {
-                    return Class({
-                        $binds: [undefined, undefined],
-                        method1: function () {}
-                    });
-                }).to.not.throwException(/duplicate entries/);
-
-            });
-
-            it('should throw an error when binds are also present in the parent class', function () {
-
-                expect(function () {
-                    return Class({
-                        $extends: Class({
-                            $binds: ['method1'],
-                            method1: function () {}
-                        }),
-                        $binds: ['method1']
-                    });
-                }).to.throwException(/already being bound/);
-
-            });
-
-            it('should throw an error when binds are also present in a mixin ($borrows)', function () {
-
-                expect(function () {
-                    return Class({
-                        $binds: ['method1'],
-                        $borrows: Class({
-                            $binds: ['method1', 'method2'],
-                            some: null,
-                            method1: function () {
-                                this.some = 'test';
-                            },
-                            method2: function () {
-                                this.some = 'test2';
-                            }
-                        })
-                    });
-                }).to.throwException(/already being bound/);
-
-            });
-
             it('should throw an error when specifying duplicate interfaces', function () {
 
                 var SomeInterface = Interface({});
@@ -3042,9 +2898,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
 
                 expect(function () {
                     return AbstractClass({
-                        $binds: ['method1'],
                         $abstracts: {
-                            method1: function () {}
+                            method1: function () {}.$bound()
                         }
                     });
                 }).to.not.throwException();

@@ -24,6 +24,7 @@ define([
     './common/mixIn',
 //>>includeEnd('strict');
     'amd-utils/object/hasOwn',
+    'amd-utils/array/insert',
     './Class'
 ], function AbstractClassWrapper(
 //>>includeStart('strict', pragmas.strict);
@@ -43,11 +44,14 @@ define([
     mixIn,
 //>>includeEnd('strict');
     hasOwn,
+    insert,
     Class
 ) {
 
 //>>excludeStart('strict', pragmas.strict);
-    var $abstract = '$abstract';
+    var $abstract = '$abstract',
+        $class = '$class',
+        $bound = '$bound_dejavu';
 
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
@@ -116,6 +120,10 @@ define([
             if (!isFunctionCompatible(metadata, target[name])) {
                 throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '(' + metadata.signature + ')" defined in abstract class "' + constructor.prototype.$name + '" overrides its ancestor but it is not compatible with its signature: "' + name + '(' + target[name].signature + ')".');
             }
+        }
+
+        if (!isStatic) {
+            insert(constructor[$class].binds, name);
         }
 
         metadata.checkCompatibility = true;
@@ -309,7 +317,10 @@ define([
 
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-        var def;
+        var def,
+            savedMembers,
+            key,
+            value;
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
         var def,
@@ -332,6 +343,7 @@ define([
             saved.$abstracts = params.$abstracts;     // Save them for later use
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
+            savedMembers = params.$abstracts;
             delete params.$abstracts;
 //>>excludeEnd('strict');
         }
@@ -349,6 +361,17 @@ define([
         // Create the class definition
         def = Class(params);
         def[$abstract] = true;
+
+        // Grab binds
+        if (savedMembers) {
+            for (key in savedMembers) {
+                value = savedMembers[key];
+
+                if (value[$bound]) {
+                    insert(def[$class].binds, key);
+                }
+            }
+        }
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
 
