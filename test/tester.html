@@ -13,7 +13,7 @@
             var build = getBuild();
             mocha.setup('bdd');
 
-            require(['./' + build], function (dummy) {
+            require(['domReady!', './' + build], function () {
 
                 var elem = document.getElementById(build.replace(/\//g, '_'));
                 if (elem) {

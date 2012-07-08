@@ -13,3 +13,6 @@
 [submodule "vendor/almond"]
 	path = vendor/almond
 	url = git://github.com/jrburke/almond.git
+[submodule "vendor/domReady"]
+	path = vendor/domReady
+	url = git://github.com/requirejs/domReady.git

@@ -1,7 +1,8 @@
 /*jslint nomen:true*/
 /*global window,navigator,document,global:true,define:true,require,expect,__dirname,process*/
 var paths = {
-    'amd-utils': '../vendor/amd-utils/src'
+    'amd-utils': '../vendor/amd-utils/src',
+    'domReady': '../vendor/domReady/domReady'
 };
 
 if (!(typeof window !== 'undefined' && window.navigator && window.document)) { // Test if we are at command line
