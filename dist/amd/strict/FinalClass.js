@@ -1,6 +1,3 @@
-/*jslint newcap:true*/
-/*global define*/
-
 define([
     './Class',
     './common/randomAccessor',

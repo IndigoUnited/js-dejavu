@@ -1,5 +1,4 @@
-/*jslint sloppy:true, eqeq:true*/
-/*global define,console*/
+/*jshint strict:false*/
 
 define([
     'amd-utils/lang/isNumber',

@@ -1,12 +1,8 @@
-//>>includeStart('strict', pragmas.strict);
-/*jslint forin:true*/
-//>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-/*jslint sloppy:true, forin:true*/
-//>>excludeEnd('strict');
-/*global define*/
+/*jshint strict:false*/
 
-define(function () {
+//>>excludeEnd('strict');
+define([], function () {
 
 //>>includeStart('strict', pragmas.strict);
     'use strict';

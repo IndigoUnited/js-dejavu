@@ -1,5 +1,4 @@
-/*jslint sloppy:true*/
-/*global define*/
+/*jshint strict:false*/
 
 define([
 ], function instanceOfWrapper(

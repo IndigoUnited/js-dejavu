@@ -1,5 +1,3 @@
-/*global define*/
-
 define([
     './common/randomAccessor'
 ], function instanceOfWrapper(

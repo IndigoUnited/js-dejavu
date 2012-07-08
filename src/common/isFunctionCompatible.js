@@ -1,6 +1,4 @@
 //>>includeStart('strict', pragmas.strict);
-/*global define*/
-
 define(function () {
 
     'use strict';

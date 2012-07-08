@@ -1,5 +1,9 @@
-/*jslint sloppy:true, forin:true, newcap:true, eqeq:true*/
-/*global define*/
+//>>includeStart('strict', pragmas.strict);
+/*jshint strict:false, noarg:false, expr:true*/
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+/*jshint strict:false, noarg:false*/
+//>>excludeEnd('strict');
 
 define([
 //>>includeStart('strict', pragmas.strict);
@@ -808,7 +812,7 @@ define([
                 }
 
                 // We should remove the key here because a class may override from primitive to non primitive,
-                // but we skip it because the cloneProperty already handles it                
+                // but we skip it because the cloneProperty already handles it
             } else if (!isImmutable(value)) {
                 insert(constructor[$class].properties, key);
             }

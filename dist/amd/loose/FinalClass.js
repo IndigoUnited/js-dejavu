@@ -1,5 +1,4 @@
-/*jslint sloppy:true, newcap:true*/
-/*global define*/
+/*jshint strict:false*/
 
 define([
     './Class'

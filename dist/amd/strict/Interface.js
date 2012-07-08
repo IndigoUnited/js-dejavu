@@ -1,6 +1,3 @@
-/*jslint forin:true*/
-/*global define*/
-
 define([
     'amd-utils/lang/isObject',
     'amd-utils/lang/isFunction',

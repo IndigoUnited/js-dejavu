@@ -1,5 +1,4 @@
-/*jslint sloppy:true, nomen:true, newcap:true, forin:true*/
-/*global define*/
+/*jshint strict:false*/
 
 define([
     'amd-utils/object/hasOwn',

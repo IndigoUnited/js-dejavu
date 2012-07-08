@@ -1,5 +1,3 @@
-/*global define*/
-
 define(['./hasDefineProperty'], function (hasDefineProperty) {
 
     'use strict';

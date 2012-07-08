@@ -1,5 +1,4 @@
-/*jslint regexp:true*/
-/*global define*/
+/*jshint regexp:false*/
 
 define([],function () {
 

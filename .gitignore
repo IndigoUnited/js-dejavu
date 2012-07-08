@@ -51,3 +51,6 @@ Session.vim
 # Node #
 ######################
 node_modules
+
+# Project specific #
+tmp

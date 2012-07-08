@@ -1,6 +1,3 @@
-/*jslint eqeq:true*/
-/*global define,console*/
-
 define([
     'amd-utils/lang/isNumber',
     'amd-utils/lang/isString',
