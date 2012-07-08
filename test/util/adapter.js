@@ -25,10 +25,10 @@ if (!(typeof window !== 'undefined' && window.navigator && window.document)) { /
     global.browser = true;
 
     require({
-        baseUrl : './',
+        baseUrl: './',
         paths: paths,
-        waitSeconds : (window.location.protocol === 'file:' || window.location.href.indexOf('://localhost') !== -1) ? 5 : 45, // Fail early locally
-        urlArgs : 'bust=' + (+new Date())
+        waitSeconds: (window.location.protocol === 'file:' || window.location.href.indexOf('://localhost') !== -1) ? 5 : 45, // Fail early locally
+        urlArgs: 'bust=' + (+new Date())
     });
 }
 
