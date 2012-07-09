@@ -3,6 +3,9 @@
         "expect",
         "it",
         "describe",
+        "beforeEach",
+        "after",
+        "afterEach"
         "global",
         "__dirname",
         "console"
