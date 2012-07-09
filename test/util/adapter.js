@@ -1,10 +1,11 @@
 var paths = {
     'amd-utils': '../vendor/amd-utils/src',
     'domReady': '../vendor/domReady/domReady'
-};
+},
+    requirejs;
 
 if (!(typeof window !== 'undefined' && window.navigator && window.document)) { // Test if we are at command line
-    var requirejs = require('../../vendor/r.js/dist/r.js');
+    requirejs = require('../../vendor/r.js/dist/r.js');
     requirejs.config({
         baseUrl: __dirname + '/../',
         paths: paths,
