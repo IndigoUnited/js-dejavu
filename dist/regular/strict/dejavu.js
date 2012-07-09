@@ -519,7 +519,7 @@ define('amd-utils/array/remove',['./indexOf'], function(indexOf){
 
 /*jshint regexp:false*/
 
-define('common/functionMeta',[], function () {
+define('common/functionMeta',[],function () {
 
     'use strict';
 
@@ -591,7 +591,7 @@ define('common/functionMeta',[], function () {
     return functionMeta;
 });
 
-define('common/isFunctionCompatible',[], function () {
+define('common/isFunctionCompatible',[],function () {
 
     'use strict';
 
@@ -698,7 +698,7 @@ define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefinePr
     return obfuscateProperty;
 });
 
-define('common/isObjectPrototypeSpoiled',[], function () {
+define('common/isObjectPrototypeSpoiled',[],function () {
 
     'use strict';
 
@@ -1325,7 +1325,7 @@ define('common/randomAccessor',['amd-utils/array/contains'], function (contains)
     return randomAccessor;
 });
 
-define('common/mixIn',[], function () {
+define('common/mixIn',[],function () {
 
     'use strict';
 
@@ -3075,7 +3075,7 @@ define('Class',[
 
 /*jshint regexp:false*/
 
-define('common/isFunctionEmpty',[], function () {
+define('common/isFunctionEmpty',[],function () {
 
     'use strict';
 
