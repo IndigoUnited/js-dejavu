@@ -1,3 +1,5 @@
+/*jshint strict:false*/
+
 define(global.modules, function (Class, AbstractClass, Interface, FinalClass, instanceOf, hasDefineProperty) {
 
     var expect = global.expect;

@@ -1,3 +1,5 @@
+/*jshint strict:false*/
+
 define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
 
     var expect = global.expect;
@@ -1297,13 +1299,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
                 expect(function () {
                     var $ = function () {};
                     return Class({
-                        _handleKeydownSubmit: function(e) {
-                            if (e.which == 13) {
+                        _handleKeydownSubmit: function (e) {
+                            if (e.which === 13) {
                                 $(e.currentTarget).blur();
                             }
                         },
                         _other: function _other(e) {
-                            if (e.which == 13) {
+                            if (e.which === 13) {
                                 $(e.currentTarget).blur();
                             }
                         }
