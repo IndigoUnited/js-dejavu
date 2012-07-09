@@ -369,31 +369,6 @@ define('amd-utils/lang/isString',['./isKind'], function (isKind) {
     return isString;
 });
 
-define('amd-utils/array/indexOf',[],function () {
-
-    /**
-     * ES5 Array.indexOf
-     * @version 0.2.1 (2011/11/25)
-     */
-    var indexOf = Array.prototype.indexOf?
-                    function (arr, item, fromIndex) {
-                        return arr.indexOf(item, fromIndex);
-                    } :
-                    function (arr, item, fromIndex) {
-                        fromIndex = fromIndex || 0;
-                        var n = arr.length >>> 0,
-                            i = fromIndex < 0? n + fromIndex : fromIndex;
-                        for (; i < n; i++) {
-                            if (arr[i] === item) {
-                                return i;
-                            }
-                        }
-                        return -1;
-                    };
-
-    return indexOf;
-});
-
 define('amd-utils/array/forEach',[],function () {
 
     /**
@@ -442,24 +417,6 @@ define('amd-utils/array/filter',['./forEach'], function (forEach) {
 
 });
 
-define('amd-utils/array/unique',['./indexOf', './filter'], function(indexOf, filter){
-
-    /**
-     * @return {array} Array of unique items
-     * @version 0.1.0 (2011/10/18)
-     */
-    function unique(arr){
-        return filter(arr, isUnique);
-    }
-
-    function isUnique(item, i, arr){
-        return indexOf(arr, item, i+1) === -1;
-    }
-
-    return unique;
-});
-
-
 define('amd-utils/array/every',[],function () {
 
     /**
@@ -487,39 +444,48 @@ define('amd-utils/array/every',[],function () {
     return every;
 });
 
-define('amd-utils/array/contains',['./indexOf'], function (indexOf) {
+define('amd-utils/array/indexOf',[],function () {
 
     /**
-     * If array contains values.
-     * @version 0.1.0 (2011/10/31)
+     * ES5 Array.indexOf
+     * @version 0.2.1 (2011/11/25)
      */
-    function contains(arr, val) {
-        return indexOf(arr, val) !== -1;
-    }
-    return contains;
+    var indexOf = Array.prototype.indexOf?
+                    function (arr, item, fromIndex) {
+                        return arr.indexOf(item, fromIndex);
+                    } :
+                    function (arr, item, fromIndex) {
+                        fromIndex = fromIndex || 0;
+                        var n = arr.length >>> 0,
+                            i = fromIndex < 0? n + fromIndex : fromIndex;
+                        for (; i < n; i++) {
+                            if (arr[i] === item) {
+                                return i;
+                            }
+                        }
+                        return -1;
+                    };
+
+    return indexOf;
 });
 
-define('amd-utils/array/intersection',['./unique', './filter', './every', './contains'], function (unique, filter, every, contains) {
-
+define('amd-utils/array/unique',['./indexOf', './filter'], function(indexOf, filter){
 
     /**
-     * Return a new Array with elements common to all Arrays.
-     * - based on underscore.js implementation
-     * @version 0.1.0 (2011/01/12)
+     * @return {array} Array of unique items
+     * @version 0.1.0 (2011/10/18)
      */
-    function intersection(arr) {
-        var arrs = Array.prototype.slice.call(arguments, 1),
-            result = filter(unique(arr), function(needle){
-                return every(arrs, function(haystack){
-                    return contains(haystack, needle);
-                });
-            });
-        return result;
+    function unique(arr){
+        return filter(arr, isUnique);
     }
 
-    return intersection;
+    function isUnique(item, i, arr){
+        return indexOf(arr, item, i+1) === -1;
+    }
 
+    return unique;
 });
+
 
 define('amd-utils/array/compact',['./filter'], function (filter) {
 
@@ -549,126 +515,6 @@ define('amd-utils/array/remove',['./indexOf'], function(indexOf){
     }
 
     return remove;
-});
-
-define('amd-utils/lang/isObject',['./isKind'], function (isKind) {
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isObject(val) {
-        return isKind(val, 'Object');
-    }
-    return isObject;
-});
-
-define('amd-utils/object/hasOwn',[],function () {
-
-    /**
-     * Safer Object.hasOwnProperty
-     * @version 0.1.0 (2012/01/19)
-     */
-     function hasOwn(obj, prop){
-         return Object.prototype.hasOwnProperty.call(obj, prop);
-     }
-
-     return hasOwn;
-
-});
-
-define('amd-utils/object/forOwn',['../lang/isObject', './hasOwn'], function (isObject, hasOwn) {
-
-    var _hasDontEnumBug,
-        _dontEnums;
-
-    function checkDontEnum(){
-        _dontEnums = [
-                'toString',
-                'toLocaleString',
-                'valueOf',
-                'hasOwnProperty',
-                'isPrototypeOf',
-                'propertyIsEnumerable',
-                'constructor'
-            ];
-
-        _hasDontEnumBug = true;
-
-        for (var key in {'toString': null}) {
-            _hasDontEnumBug = false;
-        }
-    }
-
-    /**
-     * Similar to Array/forEach but works over object properties and fixes Don't
-     * Enum bug on IE.
-     * based on: http://whattheheadsaid.com/2010/10/a-safer-object-keys-compatibility-implementation
-     * @version 0.1.1 (2012/01/19)
-     */
-    function forOwn(obj, fn, thisObj){
-        var key, i = 0;
-
-        if (!isObject(obj)) {
-            throw new TypeError('forOwn called on a non-object');
-        }
-
-        //post-pone check till needed
-        if (_hasDontEnumBug == null) checkDontEnum();
-
-        for (key in obj) {
-            exec(fn, obj, key, thisObj);
-        }
-
-        if (_hasDontEnumBug) {
-            while (key = _dontEnums[i++]) {
-                exec(fn, obj, key, thisObj);
-            }
-        }
-    }
-
-    function exec(fn, obj, key, thisObj){
-        if (hasOwn(obj, key)) {
-            fn.call(thisObj, obj[key], key, obj);
-        }
-    }
-
-    return forOwn;
-
-});
-
-define('amd-utils/object/keys',['./forOwn'], function (forOwn) {
-
-    /**
-     * Get object keys
-     * @version 0.3.0 (2011/12/17)
-     */
-     var keys = Object.keys || function (obj) {
-            var keys = [];
-            forOwn(obj, function(val, key){
-                keys.push(key);
-            });
-            return keys;
-        };
-
-    return keys;
-
-});
-
-define('amd-utils/object/size',['./forOwn'], function (forOwn) {
-
-    /**
-     * Get object size
-     * @version 0.1.1 (2012/01/28)
-     */
-    function size(obj) {
-        var count = 0;
-        forOwn(obj, function(){
-            count++;
-        });
-        return count;
-    }
-
-    return size;
-
 });
 
 /*jshint regexp:false*/
@@ -745,62 +591,6 @@ define('common/functionMeta',[], function () {
     return functionMeta;
 });
 
-define('amd-utils/lang/isUndefined',[],function () {
-    var UNDEF;
-
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isUndef(val){
-        return val === UNDEF;
-    }
-    return isUndef;
-});
-
-define('common/propertyMeta',[
-    'amd-utils/lang/isUndefined'
-], function (
-    isUndefined
-) {
-
-    'use strict';
-
-    /**
-     * Extract meta data from a property.
-     * It returns an object containing the value and visibility.
-     *
-     * @param {Mixed} prop The property
-     * @param {String} name The name of the property
-     *
-     * @return {Object} An object containg the metadata
-     */
-    function propertyMeta(prop, name) {
-
-        var ret = {};
-
-        // Is it undefined?
-        if (isUndefined(prop)) {
-            return null;
-        }
-
-        // Analyze visibility
-        if (name) {
-            if (name.charAt(0) === '_') {
-                if (name.charAt(1) === '_') {
-                    ret.isPrivate = true;
-                } else {
-                    ret.isProtected = true;
-                }
-            } else {
-                ret.isPublic = true;
-            }
-        }
-
-        return ret;
-    }
-
-    return propertyMeta;
-});
 define('common/isFunctionCompatible',[], function () {
 
     'use strict';
@@ -818,43 +608,6 @@ define('common/isFunctionCompatible',[], function () {
     }
 
     return isFunctionCompatible;
-});
-
-define('common/checkKeywords',[
-    'amd-utils/object/hasOwn'
-], function (
-    hasOwn
-) {
-
-    'use strict';
-
-    var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
-        reservedStatics = ['$parent', '$super'];
-
-    /**
-     * Verify reserved words found in classes/interfaces.
-     * The second parameter can be normal or statics.
-     * Normal will test for reserved words of the instance.
-     * $statics will test for reserved words in the ckass statics.
-     *
-     * Will throw an error if any reserved key is found.
-     *
-     * @param {Object} object            The object to verify
-     * @param {String} [type="normal"]   The list of reserved word to test
-     */
-    function checkKeywords(object, type) {
-
-        var reserved = type === 'normal' || !type ? reservedNormal : reservedStatics,
-            x;
-
-        for (x = reserved.length - 1; x >= 0; x -= 1) {
-            if (hasOwn(object, reserved[x])) {
-                throw new Error('"' + object.$name + '" is using a reserved keyword: ' + reserved[x]);
-            }
-        }
-    }
-
-    return checkKeywords;
 });
 
 define('amd-utils/array/some',['require'],function (forEach) {
@@ -884,67 +637,6 @@ define('amd-utils/array/some',['require'],function (forEach) {
                 };
 
     return some;
-});
-
-define('amd-utils/array/difference',['./unique', './filter', './some', './contains'], function (unique, filter, some, contains) {
-
-
-    /**
-     * Return a new Array with elements that aren't present in the other Arrays.
-     * @version 0.1.0 (2011/01/12)
-     */
-    function difference(arr) {
-        var arrs = Array.prototype.slice.call(arguments, 1),
-            result = filter(unique(arr), function(needle){
-                return !some(arrs, function(haystack){
-                    return contains(haystack, needle);
-                });
-            });
-        return result;
-    }
-
-    return difference;
-
-});
-
-define('common/testKeywords',[
-    'amd-utils/array/difference',
-    'amd-utils/object/hasOwn'
-], function (
-    difference,
-    hasOwn
-) {
-
-    'use strict';
-
-    var keywords = [
-        '$name', '$extends', '$implements', '$borrows',
-        '$statics', '$finals', '$abstracts', '$constants'
-    ];
-
-    /**
-     * Tests if an object contains an unallowed keyword in a given context.
-     *
-     * @param {String} object          The object to verify
-     * @param {Array}  [allowed="[]"]  The list of allowed keywords
-     *
-     * @return {Mixed} False if is ok, or the key that is unallowed.
-     */
-    function testKeywords(object, allowed) {
-
-        var test = allowed ? difference(keywords, allowed) : keywords,
-            x;
-
-        for (x = test.length - 1; x >= 0; x -= 1) {
-            if (hasOwn(object, test[x])) {
-                return test[x];
-            }
-        }
-
-        return false;
-    }
-
-    return testKeywords;
 });
 
 define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFunction) {
@@ -1061,36 +753,6 @@ define('common/checkObjectPrototype',[
 });
 
 
-define('common/randomAccessor',['amd-utils/array/contains'], function (contains) {
-
-    'use strict';
-
-    var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
-        nrAccesses = 0,
-        allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'FinalClassWrapper', 'instanceOfWrapper'];
-
-    /**
-     * Provides access to a random string that allows acceess to some hidden properties
-     * used through this library.
-     *
-     * @param {Function} caller The function that is trying to access
-     *
-     * @return {String} The random string
-     */
-    function randomAccessor(caller) {
-
-        if (nrAccesses > 5 || !contains(allowed, caller)) {
-            throw new Error('Can\'t access random identifier.');
-        }
-
-        nrAccesses += 1;
-
-        return random;
-    }
-
-    return randomAccessor;
-});
-
 define('common/hasFreezeBug',['amd-utils/lang/isFunction'], function (isFunction) {
 
     'use strict';
@@ -1179,6 +841,249 @@ define('common/isImmutable',[
     return isImmutable;
 });
 
+define('amd-utils/lang/isObject',['./isKind'], function (isKind) {
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isObject(val) {
+        return isKind(val, 'Object');
+    }
+    return isObject;
+});
+
+define('amd-utils/lang/isArray',['./isKind'], function (isKind) {
+    /**
+     * @version 0.2.0 (2011/12/06)
+     */
+    var isArray = Array.isArray || function (val) {
+        return isKind(val, 'Array');
+    };
+    return isArray;
+});
+
+define('amd-utils/lang/isDate',['./isKind'], function (isKind) {
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isDate(val) {
+        return isKind(val, 'Date');
+    }
+    return isDate;
+});
+
+define('amd-utils/lang/isRegExp',['./isKind'], function (isKind) {
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isRegExp(val) {
+        return isKind(val, 'RegExp');
+    }
+    return isRegExp;
+});
+
+define('amd-utils/lang/isUndefined',[],function () {
+    var UNDEF;
+
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isUndef(val){
+        return val === UNDEF;
+    }
+    return isUndef;
+});
+
+define('common/propertyMeta',[
+    'amd-utils/lang/isUndefined'
+], function (
+    isUndefined
+) {
+
+    'use strict';
+
+    /**
+     * Extract meta data from a property.
+     * It returns an object containing the value and visibility.
+     *
+     * @param {Mixed} prop The property
+     * @param {String} name The name of the property
+     *
+     * @return {Object} An object containg the metadata
+     */
+    function propertyMeta(prop, name) {
+
+        var ret = {};
+
+        // Is it undefined?
+        if (isUndefined(prop)) {
+            return null;
+        }
+
+        // Analyze visibility
+        if (name) {
+            if (name.charAt(0) === '_') {
+                if (name.charAt(1) === '_') {
+                    ret.isPrivate = true;
+                } else {
+                    ret.isProtected = true;
+                }
+            } else {
+                ret.isPublic = true;
+            }
+        }
+
+        return ret;
+    }
+
+    return propertyMeta;
+});
+define('amd-utils/object/hasOwn',[],function () {
+
+    /**
+     * Safer Object.hasOwnProperty
+     * @version 0.1.0 (2012/01/19)
+     */
+     function hasOwn(obj, prop){
+         return Object.prototype.hasOwnProperty.call(obj, prop);
+     }
+
+     return hasOwn;
+
+});
+
+define('amd-utils/object/forOwn',['../lang/isObject', './hasOwn'], function (isObject, hasOwn) {
+
+    var _hasDontEnumBug,
+        _dontEnums;
+
+    function checkDontEnum(){
+        _dontEnums = [
+                'toString',
+                'toLocaleString',
+                'valueOf',
+                'hasOwnProperty',
+                'isPrototypeOf',
+                'propertyIsEnumerable',
+                'constructor'
+            ];
+
+        _hasDontEnumBug = true;
+
+        for (var key in {'toString': null}) {
+            _hasDontEnumBug = false;
+        }
+    }
+
+    /**
+     * Similar to Array/forEach but works over object properties and fixes Don't
+     * Enum bug on IE.
+     * based on: http://whattheheadsaid.com/2010/10/a-safer-object-keys-compatibility-implementation
+     * @version 0.1.1 (2012/01/19)
+     */
+    function forOwn(obj, fn, thisObj){
+        var key, i = 0;
+
+        if (!isObject(obj)) {
+            throw new TypeError('forOwn called on a non-object');
+        }
+
+        //post-pone check till needed
+        if (_hasDontEnumBug == null) checkDontEnum();
+
+        for (key in obj) {
+            exec(fn, obj, key, thisObj);
+        }
+
+        if (_hasDontEnumBug) {
+            while (key = _dontEnums[i++]) {
+                exec(fn, obj, key, thisObj);
+            }
+        }
+    }
+
+    function exec(fn, obj, key, thisObj){
+        if (hasOwn(obj, key)) {
+            fn.call(thisObj, obj[key], key, obj);
+        }
+    }
+
+    return forOwn;
+
+});
+
+define('amd-utils/object/keys',['./forOwn'], function (forOwn) {
+
+    /**
+     * Get object keys
+     * @version 0.3.0 (2011/12/17)
+     */
+     var keys = Object.keys || function (obj) {
+            var keys = [];
+            forOwn(obj, function(val, key){
+                keys.push(key);
+            });
+            return keys;
+        };
+
+    return keys;
+
+});
+
+define('amd-utils/object/size',['./forOwn'], function (forOwn) {
+
+    /**
+     * Get object size
+     * @version 0.1.1 (2012/01/28)
+     */
+    function size(obj) {
+        var count = 0;
+        forOwn(obj, function(){
+            count++;
+        });
+        return count;
+    }
+
+    return size;
+
+});
+
+define('common/checkKeywords',[
+    'amd-utils/object/hasOwn'
+], function (
+    hasOwn
+) {
+
+    'use strict';
+
+    var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
+        reservedStatics = ['$parent', '$super'];
+
+    /**
+     * Verify reserved words found in classes/interfaces.
+     * The second parameter can be normal or statics.
+     * Normal will test for reserved words of the instance.
+     * $statics will test for reserved words in the ckass statics.
+     *
+     * Will throw an error if any reserved key is found.
+     *
+     * @param {Object} object            The object to verify
+     * @param {String} [type="normal"]   The list of reserved word to test
+     */
+    function checkKeywords(object, type) {
+
+        var reserved = type === 'normal' || !type ? reservedNormal : reservedStatics,
+            x;
+
+        for (x = reserved.length - 1; x >= 0; x -= 1) {
+            if (hasOwn(object, reserved[x])) {
+                throw new Error('"' + object.$name + '" is using a reserved keyword: ' + reserved[x]);
+            }
+        }
+    }
+
+    return checkKeywords;
+});
+
 define('common/isPlainObject',[
     'amd-utils/lang/isFunction',
     'amd-utils/object/hasOwn'
@@ -1225,36 +1130,6 @@ define('common/isPlainObject',[
     }
 
     return isPlainObject;
-});
-
-define('amd-utils/lang/isArray',['./isKind'], function (isKind) {
-    /**
-     * @version 0.2.0 (2011/12/06)
-     */
-    var isArray = Array.isArray || function (val) {
-        return isKind(val, 'Array');
-    };
-    return isArray;
-});
-
-define('amd-utils/lang/isDate',['./isKind'], function (isKind) {
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isDate(val) {
-        return isKind(val, 'Date');
-    }
-    return isDate;
-});
-
-define('amd-utils/lang/isRegExp',['./isKind'], function (isKind) {
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isRegExp(val) {
-        return isKind(val, 'RegExp');
-    }
-    return isRegExp;
 });
 
 define('amd-utils/object/mixIn',['./hasOwn'], function(hasOwn){
@@ -1323,6 +1198,131 @@ define('amd-utils/array/combine',['./indexOf'], function (indexOf) {
         return arr1;
     }
     return combine;
+});
+
+define('amd-utils/array/contains',['./indexOf'], function (indexOf) {
+
+    /**
+     * If array contains values.
+     * @version 0.1.0 (2011/10/31)
+     */
+    function contains(arr, val) {
+        return indexOf(arr, val) !== -1;
+    }
+    return contains;
+});
+
+define('amd-utils/array/intersection',['./unique', './filter', './every', './contains'], function (unique, filter, every, contains) {
+
+
+    /**
+     * Return a new Array with elements common to all Arrays.
+     * - based on underscore.js implementation
+     * @version 0.1.0 (2011/01/12)
+     */
+    function intersection(arr) {
+        var arrs = Array.prototype.slice.call(arguments, 1),
+            result = filter(unique(arr), function(needle){
+                return every(arrs, function(haystack){
+                    return contains(haystack, needle);
+                });
+            });
+        return result;
+    }
+
+    return intersection;
+
+});
+
+define('amd-utils/array/difference',['./unique', './filter', './some', './contains'], function (unique, filter, some, contains) {
+
+
+    /**
+     * Return a new Array with elements that aren't present in the other Arrays.
+     * @version 0.1.0 (2011/01/12)
+     */
+    function difference(arr) {
+        var arrs = Array.prototype.slice.call(arguments, 1),
+            result = filter(unique(arr), function(needle){
+                return !some(arrs, function(haystack){
+                    return contains(haystack, needle);
+                });
+            });
+        return result;
+    }
+
+    return difference;
+
+});
+
+define('common/testKeywords',[
+    'amd-utils/array/difference',
+    'amd-utils/object/hasOwn'
+], function (
+    difference,
+    hasOwn
+) {
+
+    'use strict';
+
+    var keywords = [
+        '$name', '$extends', '$implements', '$borrows',
+        '$statics', '$finals', '$abstracts', '$constants'
+    ];
+
+    /**
+     * Tests if an object contains an unallowed keyword in a given context.
+     *
+     * @param {String} object          The object to verify
+     * @param {Array}  [allowed="[]"]  The list of allowed keywords
+     *
+     * @return {Mixed} False if is ok, or the key that is unallowed.
+     */
+    function testKeywords(object, allowed) {
+
+        var test = allowed ? difference(keywords, allowed) : keywords,
+            x;
+
+        for (x = test.length - 1; x >= 0; x -= 1) {
+            if (hasOwn(object, test[x])) {
+                return test[x];
+            }
+        }
+
+        return false;
+    }
+
+    return testKeywords;
+});
+
+define('common/randomAccessor',['amd-utils/array/contains'], function (contains) {
+
+    'use strict';
+
+    var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
+        nrAccesses = 0,
+        allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'FinalClassWrapper', 'instanceOfWrapper'];
+
+    /**
+     * Provides access to a random string that allows acceess to some hidden properties
+     * used through this library.
+     *
+     * @param {Function} caller The function that is trying to access
+     *
+     * @return {String} The random string
+     */
+    function randomAccessor(caller) {
+
+        if (nrAccesses > 5 || !contains(allowed, caller)) {
+            throw new Error('Can\'t access random identifier.');
+        }
+
+        nrAccesses += 1;
+
+        return random;
+    }
+
+    return randomAccessor;
 });
 
 define('common/mixIn',[], function () {
@@ -1446,7 +1446,7 @@ define('amd-utils/array/insert',['./difference', '../lang/toArray'], function (d
 
 /*jshint strict:false, noarg:false, expr:true*/
 
-define([
+define('Class',[
     'amd-utils/lang/isString',
     'amd-utils/array/intersection',
     'amd-utils/array/unique',
@@ -3846,7 +3846,7 @@ define('Interface',[
     return Interface;
 });
 
-define([
+define('FinalClass',[
     './Class',
     './common/randomAccessor',
     './common/checkObjectPrototype'
@@ -3954,7 +3954,7 @@ define('instanceOf',[
 
     return instanceOf;
 });
-/*global global*/
+/*global global,module*/
 
 define('dejavu',[
     'amd-utils/lang/isFunction',
@@ -3998,4 +3998,5 @@ define('dejavu',[
     }
 
 });
-}());
+
+require('dejavu');}());
