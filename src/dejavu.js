@@ -1,4 +1,4 @@
-/*global global*/
+/*global global,module*/
 
 define([
 //>>includeStart('strict', pragmas.strict);
@@ -50,3 +50,5 @@ define([
 
 //>>includeEnd('strict');
 });
+
+require('dejavu');
