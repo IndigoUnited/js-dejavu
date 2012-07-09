@@ -2,7 +2,7 @@
 /*jshint strict:false*/
 
 //>>excludeEnd('strict');
-define([], function () {
+define(function () {
 
 //>>includeStart('strict', pragmas.strict);
     'use strict';

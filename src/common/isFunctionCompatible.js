@@ -1,5 +1,5 @@
 //>>includeStart('strict', pragmas.strict);
-define([], function () {
+define(function () {
 
     'use strict';
 
