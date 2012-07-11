@@ -5,7 +5,7 @@
         <title>dejavu tests</title>
         <link rel="stylesheet" href="../vendor/mocha/mocha.css" />
         <script>
-            // TODO: remove this once mocha fixes this(https://github.com/visionmedia/mocha/issues/501)
+            // TODO: remove this once mocha fixes this (https://github.com/visionmedia/mocha/issues/501)
             if (!String.prototype.trim) {
                 String.prototype.trim = function () {
                     return this.replace(/^[\s\uFEFF]+|[\s\uFEFF]+$/g, '');
@@ -21,6 +21,12 @@
             var build = getBuild();
             mocha.setup('bdd');
 
+            // TODO: remove this once mocha fixes this (https://github.com/visionmedia/mocha/issues/243)
+            var globals = ['console'];
+            if (navigator.userAgent.indexOf('Opera') !== -1) {
+                globals.push('stats', 'report');
+            }
+
             require(['domReady!', './' + build], function () {
 
                 var elem = document.getElementById(build.replace(/\//g, '_'));
@@ -29,7 +35,8 @@
                 }
 
                 mocha
-                .run();
+                .run()
+                .globals(globals);
             });
         </script>
         <style>
