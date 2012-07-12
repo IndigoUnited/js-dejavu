@@ -1,13 +1,16 @@
 //>>includeStart('strict', pragmas.strict);
 define([
-    'amd-utils/object/hasOwn'
+    'amd-utils/object/hasOwn',
+    'amd-utils/array/append'
 ], function (
-    hasOwn
+    hasOwn,
+    append
 ) {
 
     'use strict';
 
     var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
+        reservedAll = append(['initialize'], reservedNormal),
         reservedStatics = ['$parent', '$super'];
 
     /**
@@ -18,12 +21,12 @@ define([
      *
      * Will throw an error if any reserved key is found.
      *
-     * @param {Object} object            The object to verify
-     * @param {String} [type="normal"]   The list of reserved word to test
+     * @param {Object} object The object to verify
+     * @param {String} [type] The list of reserved word to test (defaults to all)
      */
     function checkKeywords(object, type) {
 
-        var reserved = type === 'normal' || !type ? reservedNormal : reservedStatics,
+        var reserved = type === 'normal' || !type ? reservedNormal : (type === 'all' ? reservedAll : reservedStatics),
             x;
 
         for (x = reserved.length - 1; x >= 0; x -= 1) {

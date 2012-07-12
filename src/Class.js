@@ -5,6 +5,8 @@
 /*jshint strict:false, noarg:false*/
 //>>excludeEnd('strict');
 
+// TODO: implement the super like john resign for the loose version
+
 define([
 //>>includeStart('strict', pragmas.strict);
     'amd-utils/lang/isString',
@@ -209,7 +211,7 @@ define([
      * @param {String}   name        The method name
      * @param {Function} method      The method itself
      * @param {Function} constructor The class constructor in which the method metadata will be saved
-     * @param {Object}   [opts="{}"] The options
+     * @param {Object}   [opts]      The options, defaults to {}
      */
     function addMethod(name, method, constructor, opts) {
 
@@ -223,7 +225,7 @@ define([
         // Check if function is already being used by another class or within the same class
         if (method['$name_' + random]) {
             if (method['$name_' + random] !== name) {
-                throw new Error('Method "' + name + '" of class "' + constructor.prototype.$name + '" seems to be used by several times by the same or another class.');
+                throw new Error('Method "' + name + '" of class "' + constructor.prototype.$name + '" seems to be used several times by the same or another class.');
             }
         } else {
             obfuscateProperty(method, '$name_' + random, name);
@@ -232,6 +234,7 @@ define([
         // If the initialize is inherited, copy the metadata
         if (!isStatic && name === 'initialize' && method.$inherited) {
             metadata = constructor.$parent[$class].methods[name];
+            delete method.$inherited;
         } else if (!opts.metadata) {
             // Grab function metadata and throw error if is not valid (its invalid if the arguments are invalid)
             if (method.$wrapped) {
@@ -246,6 +249,17 @@ define([
         } else {
             metadata = opts.metadata;
             opts.isFinal = metadata.isFinal;
+        }
+
+        // Take care of $prefix if the method is initialize
+        if (name === 'initialize' && method.$prefix) {
+            if (method.$prefix === '_') {
+                metadata.isProtected = true;
+            } else if (method.$prefix === '__') {
+                metadata.isPrivate = true;
+            }
+
+            delete method.$prefix;
         }
 
         // Check if we got a private method classified as final
@@ -264,7 +278,7 @@ define([
         // Check if the method already exists
         if (isObject(target[name])) {
             // Are we overriding a private method?
-            if (target[name].isPrivate) {
+            if (target[name].isPrivate && name !== 'initialize') {
                 throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' method "' + name + '" in class "' + constructor.prototype.$name + '".');
             }
             // Are we overriding a final method?
@@ -345,7 +359,7 @@ define([
      * @param {String}   name        The property name
      * @param {Function} value       The property itself
      * @param {Function} constructor The class constructor in which the method metadata will be saved
-     * @param {Object}   [opts="{}"] The options
+     * @param {Object}   [opts]      The options (defaults to {})
      */
     function addProperty(name, value, constructor, opts) {
 
@@ -768,13 +782,6 @@ define([
         }
 
         // Save certain keywords in the cache for the loop bellow to work faster
-//>>includeStart('strict', pragmas.strict);
-        if (hasOwn(params, '$name')) {
-            cache.$name = params.$name;
-            delete params.$name;
-        }
-
-//>>includeEnd('strict');
         if (hasOwn(params, '$borrows')) {
             cache.$borrows = params.$borrows;
             delete params.$borrows;
@@ -1500,6 +1507,7 @@ define([
             if (isFunction(Object.seal)) {
                 Object.seal(this);
             }
+
 //>>includeEnd('strict');
             // Call initialize
             this.initialize.apply(this, arguments);
@@ -1803,6 +1811,9 @@ define([
      */
     Class = function Class(params) {
 
+        var dejavu,
+            parent;
+
         delete params.$name;
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
@@ -1815,6 +1826,13 @@ define([
      * @return {Function} The constructor
      */
     Class = function Class(params, isAbstract) {
+
+        var dejavu,
+            parent,
+            tmp,
+            key,
+            x,
+            found;
 
         // Validate params as an object
         if (!isObject(params)) {
@@ -1837,18 +1855,27 @@ define([
         }
 
         // Verify if initialize is a method
-        if (hasOwn(params, 'initialize')) {
-            if (!isFunction(params.initialize)) {
-                throw new Error('The "initialize" member of class "' + params.$name + '" must be a function.');
+        tmp = ['__', '_', ''];
+        found = false;
+        for (x = tmp.length - 1; x >= 0; x -= 1) {
+            key = tmp[x] + 'initialize';
+            if (hasOwn(params, key)) {
+                if (!isFunction(params[key])) {
+                    throw new Error('The "' + key + '" member of class "' + params.$name + '" must be a function.');
+                }
+                if (found) {
+                    throw new Error('Several constructors with different visibility where found in class "' + params.$name + '".');
+                }
+                found = true;
+
+                // Mark the initialize method with its real prefix to be used later to protect the method
+                params[key].$prefix = tmp[x];
             }
         }
 
         // Verify reserved words
-        checkKeywords(params);
+        checkKeywords(params, 'normal');
 //>>includeEnd('strict');
-
-        var dejavu,
-            parent;
 
         if (hasOwn(params, '$extends')) {
 //>>includeStart('strict', pragmas.strict);
@@ -1866,9 +1893,11 @@ define([
             delete params.$extends;
 
 //>>includeStart('strict', pragmas.strict);
-            if (!hasOwn(params, 'initialize')) {
+            if (!params.initialize && !params._initialize && !params.__initialize) {
                 params.initialize = function () { parent.prototype.initialize.apply(this, arguments); };
-                obfuscateProperty(params.initialize, '$inherited', true);
+                params.initialize.$inherited = true;
+            } else {
+                params.initialize = params.initialize || params._initialize || params.__initialize || function () { parent.prototype.initialize.apply(this, arguments); };
             }
 
             dejavu = createConstructor(isAbstract);
@@ -1877,7 +1906,7 @@ define([
             dejavu[$class].id = nextId += 1;
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-            params.initialize = params.initialize || function () { parent.prototype.initialize.apply(this, arguments); };
+            params.initialize = params.initialize || params._initialize || params.__initialize || function () { parent.prototype.initialize.apply(this, arguments); };
             dejavu = createConstructor();
             dejavu.$parent = parent;
             dejavu[$class].id = parent[$class].id;
@@ -1886,7 +1915,7 @@ define([
 
             inheritParent(dejavu, parent);
         } else {
-            params.initialize = params.initialize || function () {};
+            params.initialize = params.initialize || params._initialize || params.__initialize || function () {};
 //>>includeStart('strict', pragmas.strict);
             dejavu = createConstructor(isAbstract);
             dejavu[$class].baseId = nextId += 1;
@@ -1898,6 +1927,9 @@ define([
 //>>excludeEnd('strict');
             dejavu.prototype = params;
         }
+
+        delete params._initialize;
+        delete params.__initialize;
 
 //>>includeStart('strict', pragmas.strict);
         if (isAbstract) {
