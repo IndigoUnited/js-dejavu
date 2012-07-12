@@ -3,9 +3,9 @@ define(function () {
     'use strict';
 
     /**
-     * This method does exactly the same as the amd counterpart but
+     * This method does exactly the same as the amd-utils counterpart but
      * does not perform hasOwn for each key in the objects.
-     * This is only done because the object prototype is sealed.
+     * This is only done because the object prototype is sealed and to get an extra performance.
      *
      * @param {object}    target  Target Object
      * @param {...object} objects Objects to be combined (0...n objects)

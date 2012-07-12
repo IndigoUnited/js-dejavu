@@ -55,7 +55,7 @@ define([
      * @param {String}   name        The method name
      * @param {Function} method      The method itself
      * @param {Object}   constructor The class constructor
-     * @param {Object}   [opts="{}"] The options
+     * @param {Object}   [opts]      The options, defaults to {}
      */
     function addMethod(name, method, constructor, opts) {
 
