@@ -14,7 +14,7 @@ define([
 //>>includeEnd('strict');
     /**
      * Extract meta data from a property.
-     * It returns an object containing the value and visibility.
+     * For now, the returns an object containing the visibility.
      *
      * @param {Mixed} prop The property
      * @param {String} name The name of the property
