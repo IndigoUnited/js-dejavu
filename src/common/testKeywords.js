@@ -17,8 +17,8 @@ define([
     /**
      * Tests if an object contains an unallowed keyword in a given context.
      *
-     * @param {String} object          The object to verify
-     * @param {Array}  [allowed="[]"]  The list of allowed keywords
+     * @param {String} object    The object to verify
+     * @param {Array}  [allowed  The list of allowed keywords (defaults to [])
      *
      * @return {Mixed} False if is ok, or the key that is unallowed.
      */

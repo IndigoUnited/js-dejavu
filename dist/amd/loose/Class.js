@@ -1,5 +1,7 @@
 /*jshint strict:false, noarg:false*/
 
+// TODO: implement the super like john resign for the loose version
+
 define([
     './common/isImmutable',
     './common/isPlainObject',
@@ -480,16 +482,16 @@ define([
      */
     Class = function Class(params) {
 
-        delete params.$name;
-
         var dejavu,
             parent;
+
+        delete params.$name;
 
         if (hasOwn(params, '$extends')) {
             parent = params.$extends;
             delete params.$extends;
 
-            params.initialize = params.initialize || function () { parent.prototype.initialize.apply(this, arguments); };
+            params.initialize = params.initialize || params._initialize || params.__initialize || function () { parent.prototype.initialize.apply(this, arguments); };
             dejavu = createConstructor();
             dejavu.$parent = parent;
             dejavu[$class].id = parent[$class].id;
@@ -497,11 +499,14 @@ define([
 
             inheritParent(dejavu, parent);
         } else {
-            params.initialize = params.initialize || function () {};
+            params.initialize = params.initialize || params._initialize || params.__initialize || function () {};
             dejavu = createConstructor();
             dejavu[$class].id = nextId += 1;
             dejavu.prototype = params;
         }
+
+        delete params._initialize;
+        delete params.__initialize;
 
         // Parse class members
         parseClass(params, dejavu);
