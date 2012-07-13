@@ -1018,9 +1018,10 @@ define([
                 get: function get() {
 
                     var method = this[cacheKeyword].methods[name],
-                        currCaller;
+                        currCaller,
+                        isConstructor = name === 'initialize';
 
-                    if (name !== 'initialize' && !this.$underStrict && !this.$constructor[$class].$underStrict) {
+                    if (!isConstructor && !this.$underStrict && !this.$constructor[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
@@ -1030,7 +1031,11 @@ define([
                         return method;
                     }
 
-                    throw new Error('Cannot access private method "' + name + '" of class "' + this.$name + '".');
+                    if (!isConstructor) {
+                        throw new Error('Cannot access private method "' + name + '" of class "' + this.$name + '".');
+                    } else {
+                        throw new Error('Constructor of class "' + this.$name + '" is private.');
+                    }
                 },
                 set: function set(newVal) {
 
@@ -1048,9 +1053,10 @@ define([
                 get: function get() {
 
                     var method = this[cacheKeyword].methods[name],
-                        currCaller;
+                        currCaller,
+                        isConstructor = name === 'initialize';
 
-                    if (name !== 'initialize' && !this.$underStrict && !this.$constructor[$class].$underStrict) {
+                    if (!isConstructor && !this.$underStrict && !this.$constructor[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
@@ -1060,7 +1066,11 @@ define([
                         return method;
                     }
 
-                    throw new Error('Cannot access protected method "' + name + '" of class "' + this.$name + '".');
+                    if (!isConstructor) {
+                        throw new Error('Cannot access protected method "' + name + '" of class "' + this.$name + '".');
+                    } else {
+                        throw new Error('Constructor of class "' + this.$name + '" is protected.');
+                    }
                 },
                 set: function set(newVal) {
 

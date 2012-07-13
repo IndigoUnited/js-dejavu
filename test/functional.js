@@ -247,7 +247,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                     expect(function () {
                         return new NerdPerson();
-                    }).to.throwException(/access private/);
+                    }).to.throwException(/is private/);
 
                 });
 
@@ -255,7 +255,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                     expect(function () {
                         return new FreakPerson();
-                    }).to.throwException(/access protected/);
+                    }).to.throwException(/is protected/);
 
                 });
             }

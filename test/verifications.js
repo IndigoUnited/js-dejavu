@@ -3795,11 +3795,11 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                     expect(function () {
                         return new SomeClass();
-                    }).to.throwException(/access protected/);
+                    }).to.throwException(/is protected/);
 
                     expect(function () {
                         return new OtherClass();
-                    }).to.throwException(/access private/);
+                    }).to.throwException(/is private/);
 
                 });
             }
@@ -3843,7 +3843,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             $extends: AbstractClass({ _initialize: function () {} })
                         });
                         return new SomeImplementation();
-                    }).to.throwException(/access protected/);
+                    }).to.throwException(/is protected/);
                 }
 
                 expect(function () {
@@ -3862,7 +3862,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             $extends: Class({ _initialize: function () {} })
                         });
                         return new SomeImplementation();
-                    }).to.throwException(/access protected/);
+                    }).to.throwException(/is protected/);
                 }
 
             });
@@ -3885,7 +3885,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             $extends: AbstractClass({ __initialize: function () {} })
                         });
                         return new SomeImplementation();
-                    }).to.throwException(/access private/);
+                    }).to.throwException(/is private/);
                 }
 
                 expect(function () {
@@ -3904,7 +3904,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             $extends: Class({ __initialize: function () {} })
                         });
                         return new SomeImplementation();
-                    }).to.throwException(/access private/);
+                    }).to.throwException(/is private/);
                 }
 
                 expect(function () {
