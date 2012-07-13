@@ -1018,7 +1018,7 @@ define([
                     var method = this[cacheKeyword].methods[name],
                         currCaller;
 
-                    if (!this.$underStrict && !this.$constructor[$class].$underStrict) {
+                    if (name !== 'initialize' && !this.$underStrict && !this.$constructor[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
@@ -1048,7 +1048,7 @@ define([
                     var method = this[cacheKeyword].methods[name],
                         currCaller;
 
-                    if (!this.$underStrict && !this.$constructor[$class].$underStrict) {
+                    if (name !== 'initialize' && !this.$underStrict && !this.$constructor[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
@@ -1058,8 +1058,6 @@ define([
                         return method;
                     }
 
-                    console.log(currCaller, currCaller['$name_' + random], callerClassId, callerClassBaseId, meta.allowed);
-                    console.trace();
                     throw new Error('Cannot access protected method "' + name + '" of class "' + this.$name + '".');
                 },
                 set: function set(newVal) {
