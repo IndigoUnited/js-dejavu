@@ -334,6 +334,7 @@ define([
             // If the function is specified to be bound, add it to the binds
             if (originalMethod[$bound]) {
                 insert(constructor[$class].binds, name);
+                delete originalMethod[$bound];
             }
         } else {
             obfuscateProperty(method, '$constructor_' + constructor[$class].id, constructor);
@@ -816,6 +817,7 @@ define([
                 // If the function is specified to be bound, add it to the binds
                 if (value[$bound]) {
                     insert(constructor[$class].binds, key);
+                    delete value[$bound];
                 }
 
                 // We should remove the key here because a class may override from primitive to non primitive,
@@ -1988,11 +1990,22 @@ define([
         return dejavu;
     };
 
+    // TODO: check if a $bound or $bind already exist in the prototype and emit a warning?
+    // TODO: do a $bound and $bind function available as amd defines
+
     // Add custom bound function to supply binds
     Function.prototype.$bound = function () {
         this[$bound] = true;
 
         return this;
+    };
+
+    Function.prototype.$bind = function () {
+        if (!arguments.length) {
+            this[$bound] = true;
+        } else {
+            // TODO:
+        }
     };
 
     return Class;
