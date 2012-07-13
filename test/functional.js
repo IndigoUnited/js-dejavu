@@ -178,7 +178,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             });
         });
 
-        describe('Instantiation of inheritance without constructor', function () {
+        describe('Instantiation of a simple inheritance setup', function () {
 
             var Person = Class({
                 status: null,
@@ -207,9 +207,30 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 SuperAndre2 = Class({
                     $extends: AndreAbstract,
                     $name: 'SuperAndre'
+                }),
+                ProtectedPerson = Class({
+                    status: null,
+                    _initialize: function () {
+                        this.status = 'alive';
+                    }
+                }),
+                PrivatePerson = Class({
+                    __initialize: function () {}
+                }),
+                FreakPerson = Class({
+                    $extends: ProtectedPerson
+                }),
+                NerdPerson = Class({
+                    $extends: PrivatePerson
+                }),
+                ComplexProtectedPerson = Class({
+                    $extends: ProtectedPerson,
+                    initialize: function () {
+                        this.$super();
+                    }
                 });
 
-            it('should invoke the parent constructor automatically', function () {
+            it('should invoke the parent constructor automatically if no constructor was defined', function () {
 
                 var andre = new Andre(),
                     superAndre = new SuperAndre(),
@@ -218,6 +239,32 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(andre.status).to.be.equal('alive');
                 expect(superAndre.status).to.be.equal('alive');
                 expect(superAndre2.status).to.be.equal('alive');
+
+            });
+
+            if (/strict/.test(global.build) && hasDefineProperty) {
+                it('should throw an error if inheriting from a private/protected constructor', function () {
+
+                    expect(function () {
+                        return new NerdPerson();
+                    }).to.throwException(/access private/);
+
+                });
+
+                it('should throw an error if inheriting from a private/protected constructor', function () {
+
+                    expect(function () {
+                        return new FreakPerson();
+                    }).to.throwException(/access protected/);
+
+                });
+            }
+
+            it('should run the parent constructor even if its defined as protected', function () {
+
+                var person = new ComplexProtectedPerson();
+
+                expect(person.status).to.be.equal('alive');
 
             });
 
@@ -1854,6 +1901,31 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(instanceOf(new Class1(), Interface2)).to.be.equal(false);
                 expect(instanceOf(new Class6(), Interface4)).to.be.equal(false);
+
+            });
+
+        });
+
+        describe('Singletons', function () {
+
+            var Singleton = Class({
+                foo: null,
+                _initialize: function () {
+                    this.foo = 'bar';
+                },
+
+                $statics: {
+                    getInstance: function () {
+                        return new Singleton();
+                    }
+                }
+            });
+
+            it('should be accomplished with protected constructors', function () {
+
+                expect(function () {
+                    return Singleton.getInstance();
+                }).to.throwException(/wtf/);
 
             });
 

@@ -1,6 +1,6 @@
 /*jshint strict:false*/
 
-define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
+define(global.modules, function (Class, AbstractClass, Interface, FinalClass, instanceOf, hasDefineProperty) {
 
     var expect = global.expect;
 
@@ -895,6 +895,31 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
                         initialize: 'some'
                     });
                 }).to.throwException(/must be a function/);
+
+            });
+
+            it('should throw an error when defining several constructors', function () {
+
+                expect(function () {
+                    return Class({
+                        initialize: function () {},
+                        _initialize: function () {}
+                    });
+                }).to.throwException(/several constructors/i);
+
+                expect(function () {
+                    return Class({
+                        initialize: function () {},
+                        __initialize: function () {}
+                    });
+                }).to.throwException(/several constructors/i);
+
+                expect(function () {
+                    return Class({
+                        _initialize: function () {},
+                        __initialize: function () {}
+                    });
+                }).to.throwException(/several constructors/i);
 
             });
 
@@ -3757,24 +3782,27 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
 
             });
 
-            it('should throw an error if the constructor is private/protected', function () {
+            if (/strict/.test(global.build) && hasDefineProperty) {
 
-                var SomeClass = Class({
-                    _initialize: function () {}
-                }),
-                    OtherClass = Class({
-                        __initialize: function () {}
-                    });
+                it('should throw an error if the constructor is private/protected', function () {
 
-                expect(function () {
-                    return new SomeClass();
-                }).to.throwException(/access protected/);
+                    var SomeClass = Class({
+                        _initialize: function () {}
+                    }),
+                        OtherClass = Class({
+                            __initialize: function () {}
+                        });
 
-                expect(function () {
-                    return new OtherClass();
-                }).to.throwException(/access private/);
+                    expect(function () {
+                        return new SomeClass();
+                    }).to.throwException(/access protected/);
 
-            });
+                    expect(function () {
+                        return new OtherClass();
+                    }).to.throwException(/access private/);
+
+                });
+            }
 
             it('should not throw an error while invoking the the parent abstract class constructor', function () {
 
@@ -3809,12 +3837,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
                     return new SomeImplementation();
                 }).to.not.throwException();
 
-                expect(function () {
-                    var SomeImplementation = Class({
-                        $extends: AbstractClass({ _initialize: function () {} })
-                    });
-                    return new SomeImplementation();
-                }).to.throwException();
+                if (/strict/.test(global.build) && hasDefineProperty) {
+                    expect(function () {
+                        var SomeImplementation = Class({
+                            $extends: AbstractClass({ _initialize: function () {} })
+                        });
+                        return new SomeImplementation();
+                    }).to.throwException(/access protected/);
+                }
 
                 expect(function () {
                     var SomeImplementation = Class({
@@ -3826,16 +3856,18 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
                     return new SomeImplementation();
                 }).to.not.throwException();
 
-                expect(function () {
-                    var SomeImplementation = Class({
-                        $extends: Class({ _initialize: function () {} })
-                    });
-                    return new SomeImplementation();
-                }).to.throwException(/access protected/);
+                if (/strict/.test(global.build) && hasDefineProperty) {
+                    expect(function () {
+                        var SomeImplementation = Class({
+                            $extends: Class({ _initialize: function () {} })
+                        });
+                        return new SomeImplementation();
+                    }).to.throwException(/access protected/);
+                }
 
             });
 
-            it('should throw an error while invoking the the parent class private constructor', function () {
+            it('should throw an error while invoking the parent class private constructor', function () {
 
                 expect(function () {
                     var SomeImplementation = Class({
@@ -3845,14 +3877,16 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
                         }
                     });
                     return new SomeImplementation();
-                }).to.throwException(/access private/);
+                }).to.throwException(/parent constructor/);
 
-                expect(function () {
-                    var SomeImplementation = Class({
-                        $extends: AbstractClass({ __initialize: function () {} })
-                    });
-                    return new SomeImplementation();
-                }).to.throwException(/access private/);
+                if (/strict/.test(global.build) && hasDefineProperty) {
+                    expect(function () {
+                        var SomeImplementation = Class({
+                            $extends: AbstractClass({ __initialize: function () {} })
+                        });
+                        return new SomeImplementation();
+                    }).to.throwException(/access private/);
+                }
 
                 expect(function () {
                     var SomeImplementation = Class({
@@ -3862,14 +3896,16 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
                         }
                     });
                     return new SomeImplementation();
-                }).to.throwException(/access private/);
+                }).to.throwException(/parent constructor/);
 
-                expect(function () {
-                    var SomeImplementation = Class({
-                        $extends: Class({ __initialize: function () {} })
-                    });
-                    return new SomeImplementation();
-                }).to.throwException(/access private/);
+                if (/strict/.test(global.build) && hasDefineProperty) {
+                    expect(function () {
+                        var SomeImplementation = Class({
+                            $extends: Class({ __initialize: function () {} })
+                        });
+                        return new SomeImplementation();
+                    }).to.throwException(/access private/);
+                }
 
                 expect(function () {
                     var SomeImplementation = Class({
@@ -3880,6 +3916,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass) {
                 }).to.not.throwException();
 
             });
+
         });
 
     });

@@ -862,6 +862,8 @@ define([
                         return method;
                     }
 
+                    console.log(currCaller, currCaller['$name_' + random], callerClassId, callerClassBaseId, meta.allowed);
+                    console.trace();
                     throw new Error('Cannot access protected method "' + name + '" of class "' + this.$name + '".');
                 },
                 set: function set(newVal) {
@@ -1362,10 +1364,8 @@ define([
     function superAlias() {
 
         var meta,
-            alias,
             classId = callerClassId,
-            name,
-            currCaller;
+            name;
 
         if (!caller || !caller['$name_' + random] || !caller['$prototype_' + classId]) {
             throw new Error('Calling parent method within an unknown function.');
@@ -1374,7 +1374,7 @@ define([
         name = caller['$name_' + random];
 
         if (!caller['$prototype_' + classId].$constructor.$parent) {
-            throw new Error('Cannot call parent method "' + (name || 'N/A') + '" in class "' + this.$name + '".');
+            throw new Error('Cannot call parent method "' + name + '" in class "' + this.$name + '".');
         }
 
         meta = caller['$prototype_' + classId].$constructor[$class].methods[name];
@@ -1383,24 +1383,17 @@ define([
             throw new Error('Cannot call $super() within private methods in class "' + this.$name + '".');
         }
 
-        if (meta.isPublic || !hasDefineProperty) {
+        meta = caller['$prototype_' + classId].$constructor.$parent[$class].methods[name];
 
-            alias = caller['$prototype_' + classId].$constructor.$parent.prototype[name];
-
-            if (!alias) {
-                throw new Error('Cannot call parent method "' + (name || 'N/A') + '" in class "' + this.$name + '".');
-            }
-
-            return alias.apply(this, arguments);
+        if (!meta) {
+            throw new Error('Cannot call parent method "' + name + '" in class "' + this.$name + '".');
         }
 
-        alias = caller['$prototype_' + classId].$constructor.$parent[$class].methods[name];
-
-        if (!alias) {
-            throw new Error('Cannot call parent method "' + (name || 'N/A') + '" in class "' + this.$name + '".');
+        if (meta.isPrivate && name === 'initialize') {
+            throw new Error('Cannot call parent constructor in class "' + this.$name + '" because its declared as private.');
         }
 
-        return alias.implementation.apply(this, arguments);
+        return meta.implementation.apply(this, arguments);
     }
 
     /**
@@ -1434,7 +1427,6 @@ define([
     function superStaticAlias() {
 
         var meta,
-            alias,
             classId = callerClassId,
             name;
 
@@ -1445,7 +1437,7 @@ define([
         name = caller['$name_' + random];
 
         if (!caller['$constructor_' + classId].$parent) {
-            throw new Error('Cannot call parent static method "' + name || 'N/A' + '" in class "' + this.$name + '".');
+            throw new Error('Cannot call parent static method "' + name + '" in class "' + this.$name + '".');
         }
 
         meta = caller['$constructor_' + classId][$class].staticMethods[name];
@@ -1454,24 +1446,13 @@ define([
             throw new Error('Cannot call $super() within private static methods in class "' + this.$name + '".');
         }
 
-        if (meta.isPublic || !hasDefineProperty) {
+        meta = caller['$constructor_' + classId].$parent[$class].staticMethods[name];
 
-            alias = caller['$constructor_' + classId].$parent[name];
-
-            if (!alias) {
-                throw new Error('Cannot call parent static method "' + name || 'N/A' + '" in class "' + this.$name + '".');
-            }
-
-            return alias.apply(this, arguments);
+        if (!meta) {
+            throw new Error('Cannot call parent static method "' + name + '" in class "' + this.$name + '".');
         }
 
-        alias = caller['$constructor_' + classId].$parent[$class].staticMethods[name];
-
-        if (!alias) {
-            throw new Error('Cannot call parent static method "' + name || 'N/A' + '" in class "' + this.$name + '".');
-        }
-
-        return alias.implementation.apply(this, arguments);
+        return meta.implementation.apply(this, arguments);
     }
 
     /**
