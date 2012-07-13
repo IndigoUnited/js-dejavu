@@ -21,6 +21,7 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 * Interfaces
 * Mixins (so you can get some sort of multiple inheritance)
 * Private and protected members
+* Ability to declare true singletons via protected/private constructors
 * Context binding for functions (useful for functions that will be used as callbacks/handlers)
 * Method signature checks
 * Custom instanceOf that also works with interfaces
