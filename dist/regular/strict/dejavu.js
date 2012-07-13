@@ -610,6 +610,25 @@ define('common/isFunctionCompatible',[],function () {
     return isFunctionCompatible;
 });
 
+define('amd-utils/array/append',[],function () {
+
+    /**
+     * Appends an array to the end of another.
+     * The first array will be modified.
+     * @version 0.1.1 (2012/06/10)
+     */
+    function append(arr1, arr2) {
+        var pad = arr1.length,
+            i = -1,
+            n = arr2.length;
+        while (++i < n) {
+            arr1[pad + i] = arr2[i];
+        }
+        return arr1;
+    }
+    return append;
+});
+
 define('amd-utils/array/some',['require'],function (forEach) {
 
     /**
@@ -676,17 +695,18 @@ define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefinePr
      * Sets the key of object with the specified value.
      * The property is obfuscated, by not being enumerable, configurable and writable.
      *
-     * @param {Object}  obj                  The object
-     * @param {String}  key                  The key
-     * @param {Mixed}   value                The value
-     * @param {Boolean} [isWritable="false"] True to be writable, false otherwise
+     * @param {Object}  obj           The object
+     * @param {String}  key           The key
+     * @param {Mixed}   value         The value
+     * @param {Boolean} [isWritable]  True to be writable, false otherwise (defaults to false)
+     * @param {Boolean} [isDeletable] True to be deletable, false otherwise (defaults to false)
      */
-    function obfuscateProperty(obj, key, value, isWritable) {
+    function obfuscateProperty(obj, key, value, isWritable, isDeletable) {
 
         if (hasDefineProperty) {
             Object.defineProperty(obj, key, {
                 value: value,
-                configurable: false,
+                configurable: isDeletable || false,
                 writable: isWritable || false,
                 enumerable: false
             });
@@ -903,7 +923,7 @@ define('common/propertyMeta',[
 
     /**
      * Extract meta data from a property.
-     * It returns an object containing the value and visibility.
+     * For now, the returns an object containing the visibility.
      *
      * @param {Mixed} prop The property
      * @param {String} name The name of the property
@@ -1048,14 +1068,17 @@ define('amd-utils/object/size',['./forOwn'], function (forOwn) {
 });
 
 define('common/checkKeywords',[
-    'amd-utils/object/hasOwn'
+    'amd-utils/object/hasOwn',
+    'amd-utils/array/append'
 ], function (
-    hasOwn
+    hasOwn,
+    append
 ) {
 
     'use strict';
 
     var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
+        reservedAll = append(['initialize'], reservedNormal),
         reservedStatics = ['$parent', '$super'];
 
     /**
@@ -1066,12 +1089,12 @@ define('common/checkKeywords',[
      *
      * Will throw an error if any reserved key is found.
      *
-     * @param {Object} object            The object to verify
-     * @param {String} [type="normal"]   The list of reserved word to test
+     * @param {Object} object The object to verify
+     * @param {String} [type] The list of reserved word to test (defaults to all)
      */
     function checkKeywords(object, type) {
 
-        var reserved = type === 'normal' || !type ? reservedNormal : reservedStatics,
+        var reserved = type === 'normal' || !type ? reservedNormal : (type === 'all' ? reservedAll : reservedStatics),
             x;
 
         for (x = reserved.length - 1; x >= 0; x -= 1) {
@@ -1273,8 +1296,8 @@ define('common/testKeywords',[
     /**
      * Tests if an object contains an unallowed keyword in a given context.
      *
-     * @param {String} object          The object to verify
-     * @param {Array}  [allowed="[]"]  The list of allowed keywords
+     * @param {String} object    The object to verify
+     * @param {Array}  [allowed  The list of allowed keywords (defaults to [])
      *
      * @return {Mixed} False if is ok, or the key that is unallowed.
      */
@@ -1330,9 +1353,9 @@ define('common/mixIn',[],function () {
     'use strict';
 
     /**
-     * This method does exactly the same as the amd counterpart but
+     * This method does exactly the same as the amd-utils counterpart but
      * does not perform hasOwn for each key in the objects.
-     * This is only done because the object prototype is sealed.
+     * This is only done because the object prototype is sealed and to get an extra performance.
      *
      * @param {object}    target  Target Object
      * @param {...object} objects Objects to be combined (0...n objects)
@@ -1445,6 +1468,8 @@ define('amd-utils/array/insert',['./difference', '../lang/toArray'], function (d
 });
 
 /*jshint strict:false, noarg:false, expr:true*/
+
+// TODO: implement the super like john resign for the loose version
 
 define('Class',[
     'amd-utils/lang/isString',
@@ -1629,7 +1654,7 @@ define('Class',[
      * @param {String}   name        The method name
      * @param {Function} method      The method itself
      * @param {Function} constructor The class constructor in which the method metadata will be saved
-     * @param {Object}   [opts="{}"] The options
+     * @param {Object}   [opts]      The options, defaults to {}
      */
     function addMethod(name, method, constructor, opts) {
 
@@ -1643,7 +1668,7 @@ define('Class',[
         // Check if function is already being used by another class or within the same class
         if (method['$name_' + random]) {
             if (method['$name_' + random] !== name) {
-                throw new Error('Method "' + name + '" of class "' + constructor.prototype.$name + '" seems to be used by several times by the same or another class.');
+                throw new Error('Method "' + name + '" of class "' + constructor.prototype.$name + '" seems to be used several times by the same or another class.');
             }
         } else {
             obfuscateProperty(method, '$name_' + random, name);
@@ -1652,6 +1677,7 @@ define('Class',[
         // If the initialize is inherited, copy the metadata
         if (!isStatic && name === 'initialize' && method.$inherited) {
             metadata = constructor.$parent[$class].methods[name];
+            delete method.$inherited;
         } else if (!opts.metadata) {
             // Grab function metadata and throw error if is not valid (its invalid if the arguments are invalid)
             if (method.$wrapped) {
@@ -1666,6 +1692,17 @@ define('Class',[
         } else {
             metadata = opts.metadata;
             opts.isFinal = metadata.isFinal;
+        }
+
+        // Take care of $prefix if the method is initialize
+        if (name === 'initialize' && method.$prefix) {
+            if (method.$prefix === '_') {
+                metadata.isProtected = true;
+            } else if (method.$prefix === '__') {
+                metadata.isPrivate = true;
+            }
+
+            delete method.$prefix;
         }
 
         // Check if we got a private method classified as final
@@ -1684,7 +1721,7 @@ define('Class',[
         // Check if the method already exists
         if (isObject(target[name])) {
             // Are we overriding a private method?
-            if (target[name].isPrivate) {
+            if (target[name].isPrivate && name !== 'initialize') {
                 throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' method "' + name + '" in class "' + constructor.prototype.$name + '".');
             }
             // Are we overriding a final method?
@@ -1765,7 +1802,7 @@ define('Class',[
      * @param {String}   name        The property name
      * @param {Function} value       The property itself
      * @param {Function} constructor The class constructor in which the method metadata will be saved
-     * @param {Object}   [opts="{}"] The options
+     * @param {Object}   [opts]      The options (defaults to {})
      */
     function addProperty(name, value, constructor, opts) {
 
@@ -2068,11 +2105,6 @@ define('Class',[
         }
 
         // Save certain keywords in the cache for the loop bellow to work faster
-        if (hasOwn(params, '$name')) {
-            cache.$name = params.$name;
-            delete params.$name;
-        }
-
         if (hasOwn(params, '$borrows')) {
             cache.$borrows = params.$borrows;
             delete params.$borrows;
@@ -2259,7 +2291,7 @@ define('Class',[
                     var method = this[cacheKeyword].methods[name],
                         currCaller;
 
-                    if (!this.$underStrict && !this.$constructor[$class].$underStrict) {
+                    if (name !== 'initialize' && !this.$underStrict && !this.$constructor[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
@@ -2289,7 +2321,7 @@ define('Class',[
                     var method = this[cacheKeyword].methods[name],
                         currCaller;
 
-                    if (!this.$underStrict && !this.$constructor[$class].$underStrict) {
+                    if (name !== 'initialize' && !this.$underStrict && !this.$constructor[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
@@ -2728,6 +2760,7 @@ define('Class',[
             if (isFunction(Object.seal)) {
                 Object.seal(this);
             }
+
             // Call initialize
             this.initialize.apply(this, arguments);
         };
@@ -2798,10 +2831,8 @@ define('Class',[
     function superAlias() {
 
         var meta,
-            alias,
             classId = callerClassId,
-            name,
-            currCaller;
+            name;
 
         if (!caller || !caller['$name_' + random] || !caller['$prototype_' + classId]) {
             throw new Error('Calling parent method within an unknown function.');
@@ -2810,7 +2841,7 @@ define('Class',[
         name = caller['$name_' + random];
 
         if (!caller['$prototype_' + classId].$constructor.$parent) {
-            throw new Error('Cannot call parent method "' + (name || 'N/A') + '" in class "' + this.$name + '".');
+            throw new Error('Cannot call parent method "' + name + '" in class "' + this.$name + '".');
         }
 
         meta = caller['$prototype_' + classId].$constructor[$class].methods[name];
@@ -2819,24 +2850,17 @@ define('Class',[
             throw new Error('Cannot call $super() within private methods in class "' + this.$name + '".');
         }
 
-        if (meta.isPublic || !hasDefineProperty) {
+        meta = caller['$prototype_' + classId].$constructor.$parent[$class].methods[name];
 
-            alias = caller['$prototype_' + classId].$constructor.$parent.prototype[name];
-
-            if (!alias) {
-                throw new Error('Cannot call parent method "' + (name || 'N/A') + '" in class "' + this.$name + '".');
-            }
-
-            return alias.apply(this, arguments);
+        if (!meta) {
+            throw new Error('Cannot call parent method "' + name + '" in class "' + this.$name + '".');
         }
 
-        alias = caller['$prototype_' + classId].$constructor.$parent[$class].methods[name];
-
-        if (!alias) {
-            throw new Error('Cannot call parent method "' + (name || 'N/A') + '" in class "' + this.$name + '".');
+        if (meta.isPrivate && name === 'initialize') {
+            throw new Error('Cannot call parent constructor in class "' + this.$name + '" because its declared as private.');
         }
 
-        return alias.implementation.apply(this, arguments);
+        return meta.implementation.apply(this, arguments);
     }
 
     /**
@@ -2870,7 +2894,6 @@ define('Class',[
     function superStaticAlias() {
 
         var meta,
-            alias,
             classId = callerClassId,
             name;
 
@@ -2881,7 +2904,7 @@ define('Class',[
         name = caller['$name_' + random];
 
         if (!caller['$constructor_' + classId].$parent) {
-            throw new Error('Cannot call parent static method "' + name || 'N/A' + '" in class "' + this.$name + '".');
+            throw new Error('Cannot call parent static method "' + name + '" in class "' + this.$name + '".');
         }
 
         meta = caller['$constructor_' + classId][$class].staticMethods[name];
@@ -2890,24 +2913,13 @@ define('Class',[
             throw new Error('Cannot call $super() within private static methods in class "' + this.$name + '".');
         }
 
-        if (meta.isPublic || !hasDefineProperty) {
+        meta = caller['$constructor_' + classId].$parent[$class].staticMethods[name];
 
-            alias = caller['$constructor_' + classId].$parent[name];
-
-            if (!alias) {
-                throw new Error('Cannot call parent static method "' + name || 'N/A' + '" in class "' + this.$name + '".');
-            }
-
-            return alias.apply(this, arguments);
+        if (!meta) {
+            throw new Error('Cannot call parent static method "' + name + '" in class "' + this.$name + '".');
         }
 
-        alias = caller['$constructor_' + classId].$parent[$class].staticMethods[name];
-
-        if (!alias) {
-            throw new Error('Cannot call parent static method "' + name || 'N/A' + '" in class "' + this.$name + '".');
-        }
-
-        return alias.implementation.apply(this, arguments);
+        return meta.implementation.apply(this, arguments);
     }
 
     /**
@@ -2938,6 +2950,13 @@ define('Class',[
      */
     Class = function Class(params, isAbstract) {
 
+        var dejavu,
+            parent,
+            tmp,
+            key,
+            x,
+            found;
+
         // Validate params as an object
         if (!isObject(params)) {
             throw new Error('Argument "params" must be an object while defining a class.');
@@ -2959,17 +2978,26 @@ define('Class',[
         }
 
         // Verify if initialize is a method
-        if (hasOwn(params, 'initialize')) {
-            if (!isFunction(params.initialize)) {
-                throw new Error('The "initialize" member of class "' + params.$name + '" must be a function.');
+        tmp = ['__', '_', ''];
+        found = false;
+        for (x = tmp.length - 1; x >= 0; x -= 1) {
+            key = tmp[x] + 'initialize';
+            if (hasOwn(params, key)) {
+                if (!isFunction(params[key])) {
+                    throw new Error('The "' + key + '" member of class "' + params.$name + '" must be a function.');
+                }
+                if (found) {
+                    throw new Error('Several constructors with different visibility where found in class "' + params.$name + '".');
+                }
+                found = true;
+
+                // Mark the initialize method with its real prefix to be used later to protect the method
+                params[key].$prefix = tmp[x];
             }
         }
 
         // Verify reserved words
-        checkKeywords(params);
-
-        var dejavu,
-            parent;
+        checkKeywords(params, 'normal');
 
         if (hasOwn(params, '$extends')) {
             // Verify if parent is a valid class
@@ -2984,9 +3012,11 @@ define('Class',[
             parent = params.$extends;
             delete params.$extends;
 
-            if (!hasOwn(params, 'initialize')) {
+            if (!params.initialize && !params._initialize && !params.__initialize) {
                 params.initialize = function () { parent.prototype.initialize.apply(this, arguments); };
-                obfuscateProperty(params.initialize, '$inherited', true);
+                params.initialize.$inherited = true;
+            } else {
+                params.initialize = params.initialize || params._initialize || params.__initialize || function () { parent.prototype.initialize.apply(this, arguments); };
             }
 
             dejavu = createConstructor(isAbstract);
@@ -2997,12 +3027,15 @@ define('Class',[
 
             inheritParent(dejavu, parent);
         } else {
-            params.initialize = params.initialize || function () {};
+            params.initialize = params.initialize || params._initialize || params.__initialize || function () {};
             dejavu = createConstructor(isAbstract);
             dejavu[$class].baseId = nextId += 1;
             dejavu[$class].id = dejavu[$class].baseId;
             dejavu.prototype = params;
         }
+
+        delete params._initialize;
+        delete params.__initialize;
 
         if (isAbstract) {
             obfuscateProperty(dejavu, $abstract, true, true); // Signal it has abstract
@@ -3150,7 +3183,7 @@ define('AbstractClass',[
      * @param {String}   name        The method name
      * @param {Function} method      The method itself
      * @param {Object}   constructor The class constructor
-     * @param {Object}   [opts="{}"] The options
+     * @param {Object}   [opts]      The options, defaults to {}
      */
     function addMethod(name, method, constructor, opts) {
 
@@ -3543,10 +3576,10 @@ define('Interface',[
      * Valid options:
      *   - isStatic: true|false Defaults to false
      *
-     * @param {String}   name        The method name
-     * @param {Function} method      The method itself
-     * @param {Function} interf      The interface in which the method metadata will be saved
-     * @param {Object}   [opts="{}"] The options
+     * @param {String}   name   The method name
+     * @param {Function} method The method itself
+     * @param {Function} interf The interface in which the method metadata will be saved
+     * @param {Object}   [opts] The options (defaults to {})
      */
     function addMethod(name, method, interf, opts) {
 

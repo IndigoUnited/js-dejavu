@@ -112,10 +112,10 @@ define([
      * Valid options:
      *   - isStatic: true|false Defaults to false
      *
-     * @param {String}   name        The method name
-     * @param {Function} method      The method itself
-     * @param {Function} interf      The interface in which the method metadata will be saved
-     * @param {Object}   [opts="{}"] The options
+     * @param {String}   name   The method name
+     * @param {Function} method The method itself
+     * @param {Function} interf The interface in which the method metadata will be saved
+     * @param {Object}   [opts] The options (defaults to {})
      */
     function addMethod(name, method, interf, opts) {
 
