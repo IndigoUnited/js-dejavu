@@ -25,7 +25,7 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 * Method signature checks
 * Custom instanceOf that also works with interfaces
 * Has two builds, one regular and one AMD based
-* Loose build (the one to be used in production) has 9.71Kb minified and 3.7Kb minified + gziped
+* Has two versions for each build, a strict one (to be used in development) and a loose one (to be used in production)
 * Classes and instances are locked, members cannot be changed or added (only applicable to some browsers, such as Chrome)
 
 Users are encouraged to declare 'use strict' while using the strict build otherwise some code can fail [silently](https://developer.mozilla.org/en/JavaScript/Strict_mode).
