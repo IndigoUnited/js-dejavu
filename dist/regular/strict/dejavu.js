@@ -2762,8 +2762,8 @@ define('Class',[
                 obfuscateProperty(this, '$underStrict', true);
             }
 
-            this.$initializing = true;    // Mark it in order to let abstract classes run their initialize
-            this.$super = defaultSuper;           // Add the super to the instance object to speed lookup of the wrapper function
+            this.$initializing = true;     // Mark it in order to let abstract classes run their initialize
+            this.$super = defaultSuper;    // Add the super to the instance object to speed lookup of the wrapper function
 
             // Apply private/protected members
             if (hasDefineProperty) {

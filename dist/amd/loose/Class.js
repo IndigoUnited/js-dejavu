@@ -395,7 +395,7 @@ define([
                 this[properties[x]] = cloneProperty(this[properties[x]]);
             }
 
-            this.$super = defaultSuper;           // Add the super to the instance object to speed lookup of the wrapper function
+            this.$super = null;    // Add the super to the instance object to speed lookup of the wrapper function
 
             // Apply binds
             if (this.$constructor[$class].binds.length) {
