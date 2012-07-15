@@ -107,12 +107,11 @@ define([
                 var _super = this.$super,
                     ret;
 
+                // TODO: We should be using a try finally here to ensure that $super is restored correctly but it slows down by a lot!
+                //       Find a better solution?
                 this.$super = parent;
-                try {
-                    ret = method.apply(this, arguments);
-                } finally {
-                    this.$super = _super;
-                }
+                ret = method.apply(this, arguments);
+                this.$super = _super;
 
                 return ret;
             };
