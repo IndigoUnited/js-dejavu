@@ -3059,11 +3059,8 @@ define('Class',[
         parseClass(params, dejavu);
 
         // Assign aliases
-        if (!parent) {
-            obfuscateProperty(dejavu.prototype, '$self', selfAlias);
-            obfuscateProperty(dejavu.prototype, '$static', staticAlias);
-        }
         obfuscateProperty(dejavu.prototype, '$constructor', dejavu);
+        obfuscateProperty(dejavu.prototype, '$static', dejavu);
         obfuscateProperty(dejavu, '$super', superStaticAlias);
 
         // Parse mixins
