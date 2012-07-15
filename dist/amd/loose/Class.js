@@ -1,7 +1,5 @@
 /*jshint strict:false, noarg:false*/
 
-// TODO: implement the super like john resign for the loose version
-
 define([
     './common/isImmutable',
     './common/isPlainObject',
