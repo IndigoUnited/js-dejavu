@@ -86,7 +86,7 @@ define([
 
     /**
      * Wraps a method.
-     * This is to make some alias such as $super to work correctly.
+     * This is to make some alias such as $super and $self to work correctly.
      *
      * @param {Function} method      The method to wrap
      * @param {Function} constructor The constructor
@@ -161,6 +161,45 @@ define([
     }
 
     /**
+     * Wraps a static method.
+     * This is to make the $super to work correctly.
+     *
+     * @param {Function} method      The method to wrap
+     * @param {Function} parent      The parent method
+     *
+     * @return {Function} The wrapper
+     */
+    function wrapStaticMethod(method, parent) {
+
+        if (method.$wrapped) {
+            method = method.$wrapped;
+        }
+
+        if (!parent) {
+            return method;
+        } else {
+
+            var wrapper = function () {
+                var _super = this.$super,
+                    ret;
+
+                // TODO: We should be using a try finally here to ensure that $super is restored correctly but it slows down by a lot!
+                //       Find a better solution?
+                this.$super = parent;
+                ret = method.apply(this, arguments);
+                this.$super = _super;
+
+                return ret;
+            };
+
+            wrapper.$wrapped = method;
+
+            return wrapper;
+        }
+
+    }
+
+    /**
      * Parse borrows (mixins).
      *
      * @param {Function} constructor The constructor
@@ -188,8 +227,6 @@ define([
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
                         if (isFunction(value) && !value[$class] && !value[$interface]) {
                             constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
-                            value['$prototype_' + constructor[$class].id] = constructor.prototype;
-                            value.$name = key;
 
                             // If the function is specified to be bound, add it to the binds
                             if (value[$bound]) {
@@ -212,8 +249,6 @@ define([
                     if (isUndefined(constructor[key])) {    // Already defined members are not overwritten
                         insert(constructor[$class].staticMethods, key);
                         constructor[key] = current.$constructor[key];
-                        constructor[key]['$constructor_' + constructor[$class].id] = constructor;
-                        constructor[key].$name = key;
                     }
                 }
 
@@ -288,13 +323,11 @@ define([
 
                 if (isFunction(value) && !value[$class] && !value[$interface]) {
                     insert(constructor[$class].staticMethods, key);
-                    value['$constructor_' + constructor[$class].id] = constructor;
-                    value.$name = key;
+                    constructor[key] = wrapStaticMethod(value, constructor.$parent ? constructor.$parent[key] : null);
                 } else {
                     constructor[$class].staticProperties[key] = value;
+                    constructor[key] = value;
                 }
-
-                constructor[key] = value;
             }
 
             delete params.$statics;
@@ -322,9 +355,6 @@ define([
 
             if (isFunction(value) && !value[$class] && !value[$interface]) {
                 constructor.prototype[key] = !value.$inherited ? wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null) : value;
-
-                value['$prototype_' + constructor[$class].id] = constructor.prototype;
-                value.$name = key;
 
                 // If the function is specified to be bound, add it to the binds
                 if (value[$bound]) {
@@ -408,8 +438,6 @@ define([
         for (i = fns.length - 1; i >= 0; i -= 1) {
             current = instance[fns[i]];
             instance[fns[i]] = bind(current, instance);
-            instance[fns[i]]['$prototype_' + instance.$constructor[$class].id] = current['$prototype_' + instance.$constructor[$class].id];
-            instance[fns[i]].$name = current.$name;
         }
     }
 
@@ -502,49 +530,6 @@ define([
     }
 
     /**
-     * Creates a function that will be used to access the static members of itself.
-     *
-     * @param {String} classId The unique class id
-     *
-     * @return {Function} The function
-     */
-    function selfAlias(classId) {
-
-        return function self() {
-
-            var caller = self.caller || arguments.callee.caller || arguments.caller;    // Ignore JSLint error regarding .caller and .callee
-
-            return caller['$prototype_' + classId].$constructor;
-        };
-    }
-
-    /**
-     * Creates a function that will be used to access the static methods of itself (with late binding).
-     *
-     * @return {Function} The function
-     */
-    staticAlias = function () {
-        return this.$constructor;
-    };
-
-    /**
-     * Creates a function that will be used to call a parent static method.
-     *
-     * @param {String} classId The unique class id
-     *
-     * @return {Function} The function
-     */
-    function superStaticAlias(classId) {
-
-        return function parent() {
-
-            var caller = parent.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
-
-            return caller['$constructor_' + classId].$parent[caller.$name].apply(this, arguments);
-        };
-    }
-
-    /**
      * Create a class definition.
      *
      * @param {Object} params An object containing methods and properties
@@ -588,7 +573,6 @@ define([
 
         // Assign aliases
         dejavu.prototype.$constructor = dejavu.prototype.$static = dejavu;
-        dejavu.$super = superStaticAlias(dejavu[$class].id);
 
         // Parse mixins
         parseBorrows(dejavu);

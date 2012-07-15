@@ -155,7 +155,7 @@ define([
 //>>excludeStart('strict', pragmas.strict);
     /**
      * Wraps a method.
-     * This is to make some alias such as $super to work correctly.
+     * This is to make some alias such as $super and $self to work correctly.
      *
      * @param {Function} method      The method to wrap
      * @param {Function} constructor The constructor
@@ -228,11 +228,50 @@ define([
 
         return wrapper;
     }
+
+    /**
+     * Wraps a static method.
+     * This is to make the $super to work correctly.
+     *
+     * @param {Function} method      The method to wrap
+     * @param {Function} parent      The parent method
+     *
+     * @return {Function} The wrapper
+     */
+    function wrapStaticMethod(method, parent) {
+
+        if (method.$wrapped) {
+            method = method.$wrapped;
+        }
+
+        if (!parent) {
+            return method;
+        } else {
+
+            var wrapper = function () {
+                var _super = this.$super,
+                    ret;
+
+                // TODO: We should be using a try finally here to ensure that $super is restored correctly but it slows down by a lot!
+                //       Find a better solution?
+                this.$super = parent;
+                ret = method.apply(this, arguments);
+                this.$super = _super;
+
+                return ret;
+            };
+
+            wrapper.$wrapped = method;
+
+            return wrapper;
+        }
+
+    }
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
     /**
      * Wraps a method.
-     * This is to make some alias such as $super to work correctly.
+     * This is to make some alias such as $super and $self to work correctly.
      *
      * @param {Function} method      The method to wrap
      * @param {Function} constructor The constructor
@@ -296,7 +335,62 @@ define([
     }
 
     /**
+     * Wraps a method.
+     * This is to make some alias such as $super and $self to work correctly.
      *
+     * @param {Function} method      The method to wrap
+     * @param {String}   classId     The class id
+     * @param {String}   classBaseId The class base id
+     * @param {Object}   parentMeta  The parent method metadata
+     *
+     * @return {Function} The wrapper
+     */
+    function wrapStaticMethod(method, classId, classBaseId, parentMeta) {
+
+        if (method.$wrapped) {
+            throw new Error('Method is already wrapped.');
+        }
+
+        var parent = parentMeta ? parentMeta.implementation : parentMeta,
+            wrapper;
+
+        wrapper = function () {
+
+            var prevCaller = caller,
+                prevCallerClassId = callerClassId,
+                prevCallerClassBaseId = callerClassBaseId,
+                _super = this.$super,
+                ret;
+
+            caller = method;
+            callerClassId = classId;
+            callerClassBaseId = classBaseId;
+
+            this.$super = parent;
+
+            try {
+                ret = method.apply(this, arguments);
+            } finally {
+                caller = prevCaller;
+                callerClassId = prevCallerClassId;
+                callerClassBaseId = prevCallerClassBaseId;
+                this.$super = _super;
+            }
+
+            return ret;
+        };
+
+        obfuscateProperty(wrapper, '$wrapped', method);
+
+        if (method['$name_' + random]) {
+            obfuscateProperty(wrapper, '$name_' + random, method['$name_' + random]);
+        }
+
+        return wrapper;
+    }
+
+    /**
+     * Default function to execute when a class atempts to call its parent private constructor.
      */
     function callingPrivateConstructor() {
         throw new Error('Cannot call parent constructor in class "' + this.$name + '" because its declared as private.');
@@ -401,7 +495,10 @@ define([
         }
 
         originalMethod = method;
-        method = wrapMethod(method, constructor, constructor[$class].id, constructor[$class].baseId, constructor.$parent && constructor.$parent[$class].methods[name] ? constructor.$parent[$class].methods[name] : null);
+        method = !isStatic ?
+                  wrapMethod(method, constructor, constructor[$class].id, constructor[$class].baseId, constructor.$parent && constructor.$parent[$class].methods[name] ? constructor.$parent[$class].methods[name] : null) :
+                  wrapStaticMethod(method, constructor[$class].id, constructor[$class].baseId, constructor.$parent && constructor.$parent[$class].staticMethods[name] ? constructor.$parent[$class].staticMethods[name] : null);
+
         obfuscateProperty(method, '$name_' + random, name);
 
         // If the function is protected/private we delete it from the target because they will be protected later
@@ -428,19 +525,10 @@ define([
             allowed = constructor[$class].id;
         }
 
-        // Store a reference to the prototype/constructor
-        if (!isStatic) {
-            obfuscateProperty(method, '$prototype_' + constructor[$class].id, constructor.prototype);
-            obfuscateProperty(originalMethod, '$prototype_' + constructor[$class].id, constructor.prototype);
-
-            // If the function is specified to be bound, add it to the binds
-            if (originalMethod[$bound]) {
-                insert(constructor[$class].binds, name);
-                delete originalMethod[$bound];
-            }
-        } else {
-            obfuscateProperty(method, '$constructor_' + constructor[$class].id, constructor);
-            obfuscateProperty(originalMethod, '$constructor_' + constructor[$class].id, constructor);
+        // If the function is specified to be bound, add it to the binds
+        if (!isStatic && originalMethod[$bound]) {
+            insert(constructor[$class].binds, name);
+            delete originalMethod[$bound];
         }
 
         if (allowed) {
@@ -649,8 +737,6 @@ define([
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
                         if (isFunction(value) && !value[$class] && !value[$interface]) {
                             constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
-                            value['$prototype_' + constructor[$class].id] = constructor.prototype;
-                            value.$name = key;
 
                             // If the function is specified to be bound, add it to the binds
                             if (value[$bound]) {
@@ -710,8 +796,6 @@ define([
                     if (isUndefined(constructor[key])) {    // Already defined members are not overwritten
                         insert(constructor[$class].staticMethods, key);
                         constructor[key] = current.$constructor[key];
-                        constructor[key]['$constructor_' + constructor[$class].id] = constructor;
-                        constructor[key].$name = key;
                     }
                 }
 
@@ -868,13 +952,11 @@ define([
 //>>excludeStart('strict', pragmas.strict);
                 if (isFunction(value) && !value[$class] && !value[$interface]) {
                     insert(constructor[$class].staticMethods, key);
-                    value['$constructor_' + constructor[$class].id] = constructor;
-                    value.$name = key;
+                    constructor[key] = wrapStaticMethod(value, constructor.$parent ? constructor.$parent[key] : null);
                 } else {
                     constructor[$class].staticProperties[key] = value;
+                    constructor[key] = value;
                 }
-
-                constructor[key] = value;
 //>>excludeEnd('strict');
             }
 
@@ -914,9 +996,6 @@ define([
 //>>excludeStart('strict', pragmas.strict);
             if (isFunction(value) && !value[$class] && !value[$interface]) {
                 constructor.prototype[key] = !value.$inherited ? wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null) : value;
-
-                value['$prototype_' + constructor[$class].id] = constructor.prototype;
-                value.$name = key;
 
                 // If the function is specified to be bound, add it to the binds
                 if (value[$bound]) {
@@ -1095,13 +1174,9 @@ define([
         for (i = fns.length - 1; i >= 0; i -= 1) {
             current = instance[fns[i]];
             instance[fns[i]] = bind(current, instance);
-            instance[fns[i]]['$prototype_' + instance.$constructor[$class].id] = current['$prototype_' + instance.$constructor[$class].id];
 //>>includeStart('strict', pragmas.strict);
             instance[fns[i]]['$name_' + random] = current.$name;
 //>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
-            instance[fns[i]].$name = current.$name;
-//>>excludeEnd('strict');
         }
     }
 
@@ -1531,13 +1606,13 @@ define([
 
         // Prevent any properties/methods to be added and deleted
         if (isFunction(Object.seal)) {
-            Object.seal(constructor);
+            //Object.seal(constructor);
         }
-        if (isFunction(Object.freeze) && !hasFreezeBug) {
+        /*if (isFunction(Object.freeze) && !hasFreezeBug) {
             Object.freeze(constructor.prototype);
         } else if (isFunction(Object.seal)) {
             Object.seal(constructor.prototype);
-        }
+        }*/
     }
 
     /**
@@ -1731,105 +1806,6 @@ define([
 
 //>>includeStart('strict', pragmas.strict);
     /**
-     * Creates a function that will be used to access the static members of itself.
-     *
-     * @return {Function} The function
-     */
-    function selfAlias() {
-
-        if (!caller || !caller['$prototype_' + callerClassId]) {
-            throw new Error('Cannot retrieve self alias within an unknown function.');
-        }
-
-        return caller['$prototype_' + callerClassId].$constructor;
-    }
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
-    /**
-     * Creates a function that will be used to access the static members of itself.
-     *
-     * @param {String} classId The unique class id
-     *
-     * @return {Function} The function
-     */
-    function selfAlias(classId) {
-
-        return function self() {
-
-            var caller = self.caller || arguments.callee.caller || arguments.caller;    // Ignore JSLint error regarding .caller and .callee
-
-            return caller['$prototype_' + classId].$constructor;
-        };
-    }
-//>>excludeEnd('strict');
-
-    /**
-     * Creates a function that will be used to access the static methods of itself (with late binding).
-     *
-     * @return {Function} The function
-     */
-    staticAlias = function () {
-        return this.$constructor;
-    };
-
-//>>includeStart('strict', pragmas.strict);
-    /**
-     * Creates a function that will be used to call a parent static method.
-     *
-     * @return {Function} The function
-     */
-    function superStaticAlias() {
-
-        var meta,
-            classId = callerClassId,
-            name;
-
-        if (!caller || !caller['$name_' + random] || !caller['$constructor_' + classId]) {
-            throw new Error('Calling parent static method within an unknown function.');
-        }
-
-        name = caller['$name_' + random];
-
-        if (!caller['$constructor_' + classId].$parent) {
-            throw new Error('Cannot call parent static method "' + name + '" in class "' + this.$name + '".');
-        }
-
-        meta = caller['$constructor_' + classId][$class].staticMethods[name];
-
-        if (meta.isPrivate) {
-            throw new Error('Cannot call $super() within private static methods in class "' + this.$name + '".');
-        }
-
-        meta = caller['$constructor_' + classId].$parent[$class].staticMethods[name];
-
-        if (!meta) {
-            throw new Error('Cannot call parent static method "' + name + '" in class "' + this.$name + '".');
-        }
-
-        return meta.implementation.apply(this, arguments);
-    }
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
-    /**
-     * Creates a function that will be used to call a parent static method.
-     *
-     * @param {String} classId The unique class id
-     *
-     * @return {Function} The function
-     */
-    function superStaticAlias(classId) {
-
-        return function parent() {
-
-            var caller = parent.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
-
-            return caller['$constructor_' + classId].$parent[caller.$name].apply(this, arguments);
-        };
-    }
-//>>excludeEnd('strict');
-
-//>>includeStart('strict', pragmas.strict);
-    /**
      * Method that will print a readable string describing an instance.
      *
      * @return {String} The readable string
@@ -2003,12 +1979,11 @@ define([
         // Assign aliases
 //>>excludeStart('strict', pragmas.strict);
         dejavu.prototype.$constructor = dejavu.prototype.$static = dejavu;
-        dejavu.$super = superStaticAlias(dejavu[$class].id);
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
         obfuscateProperty(dejavu.prototype, '$constructor', dejavu);
         obfuscateProperty(dejavu.prototype, '$static', dejavu);
-        obfuscateProperty(dejavu, '$super', superStaticAlias);
+        obfuscateProperty(dejavu, '$super', null, true);
 //>>includeEnd('strict');
 
         // Parse mixins
