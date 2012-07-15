@@ -56,9 +56,6 @@ The loose build has no overhead associated with verifications and therefore is s
 If your classes schema work in the strict version then is safe to use them in the loose version.
 The loose version also has lower memory footprint and less size in bytes.
 
-Also there is an alternative to $super() inside your functions. The alternative is relatively faster than the original $super() and can be used in critical code.
-See below for more information.
-
 I've publish a new test revision on [jsperf](http://jsperf.com/oop-benchmark/25) comparing dejavu with other OOP libraries.
 The version running is the regular (loose build). dejavu uses a wrapper for the constructor function therefore its performance can't be compared to JSFace or my.Class.
 The constructor wrapper is needed in order to apply binds and to make mutable types unique for each instance (for example, if an property is an array it should not be shared among instances, but in JSFace and my.Class they actually are).
@@ -325,7 +322,7 @@ define(['path/to/dejavu/Class', function (Class) {
          * Class constructor.
          */
         initialize: function () {
-            this.$self().FOO;  // 'bar'
+            this.$self.FOO;  // 'bar'
             SomeClass.FOO;     // 'bar' (is the same as above)
         }
     });
@@ -483,14 +480,14 @@ var OtherComplexClass = Class({
 
 ### Calling static methods within an instance ###
 
-To call static methods inside an instance you can use $self() and $static().
+To call static methods inside an instance you can use $self and $static.
 $self gives access to the class itself and $static gives access to the called class in a context of static inheritance.
 $self is the same as using the class variable itself.
 
 ```js
 var Example1 = Class({
     foo: function (param1) {
-        return this.$self().bar;    // same as Example1.bar;
+        return this.$self.bar;    // same as Example1.bar;
     },
     $statics: {
         bar: 'hello'
@@ -499,7 +496,7 @@ var Example1 = Class({
 
 var Example2 = Class({
     foo: function (param1) {
-        return this.$static().bar;
+        return this.$static.bar;
     },
     $statics: {
         bar: 'hello'
