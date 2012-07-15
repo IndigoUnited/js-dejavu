@@ -5,8 +5,6 @@
 /*jshint strict:false, noarg:false*/
 //>>excludeEnd('strict');
 
-// TODO: implement the super like john resign for the loose version
-
 define([
 //>>includeStart('strict', pragmas.strict);
     'amd-utils/lang/isString',

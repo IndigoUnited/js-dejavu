@@ -1534,8 +1534,6 @@ define('amd-utils/array/insert',['./difference', '../lang/toArray'], function (d
 
 /*jshint strict:false, noarg:false, expr:true*/
 
-// TODO: implement the super like john resign for the loose version
-
 define('Class',[
     'amd-utils/lang/isString',
     'amd-utils/array/intersection',

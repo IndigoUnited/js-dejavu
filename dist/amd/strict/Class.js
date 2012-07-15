@@ -1,7 +1,5 @@
 /*jshint strict:false, noarg:false, expr:true*/
 
-// TODO: implement the super like john resign for the loose version
-
 define([
     'amd-utils/lang/isString',
     'amd-utils/array/intersection',
