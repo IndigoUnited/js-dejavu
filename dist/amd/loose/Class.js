@@ -43,7 +43,6 @@ define([
 ) {
 
     var Class,
-        nextId = 0,
         $class = '$class',
         $interface = '$interface',
         $bound = '$bound_dejavu',
@@ -533,7 +532,6 @@ define([
         } else {
             params.initialize = params.initialize || params._initialize || params.__initialize || function () {};
             dejavu = createConstructor();
-            dejavu[$class].id = nextId += 1;
             dejavu.prototype = params;
         }
 

@@ -109,7 +109,6 @@ define([
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
     var Class,
-        nextId = 0,
         $class = '$class',
         $interface = '$interface',
         $bound = '$bound_dejavu',
@@ -1922,7 +1921,6 @@ define([
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
             dejavu = createConstructor();
-            dejavu[$class].id = nextId += 1;
 //>>excludeEnd('strict');
             dejavu.prototype = params;
         }
