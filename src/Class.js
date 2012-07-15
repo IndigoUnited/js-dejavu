@@ -173,7 +173,7 @@ define([
 
         if (!parent) {
 
-            wrapper = function () {
+            /*wrapper = function () {
                 var _self = this.$self,
                     ret;
 
@@ -184,7 +184,9 @@ define([
                 this.$self = _self;
 
                 return ret;
-            };
+            };*/
+
+            return method;
 
         } else {
 
