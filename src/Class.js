@@ -1565,6 +1565,8 @@ define([
             for (x = properties.length - 1; x >= 0; x -= 1) {
                 this[properties[x]] = cloneProperty(this[properties[x]]);
             }
+
+            this.$super = defaultSuper;           // Add the super to the instance object to speed lookup of the wrapper function
 //>>excludeEnd('strict');
 
             // Apply binds
