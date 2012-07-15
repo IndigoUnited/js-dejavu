@@ -416,8 +416,8 @@ define([
             }
 
             this.$super = null;               // Add the super to the instance object to speed lookup of the wrapper function
-            this.$self = this.$constructor;   // Set the self alias
-            this.$static = this.$constructor; // Set the static alias
+            //this.$self = this.$constructor;   // Set the self alias
+            //this.$static = this.$constructor; // Set the static alias
 
             // Apply binds
             if (this.$constructor[$class].binds.length) {
