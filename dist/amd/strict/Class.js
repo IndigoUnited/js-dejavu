@@ -1637,7 +1637,3 @@ define([
 
     return Class;
 });
-
-// TODO: comment out the wrapMethod
-// TODO: make the static methods also use the wrapper
-// Remove unecessary $name and suff
