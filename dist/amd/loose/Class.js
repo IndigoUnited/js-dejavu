@@ -85,6 +85,45 @@ define([
     }
 
     /**
+     * Wraps a method.
+     * This is to make some alias such as $super to work correctly.
+     *
+     * @param {Function} method      The method to wrap
+     * @param {Function} parent      The parent method
+     *
+     * @return {Function} The wrapper
+     */
+    function wrapMethod(method, parent) {
+
+        if (method.$wrapped) {
+            method = method.$wrapped;
+        }
+
+        if (!parent) {
+            return method;
+        } else {
+
+            var wrapper = function () {
+                var _super = this.$super,
+                    ret;
+
+                this.$super = parent;
+                try {
+                    ret = method.apply(this, arguments);
+                } finally {
+                    this.$super = _super;
+                }
+
+                return ret;
+            };
+
+            wrapper.$wrapped = method;
+
+            return wrapper;
+        }
+    }
+
+    /**
      * Parse borrows (mixins).
      *
      * @param {Function} constructor The constructor
@@ -111,7 +150,7 @@ define([
 
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
                         if (isFunction(value) && !value[$class] && !value[$interface]) {
-                            constructor.prototype[key] = value;
+                            constructor.prototype[key] = wrapMethod(value, constructor.$parent ? constructor.$parent.prototype[key] : null);
                             value['$prototype_' + constructor[$class].id] = constructor.prototype;
                             value.$name = key;
 
@@ -245,6 +284,8 @@ define([
             value = params[key];
 
             if (isFunction(value) && !value[$class] && !value[$interface]) {
+                constructor.prototype[key] = !value.$inherited ? wrapMethod(value, constructor.$parent ? constructor.$parent.prototype[key] : null) : value;
+
                 value['$prototype_' + constructor[$class].id] = constructor.prototype;
                 value.$name = key;
 
@@ -256,12 +297,12 @@ define([
 
                 // We should remove the key here because a class may override from primitive to non primitive,
                 // but we skip it because the cloneProperty already handles it
-            } else if (!isImmutable(value)) {
-                insert(constructor[$class].properties, key);
-            }
-
-            if (isFinal) {
+            } else {
                 constructor.prototype[key] = value;
+
+                if (!isImmutable(value)) {
+                    insert(constructor[$class].properties, key);
+                }
             }
         }
 
@@ -369,6 +410,13 @@ define([
     }
 
     /**
+     * Default implementation of the super function.
+     */
+    function defaultSuper() {
+        throw new Error('Trying to call $super when there is not parent function.');
+    }
+
+    /**
      * Inherits aditional data from the parent, such as metadata, binds and static members.
      *
      * @param {Function} constructor The constructor
@@ -412,23 +460,6 @@ define([
 
         // Inherit implemented interfaces
         constructor[$class].interfaces = [].concat(parent[$class].interfaces);
-    }
-
-    /**
-     * Creates a function that will be used to call a parent method.
-     *
-     * @param {String} classId The unique class id
-     *
-     * @return {Function} The function
-     */
-    function superAlias(classId) {
-
-        return function parent() {
-
-            var caller = parent.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
-
-            return caller['$prototype_' + classId].$constructor.$parent.prototype[caller.$name].apply(this, arguments);
-        };
     }
 
     /**
@@ -492,11 +523,15 @@ define([
             parent = params.$extends;
             delete params.$extends;
 
-            params.initialize = params.initialize || params._initialize || params.__initialize || function () { parent.prototype.initialize.apply(this, arguments); };
+            params.initialize = params.initialize || params._initialize || params.__initialize;
+            if (!params.initialize) {
+                delete params.initialize;
+            }
+
             dejavu = createConstructor();
             dejavu.$parent = parent;
             dejavu[$class].id = parent[$class].id;
-            dejavu.prototype = createObject(parent.prototype, params);
+            dejavu.prototype = createObject(parent.prototype);
 
             inheritParent(dejavu, parent);
         } else {
@@ -514,7 +549,6 @@ define([
 
         // Assign aliases
         if (!parent) {
-            dejavu.prototype.$super = superAlias(dejavu[$class].id);
             dejavu.prototype.$self = selfAlias(dejavu[$class].id);
             dejavu.prototype.$static = staticAlias;
         }
@@ -558,3 +592,7 @@ define([
 
     return Class;
 });
+
+// TODO: comment out the wrapMethod
+// TODO: make the static methods also use the wrapper
+// Remove unecessary $name and suff

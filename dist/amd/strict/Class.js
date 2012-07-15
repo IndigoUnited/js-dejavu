@@ -129,49 +129,70 @@ define([
 
     /**
      * Wraps a method.
-     * This is just to avoid using Function.caller because is deprecated.
+     * This is to make some alias such as $super to work correctly.
      *
      * @param {Function} method      The method to wrap
      * @param {String}   classId     The class id
      * @param {String}   classBaseId The class base id
+     * @param {Object}   parentMeta  The parent method metada
      *
      * @return {Function} The wrapper
      */
-    function wrapMethod(method, classId, classBaseId) {
+    function wrapMethod(method, classId, classBaseId, parentMeta) {
 
         if (method.$wrapped) {
-            throw new Error("Method is already wrapped.");
+            throw new Error('Method is already wrapped.');
         }
 
-        var wrapped = function wrapper() {
+        var parent,
+            wrapper;
+
+        if (parentMeta) {
+            parent = parentMeta.isPrivate && method['$name_' + random] === 'initialize' ? callingPrivateConstructor : parentMeta.implementation;
+        } else {
+            parent = defaultSuper;
+        }
+
+        wrapper = function () {
 
             var prevCaller = caller,
                 prevCallerClassId = callerClassId,
                 prevCallerClassBaseId = callerClassBaseId,
-                returns;
+                _super = this.$super,
+                ret;
 
             caller = method;
             callerClassId = classId;
             callerClassBaseId = classBaseId;
 
+            this.$super = parent;
+
             try {
-                returns = method.apply(this, arguments);
+                ret = method.apply(this, arguments);
             } finally {
                 caller = prevCaller;
                 callerClassId = prevCallerClassId;
                 callerClassBaseId = prevCallerClassBaseId;
+                this.$super = _super;
             }
 
-            return returns;
+            return ret;
         };
 
-        obfuscateProperty(wrapped, '$wrapped', method);
+        obfuscateProperty(wrapper, '$wrapped', method);
 
         if (method['$name_' + random]) {
-            obfuscateProperty(wrapped, '$name_' + random, method['$name_' + random]);
+            obfuscateProperty(wrapper, '$name_' + random, method['$name_' + random]);
         }
 
-        return wrapped;
+        return wrapper;
+    }
+
+    /**
+     *
+     */
+    function callingPrivateConstructor() {
+        throw new Error('Cannot call parent constructor in class "' + this.$name + '" because its declared as private.');
     }
 
     /**
@@ -273,7 +294,7 @@ define([
         }
 
         originalMethod = method;
-        method = wrapMethod(method, constructor[$class].id, constructor[$class].baseId);
+        method = wrapMethod(method, constructor[$class].id, constructor[$class].baseId, constructor.$parent && constructor.$parent[$class].methods[name] ? constructor.$parent[$class].methods[name] : null);
         obfuscateProperty(method, '$name_' + random, name);
 
         // If the function is protected/private we delete it from the target because they will be protected later
@@ -1273,6 +1294,7 @@ define([
             }
 
             this.$initializing = true;    // Mark it in order to let abstract classes run their initialize
+            this.$super = defaultSuper;           // Add the super to the instance object to speed lookup of the wrapper function
 
             // Apply private/protected members
             if (hasDefineProperty) {
@@ -1310,6 +1332,13 @@ define([
         obfuscateProperty(Instance, $class, { methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, interfaces: [], binds: [] });
 
         return Instance;
+    }
+
+    /**
+     * Default implementation of the super function.
+     */
+    function defaultSuper() {
+        throw new Error('Trying to call $super when there is not parent function.');
     }
 
     /**
@@ -1363,46 +1392,6 @@ define([
 
         // Inherit implemented interfaces
         constructor[$class].interfaces = [].concat(parent[$class].interfaces);
-    }
-
-    /**
-     * Creates a function that will be used to call a parent method.
-     *
-     * @return {Function} The function
-     */
-    function superAlias() {
-
-        var meta,
-            classId = callerClassId,
-            name;
-
-        if (!caller || !caller['$name_' + random] || !caller['$prototype_' + classId]) {
-            throw new Error('Calling parent method within an unknown function.');
-        }
-
-        name = caller['$name_' + random];
-
-        if (!caller['$prototype_' + classId].$constructor.$parent) {
-            throw new Error('Cannot call parent method "' + name + '" in class "' + this.$name + '".');
-        }
-
-        meta = caller['$prototype_' + classId].$constructor[$class].methods[name];
-
-        if (meta.isPrivate) {
-            throw new Error('Cannot call $super() within private methods in class "' + this.$name + '".');
-        }
-
-        meta = caller['$prototype_' + classId].$constructor.$parent[$class].methods[name];
-
-        if (!meta) {
-            throw new Error('Cannot call parent method "' + name + '" in class "' + this.$name + '".');
-        }
-
-        if (meta.isPrivate && name === 'initialize') {
-            throw new Error('Cannot call parent constructor in class "' + this.$name + '" because its declared as private.');
-        }
-
-        return meta.implementation.apply(this, arguments);
     }
 
     /**
@@ -1558,7 +1547,7 @@ define([
                 params.initialize = function () { parent.prototype.initialize.apply(this, arguments); };
                 params.initialize.$inherited = true;
             } else {
-                params.initialize = params.initialize || params._initialize || params.__initialize || function () { parent.prototype.initialize.apply(this, arguments); };
+                params.initialize = params.initialize || params._initialize || params.__initialize;
             }
 
             dejavu = createConstructor(isAbstract);
@@ -1596,7 +1585,6 @@ define([
 
         // Assign aliases
         if (!parent) {
-            obfuscateProperty(dejavu.prototype, '$super', superAlias);
             obfuscateProperty(dejavu.prototype, '$self', selfAlias);
             obfuscateProperty(dejavu.prototype, '$static', staticAlias);
         }
@@ -1658,3 +1646,7 @@ define([
 
     return Class;
 });
+
+// TODO: comment out the wrapMethod
+// TODO: make the static methods also use the wrapper
+// Remove unecessary $name and suff
