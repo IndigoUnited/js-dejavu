@@ -2774,11 +2774,11 @@ define('Class',[
         if (isFunction(Object.seal)) {
             //Object.seal(constructor);
         }
-        /*if (isFunction(Object.freeze) && !hasFreezeBug) {
+        if (isFunction(Object.freeze) && !hasFreezeBug) {
             Object.freeze(constructor.prototype);
         } else if (isFunction(Object.seal)) {
             Object.seal(constructor.prototype);
-        }*/
+        }
     }
 
     /**
