@@ -104,7 +104,7 @@ define([
 
         if (!parent) {
 
-            /*wrapper = function () {
+            wrapper = function () {
                 var _self = this.$self,
                     ret;
 
@@ -115,7 +115,7 @@ define([
                 this.$self = _self;
 
                 return ret;
-            };*/
+            };
 
             return method;
 
@@ -123,16 +123,16 @@ define([
 
             wrapper = function () {
                 var _super = this.$super,
-                    //_self = this.$self,
+                    _self = this.$self,
                     ret;
 
                 // TODO: We should be using a try finally here to ensure that $super is restored correctly but it slows down by a lot!
                 //       Find a better solution?
                 this.$super = parent;
-                //this.$self = constructor;
+                this.$self = constructor;
                 ret = method.apply(this, arguments);
                 this.$super = _super;
-                //this.$self = _self;
+                this.$self = _self;
 
                 return ret;
             };
@@ -415,9 +415,7 @@ define([
                 this[properties[x]] = cloneProperty(this[properties[x]]);
             }
 
-            this.$super = null;               // Add the super to the instance object to speed lookup of the wrapper function
-            //this.$self = this.$constructor;   // Set the self alias
-            //this.$static = this.$constructor; // Set the static alias
+            this.$super = this.$self = null;               // Add the super to the instance object to speed lookup of the wrapper function
 
             // Apply binds
             if (this.$constructor[$class].binds.length) {
@@ -572,11 +570,7 @@ define([
         parseClass(params, dejavu);
 
         // Assign aliases
-        if (!parent) {
-            dejavu.prototype.$self = selfAlias(dejavu[$class].id);
-            dejavu.prototype.$static = staticAlias;
-        }
-        dejavu.prototype.$constructor = dejavu;
+        dejavu.prototype.$constructor = dejavu.prototype.$static = dejavu;
         dejavu.$super = superStaticAlias(dejavu[$class].id);
 
         // Parse mixins
