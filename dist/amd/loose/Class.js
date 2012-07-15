@@ -43,8 +43,7 @@ define([
     var Class,
         $class = '$class',
         $interface = '$interface',
-        $bound = '$bound_dejavu',
-        staticAlias;
+        $bound = '$bound_dejavu';
 
     /**
      * Clones a property in order to make them unique for the instance.

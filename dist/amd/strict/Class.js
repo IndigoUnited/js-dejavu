@@ -80,6 +80,7 @@ define([
         $interface = '$interface_' + random,
         $abstract = '$abstract_' + random,
         $bound = '$bound_' + random,
+        $name = $name,
         cacheKeyword = '$cache_' + random,
         inheriting,
         nextId = 0,
@@ -135,7 +136,7 @@ define([
             wrapper;
 
         if (parentMeta) {
-            parent = parentMeta.isPrivate && method['$name_' + random] === 'initialize' ? callingPrivateConstructor : parentMeta.implementation;
+            parent = parentMeta.isPrivate && method[$name] === 'initialize' ? callingPrivateConstructor : parentMeta.implementation;
         } else {
             parent = defaultSuper;
         }
@@ -171,8 +172,8 @@ define([
 
         obfuscateProperty(wrapper, '$wrapped', method);
 
-        if (method['$name_' + random]) {
-            obfuscateProperty(wrapper, '$name_' + random, method['$name_' + random]);
+        if (method[$name]) {
+            obfuscateProperty(wrapper, $name, method[$name]);
         }
 
         return wrapper;
@@ -226,8 +227,8 @@ define([
 
         obfuscateProperty(wrapper, '$wrapped', method);
 
-        if (method['$name_' + random]) {
-            obfuscateProperty(wrapper, '$name_' + random, method['$name_' + random]);
+        if (method[$name]) {
+            obfuscateProperty(wrapper, $name, method[$name]);
         }
 
         return wrapper;
@@ -263,12 +264,12 @@ define([
             allowed;
 
         // Check if function is already being used by another class or within the same class
-        if (method['$name_' + random]) {
-            if (method['$name_' + random] !== name) {
+        if (method[$name]) {
+            if (method[$name] !== name) {
                 throw new Error('Method "' + name + '" of class "' + constructor.prototype.$name + '" seems to be used several times by the same or another class.');
             }
         } else {
-            obfuscateProperty(method, '$name_' + random, name);
+            obfuscateProperty(method, $name, name);
         }
 
         // If the initialize is inherited, copy the metadata
@@ -343,7 +344,7 @@ define([
                   wrapMethod(method, constructor, constructor[$class].id, constructor[$class].baseId, constructor.$parent && constructor.$parent[$class].methods[name] ? constructor.$parent[$class].methods[name] : null) :
                   wrapStaticMethod(method, constructor[$class].id, constructor[$class].baseId, constructor.$parent && constructor.$parent[$class].staticMethods[name] ? constructor.$parent[$class].staticMethods[name] : null);
 
-        obfuscateProperty(method, '$name_' + random, name);
+        obfuscateProperty(method, $name, name);
 
         // If the function is protected/private we delete it from the target because they will be protected later
         if (!metadata.isPublic && hasDefineProperty) {
@@ -860,7 +861,7 @@ define([
         for (i = fns.length - 1; i >= 0; i -= 1) {
             current = instance[fns[i]];
             instance[fns[i]] = bind(current, instance);
-            instance[fns[i]]['$name_' + random] = current.$name;
+            instance[fns[i]][$name] = current.$name;
         }
     }
 
@@ -889,7 +890,7 @@ define([
                         currCaller = caller;
                     }
 
-                    if (this.$initializing || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                    if (this.$initializing || (currCaller && currCaller[$name] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
                         return method;
                     }
 
@@ -924,7 +925,7 @@ define([
                         currCaller = caller;
                     }
 
-                    if (this.$initializing || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                    if (this.$initializing || (currCaller && currCaller[$name] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
                         return method;
                     }
 
@@ -988,7 +989,7 @@ define([
                         currCaller = caller;
                     }
 
-                    if (inheriting || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                    if (inheriting || (currCaller && currCaller[$name] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
                         return method;
                     }
 
@@ -1013,7 +1014,7 @@ define([
                         currCaller = caller;
                     }
 
-                    if (inheriting || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                    if (inheriting || (currCaller && currCaller[$name] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
                         return method;
                     }
 
@@ -1062,7 +1063,7 @@ define([
                         currCaller = caller;
                     }
 
-                    if (this.$initializing || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                    if (this.$initializing || (currCaller && currCaller[$name] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -1078,7 +1079,7 @@ define([
                         currCaller = caller;
                     }
 
-                    if (this.$initializing || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                    if (this.$initializing || (currCaller && currCaller[$name] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
                         throw new Error('Cannot set private property "' + name + '" of class "' + this.$name + '".');
@@ -1101,7 +1102,7 @@ define([
                         currCaller = caller;
                     }
 
-                    if (this.$initializing || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                    if (this.$initializing || (currCaller && currCaller[$name] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -1117,7 +1118,7 @@ define([
                         currCaller = caller;
                     }
 
-                    if (this.$initializing || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                    if (this.$initializing || (currCaller && currCaller[$name] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
                         throw new Error('Cannot set protected property "' + name + '" of class "' + this.$name + '".');
@@ -1156,7 +1157,7 @@ define([
                         currCaller = caller;
                     }
 
-                    if (inheriting || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                    if (inheriting || (currCaller && currCaller[$name] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -1176,7 +1177,7 @@ define([
                                 currCaller = caller;
                             }
 
-                            if (currCaller && caller['$name_' + random] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId)))) {
+                            if (currCaller && caller[$name] && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId)))) {
                                 this[cacheKeyword].properties[name] = newValue;
                             } else {
                                 throw new Error('Cannot set private property "' + name + '" of class "' + this.prototype.$name + '".');
@@ -1199,7 +1200,7 @@ define([
                         currCaller = caller;
                     }
 
-                    if (inheriting || (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                    if (inheriting || (currCaller && currCaller[$name] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
                         return constructor[cacheKeyword].properties[name];
                     }
 
@@ -1219,7 +1220,7 @@ define([
                                 currCaller = caller;
                             }
 
-                            if (currCaller && currCaller['$name_' + random] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId))))) {
+                            if (currCaller && currCaller[$name] && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId))))) {
                                 this[cacheKeyword].properties[name] = newValue;
                             } else {
                                 throw new Error('Cannot set protected static property "' + name + '" of class "' + this.prototype.$name + '".');
