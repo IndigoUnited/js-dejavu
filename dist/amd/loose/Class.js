@@ -104,55 +104,34 @@ define([
         }
 
         if (!parent) {
+            wrapper = function () {
+                var _self = this.$self,
+                    ret;
 
-            if (isWrapped || method.toString().indexOf('$self') !== -1) {
-                wrapper = function () {
-                    var _self = this.$self,
-                        ret;
+                // TODO: We should be using a try finally here to ensure that $super is restored correctly but it slows down by a lot!
+                //       Find a better solution?
+                this.$self = constructor;
+                ret = method.apply(this, arguments);
+                this.$self = _self;
 
-                    // TODO: We should be using a try finally here to ensure that $super is restored correctly but it slows down by a lot!
-                    //       Find a better solution?
-                    this.$self = constructor;
-                    ret = method.apply(this, arguments);
-                    this.$self = _self;
-
-                    return ret;
-                };
-            } else {
-                return method;
-            }
+                return ret;
+            };
         } else {
+            wrapper = function () {
+                var _super = this.$super,
+                    _self = this.$self,
+                    ret;
 
-            if (isWrapped || method.toString().indexOf('$self') !== -1) {
-                wrapper = function () {
-                    var _super = this.$super,
-                        _self = this.$self,
-                        ret;
+                // TODO: We should be using a try finally here to ensure that $super is restored correctly but it slows down by a lot!
+                //       Find a better solution?
+                this.$super = parent;
+                this.$self = constructor;
+                ret = method.apply(this, arguments);
+                this.$super = _super;
+                this.$self = _self;
 
-                    // TODO: We should be using a try finally here to ensure that $super is restored correctly but it slows down by a lot!
-                    //       Find a better solution?
-                    this.$super = parent;
-                    this.$self = constructor;
-                    ret = method.apply(this, arguments);
-                    this.$super = _super;
-                    this.$self = _self;
-
-                    return ret;
-                };
-            } else {
-                wrapper = function () {
-                    var _super = this.$super,
-                        ret;
-
-                    // TODO: We should be using a try finally here to ensure that $super is restored correctly but it slows down by a lot!
-                    //       Find a better solution?
-                    this.$super = parent;
-                    ret = method.apply(this, arguments);
-                    this.$super = _super;
-
-                    return ret;
-                };
-            }
+                return ret;
+            };
         }
 
         wrapper.$wrapped = method;
