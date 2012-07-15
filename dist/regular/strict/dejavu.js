@@ -1451,6 +1451,71 @@ define('amd-utils/lang/toArray',['./isArray', './isObject', './isArguments'], fu
     return toArray;
 });
 
+define('amd-utils/lang/clone',['../object/forOwn', './kindOf'], function (forOwn, kindOf) {
+
+    /**
+     * Clone native types.
+     * @version 0.1.0 (2012/07/13)
+     */
+    function clone(val){
+        var result;
+        switch ( kindOf(val) ) {
+            case 'Object':
+                result = cloneObject(val);
+                break;
+            case 'Array':
+                result = deepCloneArray(val);
+                break;
+            case 'RegExp':
+                result = cloneRegExp(val);
+                break;
+            case 'Date':
+                result = cloneDate(val);
+                break;
+            default:
+                result = val;
+        }
+        return result;
+    }
+
+    function cloneObject(source) {
+        var out = {};
+        forOwn(source, copyProperty, out);
+        return out;
+    }
+
+    function copyProperty(val, key){
+        this[key] = clone(val);
+    }
+
+    function cloneRegExp(r){
+        var flags = '';
+        flags += r.multiline? 'm' : '';
+        flags += r.global? 'g' : '';
+        flags += r.ignoreCase? 'i' : '';
+        return new RegExp(r.source, flags);
+    }
+
+    function cloneDate(date){
+        return new Date( date.getTime() );
+    }
+
+    function deepCloneArray(arr){
+        var out = [],
+            i = -1,
+            n = arr.length,
+            val;
+        while (++i < n) {
+            out[i] = clone(arr[i]);
+        }
+        return out;
+    }
+
+    return clone;
+
+});
+
+
 define('amd-utils/array/insert',['./difference', '../lang/toArray'], function (difference, toArray) {
 
     /**
@@ -1504,6 +1569,7 @@ define('Class',[
     './common/mixIn',
     'amd-utils/lang/bind',
     'amd-utils/lang/toArray',
+    'amd-utils/lang/clone',
     'amd-utils/array/insert'
 ], function ClassWrapper(
     isString,
@@ -1538,6 +1604,7 @@ define('Class',[
     mixIn,
     bind,
     toArray,
+    clone,
     insert
 ) {
 
@@ -1568,11 +1635,9 @@ define('Class',[
      */
     function cloneProperty(prop) {
 
-        var temp;
-
-        if (isArray(prop)) {
-            return [].concat(prop);
-        }
+        // We treat object differently than amd-utils
+        // If is a plain object, we use our built-in mixIn to be faster
+        // Otherwise we do a createObject
         if (isObject(prop)) {
             if (isPlainObject(prop)) {
                 return mixIn({}, prop);
@@ -1580,19 +1645,8 @@ define('Class',[
 
             return createObject(prop);
         }
-        if (isDate(prop)) {
-            temp = new Date();
-            temp.setTime(prop.getTime());
 
-            return temp;
-        }
-        if (isRegExp(prop)) {
-            temp = (prop.toString()).replace(/[\s\S]+\//, '');
-
-            return new RegExp(prop.source, temp);
-        }
-
-        return prop;
+        return clone(prop);
     }
 
     /**
