@@ -103,8 +103,7 @@ define([
         callerClassId,
         callerClassBaseId,
         toStringInstance,
-        toStringConstructor,
-        staticAlias;
+        toStringConstructor;
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
     var Class,
