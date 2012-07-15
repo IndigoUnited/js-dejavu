@@ -322,7 +322,7 @@ define(['path/to/dejavu/Class', function (Class) {
          * Class constructor.
          */
         initialize: function () {
-            this.$self.FOO;  // 'bar'
+            this.$self.FOO;    // 'bar'
             SomeClass.FOO;     // 'bar' (is the same as above)
         }
     });
@@ -343,7 +343,7 @@ If the class itself is being defined final then it cannot be extended.
 ```js
 define(['path/to/dejavu/FinalClass', function (FinalClass) {
 
-    var SomeClass = FinalClass({        // This class cannot be extended
+    var SomeClass = FinalClass({    // This class cannot be extended
 
         /**
          * Class constructor.
