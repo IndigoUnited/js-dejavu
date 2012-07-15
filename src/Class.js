@@ -192,16 +192,16 @@ define([
 
             wrapper = function () {
                 var _super = this.$super,
-                    _self = this.$self,
+                    //_self = this.$self,
                     ret;
 
                 // TODO: We should be using a try finally here to ensure that $super is restored correctly but it slows down by a lot!
                 //       Find a better solution?
                 this.$super = parent;
-                this.$self = constructor;
+                //this.$self = constructor;
                 ret = method.apply(this, arguments);
                 this.$super = _super;
-                this.$self = _self;
+                //this.$self = _self;
 
                 return ret;
             };
