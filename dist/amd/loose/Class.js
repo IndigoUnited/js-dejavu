@@ -89,37 +89,56 @@ define([
      * This is to make some alias such as $super to work correctly.
      *
      * @param {Function} method      The method to wrap
+     * @param {Function} constructor The constructor
      * @param {Function} parent      The parent method
      *
      * @return {Function} The wrapper
      */
-    function wrapMethod(method, parent) {
+    function wrapMethod(method, constructor, parent) {
 
         if (method.$wrapped) {
             method = method.$wrapped;
         }
 
+        var wrapper;
+
         if (!parent) {
-            return method;
+
+            wrapper = function () {
+                var _self = this.$self,
+                    ret;
+
+                // TODO: We should be using a try finally here to ensure that $super is restored correctly but it slows down by a lot!
+                //       Find a better solution?
+                this.$self = constructor;
+                ret = method.apply(this, arguments);
+                this.$self = _self;
+
+                return ret;
+            };
+
         } else {
 
-            var wrapper = function () {
+            wrapper = function () {
                 var _super = this.$super,
+                    _self = this.$self,
                     ret;
 
                 // TODO: We should be using a try finally here to ensure that $super is restored correctly but it slows down by a lot!
                 //       Find a better solution?
                 this.$super = parent;
+                this.$self = constructor;
                 ret = method.apply(this, arguments);
                 this.$super = _super;
+                this.$self = _self;
 
                 return ret;
             };
-
-            wrapper.$wrapped = method;
-
-            return wrapper;
         }
+
+        wrapper.$wrapped = method;
+
+        return wrapper;
     }
 
     /**
@@ -149,7 +168,7 @@ define([
 
                     if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
                         if (isFunction(value) && !value[$class] && !value[$interface]) {
-                            constructor.prototype[key] = wrapMethod(value, constructor.$parent ? constructor.$parent.prototype[key] : null);
+                            constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
                             value['$prototype_' + constructor[$class].id] = constructor.prototype;
                             value.$name = key;
 
@@ -283,7 +302,7 @@ define([
             value = params[key];
 
             if (isFunction(value) && !value[$class] && !value[$interface]) {
-                constructor.prototype[key] = !value.$inherited ? wrapMethod(value, constructor.$parent ? constructor.$parent.prototype[key] : null) : value;
+                constructor.prototype[key] = !value.$inherited ? wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null) : value;
 
                 value['$prototype_' + constructor[$class].id] = constructor.prototype;
                 value.$name = key;
@@ -394,7 +413,9 @@ define([
                 this[properties[x]] = cloneProperty(this[properties[x]]);
             }
 
-            this.$super = null;    // Add the super to the instance object to speed lookup of the wrapper function
+            this.$super = null;               // Add the super to the instance object to speed lookup of the wrapper function
+            this.$self = this.$constructor;   // Set the self alias
+            this.$static = this.$constructor; // Set the static alias
 
             // Apply binds
             if (this.$constructor[$class].binds.length) {

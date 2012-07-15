@@ -331,15 +331,15 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
         });
 
-        describe('$self()', function () {
+        describe('$self', function () {
 
             var SomeClass = Class({
                 $name: 'SomeClass',
                 initialize: function () {
-                    this.$self()._fruit = 'orange';
+                    this.$self._fruit = 'orange';
                 },
                 getFruit: function () {
-                    return this.$self().getFruitStatic();
+                    return this.$self.getFruitStatic();
                 },
                 $statics: {
                     _fruit: 'potato',
@@ -355,7 +355,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         this.$super();
                     },
                     getFruit: function () {
-                        return this.$self().getFruitStatic();
+                        return this.$self.getFruitStatic();
                     },
                     $statics: {
                         _fruit: 'potato',
@@ -375,14 +375,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
         });
 
-        describe('$static()', function () {
+        describe('$static', function () {
 
             var SomeClass = Class({
                 initialize: function () {
-                    this.$static()._fruit = 'orange';
+                    this.$static._fruit = 'orange';
                 },
                 getFruit: function () {
-                    return this.$static().getFruitStatic();
+                    return this.$static.getFruitStatic();
                 },
                 $statics: {
                     _fruit: 'potato',
@@ -397,7 +397,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         this.$super();
                     },
                     getFruit: function () {
-                        return this.$static().getFruitStatic();
+                        return this.$static.getFruitStatic();
                     },
                     $statics: {
                         _fruit: 'potato',
@@ -425,8 +425,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 name: 'Pet',
                 position: 0,
                 initialize: function () {
-                    this.$self().nrPets += 1;
-                    this.$self().dummy = 'dummy';
+                    this.$self.nrPets += 1;
+                    this.$self.dummy = 'dummy';
                 },
                 walk: function () {
                     this.position += 1;
@@ -1065,10 +1065,10 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     return SomeClass.__funcStatic();
                 },
                 getConst: function () {
-                    return this.$self().__SOME;
+                    return this.$self.__SOME;
                 },
                 getConst2: function () {
-                    return this.$static().__SOME;
+                    return this.$static.__SOME;
                 },
                 getConst3: function () {
                     return SomeClass.__SOME;
@@ -1493,10 +1493,10 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     return 'potato';
                 },
                 getConst: function () {
-                    return this.$self()._SOME;
+                    return this.$self._SOME;
                 },
                 getConst2: function () {
-                    return this.$static()._SOME;
+                    return this.$static._SOME;
                 },
                 getConst3: function () {
                     return SomeClass._SOME;
@@ -1556,7 +1556,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         var OtherClass = Class({
                             $extends: SomeClass,
                             some: function () {
-                                this.$self()._funcStatic();
+                                this.$self._funcStatic();
                             }
                         });
                         new OtherClass().some();

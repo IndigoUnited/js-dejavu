@@ -1601,13 +1601,14 @@ define('Class',[
      * This is to make some alias such as $super to work correctly.
      *
      * @param {Function} method      The method to wrap
+     * @param {Function} constructor The constructor
      * @param {String}   classId     The class id
      * @param {String}   classBaseId The class base id
      * @param {Object}   parentMeta  The parent method metada
      *
      * @return {Function} The wrapper
      */
-    function wrapMethod(method, classId, classBaseId, parentMeta) {
+    function wrapMethod(method, constructor, classId, classBaseId, parentMeta) {
 
         if (method.$wrapped) {
             throw new Error('Method is already wrapped.');
@@ -1628,6 +1629,7 @@ define('Class',[
                 prevCallerClassId = callerClassId,
                 prevCallerClassBaseId = callerClassBaseId,
                 _super = this.$super,
+                _self = this.$self,
                 ret;
 
             caller = method;
@@ -1635,6 +1637,7 @@ define('Class',[
             callerClassBaseId = classBaseId;
 
             this.$super = parent;
+            this.$self = constructor;
 
             try {
                 ret = method.apply(this, arguments);
@@ -1643,6 +1646,7 @@ define('Class',[
                 callerClassId = prevCallerClassId;
                 callerClassBaseId = prevCallerClassBaseId;
                 this.$super = _super;
+                this.$self = _self;
             }
 
             return ret;
@@ -1763,7 +1767,7 @@ define('Class',[
         }
 
         originalMethod = method;
-        method = wrapMethod(method, constructor[$class].id, constructor[$class].baseId, constructor.$parent && constructor.$parent[$class].methods[name] ? constructor.$parent[$class].methods[name] : null);
+        method = wrapMethod(method, constructor, constructor[$class].id, constructor[$class].baseId, constructor.$parent && constructor.$parent[$class].methods[name] ? constructor.$parent[$class].methods[name] : null);
         obfuscateProperty(method, '$name_' + random, name);
 
         // If the function is protected/private we delete it from the target because they will be protected later
@@ -2762,8 +2766,10 @@ define('Class',[
                 obfuscateProperty(this, '$underStrict', true);
             }
 
-            this.$initializing = true;     // Mark it in order to let abstract classes run their initialize
-            this.$super = defaultSuper;    // Add the super to the instance object to speed lookup of the wrapper function
+            this.$initializing = true;        // Mark it in order to let abstract classes run their initialize
+            this.$super = defaultSuper;       // Add the super to the instance object to speed lookup of the wrapper function
+            this.$self = this.$constructor;   // Set the self alias
+            this.$static = this.$constructor; // Set the static alias
 
             // Apply private/protected members
             if (hasDefineProperty) {
