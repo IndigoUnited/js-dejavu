@@ -19,6 +19,7 @@ define([
     'amd-utils/array/append',
     'amd-utils/lang/bind',
     'amd-utils/lang/toArray',
+    'amd-utils/lang/clone',
     'amd-utils/array/insert'
 ], function ClassWrapper(
     isImmutable,
@@ -37,6 +38,7 @@ define([
     append,
     bind,
     toArray,
+    clone,
     insert
 ) {
 
@@ -57,11 +59,9 @@ define([
      */
     function cloneProperty(prop) {
 
-        var temp;
-
-        if (isArray(prop)) {
-            return [].concat(prop);
-        }
+        // We treat object differently than amd-utils
+        // If is a plain object, we use our built-in mixIn to be faster
+        // Otherwise we do a createObject
         if (isObject(prop)) {
             if (isPlainObject(prop)) {
                 return mixIn({}, prop);
@@ -69,19 +69,8 @@ define([
 
             return createObject(prop);
         }
-        if (isDate(prop)) {
-            temp = new Date();
-            temp.setTime(prop.getTime());
 
-            return temp;
-        }
-        if (isRegExp(prop)) {
-            temp = (prop.toString()).replace(/[\s\S]+\//, '');
-
-            return new RegExp(prop.source, temp);
-        }
-
-        return prop;
+        return clone(prop);
     }
 
     /**
