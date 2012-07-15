@@ -87,8 +87,7 @@ define([
         callerClassId,
         callerClassBaseId,
         toStringInstance,
-        toStringConstructor,
-        staticAlias;
+        toStringConstructor;
 
     /**
      * Clones a property in order to make them unique for the instance.
