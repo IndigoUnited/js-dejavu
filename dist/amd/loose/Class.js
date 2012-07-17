@@ -445,13 +445,6 @@ define([
     }
 
     /**
-     * Default implementation of the super function.
-     */
-    function defaultSuper() {
-        throw new Error('Trying to call $super when there is not parent function.');
-    }
-
-    /**
      * Inherits aditional data from the parent, such as metadata, binds and static members.
      *
      * @param {Function} constructor The constructor
