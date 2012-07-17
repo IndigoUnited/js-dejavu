@@ -1687,6 +1687,7 @@ define([
         return Instance;
     }
 
+//>>includeStart('strict', pragmas.strict);
     /**
      * Default implementation of the super function.
      */
@@ -1694,6 +1695,7 @@ define([
         throw new Error('Trying to call $super when there is not parent function.');
     }
 
+//>>includeEnd('strict');
     /**
      * Inherits aditional data from the parent, such as metadata, binds and static members.
      *
