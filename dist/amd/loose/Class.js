@@ -535,10 +535,7 @@ define([
         return dejavu;
     };
 
-    // TODO: check if a $bound or $bind already exist in the prototype and emit a warning?
-    // TODO: do a $bound and $bind function available as amd defines
-
-    // Add custom bound function to supply binds
+    // Add custom bound/bind function to supply binds
     Function.prototype.$bound = function () {
         this[$bound] = true;
 

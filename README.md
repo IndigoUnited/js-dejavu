@@ -302,6 +302,67 @@ The $bound() function allows you to bind a function to the instance.
 This is useful if certain functions are meant to be used as callbacks or handlers.
 You don't need to bind the function manually, it will be bound for you automatically.
 
+```js
+define([
+    'path/to/dejavu/Class'
+],
+function (Class) {
+
+    var ConcreteClass = Class({
+
+        /**
+         * Constructor.
+         */
+        initialize: function (element) {
+            element.addEventListener('click', this._handleClick);
+        },
+
+        /**
+         * Handles some click event.
+         */
+        handleClick: function () {
+            // Handle click here
+        }.$bound(),
+
+    });
+});
+```
+
+Alternatively, one can use anonymous functions and bind them to the instance to preserve the context as well as allowing private/protected methods invocations.
+
+```js
+define([
+    'path/to/dejavu/Class'
+],
+function (Class) {
+
+    var ConcreteClass = Class({
+
+        /**
+         * Constructor.
+         */
+        initialize: function (element) {
+            element.addEventListener('click', function () {
+                console.log('caught click');
+                this._doSomething();
+            }.$bind(this));                                                    // use the $bind
+
+            element.addEventListener('keydown', this.$bind(function () {
+                console.log('caught keydown');
+                this._doSomething();                                           // use the this.$bind (same behavior as above)
+            });
+        },
+
+        /**
+         * Some protected method
+         */
+        _doSomething: function () {
+            // ..
+        },
+
+    });
+});
+```
 
 ### Constants ###
 
