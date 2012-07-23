@@ -175,6 +175,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(example2.some).to.be.equal('test4');
                 example2.method5().call(this);
                 expect(example2.some).to.be.equal('test5');
+
             });
         });
 
@@ -345,6 +346,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     _fruit: 'potato',
                     getFruitStatic: function () {
                         return this._fruit;
+                    },
+                    setFruitStatic: function (fruit) {
+                        this.$self._fruit = fruit;
                     }
                 }
             }),
@@ -371,6 +375,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(SomeClass.getFruitStatic()).to.be.equal('orange');
                 expect((new OtherClass()).getFruit()).to.be.equal('potato');
                 expect(OtherClass.getFruitStatic()).to.be.equal('potato');
+
+                OtherClass.setFruitStatic('carrot');
+                expect(SomeClass.getFruitStatic()).to.be.equal('carrot');
+                expect(OtherClass.getFruitStatic()).to.be.equal('potato');
+
+                SomeClass.setFruitStatic('carrot');
+
             });
 
         });
@@ -388,6 +399,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     _fruit: 'potato',
                     getFruitStatic: function () {
                         return this._fruit;
+                    },
+                    setFruitStatic: function (fruit) {
+                        this._fruit = fruit;
+                    },
+                    setFruitStatic2: function (fruit) {
+                        this.$static._fruit = fruit;
                     }
                 }
             }),
@@ -413,6 +430,16 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(SomeClass.getFruitStatic()).to.be.equal('orange');
                 expect(new OtherClass().getFruit()).to.be.equal('orange');
                 expect(OtherClass.getFruitStatic()).to.be.equal('orange');
+
+                OtherClass.setFruitStatic('carrot');
+                expect(SomeClass.getFruitStatic()).to.be.equal('orange');
+                expect(OtherClass.getFruitStatic()).to.be.equal('carrot');
+
+                OtherClass.setFruitStatic2('banana');
+                expect(SomeClass.getFruitStatic()).to.be.equal('orange');
+                expect(OtherClass.getFruitStatic()).to.be.equal('banana');
+
+                SomeClass.setFruitStatic('carrot');
 
             });
 
@@ -1901,6 +1928,250 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(instanceOf(new Class1(), Interface2)).to.be.equal(false);
                 expect(instanceOf(new Class6(), Interface4)).to.be.equal(false);
+
+            });
+
+        });
+
+        describe('Anonymous functions that where bound', function () {
+
+            var context = {},
+                SomeClass = Class({
+                    simpleMethod: function () {
+                        var func = this.$bind(function () {
+                            return this;
+                        });
+
+                        return func.call(context);
+                    },
+                    boundTwice: function () {
+                        return this.$bind(this.$bind(function () { }));
+                    },
+                    boundOfNamed: function () {
+                        return this.$bind(this.simpleMethod);
+                    },
+                    someMethod: function () {
+                        var func = this.$bind(function () {
+                            this._protectedProperty = 'dummy';
+                            this.__privateProperty = 'dummy',
+                            this._protectedMethod();
+                            this.__privateMethod();
+                        });
+
+                        func.call(context);
+                    },
+                    someMethod2: function () {
+                        var func = function (x) {
+                            return x;
+                        }.$bind(this, 'foo');
+
+                        return func.call(context);
+                    },
+                    getProtectedProperty: function () {
+                        return this._protectedProperty;
+                    },
+                    getPrivateProperty: function () {
+                        return this.__privateProperty;
+                    },
+                    _protectedProperty: 'some',
+                    __privateProperty: 'other',
+                    _protectedMethod: function () {},
+                    __privateMethod: function () {},
+
+                    $statics: {
+                        simpleMethodStatic: function () {
+                            var func = this.$bind(function () {
+                                return this;
+                            });
+
+                            return func.call(context);
+                        },
+                        someMethodStatic: function () {
+                            var func = this.$bind(function () {
+                                this._protectedPropertyStatic = 'dummy';
+                                this.__privatePropertyStatic = 'dummy',
+                                this._protectedMethodStatic();
+                                this.__privateMethodStatic();
+                            });
+
+                            func.call(context);
+                        },
+                        someMethod2Static: function () {
+                            var func = function (x) {
+                                return x;
+                            }.$bind(this, 'foo');
+
+                            return func.call(context);
+                        },
+                        getProtectedPropertyStatic: function () {
+                            return this._protectedPropertyStatic;
+                        },
+                        getPrivatePropertyStatic: function () {
+                            return this.__privatePropertyStatic;
+                        },
+                        _protectedPropertyStatic: 'some',
+                        __privatePropertyStatic: 'other',
+                        _protectedMethodStatic: function () {},
+                        __privateMethodStatic: function () {}
+                    }
+                }),
+                someClass = new SomeClass(),
+                ReplicaClass = Class({
+                    simpleMethod: function () {
+                        var func = function () {
+                            return this;
+                        }.$bind(this);
+
+                        return func.call(context);
+                    },
+                    boundTwice: function () {
+                        return function () {}.$bind(this).$bind(this);
+                    },
+                    boundOfNamed: function () {
+                        return this.$bind(this.simpleMethod);
+                    },
+                    someMethod: function () {
+                        var func = function () {
+                            this._protectedProperty = 'dummy';
+                            this.__privateProperty = 'dummy',
+                            this._protectedMethod();
+                            this.__privateMethod();
+                        }.$bind(this);
+
+                        func.call(context);
+                    },
+                    someMethod2: function () {
+                        var func = function (x) {
+                            return x;
+                        }.$bind(this, 'foo');
+
+                        return func.call(context);
+                    },
+                    getProtectedProperty: function () {
+                        return this._protectedProperty;
+                    },
+                    getPrivateProperty: function () {
+                        return this.__privateProperty;
+                    },
+                    _protectedProperty: 'some',
+                    __privateProperty: 'other',
+                    _protectedMethod: function () {},
+                    __privateMethod: function () {},
+
+                    $statics: {
+                        simpleMethodStatic: function () {
+                            var func = function () {
+                                return this;
+                            }.$bind(this);
+
+                            return func.call(context);
+                        },
+                        someMethodStatic: function () {
+                            var func = function () {
+                                this._protectedPropertyStatic = 'dummy';
+                                this.__privatePropertyStatic = 'dummy',
+                                this._protectedMethodStatic();
+                                this.__privateMethodStatic();
+                            }.$bind(this);
+
+                            func.call(context);
+                        },
+                        someMethod2Static: function () {
+                            var func = function (x) {
+                                return x;
+                            }.$bind(this, 'foo');
+
+                            return func.call(context);
+                        },
+                        getProtectedPropertyStatic: function () {
+                            return this._protectedPropertyStatic;
+                        },
+                        getPrivatePropertyStatic: function () {
+                            return this.__privatePropertyStatic;
+                        },
+                        _protectedPropertyStatic: 'some',
+                        __privatePropertyStatic: 'other',
+                        _protectedMethodStatic: function () {},
+                        __privateMethodStatic: function () {}
+                    }
+                }),
+                replicaClass = new ReplicaClass();
+
+            if (/strict/.test(global.build))  {
+                it('should throw an error if the function is not anonymous', function () {
+
+                    expect(function () {
+                        someClass.boundOfNamed();
+                    }).to.throwException(/not anonymous/);
+
+                    expect(function () {
+                        replicaClass.boundOfNamed();
+                    }).to.throwException(/not anonymous/);
+
+                });
+
+                it('should throw an error if bound twice', function () {
+
+                    expect(function () {
+                        someClass.boundOfNamed();
+                    }).to.throwException(/not anonymous/);
+
+                    expect(function () {
+                        replicaClass.boundOfNamed();
+                    }).to.throwException(/not anonymous/);
+
+                });
+            }
+
+            it('should have access to the right context', function () {
+
+                expect(someClass.simpleMethod()).to.equal(someClass);
+                expect(SomeClass.simpleMethodStatic()).to.equal(SomeClass);
+
+                expect(replicaClass.simpleMethod()).to.equal(replicaClass);
+                expect(ReplicaClass.simpleMethodStatic()).to.equal(ReplicaClass);
+
+            });
+
+            it('should curl the parameters', function () {
+
+                expect(someClass.someMethod2()).to.equal('foo');
+                expect(SomeClass.someMethod2Static()).to.equal('foo');
+
+                expect(replicaClass.someMethod2()).to.equal('foo');
+                expect(ReplicaClass.someMethod2Static()).to.equal('foo');
+
+            });
+
+            it('should have access to private/protected members', function () {
+
+                expect(function () {
+                    someClass.someMethod();
+                }).to.not.throwException();
+
+                expect(someClass.getProtectedProperty()).to.equal('dummy');
+                expect(someClass.getPrivateProperty()).to.equal('dummy');
+
+                expect(function () {
+                    SomeClass.someMethodStatic();
+                }).to.not.throwException();
+
+                expect(SomeClass.getProtectedPropertyStatic()).to.equal('dummy');
+                expect(SomeClass.getPrivatePropertyStatic()).to.equal('dummy');
+
+                expect(function () {
+                    replicaClass.someMethod();
+                }).to.not.throwException();
+
+                expect(replicaClass.getProtectedProperty()).to.equal('dummy');
+                expect(replicaClass.getPrivateProperty()).to.equal('dummy');
+
+                expect(function () {
+                    ReplicaClass.someMethodStatic();
+                }).to.not.throwException();
+
+                expect(ReplicaClass.getProtectedPropertyStatic()).to.equal('dummy');
+                expect(ReplicaClass.getPrivatePropertyStatic()).to.equal('dummy');
 
             });
 

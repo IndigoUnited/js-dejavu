@@ -129,45 +129,6 @@ define([
     }
 
     /**
-     * Wraps a static method.
-     * This is to make the $super to work correctly.
-     *
-     * @param {Function} method      The method to wrap
-     * @param {Function} parent      The parent method
-     *
-     * @return {Function} The wrapper
-     */
-    function wrapStaticMethod(method, parent) {
-
-        if (method.$wrapped) {
-            method = method.$wrapped;
-        }
-
-        if (!parent) {
-            return method;
-        } else {
-
-            var wrapper = function () {
-                var _super = this.$super,
-                    ret;
-
-                // TODO: We should be using a try finally here to ensure that $super is restored correctly but it slows down by a lot!
-                //       Find a better solution?
-                this.$super = parent;
-                ret = method.apply(this, arguments);
-                this.$super = _super;
-
-                return ret;
-            };
-
-            wrapper.$wrapped = method;
-
-            return wrapper;
-        }
-
-    }
-
-    /**
      * Parse borrows (mixins).
      *
      * @param {Function} constructor The constructor
@@ -291,7 +252,7 @@ define([
 
                 if (isFunction(value) && !value[$class] && !value[$interface]) {
                     insert(constructor[$class].staticMethods, key);
-                    constructor[key] = wrapStaticMethod(value, constructor.$parent ? constructor.$parent[key] : null);
+                    constructor[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent[key] : null);
                 } else {
                     constructor[$class].staticProperties[key] = value;
                     constructor[key] = value;
@@ -445,6 +406,24 @@ define([
     }
 
     /**
+     * Anonymous bind.
+     *
+     * @param {Function} func The function to be bound
+     */
+    function anonymousBind(func) {
+
+        // TODO: improve the bind here
+        var args = toArray(arguments),
+            bound;
+
+        args.splice(1, 0, this);
+        bound = bind.apply(func, args);
+        bound = wrapMethod(bound, this.$self);
+
+        return bound;
+    }
+
+    /**
      * Inherits aditional data from the parent, such as metadata, binds and static members.
      *
      * @param {Function} constructor The constructor
@@ -533,6 +512,11 @@ define([
 
         // Assign aliases
         dejavu.prototype.$constructor = dejavu.prototype.$static = dejavu;
+        dejavu.$bind = anonymousBind;
+        dejavu.$static = dejavu;
+        if (!dejavu.$parent) {
+            dejavu.prototype.$bind = anonymousBind;
+        }
 
         // Parse mixins
         parseBorrows(dejavu);
@@ -561,12 +545,17 @@ define([
         return this;
     };
 
-    Function.prototype.$bind = function () {
+    Function.prototype.$bind = function (context) {
         if (!arguments.length) {
             this[$bound] = true;
-        } else {
-            // TODO:
+
+            return this;
         }
+
+        var args = toArray(arguments);
+        args.splice(0, 1, this);
+
+        return anonymousBind.apply(context, args);
     };
 
     return Class;
