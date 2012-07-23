@@ -24,6 +24,7 @@ define([
     './common/checkObjectPrototype',
     './common/randomAccessor',
     './common/hasFreezeBug',
+    './common/printWarning',
 //>>includeEnd('strict');
     './common/isImmutable',
     './common/isPlainObject',
@@ -64,6 +65,7 @@ define([
     checkObjectPrototype,
     randomAccessor,
     hasFreezeBug,
+    printWarning,
 //>>includeEnd('strict');
     isImmutable,
     isPlainObject,
@@ -2042,10 +2044,13 @@ define([
         return dejavu;
     };
 
-    // TODO: check if a $bound or $bind already exist in the prototype and emit a warning?
-    // TODO: do a $bound and $bind function available as amd defines
+//>>includeStart('strict', pragmas.strict);
+    if (Function.prototype.$bound) {
+        printWarning('Function.prototype.$bound is already defined and will be overwritten.');
+    }
 
-    // Add custom bound function to supply binds
+//>>includeEnd('strict');
+    // Add custom bound/bind function to supply binds
     Function.prototype.$bound = function () {
         this[$bound] = true;
 
@@ -2053,6 +2058,10 @@ define([
     };
 
 //>>includeStart('strict', pragmas.strict);
+    if (Function.prototype.$bind) {
+        printWarning('Function.prototype.$bind is already defined and will be overwritten.');
+    }
+
     Function.prototype.$bind = function (context) {
         if (!arguments.length) {
             this[$bound] = true;

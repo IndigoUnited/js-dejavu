@@ -815,6 +815,21 @@ define('common/hasFreezeBug',['amd-utils/lang/isFunction'], function (isFunction
     return checkHasFreezeBug();
 });
 
+define('common/printWarning',['amd-utils/lang/isFunction'], function (isFunction) {
+
+    'use strict';
+
+    function printWarning(message) {
+
+        if (typeof console !== 'undefined' && isFunction(console.warn)) {
+            console.warn(message);
+        }
+
+    }
+
+    return printWarning;
+});
+
 define('amd-utils/lang/isNumber',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
@@ -1552,6 +1567,7 @@ define('Class',[
     './common/checkObjectPrototype',
     './common/randomAccessor',
     './common/hasFreezeBug',
+    './common/printWarning',
     './common/isImmutable',
     './common/isPlainObject',
     'amd-utils/lang/isFunction',
@@ -1587,6 +1603,7 @@ define('Class',[
     checkObjectPrototype,
     randomAccessor,
     hasFreezeBug,
+    printWarning,
     isImmutable,
     isPlainObject,
     isFunction,
@@ -3202,15 +3219,20 @@ define('Class',[
         return dejavu;
     };
 
-    // TODO: check if a $bound or $bind already exist in the prototype and emit a warning?
-    // TODO: do a $bound and $bind function available as amd defines
+    if (Function.prototype.$bound) {
+        printWarning('Function.prototype.$bound is already defined and will be overwritten.');
+    }
 
-    // Add custom bound function to supply binds
+    // Add custom bound/bind function to supply binds
     Function.prototype.$bound = function () {
         this[$bound] = true;
 
         return this;
     };
+
+    if (Function.prototype.$bind) {
+        printWarning('Function.prototype.$bind is already defined and will be overwritten.');
+    }
 
     Function.prototype.$bind = function (context) {
         if (!arguments.length) {
