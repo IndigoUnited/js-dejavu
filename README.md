@@ -277,7 +277,6 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
             // Handle click here
         }.$bound(),                                     // $bound() let you automatically bind the function to the instance
                                                         // Useful for handlers/callbacks
-                                                        // You can specify multiple binds in an array
 
         $statics: {
             // Some class static members
