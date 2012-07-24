@@ -1,8 +1,4 @@
-define([
-    'amd-utils/lang/isUndefined'
-], function (
-    isUndefined
-) {
+define(function () {
 
     'use strict';
 
@@ -20,7 +16,7 @@ define([
         var ret = {};
 
         // Is it undefined?
-        if (isUndefined(prop)) {
+        if (prop === undefined) {
             return null;
         }
 

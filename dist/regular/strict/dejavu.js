@@ -591,6 +591,46 @@ define('common/functionMeta',[],function () {
     return functionMeta;
 });
 
+define('common/propertyMeta',[],function () {
+
+    'use strict';
+
+    /**
+     * Extract meta data from a property.
+     * For now, the returns an object containing the visibility.
+     *
+     * @param {Mixed} prop The property
+     * @param {String} name The name of the property
+     *
+     * @return {Object} An object containg the metadata
+     */
+    function propertyMeta(prop, name) {
+
+        var ret = {};
+
+        // Is it undefined?
+        if (prop === undefined) {
+            return null;
+        }
+
+        // Analyze visibility
+        if (name) {
+            if (name.charAt(0) === '_') {
+                if (name.charAt(1) === '_') {
+                    ret.isPrivate = true;
+                } else {
+                    ret.isProtected = true;
+                }
+            } else {
+                ret.isPublic = true;
+            }
+        }
+
+        return ret;
+    }
+
+    return propertyMeta;
+});
 define('common/isFunctionCompatible',[],function () {
 
     'use strict';
@@ -916,62 +956,6 @@ define('amd-utils/lang/isRegExp',['./isKind'], function (isKind) {
     return isRegExp;
 });
 
-define('amd-utils/lang/isUndefined',[],function () {
-    var UNDEF;
-
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isUndef(val){
-        return val === UNDEF;
-    }
-    return isUndef;
-});
-
-define('common/propertyMeta',[
-    'amd-utils/lang/isUndefined'
-], function (
-    isUndefined
-) {
-
-    'use strict';
-
-    /**
-     * Extract meta data from a property.
-     * For now, the returns an object containing the visibility.
-     *
-     * @param {Mixed} prop The property
-     * @param {String} name The name of the property
-     *
-     * @return {Object} An object containg the metadata
-     */
-    function propertyMeta(prop, name) {
-
-        var ret = {};
-
-        // Is it undefined?
-        if (isUndefined(prop)) {
-            return null;
-        }
-
-        // Analyze visibility
-        if (name) {
-            if (name.charAt(0) === '_') {
-                if (name.charAt(1) === '_') {
-                    ret.isPrivate = true;
-                } else {
-                    ret.isProtected = true;
-                }
-            } else {
-                ret.isPublic = true;
-            }
-        }
-
-        return ret;
-    }
-
-    return propertyMeta;
-});
 define('amd-utils/object/hasOwn',[],function () {
 
     /**
@@ -1575,7 +1559,6 @@ define('Class',[
     'amd-utils/lang/isArray',
     'amd-utils/lang/isDate',
     'amd-utils/lang/isRegExp',
-    'amd-utils/lang/isUndefined',
     'amd-utils/lang/createObject',
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
@@ -1611,7 +1594,6 @@ define('Class',[
     isArray,
     isDate,
     isRegExp,
-    isUndefined,
     createObject,
     hasOwn,
     combine,
@@ -2118,14 +2100,14 @@ define('Class',[
 
                 // Grab mixin members
                 for (key in current.$constructor[$class].methods) {
-                    if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
+                    if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
                         opts.metadata = current.$constructor[$class].methods[key];
                         addMethod(key, opts.metadata.implementation || current[key], constructor, opts);
                     }
                 }
 
                 for (key in current.$constructor[$class].properties) {
-                    if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
+                    if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
                         opts.metadata = current.$constructor[$class].properties[key];
                         addProperty(key, opts.metadata.value || current[key], constructor, opts);
                     }
@@ -2135,14 +2117,14 @@ define('Class',[
 
                 // Grab mixin static members
                 for (key in current.$constructor[$class].staticMethods) {
-                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
+                    if (constructor[key] === undefined) {              // Already defined members are not overwritten
                         opts.metadata = current.$constructor[$class].staticMethods[key];
                         addMethod(key, opts.metadata.implementation || current.$constructor[key], constructor, opts);
                     }
                 }
 
                 for (key in current.$constructor[$class].staticProperties) {
-                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
+                    if (constructor[key] === undefined) {              // Already defined members are not overwritten
                         opts.metadata = current.$constructor[$class].staticProperties[key];
                         addProperty(key, opts.metadata.value || current.$constructor[key], constructor, opts);
                     }
