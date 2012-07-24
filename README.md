@@ -344,11 +344,11 @@ function (Class) {
             element.addEventListener('click', function () {
                 console.log('caught click');
                 this._doSomething();
-            }.$bind(this));                                                    // use the $bind
+            }.$bind(this));                                                    // Use the $bind
 
             element.addEventListener('keydown', this.$bind(function () {
                 console.log('caught keydown');
-                this._doSomething();                                           // use the this.$bind (same behavior as above)
+                this._doSomething();                                           // Use the this.$bind (same behavior as above)
             });
         },
 
