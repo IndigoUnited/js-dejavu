@@ -408,7 +408,8 @@ define([
     /**
      * Anonymous bind.
      *
-     * @param {Function} func The function to be bound
+     * @param {Function} func   The function to be bound
+     * @param {...mixed} [args] The arguments to also be bound
      */
     function anonymousBind(func) {
 

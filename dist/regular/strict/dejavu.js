@@ -2943,7 +2943,8 @@ define('Class',[
     /**
      * Anonymous bind.
      *
-     * @param {Function} func The function to be bound
+     * @param {Function} func   The function to be bound
+     * @param {...mixed} [args] The arguments to also be bound
      */
     function anonymousBind(func) {
 
@@ -2970,7 +2971,8 @@ define('Class',[
     /**
      * Anonymous bind for static methods.
      *
-     * @param {Function} func The function to be bound
+     * @param {Function} func   The function to be bound
+     * @param {...mixed} [args] The arguments to also be bound
      */
     function anonymousBindStatic(func) {
 
