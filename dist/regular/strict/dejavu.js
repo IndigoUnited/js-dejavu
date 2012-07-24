@@ -1927,8 +1927,10 @@ define('Class',[
         }
 
         // If the function is specified to be bound, add it to the binds
-        if (!isStatic && originalMethod[$bound]) {
-            insert(constructor[$class].binds, name);
+        if (originalMethod[$bound]) {
+            if (!isStatic) {
+                insert(constructor[$class].binds, name);
+            }
             delete originalMethod[$bound];
         }
 
