@@ -1,10 +1,6 @@
 /*jshint strict:false*/
 
-define([
-    'amd-utils/lang/isUndefined'
-], function (
-    isUndefined
-) {
+define(function () {
 
     /**
      * Extract meta data from a property.
@@ -20,7 +16,7 @@ define([
         var ret = {};
 
         // Is it undefined?
-        if (isUndefined(prop)) {
+        if (prop === undefined) {
             return null;
         }
 

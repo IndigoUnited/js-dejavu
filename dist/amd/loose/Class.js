@@ -8,7 +8,6 @@ define([
     'amd-utils/lang/isArray',
     'amd-utils/lang/isDate',
     'amd-utils/lang/isRegExp',
-    'amd-utils/lang/isUndefined',
     'amd-utils/lang/createObject',
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
@@ -27,7 +26,6 @@ define([
     isArray,
     isDate,
     isRegExp,
-    isUndefined,
     createObject,
     hasOwn,
     combine,
@@ -153,7 +151,7 @@ define([
 
                     value = current[key];
 
-                    if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
+                    if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
                         if (isFunction(value) && !value[$class] && !value[$interface]) {
                             constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
 
@@ -175,7 +173,7 @@ define([
 
                     key = current.$constructor[$class].staticMethods[k];
 
-                    if (isUndefined(constructor[key])) {    // Already defined members are not overwritten
+                    if (constructor[key] === undefined) {    // Already defined members are not overwritten
                         insert(constructor[$class].staticMethods, key);
                         constructor[key] = current.$constructor[key];
                     }
@@ -186,7 +184,7 @@ define([
 
                     value = current.$constructor[$class].staticProperties[key];
 
-                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
+                    if (constructor[key] === undefined) {              // Already defined members are not overwritten
                         constructor[$class].staticProperties[key] = value;
                         constructor[key] = cloneProperty(value);
                     }

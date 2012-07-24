@@ -33,7 +33,6 @@ define([
     'amd-utils/lang/isArray',
     'amd-utils/lang/isDate',
     'amd-utils/lang/isRegExp',
-    'amd-utils/lang/isUndefined',
     'amd-utils/lang/createObject',
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
@@ -74,7 +73,6 @@ define([
     isArray,
     isDate,
     isRegExp,
-    isUndefined,
     createObject,
     hasOwn,
     combine,
@@ -672,7 +670,7 @@ define([
 
                     value = current[key];
 
-                    if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
+                    if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
                         if (isFunction(value) && !value[$class] && !value[$interface]) {
                             constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
 
@@ -695,14 +693,14 @@ define([
 
                 // Grab mixin members
                 for (key in current.$constructor[$class].methods) {
-                    if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
+                    if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
                         opts.metadata = current.$constructor[$class].methods[key];
                         addMethod(key, opts.metadata.implementation || current[key], constructor, opts);
                     }
                 }
 
                 for (key in current.$constructor[$class].properties) {
-                    if (isUndefined(constructor.prototype[key])) {    // Already defined members are not overwritten
+                    if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
                         opts.metadata = current.$constructor[$class].properties[key];
                         addProperty(key, opts.metadata.value || current[key], constructor, opts);
                     }
@@ -712,14 +710,14 @@ define([
 
                 // Grab mixin static members
                 for (key in current.$constructor[$class].staticMethods) {
-                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
+                    if (constructor[key] === undefined) {              // Already defined members are not overwritten
                         opts.metadata = current.$constructor[$class].staticMethods[key];
                         addMethod(key, opts.metadata.implementation || current.$constructor[key], constructor, opts);
                     }
                 }
 
                 for (key in current.$constructor[$class].staticProperties) {
-                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
+                    if (constructor[key] === undefined) {              // Already defined members are not overwritten
                         opts.metadata = current.$constructor[$class].staticProperties[key];
                         addProperty(key, opts.metadata.value || current.$constructor[key], constructor, opts);
                     }
@@ -731,7 +729,7 @@ define([
 
                     key = current.$constructor[$class].staticMethods[k];
 
-                    if (isUndefined(constructor[key])) {    // Already defined members are not overwritten
+                    if (constructor[key] === undefined) {    // Already defined members are not overwritten
                         insert(constructor[$class].staticMethods, key);
                         constructor[key] = current.$constructor[key];
                     }
@@ -742,7 +740,7 @@ define([
 
                     value = current.$constructor[$class].staticProperties[key];
 
-                    if (isUndefined(constructor[key])) {              // Already defined members are not overwritten
+                    if (constructor[key] === undefined) {              // Already defined members are not overwritten
                         constructor[$class].staticProperties[key] = value;
                         constructor[key] = cloneProperty(value);
                     }
