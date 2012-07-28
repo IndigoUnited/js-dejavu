@@ -7,6 +7,7 @@ Prototypal inheritance is powerful and flexible, yet difficult to understand and
 dejavu is a library that delivers classic inheritance on top of JavaScript prototypal inheritance.
 
 
+
 ## Why another? ##
 
 There are some libraries around that are able to shim classical inheritance, though none of them offered all the functionality that I was looking for.
@@ -33,6 +34,8 @@ Users are encouraged to declare 'use strict' while using the strict build otherw
 This is because dejavu uses Object.freeze and/or Object.seal to lock classes and instances, guaranteeing that nobody changes the behaviour of your classes the wrong way (replacing methods, etc).
 Run a preprocessor to remove 'use strict' from all production code (e.g.: requirejs optimizer tool).
 
+
+
 ## Works on ##
 
 * IE (6+?)
@@ -45,6 +48,8 @@ Run a preprocessor to remove 'use strict' from all production code (e.g.: requir
 Some features like private and protected members access management are only available in modern JavaScript engines (the ones that support Object.defineProperty).
 Still, the library provide fallbacks for those cases.
 The regular build is also compatible with CommonJS modules, so it works well with Node and Rhino.
+
+
 
 ## Performance ##
 
@@ -59,6 +64,8 @@ The loose version also has lower memory footprint and less size in bytes.
 I've publish a new test revision on [jsperf](http://jsperf.com/oop-benchmark/41) comparing dejavu with other OOP libraries.
 The version running is the regular (loose build). dejavu uses a wrapper for the constructor function therefore its performance can't be compared to JSFace or my.Class.
 The constructor wrapper is needed in order to apply binds and to make mutable types unique for each instance (for example, if an property is an array it should not be shared among instances, but in JSFace and my.Class they actually are).
+
+
 
 ## Usage ##
 
@@ -363,6 +370,7 @@ function (Class) {
 });
 ```
 
+
 ### Constants ###
 
 The $constants keyword allows you to defined constants.
@@ -500,6 +508,8 @@ define(['path/to/dejavu/Class'], function (Class) {
 Because the parent reference is attached statically there is no performance overhead.
 With this syntax it also gives you the flexibility to call other parent methods.
 
+
+
 ### Signature check ###
 
 All functions are virtual functions, therefore they can be overriden except if it's classified as final.
@@ -537,6 +547,7 @@ var OtherComplexClass = Class({
     }
 });
 ```
+
 
 ### Calling static methods within an instance ###
 
@@ -581,9 +592,12 @@ Example3.foo(); // hello
 Example4.foo(); // bye
 ```
 
+
+
 ### instanceOf ###
 
 The instanceOf function works exactly the same way as the native instanceof except that it also works for interfaces.
+
 
 
 ### Notes ###
@@ -596,6 +610,8 @@ var MyClass = Class({
     foz: 'bar'               // Ok
 });
 ```
+
+
 
 ## Dependencies ##
 
