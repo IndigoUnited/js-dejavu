@@ -211,7 +211,6 @@ define([
 function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
 
     var ComplexAbstractClass = AbstractClass({
-
         $extends: SomeClass,
         $implements: [SomeInterface, OtherInterface],
 
@@ -459,54 +458,6 @@ define(['path/to/dejavu/Class', function (Class) {
 
 Protected and private members should be prefixed with _ and __ respectively.
 If Object.defineProperty is available, it will be used to manage their access (only in the strict version).
-
-
-
-### Calling the parent function ###
-
-As mentioned above, $super() can be slow compared to its alternative.
-Its alternative is as simple as ClassName.$parent.prototype.method.call(this, args1, ...) for instances and ClassName.$parent.method.call(this, args1, ...) from within static context:
-
-```js
-define(['path/to/dejavu/Class'], function (Class) {
-
-    var SomeClass = Class({
-        foo: function () {
-            // Do something here
-        },
-        $statics: {
-            bar: function () {
-                // Do something here
-            }
-        }
-    });
-
-    var ComplexClass = Class({
-        $extends: SomeClass,
-
-        foo: function () {
-            // Call super
-            ComplexClass.$parent.prototype.foo.call(this);
-
-            // Do other things
-        },
-
-        $statics: {
-            bar: function () {
-                // Call super
-                ComplexClass.$parent.bar.call(this);
-
-                // Do other things
-            }
-        }
-    });
-
-    return ComplexClass;
-});
-```
-
-Because the parent reference is attached statically there is no performance overhead.
-With this syntax it also gives you the flexibility to call other parent methods.
 
 
 
