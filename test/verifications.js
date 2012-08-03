@@ -4,6 +4,11 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
     var expect = global.expect;
 
+    // TODO: remove this once mocha fixes it (https://github.com/visionmedia/mocha/issues/502)
+    beforeEach(function (done) {
+        setTimeout(done, 0);
+    });
+
     describe('Verifications:', function () {
 
         describe('Defining an Interface', function () {
