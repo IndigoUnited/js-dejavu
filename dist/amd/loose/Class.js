@@ -387,7 +387,7 @@ define([
                 this[properties[x]] = cloneProperty(this[properties[x]]);
             }
 
-            this.$super = this.$self = null;               // Add the super to the instance object to speed lookup of the wrapper function
+            this.$super = this.$self = null;               // Add the super and self to the instance object to speed lookup of the wrapper function
 
             // Apply binds
             if (this.$constructor[$class].binds.length) {
@@ -535,7 +535,7 @@ define([
     };
 
     // Add custom bound/bind function to supply binds
-    Function.prototype.$bound = function () {
+    Function.prototype.$bound = function (context) {
         this[$bound] = true;
 
         return this;

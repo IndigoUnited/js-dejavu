@@ -1339,10 +1339,9 @@ define([
                 obfuscateProperty(this, '$underStrict', true);
             }
 
-            this.$initializing = true;        // Mark it in order to let abstract classes run their initialize
-            this.$super = defaultSuper;       // Add the super to the instance object to speed lookup of the wrapper function
-            this.$self = this.$constructor;   // Set the self alias
-            this.$static = this.$constructor; // Set the static alias
+            obfuscateProperty(this, '$initializing', true, true, true);  // Mark it in order to let abstract classes run their initialize
+            obfuscateProperty(this, '$super', null, true);               // Add the super to the instance object to speed lookup of the wrapper function
+            obfuscateProperty(this, '$self', null, true);                 // Add the self to the instance object to speed lookup of the wrapper function
 
             // Apply private/protected members
             if (hasDefineProperty) {
@@ -1362,11 +1361,7 @@ define([
                 applyBinds(this.$constructor[$class].binds, this, this);
             }
 
-            if (hasDefineProperty) {
-                obfuscateProperty(this, '$initializing', false);
-            } else {
-                delete this.$initializing;
-            }
+            delete this.$initializing;
 
             // Prevent any properties/methods to be added and deleted
             if (isFunction(Object.seal)) {
@@ -1677,17 +1672,17 @@ define([
     }
 
     // Add custom bound/bind function to supply binds
-    Function.prototype.$bound = function () {
+    obfuscateProperty(Function.prototype, '$bound', function (context) {
         this[$bound] = true;
 
         return this;
-    };
+    });
 
     if (Function.prototype.$bind) {
         printWarning('Function.prototype.$bind is already defined and will be overwritten.');
     }
 
-    Function.prototype.$bind = function (context) {
+    obfuscateProperty(Function.prototype, '$bind', function (context) {
         if (!arguments.length) {
             this[$bound] = true;
 
@@ -1702,7 +1697,7 @@ define([
         }
 
         return anonymousBind.apply(context, args);
-    };
+    });
 
     return Class;
 });
