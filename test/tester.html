@@ -18,14 +18,18 @@
         <script src="util/browser.js"></script>
         <script src="util/adapter.js"></script>
         <script>
-            var build = getBuild();
-            mocha.setup('bdd');
+            var options = {
+                ui: 'bdd',
+                globals: ['console']
+            },
+                build = getBuild();
 
             // TODO: remove this once mocha fixes this (https://github.com/visionmedia/mocha/issues/243)
-            var globals = ['console'];
             if (navigator.userAgent.indexOf('Opera') !== -1) {
-                globals.push('stats', 'report');
+                options.globals.push('stats', 'report');
             }
+
+            mocha.setup(options);
 
             require(['domReady!', './' + build], function () {
 
@@ -35,8 +39,7 @@
                 }
 
                 mocha
-                .run()
-                .globals(globals);
+                .run();
             });
         </script>
         <style>
