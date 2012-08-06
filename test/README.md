@@ -5,7 +5,7 @@ The tests are built on top of [mocha](http://visionmedia.github.com/mocha/) test
 
 ## Command line ##
 
-To test in the command line you:
+To test in the command line:
 
 First run `npm install` to install all the tools needed.
 Then you can run all build tests individually:
