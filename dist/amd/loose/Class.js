@@ -538,13 +538,14 @@ define([
         return dejavu;
     };
 
-    // Add custom bound/bind function to supply binds
+    // Add custom bound function to supply binds
     Function.prototype.$bound = function (context) {
         this[$bound] = true;
 
         return this;
     };
 
+    // Add custom bind function to supply binds
     Function.prototype.$bind = function (context) {
         if (!arguments.length) {
             this[$bound] = true;
