@@ -1,6 +1,6 @@
 /*jshint strict:false*/
 
-define(function () {
+define([],function () {
 
     /**
      * Extract meta data from a property.

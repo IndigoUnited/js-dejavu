@@ -1550,6 +1550,7 @@ define([
             Object.seal(constructor.prototype);
         }
     }
+//>>includeEnd('strict');
 
     /**
      * Builds the constructor function that calls the initialize and do
@@ -1560,16 +1561,6 @@ define([
      * @return {Function} The constructor function
      */
     function createConstructor(isAbstract) {
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
-    /**
-     * Builds the constructor function that calls the initialize and do
-     * more things internally.
-     *
-     * @return {Function} The constructor function
-     */
-    function createConstructor() {
-//>>excludeEnd('strict');
 
         var Instance = function Instance() {
 
@@ -1833,32 +1824,23 @@ define([
     };
 
 //>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
     /**
      * Create a class definition.
      *
      * @param {Object} params An object containing methods and properties
-     *
-     * @return {Function} The constructor
-     */
-    Class = function Class(params) {
-
-        var dejavu,
-            parent;
-
-        delete params.$name;
-//>>excludeEnd('strict');
-//>>includeStart('strict', pragmas.strict);
-    /**
-     * Create a class definition.
-     *
-     * @param {Object}  params     An object containing methods and properties
      * @param {Boolean} isAbstract Treat this class as abstract
      *
      * @return {Function} The constructor
      */
     Class = function Class(params, isAbstract) {
 
+//>>excludeStart('strict', pragmas.strict);
+        var dejavu,
+            parent;
+
+        delete params.$name;
+//>>excludeEnd('strict');
+//>>includeStart('strict', pragmas.strict);
         var dejavu,
             parent,
             tmp,

@@ -1,25 +1,19 @@
 //>>excludeStart('strict', pragmas.strict);
-/*jshint strict:false*/
+/*jshint strict:false, laxcomma:true*/
 
 //>>excludeEnd('strict');
 define([
-//>>includeStart('strict', pragmas.strict);
-    './Class',
-    './common/randomAccessor',
-    './common/checkObjectPrototype'
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
     './Class'
-//>>excludeEnd('strict');
-], function FinalClassWrapper(
 //>>includeStart('strict', pragmas.strict);
-    Class,
-    randomAccessor,
-    checkObjectPrototype
+    , './common/randomAccessor'
+    , './common/checkObjectPrototype'
 //>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
+], function FinalClassWrapper(
     Class
-//>>excludeEnd('strict');
+//>>includeStart('strict', pragmas.strict);
+    , randomAccessor
+    , checkObjectPrototype
+//>>includeEnd('strict');
 ) {
 
 //>>includeStart('strict', pragmas.strict);

@@ -1341,7 +1341,7 @@ define([
 
             obfuscateProperty(this, '$initializing', true, true, true);  // Mark it in order to let abstract classes run their initialize
             obfuscateProperty(this, '$super', null, true);               // Add the super to the instance object to speed lookup of the wrapper function
-            obfuscateProperty(this, '$self', null, true);                 // Add the self to the instance object to speed lookup of the wrapper function
+            obfuscateProperty(this, '$self', null, true);                // Add the self to the instance object to speed lookup of the wrapper function
 
             // Apply private/protected members
             if (hasDefineProperty) {
@@ -1514,7 +1514,7 @@ define([
     /**
      * Create a class definition.
      *
-     * @param {Object}  params     An object containing methods and properties
+     * @param {Object} params An object containing methods and properties
      * @param {Boolean} isAbstract Treat this class as abstract
      *
      * @return {Function} The constructor

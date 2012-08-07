@@ -1,4 +1,4 @@
-/*jshint strict:false*/
+/*jshint strict:false, laxcomma:true*/
 
 define([
     './Class'

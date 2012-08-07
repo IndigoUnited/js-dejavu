@@ -1,11 +1,11 @@
 define([
-    './Class',
-    './common/randomAccessor',
-    './common/checkObjectPrototype'
+    './Class'
+    , './common/randomAccessor'
+    , './common/checkObjectPrototype'
 ], function FinalClassWrapper(
-    Class,
-    randomAccessor,
-    checkObjectPrototype
+    Class
+    , randomAccessor
+    , checkObjectPrototype
 ) {
 
     'use strict';
