@@ -1515,7 +1515,7 @@ define([
     /**
      * Create a class definition.
      *
-     * @param {Object} params An object containing methods and properties
+     * @param {Object}  params     An object containing methods and properties
      * @param {Boolean} isAbstract Treat this class as abstract
      *
      * @return {Function} The constructor
