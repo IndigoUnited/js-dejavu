@@ -1,6 +1,6 @@
 /*jshint strict:false*/
 
-define(function () {
+define([],function () {
 
     /**
      * This method does exactly the same as the amd-utils counterpart but

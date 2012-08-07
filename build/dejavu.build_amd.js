@@ -4,7 +4,7 @@
  */
 ({
     appDir : '../src',
-    baseUrl: '../dist',
+    baseUrl: '.',
     dir : '../dist',
     paths : {
         'amd-utils': '../vendor/amd-utils/src'
@@ -16,5 +16,7 @@
     uglify: {
         beautify: false,
         unsafe : true
-    }
+    },
+    name: 'dejavu',
+    include: ['Class', 'AbstractClass', 'FinalClass', 'Interface', 'instanceOf']
 })

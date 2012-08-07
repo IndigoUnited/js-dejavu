@@ -368,13 +368,16 @@ define([
         }
     }
 
+
     /**
      * Builds the constructor function that calls the initialize and do
      * more things internally.
      *
+     * @param {Boolean} isAbstract Treat this class as abstract
+     *
      * @return {Function} The constructor function
      */
-    function createConstructor() {
+    function createConstructor(isAbstract) {
 
         var Instance = function Instance() {
 
@@ -472,10 +475,11 @@ define([
      * Create a class definition.
      *
      * @param {Object} params An object containing methods and properties
+     * @param {Boolean} isAbstract Treat this class as abstract
      *
      * @return {Function} The constructor
      */
-    Class = function Class(params) {
+    Class = function Class(params, isAbstract) {
 
         var dejavu,
             parent;

@@ -18,6 +18,7 @@ define([
             throw new Error('dejavu will not work properly if Object.prototype has enumerable properties!');
         }
 
+        // TODO: should we really do this? the user could legitimately adding non enumerable properties..
         if (isFunction(Object.seal) && !Object.isSealed(Object.prototype)) {
             Object.seal(Object.prototype);
         }
@@ -25,4 +26,3 @@ define([
 
     return checkObjectPrototype;
 });
-
