@@ -4,7 +4,7 @@
  */
 ({
     appDir : '../src',
-    baseUrl: './',
+    baseUrl: '.',
     dir : '../tmp',
     paths : {
         'amd-utils': '../vendor/amd-utils/src'

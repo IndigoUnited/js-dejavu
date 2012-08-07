@@ -17,6 +17,7 @@
         beautify: false,
         unsafe : true
     },
-    name: 'dejavu',
-    include: ['Class', 'AbstractClass', 'FinalClass', 'Interface', 'instanceOf']
+    modules: [{
+        name: 'dejavu'
+    }]
 })

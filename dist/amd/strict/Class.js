@@ -84,6 +84,7 @@ define([
         $anonymous = '$anonymous_' + random,
         cacheKeyword = '$cache_' + random,
         inheriting,
+        descriptor,
         nextId = 0,
         caller,
         callerClassId,
@@ -1667,19 +1668,32 @@ define([
         return dejavu;
     };
 
+    // Add custom bound function to supply binds
     if (Function.prototype.$bound) {
         printWarning('Function.prototype.$bound is already defined and will be overwritten.');
+        if (hasDefineProperty) {
+            descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bound');
+            if (!descriptor.writable || !descriptor.configurable) {
+                printWarning('Could not overwrite Function.prototype.$bound.');
+            }
+        }
     }
 
-    // Add custom bound/bind function to supply binds
     obfuscateProperty(Function.prototype, '$bound', function (context) {
         this[$bound] = true;
 
         return this;
     });
 
+    // Add custom bind function to supply binds
     if (Function.prototype.$bind) {
         printWarning('Function.prototype.$bind is already defined and will be overwritten.');
+        if (hasDefineProperty) {
+            descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bind');
+            if (!descriptor.writable || !descriptor.configurable) {
+                printWarning('Could not overwrite Function.prototype.$bind.');
+            }
+        }
     }
 
     obfuscateProperty(Function.prototype, '$bind', function (context) {
