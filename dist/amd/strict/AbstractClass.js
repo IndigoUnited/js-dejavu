@@ -42,6 +42,7 @@ define([
         $class = '$class_' + random,
         $interface = '$interface_' + random,
         $abstract = '$abstract_' + random,
+        $bound = '$bound_' + random,
         checkClass;
 
     checkObjectPrototype();
@@ -103,7 +104,7 @@ define([
             }
         }
 
-        if (!isStatic) {
+        if (!isStatic && method[$bound]) {
             insert(constructor[$class].binds, name);
         }
 

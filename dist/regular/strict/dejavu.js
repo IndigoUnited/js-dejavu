@@ -1,6 +1,6 @@
 (function () {
 /**
- * almond 0.1.1+ Copyright (c) 2011, The Dojo Foundation All Rights Reserved.
+ * almond 0.1.2 Copyright (c) 2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/almond for details
  */
@@ -388,24 +388,22 @@ define('amd-utils/lang/isString',['./isKind'], function (isKind) {
 define('amd-utils/array/indexOf',[],function () {
 
     /**
-     * ES5 Array.indexOf
-     * @version 0.2.1 (2011/11/25)
+     * Array.indexOf
+     * @version 0.3.0 (2012/07/26)
      */
-    var indexOf = Array.prototype.indexOf?
-                    function (arr, item, fromIndex) {
-                        return arr.indexOf(item, fromIndex);
-                    } :
-                    function (arr, item, fromIndex) {
-                        fromIndex = fromIndex || 0;
-                        var n = arr.length >>> 0,
-                            i = fromIndex < 0? n + fromIndex : fromIndex;
-                        for (; i < n; i++) {
-                            if (arr[i] === item) {
-                                return i;
-                            }
-                        }
-                        return -1;
-                    };
+    function indexOf(arr, item, fromIndex) {
+        fromIndex = fromIndex || 0;
+        var n = arr.length >>> 0,
+            i = fromIndex < 0? n + fromIndex : fromIndex;
+        while (i < n) {
+            //it should skip sparse items
+            if (i in arr && arr[i] === item) {
+                return i;
+            }
+            i += 1;
+        }
+        return -1;
+    }
 
     return indexOf;
 });
@@ -413,22 +411,20 @@ define('amd-utils/array/indexOf',[],function () {
 define('amd-utils/array/forEach',[],function () {
 
     /**
-     * ES5 Array.forEach
-     * @version 0.3.1 (2011/11/25)
+     * Array forEach
+     * @version 0.4.0 (2012/07/26)
      */
-    var forEach = Array.prototype.forEach?
-                    function (arr, callback, thisObj) {
-                        arr.forEach(callback, thisObj);
-                    } :
-                    function (arr, callback, thisObj) {
-                        for (var i = 0, n = arr.length >>> 0; i < n; i++) {
-                            //according to spec callback should only be called for
-                            //existing items
-                            if (i in arr) {
-                                callback.call(thisObj, arr[i], i, arr);
-                            }
-                        }
-                    };
+    function forEach(arr, callback, thisObj) {
+        var i = -1,
+            n = arr.length >>> 0;
+        while (++i < n) {
+            //according to spec callback should only be called for
+            //existing items
+            if (i in arr) {
+                callback.call(thisObj, arr[i], i, arr);
+            }
+        }
+    }
 
     return forEach;
 
@@ -437,22 +433,18 @@ define('amd-utils/array/forEach',[],function () {
 define('amd-utils/array/filter',['./forEach'], function (forEach) {
 
     /**
-     * ES5 Array.filter
-     * @version 0.3.0 (2011/11/15)
+     * Array filter
+     * @version 0.4.0 (2012/07/26)
      */
-    var filter = Array.prototype.filter?
-                function (arr, callback, thisObj) {
-                    return arr.filter(callback, thisObj);
-                } :
-                function (arr, callback, thisObj) {
-                    var results = [];
-                    forEach(arr, function (val, i, arr) {
-                        if ( callback.call(thisObj, val, i, arr) ) {
-                            results.push(val);
-                        }
-                    });
-                    return results;
-                };
+    function filter(arr, callback, thisObj) {
+        var results = [];
+        forEach(arr, function (val, i, arr) {
+            if ( callback.call(thisObj, val, i, arr) ) {
+                results.push(val);
+            }
+        });
+        return results;
+    }
 
     return filter;
 
@@ -479,26 +471,23 @@ define('amd-utils/array/unique',['./indexOf', './filter'], function(indexOf, fil
 define('amd-utils/array/every',[],function () {
 
     /**
-     * ES5 Array.every
-     * @version 0.2.1 (2011/11/25)
+     * Array every
+     * @version 0.3.0 (2012/07/26)
      */
-    var every = Array.prototype.every?
-                function (arr, callback, thisObj) {
-                    return arr.every(callback, thisObj);
-                } :
-                function (arr, callback, thisObj) {
-                    var result = true,
-                        n = arr.length >>> 0;
-                    while (n--) {
-                        //according to spec callback should only be called for
-                        //existing items
-                        if ( n in arr && !callback.call(thisObj, arr[n], n, arr) ) {
-                            result = false;
-                            break;
-                        }
-                    }
-                    return result;
-                };
+    function every(arr, callback, thisObj) {
+        var result = true,
+            i = -1,
+            n = arr.length >>> 0;
+        while (++i < n) {
+            //according to spec callback should only be called for
+            //existing items
+            if ( i in arr && !callback.call(thisObj, arr[i], i, arr) ) {
+                result = false;
+                break;
+            }
+        }
+        return result;
+    }
 
     return every;
 });
@@ -567,16 +556,6 @@ define('amd-utils/array/remove',['./indexOf'], function(indexOf){
     return remove;
 });
 
-define('amd-utils/lang/isObject',['./isKind'], function (isKind) {
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isObject(val) {
-        return isKind(val, 'Object');
-    }
-    return isObject;
-});
-
 define('amd-utils/object/hasOwn',[],function () {
 
     /**
@@ -591,7 +570,7 @@ define('amd-utils/object/hasOwn',[],function () {
 
 });
 
-define('amd-utils/object/forOwn',['../lang/isObject', './hasOwn'], function (isObject, hasOwn) {
+define('amd-utils/object/forOwn',['./hasOwn'], function (hasOwn) {
 
     var _hasDontEnumBug,
         _dontEnums;
@@ -618,12 +597,14 @@ define('amd-utils/object/forOwn',['../lang/isObject', './hasOwn'], function (isO
      * Similar to Array/forEach but works over object properties and fixes Don't
      * Enum bug on IE.
      * based on: http://whattheheadsaid.com/2010/10/a-safer-object-keys-compatibility-implementation
-     * @version 0.1.1 (2012/01/19)
+     * @version 0.1.2 (2012/08/08)
      */
     function forOwn(obj, fn, thisObj){
         var key, i = 0;
 
-        if (!isObject(obj)) {
+        if (typeof obj !== 'object') {
+            // any object will be good (Array, Date, etc..) that way it can
+            // be used in other things besides plain objects
             throw new TypeError('forOwn called on a non-object');
         }
 
@@ -882,28 +863,23 @@ define('common/checkKeywords',[
 define('amd-utils/array/some',['require'],function (forEach) {
 
     /**
-     * ES5 Array.some
-     * @version 0.2.2 (2012/06/07)
+     * Array some
+     * @version 0.3.0 (2012/07/26)
      */
-    var some = Array.prototype.some?
-                function (arr, callback, thisObj) {
-                    return arr.some(callback, thisObj);
-                } :
-                function (arr, callback, thisObj) {
-                    var result = false,
-                        n = arr.length,
-                        i = 0;
-                    while (i < n) {
-                        //according to spec callback should only be called for
-                        //existing items
-                        if ( i in arr && callback.call(thisObj, arr[i], i, arr) ) {
-                            result = true;
-                            break;
-                        }
-                        i += 1;
-                    }
-                    return result;
-                };
+    function some(arr, callback, thisObj) {
+        var result = false,
+            i = -1,
+            n = arr.length >>> 0;
+        while (++i < n) {
+            //according to spec callback should only be called for
+            //existing items
+            if ( i in arr && callback.call(thisObj, arr[i], i, arr) ) {
+                result = true;
+                break;
+            }
+        }
+        return result;
+    }
 
     return some;
 });
@@ -1265,6 +1241,16 @@ define('common/isPlainObject',[
     return isPlainObject;
 });
 
+define('amd-utils/lang/isObject',['./isKind'], function (isKind) {
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isObject(val) {
+        return isKind(val, 'Object');
+    }
+    return isObject;
+});
+
 define('amd-utils/lang/isArray',['./isKind'], function (isKind) {
     /**
      * @version 0.2.0 (2011/12/06)
@@ -1295,7 +1281,7 @@ define('amd-utils/lang/isRegExp',['./isKind'], function (isKind) {
     return isRegExp;
 });
 
-define('amd-utils/object/mixIn',['./hasOwn'], function(hasOwn){
+define('amd-utils/object/mixIn',['./forOwn'], function(forOwn){
 
     /**
     * Combine properties from all the objects into first one.
@@ -1303,19 +1289,19 @@ define('amd-utils/object/mixIn',['./hasOwn'], function(hasOwn){
     * @param {object} target    Target Object
     * @param {...object} objects    Objects to be combined (0...n objects).
     * @return {object} Target Object.
-    * @version 0.1.2 (2012/04/30)
+    * @version 0.1.3 (2012/08/11)
     */
     function mixIn(target, objects){
         var i = 1,
-            key, cur;
-        while(cur = arguments[i++]){
-            for(key in cur){
-                if(hasOwn(cur, key)){
-                    target[key] = cur[key];
-                }
-            }
+            obj;
+        while(obj = arguments[i++]){
+            forOwn(obj, copyProp, target);
         }
         return target;
+    }
+
+    function copyProp(val, key){
+        this[key] = val;
     }
 
     return mixIn;
@@ -1422,40 +1408,28 @@ define('amd-utils/lang/bind',[],function(){
 });
 
 
-define('amd-utils/lang/isArguments',['./isKind'], function (isKind) {
-
-    /**
-     * @version 0.2.0 (2011/12/05)
-     */
-    var isArgs = isKind(arguments, 'Arguments')?
-            function(val){
-                return isKind(val, 'Arguments');
-            } :
-            function(val){
-                // Arguments is an Object on IE7
-                return !!(val && Object.prototype.hasOwnProperty.call(val, 'callee'));
-            };
-
-    return isArgs;
-});
-
-define('amd-utils/lang/toArray',['./isArray', './isObject', './isArguments'], function (isArray, isObject, isArguments) {
+define('amd-utils/lang/toArray',[],function () {
 
     var _win = this;
 
     /**
      * Convert array-like object into array
-     * @version 0.2.0 (2011/12/05)
+     * @version 0.3.0 (2012/08/11)
      */
     function toArray(val){
-        var ret;
+        var ret, n;
 
         if (val == null) {
             ret = [];
-        } else if ( val && val !== _win && (isArray(val) || isArguments(val) || (isObject(val) && 'length' in val)) ) {
+        } else if ( typeof val === 'object' && val !== _win && 'length' in val ) {
             //window returns true on isObject in IE7 and may have length property
             //only convert object to array if it is a array-like object
-            ret = Array.prototype.slice.call(val);
+            // typeof val === 'object' is enough since array is also an object
+            ret = [];
+            n = val.length;
+            while (n--) {
+                ret[n] = val[n];
+            }
         } else {
             //string, regexp, function have .length but user probably just want
             //to wrap value into an array..
@@ -3328,6 +3302,7 @@ define('AbstractClass',[
         $class = '$class_' + random,
         $interface = '$interface_' + random,
         $abstract = '$abstract_' + random,
+        $bound = '$bound_' + random,
         checkClass;
 
     checkObjectPrototype();
@@ -3389,7 +3364,7 @@ define('AbstractClass',[
             }
         }
 
-        if (!isStatic) {
+        if (!isStatic && method[$bound]) {
             insert(constructor[$class].binds, name);
         }
 
