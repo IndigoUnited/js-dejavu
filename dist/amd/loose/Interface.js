@@ -8,6 +8,8 @@ define([
 
     'use strict';
 
+    /*jshint newcap:false*/
+
     var $interface = '$interface';
 
     /**
@@ -22,7 +24,7 @@ define([
 
         params.$extends = this;
 
-        return new Interface(params);
+        return Interface(params);
     }
 
     /**

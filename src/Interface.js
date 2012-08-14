@@ -52,6 +52,8 @@ define([
 
     'use strict';
 
+    /*jshint newcap:false*/
+
 //>>excludeStart('strict', pragmas.strict);
     var $interface = '$interface';
 
@@ -226,7 +228,7 @@ define([
 //>>includeEnd('strict');
         params.$extends = this;
 
-        return new Interface(params);
+        return Interface(params);
     }
 
     /**

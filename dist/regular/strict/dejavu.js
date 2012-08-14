@@ -2069,7 +2069,7 @@ define('Class',[
 
                 if (isObject(mixins[i])) {
                     try {
-                        current = new Class(mixIn({}, mixins[i])).prototype;
+                        current = Class(mixIn({}, mixins[i])).prototype;
                     } catch (e) {
                         // When an object is being used, throw a more friend message if an error occurs
                         throw new Error('Unable to define object as class at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" (' + e.message + ').');
@@ -3035,7 +3035,7 @@ define('Class',[
 
         params.$extends = this;
 
-        return new Class(params);
+        return Class(params);
     }
 
     /**
@@ -3322,6 +3322,8 @@ define('AbstractClass',[
 
     'use strict';
 
+    /*jshint newcap:false*/
+
     var random = randomAccessor('AbstractClassWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
@@ -3603,7 +3605,7 @@ define('AbstractClass',[
         }
 
         // Create the class definition
-        def = new Class(params, true);
+        def = Class(params, true);
 
         abstractObj.check = bind(checkClass, def);
 
@@ -3681,6 +3683,8 @@ define('Interface',[
 ) {
 
     'use strict';
+
+    /*jshint newcap:false*/
 
     var random = randomAccessor('InterfaceWrapper'),
         $class = '$class_' + random,
@@ -3848,7 +3852,7 @@ define('Interface',[
 
         params.$extends = this;
 
-        return new Interface(params);
+        return Interface(params);
     }
 
     /**
@@ -4072,6 +4076,8 @@ define('FinalClass',[
 
     'use strict';
 
+    /*jshint newcap:false*/
+
     checkObjectPrototype();
 
     var random = randomAccessor('FinalClassWrapper'),
@@ -4079,7 +4085,7 @@ define('FinalClass',[
 
     return function FinalClass(params) {
 
-        var def = new Class(params);
+        var def = Class(params);
         def[$class].finalClass = true;
 
         return def;

@@ -40,6 +40,8 @@ define([
 
     'use strict';
 
+    /*jshint newcap:false*/
+
     var Class,
         $class = '$class',
         $interface = '$interface',
@@ -146,7 +148,7 @@ define([
 
             for (i -= 1; i >= 0; i -= 1) {
 
-                current = isObject(mixins[i]) ? new Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
+                current = isObject(mixins[i]) ? Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
 
                 // Grab mixin members
                 for (key in current) {
@@ -484,7 +486,7 @@ define([
         /*jshint validthis:true*/
         params.$extends = this;
 
-        return new Class(params);
+        return Class(params);
     }
 
     /**

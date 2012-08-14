@@ -48,6 +48,8 @@ define([
 
     'use strict';
 
+    /*jshint newcap:false*/
+
     var random = randomAccessor('InterfaceWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
@@ -214,7 +216,7 @@ define([
 
         params.$extends = this;
 
-        return new Interface(params);
+        return Interface(params);
     }
 
     /**

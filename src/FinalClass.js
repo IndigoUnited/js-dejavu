@@ -18,6 +18,8 @@ define([
 
     'use strict';
 
+    /*jshint newcap:false*/
+
 //>>includeStart('strict', pragmas.strict);
     checkObjectPrototype();
 
@@ -27,7 +29,7 @@ define([
 //>>includeEnd('strict');
     return function FinalClass(params) {
 
-        var def = new Class(params);
+        var def = Class(params);
 //>>includeStart('strict', pragmas.strict);
         def[$class].finalClass = true;
 //>>includeEnd('strict');

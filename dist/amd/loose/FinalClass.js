@@ -6,9 +6,11 @@ define([
 
     'use strict';
 
+    /*jshint newcap:false*/
+
     return function FinalClass(params) {
 
-        var def = new Class(params);
+        var def = Class(params);
 
         return def;
     };
