@@ -1,5 +1,3 @@
-/*jshint strict:false*/
-
 define([
     'amd-utils/object/hasOwn',
     'amd-utils/array/insert',
@@ -9,6 +7,8 @@ define([
     insert,
     Class
 ) {
+
+    'use strict';
 
     var $abstract = '$abstract',
         $class = '$class',
@@ -35,7 +35,7 @@ define([
         }
 
         // Create the class definition
-        def = Class(params);
+        def = new Class(params);
         def[$abstract] = true;
 
         // Grab binds

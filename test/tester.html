@@ -33,7 +33,7 @@
 
             mocha.setup(options);
 
-            require(['domReady!', './' + build], function () {
+            require(['domReady!', 'test/' + build], function () {
 
                 var elem = document.getElementById(build.replace(/\//g, '_'));
                 if (elem) {

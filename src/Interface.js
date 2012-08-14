@@ -1,7 +1,3 @@
-//>>excludeStart('strict', pragmas.strict);
-/*jshint strict:false*/
-
-//>>excludeEnd('strict');
 define([
 //>>includeStart('strict', pragmas.strict);
     'amd-utils/lang/isObject',
@@ -54,13 +50,13 @@ define([
     toArray
 ) {
 
+    'use strict';
+
 //>>excludeStart('strict', pragmas.strict);
     var $interface = '$interface';
 
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
-    'use strict';
-
     var random = randomAccessor('InterfaceWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
@@ -212,6 +208,27 @@ define([
     }
 
 //>>includeEnd('strict');
+    /**
+     * Function to easily extend another interface.
+     *
+     * @param {Object} params An object containing methods and properties
+     *
+     * @return {Function} The new interface
+     */
+    function extend(params) {
+        /*jshint validthis:true*/
+
+//>>includeStart('strict', pragmas.strict);
+        if (params.$extends) {
+            throw new Error('Object passed cannot contain an $extends property.');
+        }
+
+//>>includeEnd('strict');
+        params.$extends = this;
+
+        return new Interface(params);
+    }
+
     /**
      * Create an interface definition.
      *
@@ -450,6 +467,9 @@ define([
         params.$name = name;
 
 //>>includeEnd('strict');
+        // Supply .extend() to easily extend a class
+        interf.extend = extend;
+
         return interf;
     }
 

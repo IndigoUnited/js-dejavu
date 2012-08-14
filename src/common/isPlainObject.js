@@ -1,7 +1,3 @@
-//>>excludeStart('strict', pragmas.strict);
-/*jshint strict:false*/
-
-//>>excludeEnd('strict');
 define([
     'amd-utils/lang/isFunction',
     'amd-utils/object/hasOwn'
@@ -10,10 +6,8 @@ define([
     hasOwn
 ) {
 
-//>>includeStart('strict', pragmas.strict);
     'use strict';
 
-//>>includeEnd('strict');
     var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
 
     /**

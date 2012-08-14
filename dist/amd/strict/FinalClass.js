@@ -1,3 +1,5 @@
+/*jshint laxcomma:true*/
+
 define([
     './Class'
     , './common/randomAccessor'

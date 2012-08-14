@@ -1,4 +1,4 @@
-/*jshint strict:false, noarg:false*/
+/*jshint noarg:false*/
 
 define([
     './common/isImmutable',
@@ -37,6 +37,8 @@ define([
     clone,
     insert
 ) {
+
+    'use strict';
 
     var Class,
         $class = '$class',
@@ -413,7 +415,7 @@ define([
      * @param {...mixed} [args] The arguments to also be bound
      */
     function anonymousBind(func) {
-
+        /*jshint validthis:true*/
         // TODO: improve the bind here
         var args = toArray(arguments),
             bound;
@@ -469,6 +471,20 @@ define([
 
         // Inherit implemented interfaces
         constructor[$class].interfaces = [].concat(parent[$class].interfaces);
+    }
+
+    /**
+     * Function to easily extend another class.
+     *
+     * @param {Object}  params An object containing methods and properties
+     *
+     * @return {Function} The new class constructor
+     */
+    function extend(params) {
+        /*jshint validthis:true*/
+        params.$extends = this;
+
+        return new Class(params);
     }
 
     /**
@@ -534,6 +550,9 @@ define([
         if (hasOwn(params, '$abstracts')) {
             delete params.$abstracts;
         }
+
+        // Supply .extend() to easily extend a class
+        dejavu.extend = extend;
 
         return dejavu;
     };

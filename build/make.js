@@ -68,7 +68,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
 
     // Build amd loose
     currentDistDir = distDir + 'amd/loose/';
-    cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=false', function (error, stdout, stderr) {
+    cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=false useStrict=true', function (error, stdout, stderr) {
 
         // Print success or error
         if (error !== null) {

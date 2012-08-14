@@ -199,6 +199,25 @@ define([
     }
 
     /**
+     * Function to easily extend another interface.
+     *
+     * @param {Object} params An object containing methods and properties
+     *
+     * @return {Function} The new interface
+     */
+    function extend(params) {
+        /*jshint validthis:true*/
+
+        if (params.$extends) {
+            throw new Error('Object passed cannot contain an $extends property.');
+        }
+
+        params.$extends = this;
+
+        return new Interface(params);
+    }
+
+    /**
      * Create an interface definition.
      *
      * @param {Object} params An object containing methods and properties
@@ -395,6 +414,9 @@ define([
         }
 
         params.$name = name;
+
+        // Supply .extend() to easily extend a class
+        interf.extend = extend;
 
         return interf;
     }

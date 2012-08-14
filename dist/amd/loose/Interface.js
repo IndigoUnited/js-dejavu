@@ -1,5 +1,3 @@
-/*jshint strict:false*/
-
 define([
     'amd-utils/object/hasOwn',
     'amd-utils/lang/toArray'
@@ -8,7 +6,24 @@ define([
     toArray
 ) {
 
+    'use strict';
+
     var $interface = '$interface';
+
+    /**
+     * Function to easily extend another interface.
+     *
+     * @param {Object} params An object containing methods and properties
+     *
+     * @return {Function} The new interface
+     */
+    function extend(params) {
+        /*jshint validthis:true*/
+
+        params.$extends = this;
+
+        return new Interface(params);
+    }
 
     /**
      * Create an interface definition.
@@ -58,6 +73,9 @@ define([
                 interf[$interface].constants.push(k);
             }
         }
+
+        // Supply .extend() to easily extend a class
+        interf.extend = extend;
 
         return interf;
     }

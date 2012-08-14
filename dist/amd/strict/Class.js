@@ -244,6 +244,7 @@ define([
      * Default function to execute when a class atempts to call its parent private constructor.
      */
     function callingPrivateConstructor() {
+        /*jshint validthis:true*/
         throw new Error('Cannot call parent constructor in class "' + this.$name + '" because its declared as private.');
     }
 
@@ -1392,6 +1393,7 @@ define([
      * @param {...mixed} [args] The arguments to also be bound
      */
     function anonymousBind(func) {
+        /*jshint validthis:true*/
 
         if (func[$name]) {
             throw new Error('Function with name "' + func[$name] + '" is not anonymous.');
@@ -1420,6 +1422,7 @@ define([
      * @param {...mixed} [args] The arguments to also be bound
      */
     function anonymousBindStatic(func) {
+        /*jshint validthis:true*/
 
         if (func[$name]) {
             throw new Error('Function with name "' + func[$name] + '" is not anonymous.');
@@ -1492,6 +1495,24 @@ define([
 
         // Inherit implemented interfaces
         constructor[$class].interfaces = [].concat(parent[$class].interfaces);
+    }
+
+    /**
+     * Function to easily extend another class.
+     *
+     * @param {Object}  params An object containing methods and properties
+     *
+     * @return {Function} The new class constructor
+     */
+    function extend(params) {
+        /*jshint validthis:true*/
+        if (params.$extends) {
+            throw new Error('Object passed cannot contain an $extends property.');
+        }
+
+        params.$extends = this;
+
+        return new Class(params);
     }
 
     /**
@@ -1664,6 +1685,9 @@ define([
         if (hasDefineProperty) {
             protectConstructor(dejavu);
         }
+
+        // Supply .extend() to easily extend a class
+        dejavu.extend = extend;
 
         return dejavu;
     };

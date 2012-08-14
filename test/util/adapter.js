@@ -1,6 +1,10 @@
 var paths = {
     'amd-utils': '../vendor/amd-utils/src',
-    'domReady': '../vendor/domReady/domReady'
+    'domReady': '../vendor/domReady/domReady',
+    'amd/strict': '../dist/amd/strict',
+    'amd/loose': '../dist/amd/loose',
+    'test/amd/strict': 'amd/strict',
+    'test/amd/loose': 'amd/loose'
 },
     requirejs;
 

@@ -1,13 +1,7 @@
-//>>excludeStart('strict', pragmas.strict);
-/*jshint strict:false*/
+define([], function () {
 
-//>>excludeEnd('strict');
-define(function () {
-
-//>>includeStart('strict', pragmas.strict);
     'use strict';
 
-//>>includeEnd('strict');
     /**
      * This method does exactly the same as the amd-utils counterpart but
      * does not perform hasOwn for each key in the objects.

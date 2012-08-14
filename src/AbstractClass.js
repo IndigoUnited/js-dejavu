@@ -1,7 +1,3 @@
-//>>excludeStart('strict', pragmas.strict);
-/*jshint strict:false*/
-
-//>>excludeEnd('strict');
 define([
 //>>includeStart('strict', pragmas.strict);
     'amd-utils/lang/isObject',
@@ -44,6 +40,8 @@ define([
     Class
 ) {
 
+    'use strict';
+
 //>>excludeStart('strict', pragmas.strict);
     var $abstract = '$abstract',
         $class = '$class',
@@ -51,8 +49,6 @@ define([
 
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
-    'use strict';
-
     var random = randomAccessor('AbstractClassWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
@@ -356,7 +352,7 @@ define([
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
         // Create the class definition
-        def = Class(params);
+        def = new Class(params);
         def[$abstract] = true;
 
         // Grab binds

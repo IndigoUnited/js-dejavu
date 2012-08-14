@@ -1,9 +1,8 @@
-/*jshint strict:false*/
-
 define([
 ], function instanceOfWrapper(
 ) {
 
+    'use strict';
     var $class = '$class',
         $interface = '$interface';
 
