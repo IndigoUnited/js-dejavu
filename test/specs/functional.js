@@ -2,11 +2,14 @@
 
 define(global.modules, function (Class, AbstractClass, Interface, FinalClass, instanceOf, hasDefineProperty) {
 
+    // We don't declare strict mode to ensure some micro validations to pass
+    //'use strict';
+
     var expect = global.expect;
 
     // TODO: remove this once mocha fixes it (https://github.com/visionmedia/mocha/issues/502)
     beforeEach(function (done) {
-        setTimeout(done,0);
+        setTimeout(done, 0);
     });
 
     describe('Functional:', function () {
@@ -71,8 +74,10 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 example2 = new Example();
 
             it('should return a valid instance', function () {
+
                 expect(instanceOf(example, Example)).to.be.equal(true);
                 expect(example).to.be.an('object');
+
             });
 
             it('should have 4 methods', function () {
@@ -229,8 +234,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 NerdPerson = Class({
                     $extends: PrivatePerson
                 }),
-                ComplexProtectedPerson = Class({
-                    $extends: ProtectedPerson,
+                ComplexProtectedPerson = ProtectedPerson.extend({
                     initialize: function () {
                         this.$super();
                     }
@@ -265,6 +269,23 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 });
             }
+
+            it('should run the parent constructor even if its defined as protected', function () {
+
+                var person = new ComplexProtectedPerson();
+
+                expect(person.status).to.be.equal('alive');
+
+            });
+
+
+            it('should work with .extend()', function () {
+
+                var person = new ComplexProtectedPerson();
+                expect(person).to.be.an(ComplexProtectedPerson);
+                expect(person).to.be.an(ProtectedPerson);
+
+            });
 
             it('should run the parent constructor even if its defined as protected', function () {
 
@@ -507,7 +528,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             pet.walk();
             cat.walk();
 
-            it('should be an instance of Pet', function () {
+            it('should be an instance of Pet and Cat', function () {
 
                 expect(instanceOf(pet, Pet)).to.be.equal(true);
                 expect(instanceOf(cat, Pet)).to.be.equal(true);

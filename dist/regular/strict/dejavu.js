@@ -670,7 +670,7 @@ define('amd-utils/object/size',['./forOwn'], function (forOwn) {
 
 /*jshint regexp:false*/
 
-define('common/functionMeta',[],function () {
+define('common/functionMeta',[], function () {
 
     'use strict';
 
@@ -742,7 +742,7 @@ define('common/functionMeta',[],function () {
     return functionMeta;
 });
 
-define('common/propertyMeta',[],function () {
+define('common/propertyMeta',[], function () {
 
     'use strict';
 
@@ -782,7 +782,7 @@ define('common/propertyMeta',[],function () {
 
     return propertyMeta;
 });
-define('common/isFunctionCompatible',[],function () {
+define('common/isFunctionCompatible',[], function () {
 
     'use strict';
 
@@ -832,7 +832,7 @@ define('common/checkKeywords',[
 
     var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
         reservedAll = append(['initialize'], reservedNormal),
-        reservedStatics = ['$parent', '$super'];
+        reservedStatics = ['$parent', '$super', '$self', '$static', 'extend'];
 
     /**
      * Verify reserved words found in classes/interfaces.
@@ -1005,7 +1005,7 @@ define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefinePr
     return obfuscateProperty;
 });
 
-define('common/isObjectPrototypeSpoiled',[],function () {
+define('common/isObjectPrototypeSpoiled',[], function () {
 
     'use strict';
 
@@ -1349,7 +1349,7 @@ define('amd-utils/array/combine',['./indexOf'], function (indexOf) {
     return combine;
 });
 
-define('common/mixIn',[],function () {
+define('common/mixIn',[], function () {
 
     'use strict';
 
@@ -1767,6 +1767,7 @@ define('Class',[
      * Default function to execute when a class atempts to call its parent private constructor.
      */
     function callingPrivateConstructor() {
+        /*jshint validthis:true*/
         throw new Error('Cannot call parent constructor in class "' + this.$name + '" because its declared as private.');
     }
 
@@ -2915,6 +2916,7 @@ define('Class',[
      * @param {...mixed} [args] The arguments to also be bound
      */
     function anonymousBind(func) {
+        /*jshint validthis:true*/
 
         if (func[$name]) {
             throw new Error('Function with name "' + func[$name] + '" is not anonymous.');
@@ -2943,6 +2945,7 @@ define('Class',[
      * @param {...mixed} [args] The arguments to also be bound
      */
     function anonymousBindStatic(func) {
+        /*jshint validthis:true*/
 
         if (func[$name]) {
             throw new Error('Function with name "' + func[$name] + '" is not anonymous.');
@@ -3015,6 +3018,24 @@ define('Class',[
 
         // Inherit implemented interfaces
         constructor[$class].interfaces = [].concat(parent[$class].interfaces);
+    }
+
+    /**
+     * Function to easily extend another class.
+     *
+     * @param {Object}  params An object containing methods and properties
+     *
+     * @return {Function} The new class constructor
+     */
+    function extend(params) {
+        /*jshint validthis:true*/
+        if (params.$extends) {
+            throw new Error('Object passed cannot contain an $extends property.');
+        }
+
+        params.$extends = this;
+
+        return new Class(params);
     }
 
     /**
@@ -3188,6 +3209,9 @@ define('Class',[
             protectConstructor(dejavu);
         }
 
+        // Supply .extend() to easily extend a class
+        dejavu.extend = extend;
+
         return dejavu;
     };
 
@@ -3240,7 +3264,7 @@ define('Class',[
 });
 /*jshint regexp:false*/
 
-define('common/isFunctionEmpty',[],function () {
+define('common/isFunctionEmpty',[], function () {
 
     'use strict';
 
@@ -3809,6 +3833,25 @@ define('Interface',[
     }
 
     /**
+     * Function to easily extend another interface.
+     *
+     * @param {Object} params An object containing methods and properties
+     *
+     * @return {Function} The new interface
+     */
+    function extend(params) {
+        /*jshint validthis:true*/
+
+        if (params.$extends) {
+            throw new Error('Object passed cannot contain an $extends property.');
+        }
+
+        params.$extends = this;
+
+        return new Interface(params);
+    }
+
+    /**
      * Create an interface definition.
      *
      * @param {Object} params An object containing methods and properties
@@ -4006,11 +4049,16 @@ define('Interface',[
 
         params.$name = name;
 
+        // Supply .extend() to easily extend a class
+        interf.extend = extend;
+
         return interf;
     }
 
     return Interface;
 });
+
+/*jshint laxcomma:true*/
 
 define('FinalClass',[
     './Class'

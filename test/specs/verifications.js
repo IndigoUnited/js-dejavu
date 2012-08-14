@@ -1,4 +1,4 @@
-/*jshint strict:false*/
+/*jshint strict:false, regexp:false*/
 
 define(global.modules, function (Class, AbstractClass, Interface, FinalClass, instanceOf, hasDefineProperty) {
 
@@ -48,6 +48,31 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         initialize: function () {}
                     });
                 }).to.throwException(/initialize method/i);
+
+            });
+
+            it('should throw an error if using .extend() with an $extend property', function () {
+
+                expect(function () {
+                    var SomeInterface = Interface({}),
+                        OtherInterface = SomeInterface.extend({
+                            $extends: Interface({})
+                        });
+                }).to.throwException(/cannot contain an .extends property/);
+
+            });
+
+            it('should work with .extend()', function () {
+
+                var SomeInterface = Interface({}),
+                    OtherInterface = SomeInterface.extend({}),
+                    SomeClass = Class({
+                        $implements: OtherInterface
+                    }),
+                    someClass = new SomeClass();
+
+                expect(instanceOf(someClass, OtherInterface)).to.be.equal(true);
+                expect(instanceOf(someClass, SomeInterface)).to.be.equal(true);
 
             });
 
@@ -413,7 +438,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error when using reserved keywords', function () {
 
                 var reserved = ['$constructor', '$initializing', '$static', '$self', '$super'],
-                    reservedStatic = ['$parent', '$super'],
+                    reservedStatic = ['$parent', '$super', '$static', '$self', 'extend'],
                     x,
                     checkNormal = function (key) {
                         return function () {
@@ -900,6 +925,17 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         initialize: 'some'
                     });
                 }).to.throwException(/must be a function/);
+
+            });
+
+            it('should throw an error if using .extend() with an $extend property', function () {
+
+                expect(function () {
+                    var SomeClass = Class({}),
+                        OtherClass = SomeClass.extend({
+                            $extends: Class({})
+                        });
+                }).to.throwException(/cannot contain an .extends property/);
 
             });
 
@@ -2938,7 +2974,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error when using reserved keywords', function () {
 
                 var reserved = ['$constructor', '$initializing', '$static', '$self', '$super'],
-                    reservedStatic = ['$parent', '$super'],
+                    reservedStatic = ['$parent', '$super', '$static', '$self', 'extend'],
                     x,
                     checkNormal = function (key, where) {
                         return function () {
@@ -3630,7 +3666,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error when using reserved keywords', function () {
 
                 var reserved = ['$constructor', '$initializing', '$static', '$self', '$super'],
-                    reservedStatic = ['$parent', '$super'],
+                    reservedStatic = ['$parent', '$super', '$static', '$self', 'extend'],
                     x,
                     checkNormal = function (key, where) {
                         return function () {

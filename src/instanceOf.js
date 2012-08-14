@@ -1,7 +1,3 @@
-//>>excludeStart('strict', pragmas.strict);
-/*jshint strict:false*/
-
-//>>excludeEnd('strict');
 define([
 //>>includeStart('strict', pragmas.strict);
     './common/randomAccessor'
@@ -12,8 +8,8 @@ define([
 //>>includeEnd('strict');
 ) {
 
-//>>includeStart('strict', pragmas.strict);
     'use strict';
+//>>includeStart('strict', pragmas.strict);
 
     var random = randomAccessor('instanceOfWrapper'),
         $class = '$class_' + random,

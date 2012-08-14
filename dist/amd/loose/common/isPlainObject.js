@@ -1,5 +1,3 @@
-/*jshint strict:false*/
-
 define([
     'amd-utils/lang/isFunction',
     'amd-utils/object/hasOwn'
@@ -7,6 +5,8 @@ define([
     isFunction,
     hasOwn
 ) {
+
+    'use strict';
 
     var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
 

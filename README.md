@@ -32,7 +32,6 @@ Besides that, I was looking for something fast on top of [AMD](https://github.co
 
 Users are encouraged to declare 'use strict' while using the strict build otherwise some code can fail [silently](https://developer.mozilla.org/en/JavaScript/Strict_mode).
 This is because dejavu uses Object.freeze and/or Object.seal to lock classes and instances, guaranteeing that nobody changes the behaviour of your classes the wrong way (replacing methods, etc).
-Run a preprocessor to remove 'use strict' from all production code (e.g.: requirejs optimizer tool).
 
 
 
@@ -103,6 +102,22 @@ define(['path/to/EventsInterface', 'path/to/dejavu/Interface'], function (Events
     var SomeEventsInterface = Interface({
         $extends: EventsInterface,   // This interface extends EventsInterface
                                      // Interfaces can extend multiple ones, just reference them in an array
+
+        $statics: {                  // This is how we define statics
+            getTotalListeners: function () {}
+        }
+
+    });
+
+    return SomeEventsInterface;
+});
+```
+Alternatively, one can extend an interface with the extend() function. The equivalent code of the shown above is:
+
+```js
+define(['path/to/EventsInterface', 'path/to/dejavu/Interface'], function (EventsInterface, Interface) {
+
+    var SomeEventsInterface = EventsInterface.extend(
 
         $statics: {                  // This is how we define statics
             getTotalListeners: function () {}
@@ -212,6 +227,48 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
 
     var ComplexAbstractClass = AbstractClass({
         $extends: SomeClass,
+        $implements: [SomeInterface, OtherInterface],
+
+        /**
+         * Class constructor.
+         */
+        initialize: function (argument1) {
+            // Call super
+            this.$super(argument1);
+
+            // Do other things here
+        },
+
+        $statics: {
+            // Some class static members
+        },
+
+        $abstracts: {
+
+            // Some abstract functions
+
+            $statics: {
+                // Some abstract static functions
+            }
+        }
+    });
+
+    return ComplexAbstractClass;
+});
+```
+
+Alternatively, one can extend a concrete or abstract class with the extend() function. The equivalent code of the shown above is:
+
+```js
+define([
+    'path/to/some/class',
+    'path/to/some/interface',
+    'path/to/other/interfaces',
+    'path/to/dejavu/AbstractClass'
+],
+function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
+
+    var ComplexAbstractClass = SomeClass.extend({
         $implements: [SomeInterface, OtherInterface],
 
         /**

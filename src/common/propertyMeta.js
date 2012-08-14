@@ -1,13 +1,7 @@
-//>>excludeStart('strict', pragmas.strict);
-/*jshint strict:false*/
+define([], function () {
 
-//>>excludeEnd('strict');
-define(function () {
-
-//>>includeStart('strict', pragmas.strict);
     'use strict';
 
-//>>includeEnd('strict');
     /**
      * Extract meta data from a property.
      * For now, the returns an object containing the visibility.

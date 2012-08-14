@@ -1,5 +1,3 @@
-/*jshint strict:false*/
-
 define([
     'amd-utils/lang/isNumber',
     'amd-utils/lang/isString',
@@ -9,6 +7,8 @@ define([
     isString,
     isBoolean
 ) {
+
+    'use strict';
 
     /**
      * Checks if a value is immutable.

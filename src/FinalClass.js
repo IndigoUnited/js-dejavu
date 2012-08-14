@@ -1,7 +1,7 @@
-//>>excludeStart('strict', pragmas.strict);
-/*jshint strict:false, laxcomma:true*/
+//>>includeStart('strict', pragmas.strict);
+/*jshint laxcomma:true*/
 
-//>>excludeEnd('strict');
+//>>includeEnd('strict');
 define([
     './Class'
 //>>includeStart('strict', pragmas.strict);
@@ -16,9 +16,9 @@ define([
 //>>includeEnd('strict');
 ) {
 
-//>>includeStart('strict', pragmas.strict);
     'use strict';
 
+//>>includeStart('strict', pragmas.strict);
     checkObjectPrototype();
 
     var random = randomAccessor('FinalClassWrapper'),

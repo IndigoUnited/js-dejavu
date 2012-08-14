@@ -1,10 +1,10 @@
-/*jshint strict:false, laxcomma:true*/
-
 define([
     './Class'
 ], function FinalClassWrapper(
     Class
 ) {
+
+    'use strict';
 
     return function FinalClass(params) {
 

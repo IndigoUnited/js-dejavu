@@ -2,7 +2,8 @@ if (!global.evaluated) {
     require('../util/adapter.js');
 }
 
-var path = '../dist/amd/loose';
-global.modules = [path + '/Class.js', path + '/AbstractClass', path + '/Interface', path + '/FinalClass', path + '/instanceOf'];
+var path = 'amd/loose';
+global.modules = [path + '/Class', path + '/AbstractClass', path + '/Interface', path + '/FinalClass', path + '/instanceOf'];
 global.build = 'amd/loose';
-define(['../functional'], function () {});
+
+define(['specs/functional'], function () {});

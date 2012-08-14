@@ -8,10 +8,7 @@ The tests are built on top of [mocha](http://visionmedia.github.com/mocha/) test
 To test in the command line:
 
 First run `npm install` to install all the tools needed.
-Then you can run all build tests individually:
-
-* Run `"node_modules/.bin/mocha" test/amd/strict` to test the [amd/strict](https://github.com/IndigoUnited/dejavu/tree/master/dist/amd/loose) build
-* Run `"node_modules/.bin/mocha" test/amd/loose` to test the [amd/loose](https://github.com/IndigoUnited/dejavu/tree/master/dist/amd/loose) build
+Finally type `"node_modules/.bin/mocha"` to run the tests.
 
 _Tip_: You can use the `-R list [file]` option to give you a full list of the tests.
 

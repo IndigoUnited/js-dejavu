@@ -11,7 +11,7 @@ define([
 
     var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
         reservedAll = append(['initialize'], reservedNormal),
-        reservedStatics = ['$parent', '$super'];
+        reservedStatics = ['$parent', '$super', '$self', '$static', 'extend'];
 
     /**
      * Verify reserved words found in classes/interfaces.
