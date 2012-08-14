@@ -1823,6 +1823,7 @@ define([
      */
     function extend(params) {
         /*jshint validthis:true*/
+
 //>>includeStart('strict', pragmas.strict);
         if (params.$extends) {
             throw new Error('Object passed cannot contain an $extends property.');
