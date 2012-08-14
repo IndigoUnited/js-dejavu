@@ -10,6 +10,8 @@ define([
 
     'use strict';
 
+    /*jshint newcap:false*/
+
     var $abstract = '$abstract',
         $class = '$class',
         $bound = '$bound_dejavu';
@@ -35,7 +37,7 @@ define([
         }
 
         // Create the class definition
-        def = new Class(params);
+        def = Class(params);
         def[$abstract] = true;
 
         // Grab binds

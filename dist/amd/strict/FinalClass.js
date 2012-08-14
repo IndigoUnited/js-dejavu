@@ -12,6 +12,8 @@ define([
 
     'use strict';
 
+    /*jshint newcap:false*/
+
     checkObjectPrototype();
 
     var random = randomAccessor('FinalClassWrapper'),
@@ -19,7 +21,7 @@ define([
 
     return function FinalClass(params) {
 
-        var def = new Class(params);
+        var def = Class(params);
         def[$class].finalClass = true;
 
         return def;

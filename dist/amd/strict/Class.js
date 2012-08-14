@@ -546,7 +546,7 @@ define([
 
                 if (isObject(mixins[i])) {
                     try {
-                        current = new Class(mixIn({}, mixins[i])).prototype;
+                        current = Class(mixIn({}, mixins[i])).prototype;
                     } catch (e) {
                         // When an object is being used, throw a more friend message if an error occurs
                         throw new Error('Unable to define object as class at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" (' + e.message + ').');
@@ -1512,7 +1512,7 @@ define([
 
         params.$extends = this;
 
-        return new Class(params);
+        return Class(params);
     }
 
     /**

@@ -42,6 +42,8 @@ define([
 
     'use strict';
 
+    /*jshint newcap:false*/
+
 //>>excludeStart('strict', pragmas.strict);
     var $abstract = '$abstract',
         $class = '$class',
@@ -348,11 +350,11 @@ define([
         }
 
         // Create the class definition
-        def = new Class(params, true);
+        def = Class(params, true);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
         // Create the class definition
-        def = new Class(params);
+        def = Class(params);
         def[$abstract] = true;
 
         // Grab binds

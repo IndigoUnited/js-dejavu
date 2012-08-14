@@ -38,6 +38,8 @@ define([
 
     'use strict';
 
+    /*jshint newcap:false*/
+
     var random = randomAccessor('AbstractClassWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
@@ -319,7 +321,7 @@ define([
         }
 
         // Create the class definition
-        def = new Class(params, true);
+        def = Class(params, true);
 
         abstractObj.check = bind(checkClass, def);
 

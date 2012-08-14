@@ -90,6 +90,8 @@ define([
 //>>excludeStart('strict', pragmas.strict);
     'use strict';
 
+    /*jshint newcap:false*/
+
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
     checkObjectPrototype();
@@ -648,7 +650,7 @@ define([
 
                 if (isObject(mixins[i])) {
                     try {
-                        current = new Class(mixIn({}, mixins[i])).prototype;
+                        current = Class(mixIn({}, mixins[i])).prototype;
                     } catch (e) {
                         // When an object is being used, throw a more friend message if an error occurs
                         throw new Error('Unable to define object as class at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" (' + e.message + ').');
@@ -669,7 +671,7 @@ define([
 
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-                current = isObject(mixins[i]) ? new Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
+                current = isObject(mixins[i]) ? Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
 
                 // Grab mixin members
                 for (key in current) {
@@ -1829,7 +1831,7 @@ define([
 //>>includeEnd('strict');
         params.$extends = this;
 
-        return new Class(params);
+        return Class(params);
     }
 
 //>>includeStart('strict', pragmas.strict);
