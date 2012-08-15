@@ -1605,6 +1605,7 @@ define('Class',[
         $bound = '$bound_' + random,
         $name = '$name_' + random,
         $anonymous = '$anonymous_' + random,
+        $wrapped = '$wrapped_' + random,
         cacheKeyword = '$cache_' + random,
         inheriting,
         descriptor,
@@ -1653,7 +1654,7 @@ define('Class',[
      */
     function wrapMethod(method, constructor, classId, classBaseId, parentMeta) {
 
-        if (method.$wrapped) {
+        if (method[$wrapped]) {
             throw new Error('Method is already wrapped.');
         }
 
@@ -1695,7 +1696,7 @@ define('Class',[
             return ret;
         };
 
-        obfuscateProperty(wrapper, '$wrapped', method);
+        obfuscateProperty(wrapper, $wrapped, method);
 
         if (method[$name]) {
             obfuscateProperty(wrapper, $name, method[$name]);
@@ -1718,7 +1719,7 @@ define('Class',[
      */
     function wrapStaticMethod(method, constructor, classId, classBaseId, parentMeta) {
 
-        if (method.$wrapped) {
+        if (method[$wrapped]) {
             throw new Error('Method is already wrapped.');
         }
 
@@ -1754,7 +1755,7 @@ define('Class',[
             return ret;
         };
 
-        obfuscateProperty(wrapper, '$wrapped', method);
+        obfuscateProperty(wrapper, [$wrapped], method);
 
         if (method[$name]) {
             obfuscateProperty(wrapper, $name, method[$name]);
@@ -1808,7 +1809,7 @@ define('Class',[
             delete method.$inherited;
         } else if (!opts.metadata) {
             // Grab function metadata and throw error if is not valid (its invalid if the arguments are invalid)
-            if (method.$wrapped) {
+            if (method[$wrapped]) {
                 throw new Error('Cannot grab metadata from wrapped method.');
             }
             metadata = functionMeta(method, name);
@@ -1865,8 +1866,8 @@ define('Class',[
         target[name] = metadata;
 
         // Unwrap method if already wrapped
-        if (method.$wrapped) {
-            method = method.$wrapped;
+        if (method[$wrapped]) {
+            method = method[$wrapped];
         }
 
         originalMethod = method;
@@ -3029,6 +3030,7 @@ define('Class',[
      */
     function extend(params) {
         /*jshint validthis:true*/
+
         if (params.$extends) {
             throw new Error('Object passed cannot contain an $extends property.');
         }

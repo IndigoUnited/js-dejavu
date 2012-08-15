@@ -45,7 +45,8 @@ define([
     var Class,
         $class = '$class',
         $interface = '$interface',
-        $bound = '$bound_dejavu';
+        $bound = '$bound_dejavu',
+        $wrapped = '$wrapped_dejavu';
 
     /**
      * Clones a property in order to make them unique for the instance.
@@ -84,10 +85,10 @@ define([
     function wrapMethod(method, constructor, parent) {
 
         var wrapper,
-            isWrapped = !!method.$wrapped;
+            isWrapped = !!method[$wrapped];
 
         if (isWrapped) {
-            method = method.$wrapped;
+            method = method[$wrapped];
         }
 
         if (!parent) {
@@ -125,7 +126,7 @@ define([
             };
         }
 
-        wrapper.$wrapped = method;
+        wrapper[$wrapped] = method;
 
         return wrapper;
     }
@@ -285,7 +286,7 @@ define([
             value = params[key];
 
             if (isFunction(value) && !value[$class] && !value[$interface]) {
-                constructor.prototype[key] = !value.$inherited ? wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null) : value;
+                constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
 
                 // If the function is specified to be bound, add it to the binds
                 if (value[$bound]) {
@@ -484,6 +485,7 @@ define([
      */
     function extend(params) {
         /*jshint validthis:true*/
+
         params.$extends = this;
 
         return Class(params);
