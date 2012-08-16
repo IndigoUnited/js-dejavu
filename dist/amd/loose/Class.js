@@ -286,7 +286,7 @@ define([
             value = params[key];
 
             if (isFunction(value) && !value[$class] && !value[$interface]) {
-                constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
+                constructor.prototype[key] = !value.$inherited ? wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null) : value;
 
                 // If the function is specified to be bound, add it to the binds
                 if (value[$bound]) {

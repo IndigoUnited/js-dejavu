@@ -8,7 +8,7 @@ define([
 
     'use strict';
 
-    var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super'],
+    var reservedNormal = ['$constructor', '$initializing', '$static', '$self', '$super', '$underStrict'],
         reservedAll = append(['initialize'], reservedNormal),
         reservedStatics = ['$parent', '$super', '$self', '$static', 'extend'];
 
