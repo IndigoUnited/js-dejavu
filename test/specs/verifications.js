@@ -2973,7 +2973,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             it('should throw an error when using reserved keywords', function () {
 
-                var reserved = ['$constructor', '$initializing', '$static', '$self', '$super'],
+                var reserved = ['$constructor', '$initializing', '$static', '$self', '$super', '$underStrict'],
                     reservedStatic = ['$parent', '$super', '$static', '$self', 'extend'],
                     x,
                     checkNormal = function (key, where) {
@@ -3665,7 +3665,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             it('should throw an error when using reserved keywords', function () {
 
-                var reserved = ['$constructor', '$initializing', '$static', '$self', '$super'],
+                var reserved = ['$constructor', '$initializing', '$static', '$self', '$super', '$underStrict'],
                     reservedStatic = ['$parent', '$super', '$static', '$self', 'extend'],
                     x,
                     checkNormal = function (key, where) {
