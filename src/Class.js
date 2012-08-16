@@ -104,7 +104,6 @@ define([
         $bound = '$bound_' + random,
         $name = '$name_' + random,
         $anonymous = '$anonymous_' + random,
-        $wrapped = '$wrapped_' + random,
         cacheKeyword = '$cache_' + random,
         inheriting,
         descriptor,
@@ -119,8 +118,7 @@ define([
     var Class,
         $class = '$class',
         $interface = '$interface',
-        $bound = '$bound_dejavu',
-        $wrapped = '$wrapped_dejavu';
+        $bound = '$bound_dejavu';
 //>>excludeEnd('strict');
 
     /**
@@ -161,10 +159,10 @@ define([
     function wrapMethod(method, constructor, parent) {
 
         var wrapper,
-            isWrapped = !!method[$wrapped];
+            isWrapped = !!method.$wrapped;
 
         if (isWrapped) {
-            method = method[$wrapped];
+            method = method.$wrapped;
         }
 
         if (!parent) {
@@ -202,7 +200,7 @@ define([
             };
         }
 
-        wrapper[$wrapped] = method;
+        wrapper.$wrapped = method;
 
         return wrapper;
     }
@@ -222,7 +220,7 @@ define([
      */
     function wrapMethod(method, constructor, classId, classBaseId, parentMeta) {
 
-        if (method[$wrapped]) {
+        if (method.$wrapped) {
             throw new Error('Method is already wrapped.');
         }
 
@@ -264,7 +262,7 @@ define([
             return ret;
         };
 
-        obfuscateProperty(wrapper, $wrapped, method);
+        obfuscateProperty(wrapper, '$wrapped', method);
 
         if (method[$name]) {
             obfuscateProperty(wrapper, $name, method[$name]);
@@ -287,7 +285,7 @@ define([
      */
     function wrapStaticMethod(method, constructor, classId, classBaseId, parentMeta) {
 
-        if (method[$wrapped]) {
+        if (method.$wrapped) {
             throw new Error('Method is already wrapped.');
         }
 
@@ -323,7 +321,7 @@ define([
             return ret;
         };
 
-        obfuscateProperty(wrapper, [$wrapped], method);
+        obfuscateProperty(wrapper, '$wrapped', method);
 
         if (method[$name]) {
             obfuscateProperty(wrapper, $name, method[$name]);
@@ -377,7 +375,7 @@ define([
             delete method.$inherited;
         } else if (!opts.metadata) {
             // Grab function metadata and throw error if is not valid (its invalid if the arguments are invalid)
-            if (method[$wrapped]) {
+            if (method.$wrapped) {
                 throw new Error('Cannot grab metadata from wrapped method.');
             }
             metadata = functionMeta(method, name);
@@ -434,8 +432,8 @@ define([
         target[name] = metadata;
 
         // Unwrap method if already wrapped
-        if (method[$wrapped]) {
-            method = method[$wrapped];
+        if (method.$wrapped) {
+            method = method.$wrapped;
         }
 
         originalMethod = method;
@@ -941,7 +939,7 @@ define([
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
             if (isFunction(value) && !value[$class] && !value[$interface]) {
-                constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
+                constructor.prototype[key] = !value.$inherited ? wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null) : value;
 
                 // If the function is specified to be bound, add it to the binds
                 if (value[$bound]) {
