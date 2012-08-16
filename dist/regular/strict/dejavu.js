@@ -1654,8 +1654,13 @@ define('Class',[
      */
     function wrapMethod(method, constructor, classId, classBaseId, parentMeta) {
 
+        // Return the method if the class was created efficiently
+        if (constructor[$class].efficient) {
+            return method;
+        }
+
         if (method[$wrapped]) {
-            throw new Error('Method is already wrapped.');
+            method = method[$wrapped];
         }
 
         var parent,
@@ -1719,8 +1724,13 @@ define('Class',[
      */
     function wrapStaticMethod(method, constructor, classId, classBaseId, parentMeta) {
 
+        // Return the method if the class was created efficiently
+        if (constructor[$class].efficient) {
+            return method;
+        }
+
         if (method[$wrapped]) {
-            throw new Error('Method is already wrapped.');
+            method = method[$wrapped];
         }
 
         var parent = parentMeta ? parentMeta.implementation : parentMeta,
@@ -3026,20 +3036,13 @@ define('Class',[
     /**
      * Function to easily extend another class.
      *
-     * @param {Object}  params An object containing methods and properties
+     * @param {Object|Function} params An object containing methods and properties or a function that returns it
      *
      * @return {Function} The new class constructor
      */
     function extend(params) {
         /*jshint validthis:true*/
-
-        if (params.$extends) {
-            throw new Error('Object passed cannot contain an $extends property.');
-        }
-
-        params.$extends = this;
-
-        return Class(params);
+        return Class.create(this, params);
     }
 
     /**
@@ -3063,12 +3066,13 @@ define('Class',[
     /**
      * Create a class definition.
      *
-     * @param {Object}  params     An object containing methods and properties
-     * @param {Boolean} isAbstract Treat this class as abstract
+     * @param {Object}      params        An object containing methods and properties
+     * @param {Constructor} [constructor] Assume the passed constructor
+     * @param {Boolean}     [isAbstract]  Treat this class as abstract
      *
      * @return {Function} The constructor
      */
-    Class = function Class(params, isAbstract) {
+    Class = function Class(params, constructor, isAbstract) {
 
         var dejavu,
             parent,
@@ -3139,7 +3143,7 @@ define('Class',[
                 params.initialize = params.initialize || params._initialize || params.__initialize;
             }
 
-            dejavu = createConstructor(isAbstract);
+            dejavu = constructor || createConstructor(isAbstract);
             obfuscateProperty(dejavu, '$parent', parent);
             dejavu[$class].baseId = parent[$class].baseId;
             dejavu[$class].id = nextId += 1;
@@ -3148,12 +3152,13 @@ define('Class',[
             inheritParent(dejavu, parent);
         } else {
             params.initialize = params.initialize || params._initialize || params.__initialize || function () {};
-            dejavu = createConstructor(isAbstract);
+            dejavu = constructor || createConstructor(isAbstract);
             dejavu[$class].baseId = nextId += 1;
             dejavu[$class].id = dejavu[$class].baseId;
             dejavu.prototype = params;
         }
 
+        dejavu[$class].efficient = !!constructor;
         delete params._initialize;
         delete params.__initialize;
 
@@ -3220,6 +3225,54 @@ define('Class',[
 
         return dejavu;
     };
+
+    /**
+     * Function to create a class.
+     * This function can be called with various formats.
+     *
+     * @param {Function|Object} arg1 A class to extend or an object/function to obtain the members
+     * @param {Function|Object} arg2 Object/function to obtain the members
+     *
+     * @return {Function} The constructor
+     */
+    Class.create = function (arg1, arg2) {
+        var def,
+            params,
+            callable = isFunction(this) ? this : Class,
+            constructor;
+
+        if (arg1 && arg2) {
+            if (!isFunction(arg1) || !arg1[$class]) {
+                throw new Error('Expected first argument to be a class.');
+            }
+
+            // create(parentClass, func)
+            if (isFunction(arg2)) {
+                constructor = createConstructor();
+                params = arg2(arg1.prototype, constructor, arg1);
+            // create(parentClass, props)
+            } else {
+                params = arg2;
+            }
+
+            if (params.$extends) {
+                throw new Error('Object cannot contain an $extends property.');
+            }
+
+            params.$extends = arg1;
+            def = callable(params, constructor);
+        // create(func)
+        } else if (isFunction(arg1)) {
+            def = createConstructor();
+            obj = arg2(arg1.prototype, def);
+            def = callable(obj, def);
+        // create (props)
+        } else {
+            def = callable(arg1);
+        }
+
+        return def;
+    }
 
     // Add custom bound function to supply binds
     if (Function.prototype.$bound) {
@@ -3567,11 +3620,12 @@ define('AbstractClass',[
     /**
      * Create an abstract class definition.
      *
-     * @param {Object} params An object containing methods and properties
+     * @param {Object} params             An object containing methods and properties
+     * @param {Constructor} [constructor] Assume the passed constructor
      *
      * @return {Function} The constructor
      */
-    function AbstractClass(params) {
+    function AbstractClass(params, constructor) {
 
         if (!isObject(params)) {
             throw new Error('Argument "params" must be an object while defining an abstract class.');
@@ -3611,7 +3665,7 @@ define('AbstractClass',[
         }
 
         // Create the class definition
-        def = Class(params, true);
+        def = Class(params, constructor, true);
 
         abstractObj.check = bind(checkClass, def);
 
@@ -3636,6 +3690,21 @@ define('AbstractClass',[
 
         return def;
     }
+
+    /**
+     * Function to create an abstract class.
+     * This function can be called with various formats.
+     * The first parameter can be a class to extend.
+     * The second parameter must be an object containing the class members or a function to obtain it.
+     *
+     * @param {Function|Object} arg1 A class, an object or a function
+     * @param {Function|Object} arg2 Object containing the class members or a function to obtain it.
+     *
+     * @return {Function} The constructor
+     */
+    AbstractClass.create = function (arg1, arg2) {
+        return Class.create.call(AbstractClass, arg1, arg2);
+    };
 
     return AbstractClass;
 });
@@ -4065,6 +4134,17 @@ define('Interface',[
         return interf;
     }
 
+    /**
+     * Function to create an Interface.
+     *
+     * @param {Function} arg1 Object containing the members or a function to obtain it.
+     *
+     * @return {Function} The Interface
+     */
+    Interface.create = function (arg1) {
+        return Interface(isFunction(arg1) ? arg1() : arg1);
+    };
+
     return Interface;
 });
 
@@ -4089,13 +4169,28 @@ define('FinalClass',[
     var random = randomAccessor('FinalClassWrapper'),
         $class = '$class_' + random;
 
-    return function FinalClass(params) {
+    function FinalClass(params) {
 
         var def = Class(params);
         def[$class].finalClass = true;
 
         return def;
+    }
+
+    /**
+     * Function to create an abstract class.
+     * This function can be called with various formats.
+     *
+     * @param {Function|Object} arg1 A class to extend or an object/function to obtain the members
+     * @param {Function|Object} arg2 Object/function to obtain the members
+     *
+     * @return {Function} The constructor
+     */
+    FinalClass.create = function (arg1, arg2) {
+        return Class.create.call(FinalClass, arg1, arg2);
     };
+
+    return FinalClass;
 });
 
 define('instanceOf',[
