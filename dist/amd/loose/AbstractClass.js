@@ -19,11 +19,12 @@ define([
     /**
      * Create an abstract class definition.
      *
-     * @param {Object} params An object containing methods and properties
+     * @param {Object} params             An object containing methods and properties
+     * @param {Constructor} [constructor] Assume the passed constructor
      *
      * @return {Function} The constructor
      */
-    function AbstractClass(params) {
+    function AbstractClass(params, constructor) {
 
         var def,
             savedMembers,
@@ -37,7 +38,7 @@ define([
         }
 
         // Create the class definition
-        def = Class(params);
+        def = Class(params, constructor);
         def[$abstract] = true;
 
         // Grab binds
@@ -53,6 +54,21 @@ define([
 
         return def;
     }
+
+    /**
+     * Function to create an abstract class.
+     * This function can be called with various formats.
+     * The first parameter can be a class to extend.
+     * The second parameter must be an object containing the class members or a function to obtain it.
+     *
+     * @param {Function|Object} arg1 A class, an object or a function
+     * @param {Function|Object} arg2 Object containing the class members or a function to obtain it.
+     *
+     * @return {Function} The constructor
+     */
+    AbstractClass.create = function (arg1, arg2) {
+        return Class.create.call(AbstractClass, arg1, arg2);
+    };
 
     return AbstractClass;
 });

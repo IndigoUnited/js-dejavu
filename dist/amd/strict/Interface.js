@@ -423,5 +423,16 @@ define([
         return interf;
     }
 
+    /**
+     * Function to create an Interface.
+     *
+     * @param {Function} arg1 Object containing the members or a function to obtain it.
+     *
+     * @return {Function} The Interface
+     */
+    Interface.create = function (arg1) {
+        return Interface(isFunction(arg1) ? arg1() : arg1);
+    };
+
     return Interface;
 });
