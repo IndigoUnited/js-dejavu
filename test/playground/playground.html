@@ -16,13 +16,15 @@
     </head>
     <body>
         <script>
-            "use strict";
+            'use strict';
 
             require(['andre'], function (Andre) {
                 var myAndre = new Andre();
-                myAndre._test = 3;
-                myAndre.run = function () {};
+                console.log(myAndre);
+                myAndre._wtf = 'what';
                 //delete myAndre.run;
+                //
+                window.myAndre = myAndre;
             });
         </script>
     </body>

@@ -5,14 +5,13 @@
  */
 define(['dejavu/Class', './base'], function (Class, Base) {
 
-    "use strict";
+    'use strict';
 
     var SomeModule = {
         $extends: Base,
 
         run: function () {
-            this._test = 2;
-            console.log("marcelo run", this._test);
+            console.log('marcelo run');
             this.$super();
         }
     };

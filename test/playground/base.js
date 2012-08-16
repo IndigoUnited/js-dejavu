@@ -5,11 +5,13 @@
  */
 define(['dejavu/Class'], function (Class) {
 
+    'use strict';
+
     var SomeModule = {
         __a: 4,
 
         run: function () {
-            console.log("base run", this.__a);
+            console.log('base run', this.__a);
         }
     };
 

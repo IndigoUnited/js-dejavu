@@ -5,18 +5,19 @@
  */
 define(['dejavu/Class', './marcelo'], function (Class, Marcelo) {
 
-    var SomeModule = {
+    'use strict';
 
-        marcelo: null,
+    var SomeModule = {
+        $extends: Marcelo,
         _test: 2,
 
         initialize: function () {
-            this.marcelo = new Marcelo();
+            this._test = 10;
         },
 
         run: function () {
             console.log("andre run", this._test);
-            this.marcelo.run();
+            this.$super();
         }
     };
 
