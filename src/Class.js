@@ -2104,7 +2104,7 @@ define([
         // create(func)
         } else if (isFunction(arg1)) {
             constructor = createConstructor();
-            params = arg2(arg1.prototype, def);
+            params = arg1(def);
             def = callable(params, constructor);
         // create (props)
         } else {
