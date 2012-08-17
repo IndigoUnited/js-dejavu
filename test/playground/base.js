@@ -7,13 +7,11 @@ define(['dejavu/Class'], function (Class) {
 
     'use strict';
 
-    var SomeModule = {
+    return Class.create({
         __a: 4,
 
         run: function () {
             console.log('base run', this.__a);
         }
-    };
-
-    return new Class(SomeModule);
+    });
 });
