@@ -8,7 +8,8 @@ The tests are built on top of [mocha](http://visionmedia.github.com/mocha/) test
 To test in the command line:
 
 First run `npm install` to install all the tools needed.
-Finally type `"node_modules/.bin/mocha"` to run the tests.
+Finally type `"node_modules/.bin/mocha"` to run the strict tests.
+To run the loose tests type `"node_modules/.bin/mocha" test/amd/loose`
 
 _Tip_: You can use the `-R list [file]` option to give you a full list of the tests.
 
