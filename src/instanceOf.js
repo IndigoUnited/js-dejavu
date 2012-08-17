@@ -56,7 +56,7 @@ define([
     function instanceOfInterface(instance, target) {
 
         var x,
-            interfaces = instance.$constructor[$class].interfaces;
+            interfaces = instance.$static[$class].interfaces;
 
         for (x = interfaces.length - 1; x >= 0; x -= 1) {
             if (interfaces[x] === target || interfaceDescendantOf(interfaces[x], target)) {
@@ -81,7 +81,7 @@ define([
             return true;
         }
 
-        if (instance && instance.$constructor && instance.$constructor[$class] && target && target[$interface]) {
+        if (instance && instance.$static && instance.$static[$class] && target && target[$interface]) {
             return instanceOfInterface(instance, target);
         }
 

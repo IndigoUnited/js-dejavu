@@ -3,23 +3,22 @@
  *
  * @author André Cruz <andremiguelcruz@msn.com>
  */
-define(['dejavu/Class', './marcelo'], function (Class, Marcelo) {
+define(['./marcelo'], function (Marcelo) {
 
     'use strict';
 
-    var SomeModule = {
-        $extends: Marcelo,
-        _test: 2,
+    return Marcelo.extend(function ($super) {
+        return {
+            _test: 2,
 
-        initialize: function () {
-            this._test = 10;
-        },
+            initialize: function () {
+                this._test = 10;
+            },
 
-        run: function () {
-            console.log("andre run", this._test);
-            this.$super();
-        }
-    };
-
-    return new Class(SomeModule);
+            run: function () {
+                console.log("andre run", this._test);
+                $super.run.call(this);
+            }
+        };
+    });
 });

@@ -3,18 +3,16 @@
  *
  * @author André Cruz <andremiguelcruz@msn.com>
  */
-define(['dejavu/Class', './base'], function (Class, Base) {
+define(['./base'], function (Base) {
 
     'use strict';
 
-    var SomeModule = {
-        $extends: Base,
-
-        run: function () {
-            console.log('marcelo run');
-            this.$super();
-        }
-    };
-
-    return new Class(SomeModule);
+    return Base.extend(function ($super) {
+        return {
+            run: function () {
+                console.log('marcelo run');
+                $super.run.call(this);
+            }.$bound()
+        };
+    });
 });

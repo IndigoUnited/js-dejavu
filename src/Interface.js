@@ -1,7 +1,6 @@
 define([
 //>>includeStart('strict', pragmas.strict);
     'amd-utils/lang/isObject',
-    'amd-utils/lang/isFunction',
     'amd-utils/lang/isArray',
     'amd-utils/lang/isString',
     'amd-utils/lang/bind',
@@ -21,12 +20,12 @@ define([
     './common/hasDefineProperty',
     './common/mixIn',
 //>>includeEnd('strict');
+    'amd-utils/lang/isFunction',
     'amd-utils/object/hasOwn',
     'amd-utils/lang/toArray'
 ], function InterfaceWrapper(
 //>>includeStart('strict', pragmas.strict);
     isObject,
-    isFunction,
     isArray,
     isString,
     bind,
@@ -46,6 +45,7 @@ define([
     hasDefineProperty,
     mixIn,
 //>>includeEnd('strict');
+    isFunction,
     hasOwn,
     toArray
 ) {
