@@ -13,12 +13,12 @@ define([
     './common/isFunctionCompatible',
     './common/checkKeywords',
     './common/testKeywords',
-    './common/obfuscateProperty',
     './common/hasDefineProperty',
     './common/checkObjectPrototype',
     './common/randomAccessor',
     './common/hasFreezeBug',
     './common/printWarning',
+    './common/obfuscateProperty',
     './common/isImmutable',
     './common/isPlainObject',
     'amd-utils/lang/isFunction',
@@ -48,12 +48,12 @@ define([
     isFunctionCompatible,
     checkKeywords,
     testKeywords,
-    obfuscateProperty,
     hasDefineProperty,
     checkObjectPrototype,
     randomAccessor,
     hasFreezeBug,
     printWarning,
+    obfuscateProperty,
     isImmutable,
     isPlainObject,
     isFunction,
@@ -130,11 +130,6 @@ define([
      * @return {Function} The wrapper
      */
     function wrapMethod(method, constructor, classId, classBaseId, parentMeta) {
-
-        // Return the method if the class was created efficiently
-        if (constructor[$class].efficient) {
-            return method;
-        }
 
         if (method[$wrapped]) {
             method = method[$wrapped];
@@ -547,7 +542,7 @@ define([
             for (i -= 1; i >= 0; i -= 1) {
 
                 // Verify each mixin
-                if ((!isFunction(mixins[i]) || !mixins[i][$class]) && (!isObject(mixins[i]) || mixins[i].$constructor)) {
+                if ((!isFunction(mixins[i]) || !mixins[i][$class]) && (!isObject(mixins[i]) || mixins[i].$static)) {
                     throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
                 }
 
@@ -567,28 +562,28 @@ define([
                 }
 
                 // Verify if is an abstract class with members
-                if (current.$constructor[$abstract] && (size(current.$constructor[$abstract].methods) > 0 || size(current.$constructor[$abstract].staticMethods) > 0)) {
+                if (current.$static[$abstract] && (size(current.$static[$abstract].methods) > 0 || size(current.$static[$abstract].staticMethods) > 0)) {
                     throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is an abstract class with abstract members, which are not allowed.');
                 }
 
                 // Verify if it has parent
-                if (current.$constructor.$parent) {
+                if (current.$static.$parent) {
                     throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is an inherited class (only root classes are supported).');
                 }
 
                 delete opts.isStatic;
 
                 // Grab mixin members
-                for (key in current.$constructor[$class].methods) {
+                for (key in current.$static[$class].methods) {
                     if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
-                        opts.metadata = current.$constructor[$class].methods[key];
+                        opts.metadata = current.$static[$class].methods[key];
                         addMethod(key, opts.metadata.implementation || current[key], constructor, opts);
                     }
                 }
 
-                for (key in current.$constructor[$class].properties) {
+                for (key in current.$static[$class].properties) {
                     if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
-                        opts.metadata = current.$constructor[$class].properties[key];
+                        opts.metadata = current.$static[$class].properties[key];
                         addProperty(key, opts.metadata.value || current[key], constructor, opts);
                     }
                 }
@@ -596,22 +591,22 @@ define([
                 opts.isStatic = true;
 
                 // Grab mixin static members
-                for (key in current.$constructor[$class].staticMethods) {
+                for (key in current.$static[$class].staticMethods) {
                     if (constructor[key] === undefined) {              // Already defined members are not overwritten
-                        opts.metadata = current.$constructor[$class].staticMethods[key];
-                        addMethod(key, opts.metadata.implementation || current.$constructor[key], constructor, opts);
+                        opts.metadata = current.$static[$class].staticMethods[key];
+                        addMethod(key, opts.metadata.implementation || current.$static[key], constructor, opts);
                     }
                 }
 
-                for (key in current.$constructor[$class].staticProperties) {
+                for (key in current.$static[$class].staticProperties) {
                     if (constructor[key] === undefined) {              // Already defined members are not overwritten
-                        opts.metadata = current.$constructor[$class].staticProperties[key];
-                        addProperty(key, opts.metadata.value || current.$constructor[key], constructor, opts);
+                        opts.metadata = current.$static[$class].staticProperties[key];
+                        addProperty(key, opts.metadata.value || current.$static[key], constructor, opts);
                     }
                 }
 
                 // Merge the binds
-                combine(constructor[$class].binds, current.$constructor[$class].binds);
+                combine(constructor[$class].binds, current.$static[$class].binds);
             }
 
             delete constructor.prototype.$borrows;
@@ -904,7 +899,7 @@ define([
                         currCaller,
                         isConstructor = name === 'initialize';
 
-                    if (!isConstructor && !this.$underStrict && !this.$constructor[$class].$underStrict) {
+                    if (!isConstructor && !this.$underStrict && !this.$static[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
@@ -939,7 +934,7 @@ define([
                         currCaller,
                         isConstructor = name === 'initialize';
 
-                    if (!isConstructor && !this.$underStrict && !this.$constructor[$class].$underStrict) {
+                    if (!isConstructor && !this.$underStrict && !this.$static[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
@@ -1077,7 +1072,7 @@ define([
 
                     var currCaller;
 
-                    if (!this.$underStrict && !this.$constructor[$class].$underStrict) {
+                    if (!this.$underStrict && !this.$static[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
@@ -1093,7 +1088,7 @@ define([
 
                     var currCaller;
 
-                    if (!this.$underStrict && !this.$constructor[$class].$underStrict) {
+                    if (!this.$underStrict && !this.$static[$class].$underStrict) {
                         currCaller = set.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
@@ -1116,7 +1111,7 @@ define([
 
                     var currCaller;
 
-                    if (!this.$underStrict && !this.$constructor[$class].$underStrict) {
+                    if (!this.$underStrict && !this.$static[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
@@ -1132,7 +1127,7 @@ define([
 
                     var currCaller;
 
-                    if (!this.$underStrict && !this.$constructor[$class].$underStrict) {
+                    if (!this.$underStrict && !this.$static[$class].$underStrict) {
                         currCaller = set.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
@@ -1150,7 +1145,7 @@ define([
         } else if (!meta.isPrimitive) {
             instance[name] = cloneProperty(instance[name]);
         } else {
-            instance[name] = instance.$constructor.prototype[name];
+            instance[name] = instance.$static.prototype[name];
         }
     }
 
@@ -1278,12 +1273,12 @@ define([
 
         obfuscateProperty(instance, cacheKeyword, { properties: {}, methods: {} });
 
-        for (key in instance.$constructor[$class].methods) {
-            protectMethod(key, instance.$constructor[$class].methods[key], instance);
+        for (key in instance.$static[$class].methods) {
+            protectMethod(key, instance.$static[$class].methods[key], instance);
         }
 
-        for (key in instance.$constructor[$class].properties) {
-            protectProperty(key, instance.$constructor[$class].properties[key], instance);
+        for (key in instance.$static[$class].properties) {
+            protectProperty(key, instance.$static[$class].properties[key], instance);
         }
     }
 
@@ -1334,7 +1329,7 @@ define([
         var Instance = function Instance() {
 
             var x,
-                properties;
+                tmp;
 
             // Check if the user forgot the new keyword
             if (!(this instanceof Instance)) {
@@ -1358,22 +1353,23 @@ define([
             obfuscateProperty(this, '$super', null, true);               // Add the super to the instance object to speed lookup of the wrapper function
             obfuscateProperty(this, '$self', null, true);                // Add the self to the instance object to speed lookup of the wrapper function
 
+            tmp = this.$static[$class];
+
             // Apply private/protected members
             if (hasDefineProperty) {
                 protectInstance(this);
             } else {
                 // Reset some types of the object in order for each instance to have their variables
-                properties = this.$constructor[$class].properties;
-                for (x in properties) {
-                    if (!properties[x].isPrimitive) {
+                for (x in tmp.properties) {
+                    if (!tmp.properties[x].isPrimitive) {
                         this[x] = cloneProperty(this[x]);
                     }
                 }
             }
 
             // Apply binds
-            if (this.$constructor[$class].binds.length) {
-                applyBinds(this.$constructor[$class].binds, this, this);
+            if (tmp.binds.length) {
+                applyBinds(tmp.binds, this, this);
             }
 
             delete this.$initializing;
@@ -1423,7 +1419,7 @@ define([
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
         bound[$anonymous] = func[$anonymous] = true;
-        bound = wrapMethod(bound, this.$self, callerClassId, callerClassBaseId);
+        bound = wrapMethod(bound, this.$self || this.$static, callerClassId, callerClassBaseId);
 
         return bound;
     }
@@ -1655,7 +1651,6 @@ define([
         parseClass(params, dejavu);
 
         // Assign aliases
-        obfuscateProperty(dejavu.prototype, '$constructor', dejavu);
         obfuscateProperty(dejavu.prototype, '$static', dejavu);
         obfuscateProperty(dejavu, '$static', dejavu);
         obfuscateProperty(dejavu, '$self', dejavu, true);
@@ -1740,21 +1735,21 @@ define([
             def = callable(params, constructor);
         // create(func)
         } else if (isFunction(arg1)) {
-            def = createConstructor();
-            obj = arg2(arg1.prototype, def);
-            def = callable(obj, def);
+            constructor = createConstructor();
+            params = arg2(arg1.prototype, def);
+            def = callable(params, constructor);
         // create (props)
         } else {
             def = callable(arg1);
         }
 
         return def;
-    }
+    };
 
     // Add custom bound function to supply binds
     if (Function.prototype.$bound) {
         printWarning('Function.prototype.$bound is already defined and will be overwritten.');
-        if (hasDefineProperty) {
+        if (Object.getOwnPropertyDescriptor) {
             descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bound');
             if (!descriptor.writable || !descriptor.configurable) {
                 printWarning('Could not overwrite Function.prototype.$bound.');
@@ -1771,7 +1766,7 @@ define([
     // Add custom bind function to supply binds
     if (Function.prototype.$bind) {
         printWarning('Function.prototype.$bind is already defined and will be overwritten.');
-        if (hasDefineProperty) {
+        if (Object.getOwnPropertyDescriptor) {
             descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bind');
             if (!descriptor.writable || !descriptor.configurable) {
                 printWarning('Could not overwrite Function.prototype.$bind.');

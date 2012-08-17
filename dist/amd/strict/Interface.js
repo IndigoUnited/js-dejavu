@@ -1,6 +1,5 @@
 define([
     'amd-utils/lang/isObject',
-    'amd-utils/lang/isFunction',
     'amd-utils/lang/isArray',
     'amd-utils/lang/isString',
     'amd-utils/lang/bind',
@@ -19,11 +18,11 @@ define([
     './common/isImmutable',
     './common/hasDefineProperty',
     './common/mixIn',
+    'amd-utils/lang/isFunction',
     'amd-utils/object/hasOwn',
     'amd-utils/lang/toArray'
 ], function InterfaceWrapper(
     isObject,
-    isFunction,
     isArray,
     isString,
     bind,
@@ -42,6 +41,7 @@ define([
     isImmutable,
     hasDefineProperty,
     mixIn,
+    isFunction,
     hasOwn,
     toArray
 ) {

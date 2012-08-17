@@ -1,6 +1,8 @@
 /*jshint noarg:false*/
 
 define([
+    './common/printWarning',
+    './common/obfuscateProperty',
     './common/isImmutable',
     './common/isPlainObject',
     'amd-utils/lang/isFunction',
@@ -19,6 +21,8 @@ define([
     'amd-utils/lang/clone',
     'amd-utils/array/insert'
 ], function ClassWrapper(
+    printWarning,
+    obfuscateProperty,
     isImmutable,
     isPlainObject,
     isFunction,
@@ -46,7 +50,8 @@ define([
         $class = '$class',
         $interface = '$interface',
         $bound = '$bound_dejavu',
-        $wrapped = '$wrapped_dejavu';
+        $wrapped = '$wrapped_dejavu',
+        descriptor;
 
     /**
      * Clones a property in order to make them unique for the instance.
@@ -131,7 +136,7 @@ define([
             };
         }
 
-        wrapper[$wrapped] = method;
+        obfuscateProperty(wrapper, $wrapped, method);
 
         return wrapper;
     }
@@ -179,20 +184,20 @@ define([
                 }
 
                 // Grab mixin static methods
-                for (k = current.$constructor[$class].staticMethods.length - 1; k >= 0; k -= 1) {
+                for (k = current.$static[$class].staticMethods.length - 1; k >= 0; k -= 1) {
 
-                    key = current.$constructor[$class].staticMethods[k];
+                    key = current.$static[$class].staticMethods[k];
 
                     if (constructor[key] === undefined) {    // Already defined members are not overwritten
                         insert(constructor[$class].staticMethods, key);
-                        constructor[key] = current.$constructor[key];
+                        constructor[key] = current.$static[key];
                     }
                 }
 
                 // Grab mixin static properties
-                for (key in current.$constructor[$class].staticProperties) {
+                for (key in current.$static[$class].staticProperties) {
 
-                    value = current.$constructor[$class].staticProperties[key];
+                    value = current.$static[$class].staticProperties[key];
 
                     if (constructor[key] === undefined) {              // Already defined members are not overwritten
                         constructor[$class].staticProperties[key] = value;
@@ -201,7 +206,7 @@ define([
                 }
 
                 // Merge the binds
-                combine(constructor[$class].binds, current.$constructor[$class].binds);
+                combine(constructor[$class].binds, current.$static[$class].binds);
             }
 
             delete constructor.prototype.$borrows;
@@ -392,19 +397,23 @@ define([
         var Instance = function Instance() {
 
             var x,
-                properties;
+                tmp;
+
+            tmp = this.$static[$class];
 
             // Reset some types of the object in order for each instance to have their variables
-            properties = this.$constructor[$class].properties;
-            for (x = properties.length - 1; x >= 0; x -= 1) {
-                this[properties[x]] = cloneProperty(this[properties[x]]);
+            for (x = tmp.properties.length - 1; x >= 0; x -= 1) {
+                this[tmp.properties[x]] = cloneProperty(this[tmp.properties[x]]);
             }
 
-            this.$super = this.$self = null;               // Add the super and self to the instance object to speed lookup of the wrapper function
+            if (!tmp.efficient) {
+                obfuscateProperty(this, '$super', null, true);               // Add the super to the instance object to speed lookup of the wrapper function
+                obfuscateProperty(this, '$self', null, true);                // Add the self to the instance object to speed lookup of the wrapper function
+            }
 
             // Apply binds
-            if (this.$constructor[$class].binds.length) {
-                applyBinds(this.$constructor[$class].binds, this, this);
+            if (tmp.binds.length) {
+                applyBinds(tmp.binds, this, this);
             }
 
             // Call initialize
@@ -430,7 +439,7 @@ define([
 
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
-        bound = wrapMethod(bound, this.$self);
+        bound = wrapMethod(bound, this.$self || this.$static);
 
         return bound;
     }
@@ -507,7 +516,6 @@ define([
         var dejavu,
             parent;
 
-        delete params.$name;
 
         if (hasOwn(params, '$extends')) {
             parent = params.$extends;
@@ -538,11 +546,13 @@ define([
         parseClass(params, dejavu);
 
         // Assign aliases
-        dejavu.prototype.$constructor = dejavu.prototype.$static = dejavu;
-        dejavu.$bind = anonymousBind;
-        dejavu.$static = dejavu;
+        obfuscateProperty(dejavu.prototype, '$static', dejavu);
+        obfuscateProperty(dejavu, '$static', dejavu);
+        obfuscateProperty(dejavu, '$self', dejavu, true);
+        obfuscateProperty(dejavu, '$bind', anonymousBind);
+        obfuscateProperty(dejavu, '$super', null, true);
         if (!dejavu.$parent) {
-            dejavu.prototype.$bind = anonymousBind;
+            obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
         }
 
         // Parse mixins
@@ -602,26 +612,46 @@ define([
             def = callable(params, constructor);
         // create(func)
         } else if (isFunction(arg1)) {
-            def = createConstructor();
-            obj = arg2(arg1.prototype, def);
-            def = callable(obj, def);
+            constructor = createConstructor();
+            params = arg2(arg1.prototype, def);
+            def = callable(params, constructor);
         // create (props)
         } else {
             def = callable(arg1);
         }
 
         return def;
-    }
+    };
 
     // Add custom bound function to supply binds
-    Function.prototype.$bound = function (context) {
+    if (Function.prototype.$bound) {
+        printWarning('Function.prototype.$bound is already defined and will be overwritten.');
+        if (Object.getOwnPropertyDescriptor) {
+            descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bound');
+            if (!descriptor.writable || !descriptor.configurable) {
+                printWarning('Could not overwrite Function.prototype.$bound.');
+            }
+        }
+    }
+
+    obfuscateProperty(Function.prototype, '$bound', function (context) {
         this[$bound] = true;
 
         return this;
-    };
+    });
 
     // Add custom bind function to supply binds
-    Function.prototype.$bind = function (context) {
+    if (Function.prototype.$bind) {
+        printWarning('Function.prototype.$bind is already defined and will be overwritten.');
+        if (Object.getOwnPropertyDescriptor) {
+            descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bind');
+            if (!descriptor.writable || !descriptor.configurable) {
+                printWarning('Could not overwrite Function.prototype.$bind.');
+            }
+        }
+    }
+
+    obfuscateProperty(Function.prototype, '$bind', function (context) {
         if (!arguments.length) {
             this[$bound] = true;
 
@@ -632,7 +662,7 @@ define([
         args.splice(0, 1, this);
 
         return anonymousBind.apply(context, args);
-    };
+    });
 
     return Class;
 });

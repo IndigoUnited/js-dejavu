@@ -1,7 +1,9 @@
 define([
+    'amd-utils/lang/isFunction',
     'amd-utils/object/hasOwn',
     'amd-utils/lang/toArray'
 ], function InterfaceWrapper(
+    isFunction,
     hasOwn,
     toArray
 ) {
