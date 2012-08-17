@@ -74,7 +74,8 @@ define([
 
     checkObjectPrototype();
 
-    var Class,
+    var createClass,
+        Class = {},
         random = randomAccessor('ClassWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
@@ -552,7 +553,7 @@ define([
 
                 if (isObject(mixins[i])) {
                     try {
-                        current = Class(mixIn({}, mixins[i])).prototype;
+                        current = createClass(mixIn({}, mixins[i])).prototype;
                     } catch (e) {
                         // When an object is being used, throw a more friend message if an error occurs
                         throw new Error('Unable to define object as class at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" (' + e.message + ').');
@@ -1515,6 +1516,7 @@ define([
      */
     function extend(params) {
         /*jshint validthis:true*/
+
         return Class.create(this, params);
     }
 
@@ -1545,7 +1547,7 @@ define([
      *
      * @return {Function} The constructor
      */
-    Class = function Class(params, constructor, isAbstract) {
+    createClass = function (params, constructor, isAbstract) {
 
         var dejavu,
             parent,
@@ -1554,10 +1556,7 @@ define([
             x,
             found;
 
-        // Validate params as an object
-        if (!isObject(params)) {
-            throw new Error('Argument "params" must be an object while defining a class.');
-        }
+
         // Validate class name
         if (hasOwn(params, '$name')) {
             if (!isString(params.$name)) {
@@ -1710,7 +1709,7 @@ define([
     Class.create = function (arg1, arg2) {
         var def,
             params,
-            callable = isFunction(this) ? this : Class,
+            callable = isFunction(this) ? this : createClass,
             constructor;
 
         if (arg1 && arg2) {
@@ -1731,20 +1730,27 @@ define([
                 throw new Error('Object cannot contain an $extends property.');
             }
 
+
             params.$extends = arg1;
-            def = callable(params, constructor);
         // create(func)
         } else if (isFunction(arg1)) {
             constructor = createConstructor();
-            params = arg2(arg1.prototype, def);
-            def = callable(params, constructor);
+            params = arg1(def);
         // create (props)
         } else {
-            def = callable(arg1);
+            params = arg1;
         }
 
-        return def;
+        // Validate params as an object
+        if (!isObject(params)) {
+            throw new Error('Expected second argument to be an object with the class members.');
+        }
+
+        return callable(params, constructor);
     };
+
+    // Add a reference to the createFunction method to be used by other files
+    obfuscateProperty(Class, '$create', createClass);
 
     // Add custom bound function to supply binds
     if (Function.prototype.$bound) {
