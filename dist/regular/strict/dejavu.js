@@ -1596,7 +1596,8 @@ define('Class',[
 
     checkObjectPrototype();
 
-    var Class,
+    var createClass,
+        Class = {},
         random = randomAccessor('ClassWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
@@ -2074,7 +2075,7 @@ define('Class',[
 
                 if (isObject(mixins[i])) {
                     try {
-                        current = Class(mixIn({}, mixins[i])).prototype;
+                        current = createClass(mixIn({}, mixins[i])).prototype;
                     } catch (e) {
                         // When an object is being used, throw a more friend message if an error occurs
                         throw new Error('Unable to define object as class at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" (' + e.message + ').');
@@ -3037,6 +3038,7 @@ define('Class',[
      */
     function extend(params) {
         /*jshint validthis:true*/
+
         return Class.create(this, params);
     }
 
@@ -3067,7 +3069,7 @@ define('Class',[
      *
      * @return {Function} The constructor
      */
-    Class = function Class(params, constructor, isAbstract) {
+    createClass = function (params, constructor, isAbstract) {
 
         var dejavu,
             parent,
@@ -3076,10 +3078,7 @@ define('Class',[
             x,
             found;
 
-        // Validate params as an object
-        if (!isObject(params)) {
-            throw new Error('Argument "params" must be an object while defining a class.');
-        }
+
         // Validate class name
         if (hasOwn(params, '$name')) {
             if (!isString(params.$name)) {
@@ -3232,7 +3231,7 @@ define('Class',[
     Class.create = function (arg1, arg2) {
         var def,
             params,
-            callable = isFunction(this) ? this : Class,
+            callable = isFunction(this) ? this : createClass,
             constructor;
 
         if (arg1 && arg2) {
@@ -3253,20 +3252,27 @@ define('Class',[
                 throw new Error('Object cannot contain an $extends property.');
             }
 
+
             params.$extends = arg1;
-            def = callable(params, constructor);
         // create(func)
         } else if (isFunction(arg1)) {
             constructor = createConstructor();
-            params = arg2(arg1.prototype, def);
-            def = callable(params, constructor);
+            params = arg1(def);
         // create (props)
         } else {
-            def = callable(arg1);
+            params = arg1;
         }
 
-        return def;
+        // Validate params as an object
+        if (!isObject(params)) {
+            throw new Error('Expected second argument to be an object with the class members.');
+        }
+
+        return callable(params, constructor);
     };
+
+    // Add a reference to the createFunction method to be used by other files
+    obfuscateProperty(Class, '$create', createClass);
 
     // Add custom bound function to supply binds
     if (Function.prototype.$bound) {
@@ -3375,14 +3381,12 @@ define('AbstractClass',[
 
     'use strict';
 
-    /*jshint newcap:false*/
-
     var random = randomAccessor('AbstractClassWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
         $abstract = '$abstract_' + random,
         $bound = '$bound_' + random,
-        checkClass;
+        AbstractClass = {};
 
     checkObjectPrototype();
 
@@ -3458,7 +3462,8 @@ define('AbstractClass',[
      *
      * @param {Function} target The class to be checked
      */
-    checkClass = function (target) {
+    function checkClass(target) {
+        /*jshint validthis:true*/
 
         var key,
             value;
@@ -3488,7 +3493,7 @@ define('AbstractClass',[
                 throw new Error('Static method "' + key + '(' + target[$class].staticMethods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in abstract class "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
             }
         }
-    };
+    }
 
     /**
      * Parse abstract methods.
@@ -3614,12 +3619,12 @@ define('AbstractClass',[
     /**
      * Create an abstract class definition.
      *
-     * @param {Object} params             An object containing methods and properties
+     * @param {Object}      params        An object containing methods and properties
      * @param {Constructor} [constructor] Assume the passed constructor
      *
      * @return {Function} The constructor
      */
-    function AbstractClass(params, constructor) {
+    function createAbstractClass(params, constructor) {
 
         if (!isObject(params)) {
             throw new Error('Argument "params" must be an object while defining an abstract class.');
@@ -3659,7 +3664,7 @@ define('AbstractClass',[
         }
 
         // Create the class definition
-        def = Class(params, constructor, true);
+        def = Class.$create(params, constructor, true);
 
         abstractObj.check = bind(checkClass, def);
 
@@ -3697,7 +3702,7 @@ define('AbstractClass',[
      * @return {Function} The constructor
      */
     AbstractClass.create = function (arg1, arg2) {
-        return Class.create.call(AbstractClass, arg1, arg2);
+        return Class.create.call(createAbstractClass, arg1, arg2);
     };
 
     return AbstractClass;
@@ -3753,12 +3758,10 @@ define('Interface',[
 
     'use strict';
 
-    /*jshint newcap:false*/
-
     var random = randomAccessor('InterfaceWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
-        checkClass;
+        Interface = {};
 
     checkObjectPrototype();
 
@@ -3768,7 +3771,8 @@ define('Interface',[
      *
      * @param {Function} target The class to be checked
      */
-    checkClass = function (target) {
+    function checkClass(target) {
+        /*jshint validthis:true*/
 
         var key,
             value;
@@ -3798,7 +3802,7 @@ define('Interface',[
                 throw new Error('Static method "' + key + '(' + target[$class].staticMethods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in interface "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
             }
         }
-    };
+    }
 
     /**
      * Adds a method to an interface.
@@ -3921,7 +3925,7 @@ define('Interface',[
 
         params.$extends = this;
 
-        return Interface(params);
+        return Interface.create(params);
     }
 
     /**
@@ -3931,11 +3935,11 @@ define('Interface',[
      *
      * @return {Function} The constructor
      */
-    function Interface(params) {
+    function createInterface(params) {
 
         // Validate params as an object
         if (!isObject(params)) {
-            throw new Error('Argument "params" must be an object while defining an interface.');
+            throw new Error('Expected "params" to be an object with the interface members.');
         }
         // Validate class name
         if (hasOwn(params, '$name')) {
@@ -4136,7 +4140,7 @@ define('Interface',[
      * @return {Function} The Interface
      */
     Interface.create = function (arg1) {
-        return Interface(isFunction(arg1) ? arg1() : arg1);
+        return createInterface(isFunction(arg1) ? arg1() : arg1);
     };
 
     return Interface;
@@ -4156,23 +4160,29 @@ define('FinalClass',[
 
     'use strict';
 
-    /*jshint newcap:false*/
-
     checkObjectPrototype();
 
     var random = randomAccessor('FinalClassWrapper'),
-        $class = '$class_' + random;
+        $class = '$class_' + random,
+        FinalClass = {};
+    /**
+     * Create a final class definition.
+     *
+     * @param {Object}      params        An object containing methods and properties
+     * @param {Constructor} [constructor] Assume the passed constructor
+     *
+     * @return {Function} The constructor
+     */
+    function createFinalClass(params, constructor) {
 
-    function FinalClass(params) {
-
-        var def = Class(params);
+        var def = Class.$create(params, constructor);
         def[$class].finalClass = true;
 
         return def;
     }
 
     /**
-     * Function to create an abstract class.
+     * Function to create a final class.
      * This function can be called with various formats.
      *
      * @param {Function|Object} arg1 A class to extend or an object/function to obtain the members
@@ -4181,7 +4191,7 @@ define('FinalClass',[
      * @return {Function} The constructor
      */
     FinalClass.create = function (arg1, arg2) {
-        return Class.create.call(FinalClass, arg1, arg2);
+        return Class.create.call(createFinalClass, arg1, arg2);
     };
 
     return FinalClass;

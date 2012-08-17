@@ -48,12 +48,10 @@ define([
 
     'use strict';
 
-    /*jshint newcap:false*/
-
     var random = randomAccessor('InterfaceWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
-        checkClass;
+        Interface = {};
 
     checkObjectPrototype();
 
@@ -63,7 +61,8 @@ define([
      *
      * @param {Function} target The class to be checked
      */
-    checkClass = function (target) {
+    function checkClass(target) {
+        /*jshint validthis:true*/
 
         var key,
             value;
@@ -93,7 +92,7 @@ define([
                 throw new Error('Static method "' + key + '(' + target[$class].staticMethods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in interface "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
             }
         }
-    };
+    }
 
     /**
      * Adds a method to an interface.
@@ -216,7 +215,7 @@ define([
 
         params.$extends = this;
 
-        return Interface(params);
+        return Interface.create(params);
     }
 
     /**
@@ -226,11 +225,11 @@ define([
      *
      * @return {Function} The constructor
      */
-    function Interface(params) {
+    function createInterface(params) {
 
         // Validate params as an object
         if (!isObject(params)) {
-            throw new Error('Argument "params" must be an object while defining an interface.');
+            throw new Error('Expected "params" to be an object with the interface members.');
         }
         // Validate class name
         if (hasOwn(params, '$name')) {
@@ -431,7 +430,7 @@ define([
      * @return {Function} The Interface
      */
     Interface.create = function (arg1) {
-        return Interface(isFunction(arg1) ? arg1() : arg1);
+        return createInterface(isFunction(arg1) ? arg1() : arg1);
     };
 
     return Interface;

@@ -10,9 +10,8 @@ define([
 
     'use strict';
 
-    /*jshint newcap:false*/
-
-    var $interface = '$interface';
+    var $interface = '$interface',
+        Interface = {};
 
     /**
      * Function to easily extend another interface.
@@ -26,7 +25,7 @@ define([
 
         params.$extends = this;
 
-        return Interface(params);
+        return Interface.create(params);
     }
 
     /**
@@ -36,7 +35,7 @@ define([
      *
      * @return {Function} The constructor
      */
-    function Interface(params) {
+    function createInterface(params) {
 
         delete params.$name;
 
@@ -92,7 +91,7 @@ define([
      * @return {Function} The Interface
      */
     Interface.create = function (arg1) {
-        return Interface(isFunction(arg1) ? arg1() : arg1);
+        return createInterface(isFunction(arg1) ? arg1() : arg1);
     };
 
     return Interface;

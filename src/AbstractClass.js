@@ -42,12 +42,11 @@ define([
 
     'use strict';
 
-    /*jshint newcap:false*/
-
 //>>excludeStart('strict', pragmas.strict);
     var $abstract = '$abstract',
         $class = '$class',
-        $bound = '$bound_dejavu';
+        $bound = '$bound_dejavu',
+        AbstractClass = {};
 
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
@@ -56,7 +55,7 @@ define([
         $interface = '$interface_' + random,
         $abstract = '$abstract_' + random,
         $bound = '$bound_' + random,
-        checkClass;
+        AbstractClass = {};
 
     checkObjectPrototype();
 
@@ -132,7 +131,8 @@ define([
      *
      * @param {Function} target The class to be checked
      */
-    checkClass = function (target) {
+    function checkClass(target) {
+        /*jshint validthis:true*/
 
         var key,
             value;
@@ -162,7 +162,7 @@ define([
                 throw new Error('Static method "' + key + '(' + target[$class].staticMethods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in abstract class "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
             }
         }
-    };
+    }
 
     /**
      * Parse abstract methods.
@@ -289,12 +289,12 @@ define([
     /**
      * Create an abstract class definition.
      *
-     * @param {Object} params             An object containing methods and properties
+     * @param {Object}      params        An object containing methods and properties
      * @param {Constructor} [constructor] Assume the passed constructor
      *
      * @return {Function} The constructor
      */
-    function AbstractClass(params, constructor) {
+    function createAbstractClass(params, constructor) {
 
 //>>includeStart('strict', pragmas.strict);
         if (!isObject(params)) {
@@ -351,11 +351,11 @@ define([
         }
 
         // Create the class definition
-        def = Class(params, constructor, true);
+        def = Class.$create(params, constructor, true);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
         // Create the class definition
-        def = Class(params, constructor);
+        def = Class.$create(params, constructor);
         def[$abstract] = true;
 
         // Grab binds
@@ -408,7 +408,7 @@ define([
      * @return {Function} The constructor
      */
     AbstractClass.create = function (arg1, arg2) {
-        return Class.create.call(AbstractClass, arg1, arg2);
+        return Class.create.call(createAbstractClass, arg1, arg2);
     };
 
     return AbstractClass;

@@ -44,9 +44,8 @@ define([
 
     'use strict';
 
-    /*jshint newcap:false*/
-
-    var Class,
+    var createClass,
+        Class = {},
         $class = '$class',
         $interface = '$interface',
         $bound = '$bound_dejavu',
@@ -159,7 +158,7 @@ define([
 
             for (i -= 1; i >= 0; i -= 1) {
 
-                current = isObject(mixins[i]) ? Class(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
+                current = isObject(mixins[i]) ? createClass(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
 
                 // Grab mixin members
                 for (key in current) {
@@ -499,6 +498,7 @@ define([
      */
     function extend(params) {
         /*jshint validthis:true*/
+
         return Class.create(this, params);
     }
 
@@ -511,7 +511,7 @@ define([
      *
      * @return {Function} The constructor
      */
-    Class = function Class(params, constructor, isAbstract) {
+    createClass = function (params, constructor, isAbstract) {
 
         var dejavu,
             parent;
@@ -550,7 +550,6 @@ define([
         obfuscateProperty(dejavu, '$static', dejavu);
         obfuscateProperty(dejavu, '$self', dejavu, true);
         obfuscateProperty(dejavu, '$bind', anonymousBind);
-        obfuscateProperty(dejavu, '$super', null, true);
         if (!dejavu.$parent) {
             obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
         }
@@ -587,7 +586,7 @@ define([
     Class.create = function (arg1, arg2) {
         var def,
             params,
-            callable = isFunction(this) ? this : Class,
+            callable = isFunction(this) ? this : createClass,
             constructor;
 
         if (arg1 && arg2) {
@@ -604,24 +603,27 @@ define([
                 params = arg2;
             }
 
-            if (params.$extends) {
-                throw new Error('Object cannot contain an $extends property.');
-            }
 
             params.$extends = arg1;
-            def = callable(params, constructor);
         // create(func)
         } else if (isFunction(arg1)) {
             constructor = createConstructor();
-            params = arg2(arg1.prototype, def);
-            def = callable(params, constructor);
+            params = arg1(def);
         // create (props)
         } else {
-            def = callable(arg1);
+            params = arg1;
         }
 
-        return def;
+        // Validate params as an object
+        if (!isObject(params)) {
+            throw new Error('Expected second argument to be an object with the class members.');
+        }
+
+        return callable(params, constructor);
     };
+
+    // Add a reference to the createFunction method to be used by other files
+    obfuscateProperty(Class, '$create', createClass);
 
     // Add custom bound function to supply binds
     if (Function.prototype.$bound) {

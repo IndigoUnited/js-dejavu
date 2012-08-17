@@ -38,14 +38,12 @@ define([
 
     'use strict';
 
-    /*jshint newcap:false*/
-
     var random = randomAccessor('AbstractClassWrapper'),
         $class = '$class_' + random,
         $interface = '$interface_' + random,
         $abstract = '$abstract_' + random,
         $bound = '$bound_' + random,
-        checkClass;
+        AbstractClass = {};
 
     checkObjectPrototype();
 
@@ -121,7 +119,8 @@ define([
      *
      * @param {Function} target The class to be checked
      */
-    checkClass = function (target) {
+    function checkClass(target) {
+        /*jshint validthis:true*/
 
         var key,
             value;
@@ -151,7 +150,7 @@ define([
                 throw new Error('Static method "' + key + '(' + target[$class].staticMethods[key].signature + ')" defined in class "' + target.prototype.$name + '" is not compatible with the one found in abstract class "' + this.prototype.$name + '": "' + key + '(' + value.signature + ').');
             }
         }
-    };
+    }
 
     /**
      * Parse abstract methods.
@@ -277,12 +276,12 @@ define([
     /**
      * Create an abstract class definition.
      *
-     * @param {Object} params             An object containing methods and properties
+     * @param {Object}      params        An object containing methods and properties
      * @param {Constructor} [constructor] Assume the passed constructor
      *
      * @return {Function} The constructor
      */
-    function AbstractClass(params, constructor) {
+    function createAbstractClass(params, constructor) {
 
         if (!isObject(params)) {
             throw new Error('Argument "params" must be an object while defining an abstract class.');
@@ -322,7 +321,7 @@ define([
         }
 
         // Create the class definition
-        def = Class(params, constructor, true);
+        def = Class.$create(params, constructor, true);
 
         abstractObj.check = bind(checkClass, def);
 
@@ -360,7 +359,7 @@ define([
      * @return {Function} The constructor
      */
     AbstractClass.create = function (arg1, arg2) {
-        return Class.create.call(AbstractClass, arg1, arg2);
+        return Class.create.call(createAbstractClass, arg1, arg2);
     };
 
     return AbstractClass;

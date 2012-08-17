@@ -10,21 +10,20 @@ define([
 
     'use strict';
 
-    /*jshint newcap:false*/
-
     var $abstract = '$abstract',
         $class = '$class',
-        $bound = '$bound_dejavu';
+        $bound = '$bound_dejavu',
+        AbstractClass = {};
 
     /**
      * Create an abstract class definition.
      *
-     * @param {Object} params             An object containing methods and properties
+     * @param {Object}      params        An object containing methods and properties
      * @param {Constructor} [constructor] Assume the passed constructor
      *
      * @return {Function} The constructor
      */
-    function AbstractClass(params, constructor) {
+    function createAbstractClass(params, constructor) {
 
         var def,
             savedMembers,
@@ -38,7 +37,7 @@ define([
         }
 
         // Create the class definition
-        def = Class(params, constructor);
+        def = Class.$create(params, constructor);
         def[$abstract] = true;
 
         // Grab binds
@@ -67,7 +66,7 @@ define([
      * @return {Function} The constructor
      */
     AbstractClass.create = function (arg1, arg2) {
-        return Class.create.call(AbstractClass, arg1, arg2);
+        return Class.create.call(createAbstractClass, arg1, arg2);
     };
 
     return AbstractClass;
