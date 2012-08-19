@@ -13,7 +13,6 @@ var fs = require('fs'),
 
 program
     .version('0.0.1')
-    .description('pass')
     .parse(process.argv);
 
 inFile = program.args[0];
@@ -78,6 +77,12 @@ function embraced(str, pos) {
 // Optimizes a given object in the string form
 function optimize(objStr, directive, parent) {
 
+    // If the file is set to be ignored
+    if (/\s*\$optimizer:\s*ignore/.test(objStr)) {
+        process.stdout.write(parent + '.create(' + objStr + '');
+        return;
+    }
+
     var len,
         x = 0,
         name = '',
@@ -92,7 +97,6 @@ function optimize(objStr, directive, parent) {
     if (directive === 'extend') {
         // Try to guess if this is an interface or not
         if (!/function\s*\([^\(]*\)\s*\{\s*(["']use strict["'];)?.*\w.*\s*\}$/m.test(objStr)) {
-            console.error(parent);
             process.stdout.write(parent + '.extend(' + objStr + '');
             return;
         }
