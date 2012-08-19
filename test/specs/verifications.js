@@ -56,7 +56,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     var SomeInterface = Interface.create({}),
                         OtherInterface = SomeInterface.extend({
-                            $extends: Interface.create({})
+                            $extends: SomeInterface
                         });
                 }).to.throwException(/cannot contain an .extends property/);
 
@@ -158,8 +158,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/nonexistent interface/);
 
                 expect(function () {
+                    var tmp =  Interface.create({});
                     return Interface.create({
-                        $extends: [undefined, Interface.create({})]
+                        $extends: [undefined, tmp]
                     });
                 }).to.throwException(/not a valid interface/);
 
@@ -176,20 +177,25 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
+                    var tmp = Class.create({});
+
                     return Interface.create({
-                        $extends: Class.create({})
+                        $extends: tmp
                     });
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
+                    var tmp = Interface.create({});
                     return Interface.create({
-                        $extends: Interface.create({})
+                        $extends: tmp
                     });
                 }).to.not.throwException();
 
                 expect(function () {
+                    var tmp = Interface.create({});
+
                     return Interface.create({
-                        $extends: [Interface.create({})]
+                        $extends: tmp
                     });
                 }).to.not.throwException();
 
@@ -591,21 +597,25 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error when defining incompatible methods compared to its base signature', function () {
 
                 expect(function () {
-                    return Interface.create({
-                        $extends: Interface.create({
+                    var tmp = Interface.create({
                             method1: function () {}
-                        }),
+                        });
+
+                    return Interface.create({
+                        $extends: tmp,
                         method1: function (a) {}
                     });
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return Interface.create({
-                        $extends: Interface.create({
+                    var tmp = Interface.create({
                             $statics: {
                                 method1: function () {}
                             }
-                        }),
+                        });
+
+                    return Interface.create({
+                        $extends: tmp,
                         $statics: {
                             method1: function (a) {}
                         }
@@ -613,21 +623,25 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return Interface.create({
-                        $extends: Interface.create({
+                    var tmp = Interface.create({
                             method1: function (a, $b) {}
-                        }),
+                        });
+
+                    return Interface.create({
+                        $extends: tmp,
                         method1: function (a, b) {}
                     });
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return Interface.create({
-                        $extends: Interface.create({
+                    var tmp = Interface.create({
                             $statics: {
                                 method1: function (a, $b) {}
                             }
-                        }),
+                        });
+
+                    return Interface.create({
+                        $extends: tmp,
                         $statics: {
                             method1: function (a, b) {}
                         }
@@ -635,21 +649,25 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return Interface.create({
-                        $extends: Interface.create({
+                    var tmp = Interface.create({
                             method1: function (a, $b) {}
-                        }),
+                        });
+
+                    return Interface.create({
+                        $extends: tmp,
                         method1: function (a, $b) {}
                     });
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Interface.create({
-                        $extends: Interface.create({
+                    var tmp = Interface.create({
                             $statics: {
                                 method1: function (a, $b) {}
                             }
-                        }),
+                        });
+
+                    return Interface.create({
+                        $extends: tmp,
                         $statics: {
                             method1: function (a, $b) {}
                         }
@@ -657,21 +675,25 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Interface.create({
-                        $extends: Interface.create({
+                    var tmp = Interface.create({
                             method1: function (a, $b) {}
-                        }),
+                        });
+
+                    return Interface.create({
+                        $extends: tmp,
                         method1: function (a, $b, $c) {}
                     });
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Interface.create({
-                        $extends: Interface.create({
+                    var tmp = Interface.create({
                             $statics: {
                                 method1: function (a, $b) {}
                             }
-                        }),
+                        });
+
+                    return Interface.create({
+                        $extends: tmp,
                         $statics: {
                             method1: function (a, $b, $c) {}
                         }
@@ -733,7 +755,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     return Interface.create({
                         $constants: {
-                            SOME: "SOME"
+                            SOME: 'SOME'
                         }
                     });
                 }).to.not.throwException();
@@ -788,12 +810,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw when overriding a constant', function () {
 
                 expect(function () {
-                    return Interface.create({
-                        $extends: Interface.create({
+                    var tmp = Interface.create({
                             $constants: {
                                 FOO: 'test'
                             }
-                        }),
+                        });
+
+                    return Interface.create({
+                        $extends: tmp,
                         $constants: {
                             FOO: 'test'
                         }
@@ -933,7 +957,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     var SomeClass = Class.create({}),
                         OtherClass = SomeClass.extend({
-                            $extends: Class.create({})
+                            $extends: SomeClass
                         });
                 }).to.throwException(/cannot contain an .extends property/);
 
@@ -1333,14 +1357,18 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/is not a valid class/);
 
                 expect(function () {
+                    var tmp = Interface.create({});
+
                     return Class.create({
-                        $extends: Interface.create({})
+                        $extends: tmp
                     });
                 }).to.throwException(/is not a valid class/);
 
                 expect(function () {
+                    var tmp = Class.create({});
+
                     return Class.create({
-                        $extends: Class.create({})
+                        $extends: tmp
                     });
                 }).to.not.throwException();
 
@@ -1613,7 +1641,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     return Class.create({
                         $constants: {
-                            SOME: "SOME"
+                            SOME: 'SOME'
                         }
                     });
                 }).to.not.throwException();
@@ -1853,18 +1881,24 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if $borrows contains an inherited class', function () {
 
                 expect(function () {
+                    var tmp = Class.create({}),
+                        tmp2 = Class.create({
+                            $extends: tmp
+                        });
+
                     return Class.create({
-                        $borrows: Class.create({
-                            $extends: Class.create({})
-                        })
+                        $borrows: tmp2
                     });
                 }).to.throwException(/inherited class/);
 
                 expect(function () {
+                    var tmp = Class.create({}),
+                        tmp2 = Class.create({
+                            $extends: tmp
+                        });
+
                     return AbstractClass.create({
-                        $borrows: Class.create({
-                            $extends: Class.create({})
-                        })
+                        $borrows: tmp2
                     });
                 }).to.throwException(/inherited class/);
 
@@ -2262,26 +2296,30 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $implements: Interface1,
                             $abstracts: {
                                 method1: function (a) {}
                             }
-                        }),
+                        });
+
+                    return Class.create({
+                        $extends: tmp,
                         $implements: Interface3,
                         method1: function (a, b) {}
                     });
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $implements: Interface1,
                             $abstracts: {
                                 method1: function (a) {}
                             }
-                        }),
+                        });
+
+                    return Class.create({
+                        $extends: tmp,
                         $implements: Interface3,
                         $borrows: {
                             method1: function (a, b) {}
@@ -2290,34 +2328,40 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $implements: Interface1,
                             $abstracts: {
                                 method1: function (a) {}
                             }
-                        }),
+                        });
+
+                    return Class.create({
+                        $extends: tmp,
                         $implements: Interface1,
                         method1: function () {}
                     });
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $implements: Interface1
-                        }),
+                        });
+
+                    return Class.create({
+                        $extends: tmp,
                         $implements: Interface1,
                         method1: function (a) {}
                     });
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $implements: Interface1,
                             initialize: function (a, $b) {}
-                        }),
+                        });
+
+                    return Class.create({
+                        $extends: tmp,
                         $implements: Interface1,
                         initialize: function (a) {},
                         method1: function (a) {}
@@ -2325,11 +2369,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $implements: Interface1,
                             initialize: function (a, $b) {}
-                        }),
+                        });
+
+                    return Class.create({
+                        $extends: tmp,
                         $implements: Interface1,
                         initialize: function (a, b) {},
                         method1: function (a) {}
@@ -2337,11 +2383,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $implements: Interface1,
                             initialize: function (a, $b) {}
-                        }),
+                        });
+
+                    return Class.create({
+                        $extends: tmp,
                         $implements: Interface1,
                         initialize: function (a, $b) {},
                         method1: function (a) {}
@@ -2349,11 +2397,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $implements: Interface1,
                             initialize: function (a, $b) {}
-                        }),
+                        });
+                    return Class.create({
+                        $extends: tmp,
                         $implements: Interface1,
                         initialize: function (a, $b, $c) {},
                         method1: function (a) {}
@@ -2361,56 +2410,71 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create({
-                        $extends: Class.create({
-                            $extends: Class.create({
-                                initialize: function (a, $b) {}
-                            })
+                    var tmp = Class.create({
+                            initialize: function (a, $b) {}
                         }),
+                        tmp2 = Class.create({
+                            $extends: tmp
+                        });
+
+                    return Class.create({
+                        $extends: tmp,
                         initialize: function (a, $b, $c) {}
                     });
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create({
-                        $extends: Class.create({
-                            $extends: Class.create({
-                                get: function (a) {}
-                            })
+                    var tmp = Class.create({
+                            get: function (a) {}
                         }),
+                        tmp2 = Class.create({
+                            $extends: tmp
+                        });
+
+                    return Class.create({
+                        $extends: tmp2,
                         get: function (a, b) {}
                     });
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create({
-                        $extends: Class.create({
-                            $extends: Class.create({
-                                get: function (a) {}
-                            })
+                    var tmp = Class.create({
+                            get: function (a) {}
                         }),
+                        tmp2 = Class.create({
+                            $extends: tmp
+                        });
+
+                    return Class.create({
+                        $extends: tmp2,
                         get: function () {}
                     });
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create({
-                        $extends: Class.create({
-                            $extends: Class.create({
-                                get: function (a) {}
-                            })
+                    var tmp = Class.create({
+                            get: function (a) {}
                         }),
+                        tmp2 = Class.create({
+                            $extends: tmp
+                        });
+
+                    return Class.create({
+                        $extends: tmp2,
                         get: function ($a) {}
                     });
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create({
-                        $extends: Class.create({
-                            $extends: Class.create({
-                                get: function (a) {}
-                            })
+                    var tmp = Class.create({
+                            get: function (a) {}
                         }),
+                        tmp2 = Class.create({
+                            $extends: tmp
+                        });
+
+                    return Class.create({
+                        $extends: tmp2,
                         get: function (a, $b) {}
                     });
                 }).to.not.throwException();
@@ -2716,12 +2780,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error when defining incompatible methods compared to its base signature', function () {
 
                 expect(function () {
-                    return AbstractClass.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 method1: function () {}
                             }
-                        }),
+                        });
+
+                    return AbstractClass.create({
+                        $extends: tmp,
                         $abstracts: {
                             method1: function (a) {}
                         }
@@ -2729,14 +2795,16 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return AbstractClass.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 $statics: {
                                     method1: function () {}
                                 }
                             }
-                        }),
+                        });
+
+                    return AbstractClass.create({
+                        $extends: tmp,
                         $abstracts: {
                             $statics: {
                                 method1: function (a) {}
@@ -2746,12 +2814,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return AbstractClass.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 method1: function (a, $b) {}
                             }
-                        }),
+                        });
+
+                    return AbstractClass.create({
+                        $extends: tmp,
                         $abstracts: {
                             method1: function (a, b) {}
                         }
@@ -2759,14 +2829,16 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return AbstractClass.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 $statics: {
                                     method1: function (a, $b) {}
                                 }
                             }
-                        }),
+                        });
+
+                    return AbstractClass.create({
+                        $extends: tmp,
                         $abstracts: {
                             $statics: {
                                 method1: function (a, b) {}
@@ -2776,12 +2848,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return AbstractClass.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 method1: function (a, $b) {}
                             }
-                        }),
+                        });
+
+                    return AbstractClass.create({
+                        $extends: tmp,
                         $abstracts: {
                             method1: function (a, $b) {}
                         }
@@ -2789,14 +2863,16 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return AbstractClass.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 $statics: {
                                     method1: function (a, $b) {}
                                 }
                             }
-                        }),
+                        });
+
+                    return AbstractClass.create({
+                        $extends: tmp,
                         $abstracts: {
                             $statics: {
                                 method1: function (a, $b) {}
@@ -2806,12 +2882,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return AbstractClass.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 method1: function (a, $b) {}
                             }
-                        }),
+                        });
+
+                    return AbstractClass.create({
+                        $extends: tmp,
                         $abstracts: {
                             method1: function (a, $b, $c) {}
                         }
@@ -2819,14 +2897,16 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return AbstractClass.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 $statics: {
                                     method1: function (a, $b) {}
                                 }
                             }
-                        }),
+                        });
+
+                    return AbstractClass.create({
+                        $extends: tmp,
                         $abstracts: {
                             $statics: {
                                 method1: function (a, $b, $c) {}
@@ -2862,10 +2942,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
-                    return AbstractClass.create({
-                        $extends: Class.create({
+                    var tmp =  Class.create({
                             some: function () {}
-                        }),
+                        });
+
+                    return AbstractClass.create({
+                        $extends: tmp,
                         $abstracts: {
                             some: function () {}
                         }
@@ -2873,10 +2955,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
-                    return AbstractClass.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             some: function () {}
-                        }),
+                        });
+
+                    return AbstractClass.create({
+                        $extends: tmp,
                         $abstracts: {
                             some: function () {}
                         }
@@ -2884,10 +2968,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
-                    return AbstractClass.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             some: 'foo'
-                        }),
+                        });
+
+                    return AbstractClass.create({
+                        $extends: tmp,
                         $abstracts: {
                             some: function () {}
                         }
@@ -2895,12 +2981,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/defined property/);
 
                 expect(function () {
-                    return AbstractClass.create({
-                        $extends: Class.create({
+                    var tmp = Class.create({
                             $statics: {
                                 some: function () {}
                             }
-                        }),
+                        });
+
+                    return AbstractClass.create({
+                        $extends: tmp,
                         $abstracts: {
                             $statics: {
                                 some: function () {}
@@ -2910,12 +2998,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
-                    return AbstractClass.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $statics: {
                                 some: function () {}
                             }
-                        }),
+                        });
+
+                    return AbstractClass.create({
+                        $extends: tmp,
                         $abstracts: {
                             $statics: {
                                 some: function () {}
@@ -2925,12 +3015,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
-                    return AbstractClass.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $statics: {
                                 some: 'some'
                             }
-                        }),
+                        });
+
+                    return AbstractClass.create({
+                        $extends: tmp,
                         $abstracts: {
                             $statics: {
                                 some: function () {}
@@ -3452,94 +3544,110 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/was not found/);
 
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 _protectedMethod: function () {}
                             }
-                        })
+                        });
+
+                    return Class.create({
+                        $extends: tmp
                     });
                 }).to.throwException(/was not found/);
 
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 $statics: {
                                     _protectedMethod: function () {}
                                 }
                             }
-                        })
+                        });
+
+                    return Class.create({
+                        $extends: tmp
                     });
                 }).to.throwException(/was not found/);
 
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 _protectedMethod: function () {}
                             }
-                        }),
+                        });
+
+                    return Class.create({
+                        $extends: tmp,
                         _protectedMethod: function () {}
                     });
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 $statics: {
                                     _protectedMethod: function () {}
                                 }
                             }
-                        }),
+                        });
+
+                    return Class.create({
+                        $extends: tmp,
                         $statics: {
                             _protectedMethod: function () {}
                         }
                     });
                 }).to.not.throwException();
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 _protectedMethod: function () {}
                             }
-                        })
+                        });
+
+                    return Class.create({
+                        $extends: tmp
                     });
                 }).to.throwException(/was not found/);
 
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 $statics: {
                                     _protectedMethod: function () {}
                                 }
                             }
-                        })
+                        });
+
+                    return Class.create({
+                        $extends: tmp
                     });
                 }).to.throwException(/was not found/);
 
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 _protectedMethod: function () {}
                             }
-                        }),
+                        });
+
+                    return Class.create({
+                        $extends: tmp,
                         _protectedMethod: function () {}
                     });
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create({
-                        $extends: AbstractClass.create({
+                    var tmp = AbstractClass.create({
                             $abstracts: {
                                 $statics: {
                                     _protectedMethod: function () {}
                                 }
                             }
-                        }),
+                        });
+
+                    return Class.create({
+                        $extends: tmp,
                         $statics: {
                             _protectedMethod: function () {}
                         }
@@ -3848,19 +3956,23 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should not throw an error while invoking the the parent abstract class constructor', function () {
 
                 expect(function () {
-                    var SomeImplementation = Class.create({
-                        $extends: AbstractClass.create({ initialize: function () {} }),
-                        initialize: function () {
-                            this.$super();
-                        }
-                    });
+                    var tmp = AbstractClass.create({ initialize: function () {} }),
+                        SomeImplementation = Class.create({
+                            $extends: tmp,
+                            initialize: function () {
+                                this.$super();
+                            }
+                        });
+
                     return new SomeImplementation();
                 }).to.not.throwException();
 
                 expect(function () {
-                    var SomeImplementation = Class.create({
-                        $extends: AbstractClass.create({ initialize: function () {} })
-                    });
+                    var tmp = AbstractClass.create({ initialize: function () {} }),
+                        SomeImplementation = Class.create({
+                            $extends: tmp
+                        });
+
                     return new SomeImplementation();
                 }).to.not.throwException();
 
@@ -3869,39 +3981,48 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should not throw an error while invoking the the parent class protected constructor', function () {
 
                 expect(function () {
-                    var SomeImplementation = Class.create({
-                        $extends: AbstractClass.create({ _initialize: function () {} }),
-                        initialize: function () {
-                            this.$super();
-                        }
-                    });
+                    var tmp = AbstractClass.create({ _initialize: function () {} }),
+                        SomeImplementation = Class.create({
+                            $extends: tmp,
+                            initialize: function () {
+                                this.$super();
+                            }
+                        });
+
                     return new SomeImplementation();
                 }).to.not.throwException();
 
                 if (/strict/.test(global.build) && hasDefineProperty) {
                     expect(function () {
-                        var SomeImplementation = Class.create({
-                            $extends: AbstractClass.create({ _initialize: function () {} })
-                        });
+                        var tmp = AbstractClass.create({ _initialize: function () {} }),
+                            SomeImplementation = Class.create({
+                                $extends: tmp
+                            });
+
                         return new SomeImplementation();
                     }).to.throwException(/is protected/);
                 }
 
                 expect(function () {
-                    var SomeImplementation = Class.create({
-                        $extends: Class.create({ _initialize: function () {} }),
-                        initialize: function () {
-                            this.$super();
-                        }
-                    });
+                    var tmp = Class.create({ _initialize: function () {} }),
+                        SomeImplementation = Class.create({
+                            $extends: tmp,
+
+                            initialize: function () {
+                                this.$super();
+                            }
+                        });
+
                     return new SomeImplementation();
                 }).to.not.throwException();
 
                 if (/strict/.test(global.build) && hasDefineProperty) {
                     expect(function () {
-                        var SomeImplementation = Class.create({
-                            $extends: Class.create({ _initialize: function () {} })
-                        });
+                        var tmp = Class.create({ _initialize: function () {} }),
+                            SomeImplementation = Class.create({
+                                $extends: tmp
+                            });
+
                         return new SomeImplementation();
                     }).to.throwException(/is protected/);
                 }
@@ -3911,48 +4032,58 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error while invoking the parent class private constructor', function () {
 
                 expect(function () {
-                    var SomeImplementation = Class.create({
-                        $extends: AbstractClass.create({ __initialize: function () {} }),
-                        initialize: function () {
-                            this.$super();
-                        }
-                    });
+                    var tmp = AbstractClass.create({ __initialize: function () {} }),
+                        SomeImplementation = Class.create({
+                            $extends: tmp,
+                            initialize: function () {
+                                this.$super();
+                            }
+                        });
+
                     return new SomeImplementation();
                 }).to.throwException(/parent constructor/);
 
                 if (/strict/.test(global.build) && hasDefineProperty) {
                     expect(function () {
-                        var SomeImplementation = Class.create({
-                            $extends: AbstractClass.create({ __initialize: function () {} })
-                        });
+                        var tmp = AbstractClass.create({ __initialize: function () {} }),
+                            SomeImplementation = Class.create({
+                                $extends: tmp
+                            });
+
                         return new SomeImplementation();
                     }).to.throwException(/is private/);
                 }
 
                 expect(function () {
-                    var SomeImplementation = Class.create({
-                        $extends: Class.create({ __initialize: function () {} }),
-                        initialize: function () {
-                            this.$super();
-                        }
-                    });
+                    var tmp = Class.create({ __initialize: function () {} }),
+                        SomeImplementation = Class.create({
+                            $extends: tmp,
+                            initialize: function () {
+                                this.$super();
+                            }
+                        });
+
                     return new SomeImplementation();
                 }).to.throwException(/parent constructor/);
 
                 if (/strict/.test(global.build) && hasDefineProperty) {
                     expect(function () {
-                        var SomeImplementation = Class.create({
-                            $extends: Class.create({ __initialize: function () {} })
-                        });
+                        var tmp = Class.create({ __initialize: function () {} }),
+                            SomeImplementation = Class.create({
+                                $extends: tmp
+                            });
+
                         return new SomeImplementation();
                     }).to.throwException(/is private/);
                 }
 
                 expect(function () {
-                    var SomeImplementation = Class.create({
-                        $extends: Class.create({ __initialize: function () {} }),
-                        initialize: function () {}
-                    });
+                    var tmp = Class.create({ __initialize: function () {} }),
+                            SomeImplementation = Class.create({
+                            $extends: tmp,
+                            initialize: function () {}
+                        });
+
                     return new SomeImplementation();
                 }).to.not.throwException();
 

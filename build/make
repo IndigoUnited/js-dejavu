@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /*jshint node:true*/
 
 'use strict';
@@ -7,6 +9,7 @@ var cp = require('child_process'),
     tests,
     command,
     distDir = __dirname + '/../dist/',
+    testDir = __dirname + '/../test/',
     mochaBin,
     currentDistDir,
     currentBuild,
@@ -134,47 +137,61 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                 emptyDir(currentDistDir);
                 fs.rmdirSync(currentDistDir);
 
-                // Run tests
-                process.chdir(__dirname + '/..');
-
-
-                command = mochaBin + ' -R list test/amd/strict.js';
-
-                console.log('Running amd/strict tests..');
-                console.log('-------------------------------------------------');
-
-                if (process.platform === 'win32') {
-                    tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
-                } else {
-                    tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
-                }
-                tests.on('exit', function (code) {
-
-                    var exitCode;
-
-                    if (code !== 0) {
-                        exitCode = 1;
-                    } else {
-                        exitCode = 0;
+                // Generate optimized test files
+                tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/functional.js" > "' + testDir + 'specs/functional_optimized.js"', function (error, stdout, stderr) {
+                    if (error) {
+                        console.error('Could not generate optimized tests.');
+                        process.exit(1);
                     }
 
-                    command = mochaBin + ' -R list test/amd/loose.js';
-
-                    console.log('Running amd/loose tests..');
-                    console.log('-------------------------------------------------');
-
-                    if (process.platform === 'win32') {
-                        tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
-                    } else {
-                        tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
-                    }
-                    tests.on('exit', function (code) {
-
-                        if (code !== 0) {
+                    tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/verifications.js" > "' + testDir + 'specs/verifications_optimized.js"', function (error) {
+                        if (error) {
+                            console.error('Could not generate optimized tests.');
                             process.exit(1);
-                        } else {
-                            process.exit(exitCode);
                         }
+
+                        // Run tests
+                        process.chdir(__dirname + '/..');
+
+                        command = mochaBin + ' -R list test/amd/strict.js';
+
+                        console.log('Running amd/strict tests..');
+                        console.log('-------------------------------------------------');
+
+                        if (process.platform === 'win32') {
+                            tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
+                        } else {
+                            tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
+                        }
+                        tests.on('exit', function (code) {
+
+                            var exitCode;
+
+                            if (code !== 0) {
+                                exitCode = 1;
+                            } else {
+                                exitCode = 0;
+                            }
+
+                            command = mochaBin + ' -R list test/amd/loose.js';
+
+                            console.log('Running amd/loose tests..');
+                            console.log('-------------------------------------------------');
+
+                            if (process.platform === 'win32') {
+                                tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
+                            } else {
+                                tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
+                            }
+                            tests.on('exit', function (code) {
+
+                                if (code !== 0) {
+                                    process.exit(1);
+                                } else {
+                                    process.exit(exitCode);
+                                }
+                            });
+                        });
                     });
                 });
             });

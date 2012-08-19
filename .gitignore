@@ -51,6 +51,7 @@ Session.vim
 # Node #
 ######################
 node_modules
+npm-debug.*
 
 # Project specific #
 tmp

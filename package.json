@@ -4,13 +4,14 @@
     "version": "1.0.0",
     "author": "André Cruz <andremiguelcruz@msn.com>",
     "dependencies": {
-        "amd-utils": ">= 0.0.1"
+        "amd-utils": ">= 0.2.x"
     },
     "devDependencies": {
         "mocha": ">= 1.3.x",
         "almond": ">= 0.1.x",
         "expect.js": ">= 0.1.x",
-        "requirejs": ">= 2.x.x"
+        "requirejs": ">= 2.x.x",
+        "commander": ">= 1.0.x"
     },
     "engine": "node >= 0.6.x"
 }
