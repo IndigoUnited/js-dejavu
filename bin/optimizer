@@ -5,18 +5,13 @@
 'use strict';
 
 var fs = require('fs'),
-    program  = require('commander'),
-    inFile,
-    outFile;
+    program = require('commander');
 
 ////////////////////////////////////////////////////
 
 program
     .version('0.0.1')
     .parse(process.argv);
-
-inFile = program.args[0];
-outFile = program.args[1];
 
 ////////////////////////////////////////////////////
 
