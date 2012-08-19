@@ -60,7 +60,7 @@ The loose build has no overhead associated with verifications and therefore is s
 If your classes schema work in the strict version then is safe to use them in the loose version.
 The loose version also has lower memory footprint and less size in bytes.
 
-I've publish a new test revision on [jsperf](http://jsperf.com/oop-benchmark/51) comparing dejavu with other OOP libraries.
+I've publish a new test revision on [jsperf](http://jsperf.com/oop-benchmark/52) comparing dejavu with other OOP libraries.
 The version running is the regular (loose build).
 
 
