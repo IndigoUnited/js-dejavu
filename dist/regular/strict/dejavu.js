@@ -3223,6 +3223,7 @@ define('Class',[
      * @return {Function} The constructor
      */
     Class.create = function (arg1, arg2) {
+
         var params,
             callable = isFunction(this) ? this : createClass,
             constructor;
