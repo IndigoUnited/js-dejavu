@@ -66,7 +66,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 var SomeInterface = Interface.create({}),
                     OtherInterface = SomeInterface.extend({}),
-                    SomeClass = Class.create(function ($self) {
+                    SomeClass = Class.create(function () {
                         return {
                             $implements: OtherInterface
                         };
@@ -179,7 +179,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
-                    var tmp = Class.create(function ($self) { return {}; });
+                    var tmp = Class.create(function () { return {}; });
 
                     return Interface.create({
                         $extends: tmp
@@ -603,7 +603,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             method1: function () {}
                         });
 
-                    return Interface.create(tmp, function ($super, $self, $parent) {
+                    return Interface.create(tmp, function ($super) {
                         return {
                             method1: function (a) {}
                         };
@@ -617,7 +617,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         });
 
-                    return Interface.create(tmp, function ($super, $self, $parent) {
+                    return Interface.create(tmp, function ($super) {
                         return {
                             $statics: {
                                 method1: function (a) {}
@@ -631,7 +631,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             method1: function (a, $b) {}
                         });
 
-                    return Interface.create(tmp, function ($super, $self, $parent) {
+                    return Interface.create(tmp, function ($super) {
                         return {
                             method1: function (a, b) {}
                         };
@@ -645,7 +645,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         });
 
-                    return Interface.create(tmp, function ($super, $self, $parent) {
+                    return Interface.create(tmp, function ($super) {
                         return {
                             $statics: {
                                 method1: function (a, b) {}
@@ -659,7 +659,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             method1: function (a, $b) {}
                         });
 
-                    return Interface.create(tmp, function ($super, $self, $parent) {
+                    return Interface.create(tmp, function ($super) {
                         return {
                             method1: function (a, $b) {}
                         };
@@ -673,7 +673,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         });
 
-                    return Interface.create(tmp, function ($super, $self, $parent) {
+                    return Interface.create(tmp, function ($super) {
                         return {
                             $statics: {
                                 method1: function (a, $b) {}
@@ -687,7 +687,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             method1: function (a, $b) {}
                         });
 
-                    return Interface.create(tmp, function ($super, $self, $parent) {
+                    return Interface.create(tmp, function ($super) {
                         return {
                             method1: function (a, $b, $c) {}
                         };
@@ -701,7 +701,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         });
 
-                    return Interface.create(tmp, function ($super, $self, $parent) {
+                    return Interface.create(tmp, function ($super) {
                         return {
                             $statics: {
                                 method1: function (a, $b, $c) {}
@@ -826,7 +826,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         });
 
-                    return Interface.create(tmp, function ($super, $self, $parent) {
+                    return Interface.create(tmp, function ($super) {
                         return {
                             $constants: {
                                 FOO: 'test'
@@ -908,35 +908,35 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error when using an invalid name', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) { return { $name: undefined }; });
+                    return Class.create(function () { return { $name: undefined }; });
                 }).to.throwException(/must be a string/);
 
                 expect(function () {
-                    return Class.create(function ($self) { return { $name: null }; });
+                    return Class.create(function () { return { $name: null }; });
                 }).to.throwException(/must be a string/);
 
                 expect(function () {
-                    return Class.create(function ($self) { return { $name: 'Some $name' }; });
+                    return Class.create(function () { return { $name: 'Some $name' }; });
                 }).to.throwException(/spaces/);
 
                 expect(function () {
-                    return Class.create(function ($self) { return { $name: 'SomeName' }; });
+                    return Class.create(function () { return { $name: 'SomeName' }; });
                 }).to.not.throwException();
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) { return { $name: undefined }; });
+                    return AbstractClass.create(function () { return { $name: undefined }; });
                 }).to.throwException(/must be a string/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) { return { $name: null }; });
+                    return AbstractClass.create(function () { return { $name: null }; });
                 }).to.throwException(/must be a string/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) { return { $name: 'Some $name' }; });
+                    return AbstractClass.create(function () { return { $name: 'Some $name' }; });
                 }).to.throwException(/spaces/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) { return { $name: 'SomeName' }; });
+                    return AbstractClass.create(function () { return { $name: 'SomeName' }; });
                 }).to.not.throwException();
 
             });
@@ -944,7 +944,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error when using an invalid initialize', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             initialize: undefined
                         };
@@ -952,7 +952,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be a function/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             initialize: null
                         };
@@ -960,7 +960,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be a function/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             initialize: 'some'
                         };
@@ -972,7 +972,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if using .extend() with an $extend property', function () {
 
                 expect(function () {
-                    var SomeClass = Class.create(function ($self) { return {}; }),
+                    var SomeClass = Class.create(function () { return {}; }),
                         OtherClass = SomeClass.extend({
                             $extends: SomeClass
                         });
@@ -983,7 +983,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error when defining several constructors', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             initialize: function () {},
                             _initialize: function () {}
@@ -992,7 +992,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/several constructors/i);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             initialize: function () {},
                             __initialize: function () {}
@@ -1001,7 +1001,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/several constructors/i);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             _initialize: function () {},
                             __initialize: function () {}
@@ -1016,7 +1016,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 var a = function () {};
 
                 expect(function () {
-                    Class.create(function ($self) {
+                    Class.create(function () {
                         return {
                             test: a,
                             test2: a
@@ -1025,7 +1025,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/by the same/);
 
                 expect(function () {
-                    Class.create(function ($self) {
+                    Class.create(function () {
                         return {
                             test: a,
                             $finals: {
@@ -1036,7 +1036,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/by the same/);
 
                 expect(function () {
-                    Class.create(function ($self) {
+                    Class.create(function () {
                         return {
                             $statics: {
                                 test: 1
@@ -1053,7 +1053,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error when defining unallowed members', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: {
                                 $finals: {}
@@ -1063,7 +1063,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: {
                                 $abstracts: {}
@@ -1073,7 +1073,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: {
                                 $statics: {}
@@ -1083,7 +1083,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: {
                                 $constants: {}
@@ -1093,7 +1093,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: {
                                 $abstracts: {}
@@ -1103,7 +1103,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $statics: {
                                 $finals: {}
@@ -1113,7 +1113,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $statics: {
                                 $constants: {}
@@ -1123,7 +1123,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $statics: {
                                 $name: {}
@@ -1133,7 +1133,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: {
                                 $name: {}
@@ -1143,7 +1143,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: {
                                 $constants: {}
@@ -1153,7 +1153,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: {
                                 $extends: {}
@@ -1163,7 +1163,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $extends: {}
@@ -1173,7 +1173,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $abstracts: {}
@@ -1183,7 +1183,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $constants: {}
@@ -1193,7 +1193,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $finals: {}
@@ -1203,7 +1203,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -1215,7 +1215,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -1231,7 +1231,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error when defining ambiguous members', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: {
                                 SOME: 'foo'
@@ -1244,7 +1244,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/different modifiers/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: {
                                 $statics: {
@@ -1259,7 +1259,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/different modifiers/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: {
                                 $statics: {
@@ -1274,7 +1274,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: {
                                 some: 'foo'
@@ -1285,7 +1285,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/different modifiers/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: {
                                 $statics: {
@@ -1300,7 +1300,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/different modifiers/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -1315,7 +1315,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/already defined/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 some: function () {}
@@ -1328,7 +1328,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/already defined/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 some: function () {}
@@ -1339,7 +1339,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/already defined/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 some: function () {}
@@ -1352,7 +1352,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 some: function () {}
@@ -1367,7 +1367,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error when defining unallowed properties', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             some: undefined
                         };
@@ -1375,7 +1375,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/cannot be parsed/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: {
                                 some: undefined
@@ -1386,7 +1386,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $statics: {
                                 some: undefined
@@ -1396,7 +1396,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/cannot be parsed/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             some: undefined
                         };
@@ -1404,7 +1404,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/cannot be parsed/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $finals: {
                                 some: undefined
@@ -1414,7 +1414,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/cannot be parsed/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $statics: {
                                 some: undefined
@@ -1428,7 +1428,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error when extending an invalid class', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $extends: 'wtf'
                         };
@@ -1436,7 +1436,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/is not a valid class/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $extends: undefined
                         };
@@ -1444,7 +1444,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/is not a valid class/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $extends: null
                         };
@@ -1452,7 +1452,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/is not a valid class/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $extends: function () {}
                         };
@@ -1462,7 +1462,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     var tmp = Interface.create({});
 
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $extends: tmp
                         };
@@ -1470,9 +1470,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/is not a valid class/);
 
                 expect(function () {
-                    var tmp = Class.create(function ($self) { return {}; });
+                    var tmp = Class.create(function () { return {}; });
 
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $extends: tmp
                         };
@@ -1484,7 +1484,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if it any function is not well formed', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             method1: function ($a, b) {}
                         };
@@ -1492,7 +1492,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/contains optional arguments before mandatory ones/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $statics: {
                                 method1: function ($a, b) {}
@@ -1503,7 +1503,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     var $ = function () {};
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             _handleKeydownSubmit: function (e) {
                                 if (e.which === 13) {
@@ -1524,7 +1524,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if $statics is not an object', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $statics: 'wtf'
                         };
@@ -1532,7 +1532,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $statics: undefined
                         };
@@ -1540,7 +1540,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $statics: null
                         };
@@ -1548,7 +1548,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $statics: {}
                         };
@@ -1560,7 +1560,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if $statics inside $finals is not an object', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: {
                                 $statics: 'wtf'
@@ -1570,7 +1570,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: {
                                 $statics: undefined
@@ -1580,7 +1580,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: {
                                 $statics: null
@@ -1590,7 +1590,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: {
                                 $statics: {}
@@ -1604,7 +1604,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if $finals is not an object', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: 'wtf'
                         };
@@ -1612,7 +1612,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: undefined
                         };
@@ -1620,7 +1620,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: null
                         };
@@ -1628,7 +1628,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: {}
                         };
@@ -1640,7 +1640,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error while defining private method/parameter as $final', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $finals: {
                                 __foo: 'bar',
@@ -1656,7 +1656,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             it('should throw an error if overriding a final method or parameter', function () {
 
-                var SomeClass = Class.create(function ($self) {
+                var SomeClass = Class.create(function () {
                     return {
                         $finals: {
                             foo: 'bar',
@@ -1668,7 +1668,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 });
 
                 expect(function () {
-                    return Class.create(SomeClass, function ($super, $self, $parent) {
+                    return Class.create(SomeClass, function ($super) {
                         return {
                             foo: 'wtf'
                         };
@@ -1676,7 +1676,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/override final/);
 
                 expect(function () {
-                    return Class.create(SomeClass, function ($super, $self, $parent) {
+                    return Class.create(SomeClass, function ($super) {
                         return {
                             someFunction: function () {}
                         };
@@ -1684,7 +1684,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/override final/);
 
                 expect(function () {
-                    return Class.create(SomeClass, function ($super, $self, $parent) {
+                    return Class.create(SomeClass, function ($super) {
                         return {
                             $finals: {
                                 foo: 'wtf'
@@ -1694,7 +1694,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/override final/);
 
                 expect(function () {
-                    return Class.create(SomeClass, function ($super, $self, $parent) {
+                    return Class.create(SomeClass, function ($super) {
                         return {
                             $finals: {
                                 someFunction: function () {}
@@ -1708,7 +1708,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if $constants is not an object', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: 'wtf'
                         };
@@ -1716,7 +1716,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: undefined
                         };
@@ -1724,7 +1724,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: null
                         };
@@ -1732,7 +1732,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: {}
                         };
@@ -1744,7 +1744,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if $constants have non primitive types', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: {
                                 SOME: {}
@@ -1754,7 +1754,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/primitive type/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: {
                                 SOME: new Date()
@@ -1764,7 +1764,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/primitive type/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: {
                                 SOME: function () {}
@@ -1774,7 +1774,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/primitive type/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: {
                                 SOME: []
@@ -1784,7 +1784,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/primitive type/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: {
                                 SOME: false
@@ -1794,7 +1794,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: {
                                 SOME: null
@@ -1804,7 +1804,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: {
                                 SOME: 'SOME'
@@ -1814,7 +1814,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $constants: {
                                 SOME: 1
@@ -1827,7 +1827,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             it('should throw an error if overriding a constant parameter', function () {
 
-                var SomeClass = Class.create(function ($self) {
+                var SomeClass = Class.create(function () {
                     return {
                         $constants: {
                             FOO: 'bar'
@@ -1836,7 +1836,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 });
 
                 expect(function () {
-                    return Class.create(SomeClass, function ($super, $self, $parent) {
+                    return Class.create(SomeClass, function ($super) {
                         return {
                             $finals: {
                                 $statics: {
@@ -1848,7 +1848,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/override constant/);
 
                 expect(function () {
-                    return Class.create(SomeClass, function ($super, $self, $parent) {
+                    return Class.create(SomeClass, function ($super) {
                         return {
                             $statics: {
                                 FOO: 'WTF'
@@ -1858,7 +1858,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/override constant/);
 
                 expect(function () {
-                    return Class.create(SomeClass, function ($super, $self, $parent) {
+                    return Class.create(SomeClass, function ($super) {
                         return {
                             $constants: {
                                 FOO: 'WTF'
@@ -1868,7 +1868,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/override constant/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: Interface.create({
                                 $constants: {
@@ -1888,7 +1888,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 var SomeInterface = Interface.create({});
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [SomeInterface, SomeInterface]
                         };
@@ -1896,7 +1896,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/duplicate entries/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: [SomeInterface, SomeInterface]
                         };
@@ -1904,7 +1904,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/duplicate entries/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [undefined, undefined]
                         };
@@ -1912,7 +1912,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException(/duplicate entries/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: [undefined, undefined]
                         };
@@ -1924,7 +1924,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if $borrows is not an object/class or an array of objects/classes', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: function () {}
                         };
@@ -1932,7 +1932,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: undefined
                         };
@@ -1940,7 +1940,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/a class\/object or an array of classes\/objects/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: null
                         };
@@ -1948,7 +1948,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/a class\/object or an array of classes\/objects/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: 'wtf'
                         };
@@ -1956,7 +1956,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: ['wtf']
                         };
@@ -1964,7 +1964,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: [undefined]
                         };
@@ -1972,7 +1972,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: [null]
                         };
@@ -1980,7 +1980,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: [undefined, undefined]
                         };
@@ -1988,7 +1988,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: [null, null]
                         };
@@ -1996,7 +1996,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: [function () {}]
                         };
@@ -2004,7 +2004,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: AbstractClass.create({
                                 $abstracts: {
@@ -2016,7 +2016,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/abstract class with abstract members/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: [AbstractClass.create({
                                 $abstracts: {
@@ -2028,7 +2028,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/abstract class with abstract members/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: Interface.create({})
                         };
@@ -2036,7 +2036,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: [Interface.create({})]
                         };
@@ -2044,8 +2044,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
-                    var SomeClass = Class.create(function ($self) { return {}; });
-                    return Class.create(function ($self) {
+                    var SomeClass = Class.create(function () { return {}; });
+                    return Class.create(function () {
                         return {
                             $borrows: new SomeClass()
                         };
@@ -2053,7 +2053,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: {}
                         };
@@ -2061,7 +2061,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: Class.create({})
                         };
@@ -2069,7 +2069,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: [{}]
                         };
@@ -2077,7 +2077,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: [Class.create({})]
                         };
@@ -2085,7 +2085,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $borrows: AbstractClass.create({
                                 $abstracts: {}
@@ -2095,7 +2095,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $borrows: [AbstractClass.create({})]
                         };
@@ -2107,14 +2107,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if $borrows contains an inherited class', function () {
 
                 expect(function () {
-                    var tmp = Class.create(function ($self) { return {}; }),
-                        tmp2 = Class.create(function ($self) {
+                    var tmp = Class.create(function () { return {}; }),
+                        tmp2 = Class.create(function () {
                             return {
                                 $extends: tmp
                             };
                         });
 
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: tmp2
                         };
@@ -2122,14 +2122,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/inherited class/);
 
                 expect(function () {
-                    var tmp = Class.create(function ($self) { return {}; }),
-                        tmp2 = Class.create(function ($self) {
+                    var tmp = Class.create(function () { return {}; }),
+                        tmp2 = Class.create(function () {
                             return {
                                 $extends: tmp
                             };
                         });
 
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $borrows: tmp2
                         };
@@ -2141,8 +2141,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error on duplicate $borrows', function () {
 
                 expect(function () {
-                    var Mixin = Class.create(function ($self) { return {}; });
-                    return Class.create(function ($self) {
+                    var Mixin = Class.create(function () { return {}; });
+                    return Class.create(function () {
                         return {
                             $borrows: [Mixin, Mixin]
                         };
@@ -2150,7 +2150,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/duplicate entries/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $borrows: [undefined, undefined]
                         };
@@ -2161,7 +2161,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if $implements is not an Interface or an array of Interfaces', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: 'wtf'
                         };
@@ -2169,7 +2169,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: undefined
                         };
@@ -2177,7 +2177,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/an interface or an array of interfaces/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: null
                         };
@@ -2185,7 +2185,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/an interface or an array of interfaces/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: ['wtf']
                         };
@@ -2193,7 +2193,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [undefined]
                         };
@@ -2201,7 +2201,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [null]
                         };
@@ -2209,7 +2209,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [undefined, undefined]
                         };
@@ -2217,7 +2217,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [null, null]
                         };
@@ -2225,7 +2225,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: AbstractClass.create({})
                         };
@@ -2233,7 +2233,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [AbstractClass.create({})]
                         };
@@ -2241,7 +2241,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: Class.create({})
                         };
@@ -2249,7 +2249,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [Class.create({})]
                         };
@@ -2257,7 +2257,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: 'wtf'
                         };
@@ -2265,7 +2265,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: undefined
                         };
@@ -2273,7 +2273,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/an interface or an array of interfaces/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: null
                         };
@@ -2281,7 +2281,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/an interface or an array of interfaces/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: ['wtf']
                         };
@@ -2289,7 +2289,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: [undefined]
                         };
@@ -2297,7 +2297,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 });
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: [null]
                         };
@@ -2305,7 +2305,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 });
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: [undefined, undefined]
                         };
@@ -2313,7 +2313,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 });
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: [null, null]
                         };
@@ -2321,7 +2321,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 });
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: AbstractClass.create({})
                         };
@@ -2329,7 +2329,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 });
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: [AbstractClass.create({})]
                         };
@@ -2337,7 +2337,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 });
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: Class.create({})
                         };
@@ -2345,7 +2345,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 });
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: [Class.create({})]
                         };
@@ -2356,13 +2356,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             it('should throw an error when overriding methods with properties and vice-versa', function () {
 
-                var SomeClass = Class.create(function ($self) {
+                var SomeClass = Class.create(function () {
                     return {
                         func: function () {},
                         prop: 'some'
                     };
                 }),
-                    SomeAbstractClass = AbstractClass.create(function ($self) {
+                    SomeAbstractClass = AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 func: function () {}
@@ -2371,7 +2371,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     });
 
                 expect(function () {
-                    return Class.create(SomeClass, function ($super, $self, $parent) {
+                    return Class.create(SomeClass, function ($super) {
                         return {
                             func: 'some'
                         };
@@ -2379,7 +2379,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/with the same name/);
 
                 expect(function () {
-                    return Class.create(SomeClass, function ($super, $self, $parent) {
+                    return Class.create(SomeClass, function ($super) {
                         return {
                             prop: function () {}
                         };
@@ -2387,7 +2387,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/with the same name/);
 
                 expect(function () {
-                    return Class.create(SomeAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(SomeAbstractClass, function ($super) {
                         return {
                             func: 'some'
                         };
@@ -2432,7 +2432,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     });
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: Interface1,
                             method1: function () {}
@@ -2441,7 +2441,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [Interface1, Interface3],
                             method1: function (a) {}
@@ -2450,7 +2450,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: Interface4,
                             method1: function (a) {}
@@ -2459,7 +2459,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [Interface1, Interface2],
                             method1: function (a) {}
@@ -2468,7 +2468,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: Interface1,
                             method1: function (a, $b) {}
@@ -2477,7 +2477,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: Interface1,
                             method1: function (a, $b, $c) {}
@@ -2486,7 +2486,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: Interface5,
                             $statics: {
@@ -2497,7 +2497,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [Interface5, Interface7],
                             $statics: {
@@ -2508,7 +2508,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: Interface8,
                             $statics: {
@@ -2519,7 +2519,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [Interface1],
                             $borrows: {
@@ -2530,7 +2530,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [Interface5, Interface7],
                             $borrows: {
@@ -2546,7 +2546,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [Interface5, Interface6],
                             $statics: {
@@ -2557,7 +2557,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: Interface5,
                             $statics: {
@@ -2568,7 +2568,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: Interface5,
                             $statics: {
@@ -2579,7 +2579,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: Interface1,
                             $abstracts: {
@@ -2590,7 +2590,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: [Interface1, Interface3],
                             $abstracts: {
@@ -2601,7 +2601,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: Interface8,
                             $abstracts: {
@@ -2614,7 +2614,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $implements: Interface1,
                             $abstracts: {
@@ -2625,7 +2625,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $implements: Interface1,
                                 $abstracts: {
@@ -2634,7 +2634,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return Class.create(tmp, function ($super, $self, $parent) {
+                    return Class.create(tmp, function ($super) {
                         return {
                             $implements: Interface3,
                             method1: function (a, b) {}
@@ -2643,7 +2643,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $implements: Interface1,
                                 $abstracts: {
@@ -2652,7 +2652,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return Class.create(tmp, function ($super, $self, $parent) {
+                    return Class.create(tmp, function ($super) {
                         return {
                             $implements: Interface3,
                             $borrows: {
@@ -2663,7 +2663,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $implements: Interface1,
                                 $abstracts: {
@@ -2672,7 +2672,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return Class.create(tmp, function ($super, $self, $parent) {
+                    return Class.create(tmp, function ($super) {
                         return {
                             $implements: Interface1,
                             method1: function () {}
@@ -2681,13 +2681,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $implements: Interface1
                             };
                         });
 
-                    return Class.create(tmp, function ($super, $self, $parent) {
+                    return Class.create(tmp, function ($super) {
                         return {
                             $implements: Interface1,
                             method1: function (a) {}
@@ -2696,14 +2696,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $implements: Interface1,
                                 initialize: function (a, $b) {}
                             };
                         });
 
-                    return Class.create(tmp, function ($super, $self, $parent) {
+                    return Class.create(tmp, function ($super) {
                         return {
                             $implements: Interface1,
                             initialize: function (a) {},
@@ -2713,14 +2713,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $implements: Interface1,
                                 initialize: function (a, $b) {}
                             };
                         });
 
-                    return Class.create(tmp, function ($super, $self, $parent) {
+                    return Class.create(tmp, function ($super) {
                         return {
                             $implements: Interface1,
                             initialize: function (a, b) {},
@@ -2730,14 +2730,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $implements: Interface1,
                                 initialize: function (a, $b) {}
                             };
                         });
 
-                    return Class.create(tmp, function ($super, $self, $parent) {
+                    return Class.create(tmp, function ($super) {
                         return {
                             $implements: Interface1,
                             initialize: function (a, $b) {},
@@ -2747,13 +2747,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $implements: Interface1,
                                 initialize: function (a, $b) {}
                             };
                         });
-                    return Class.create(tmp, function ($super, $self, $parent) {
+                    return Class.create(tmp, function ($super) {
                         return {
                             $implements: Interface1,
                             initialize: function (a, $b, $c) {},
@@ -2763,18 +2763,18 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = Class.create(function ($self) {
+                    var tmp = Class.create(function () {
                             return {
                                 initialize: function (a, $b) {}
                             };
                         }),
-                        tmp2 = Class.create(function ($self) {
+                        tmp2 = Class.create(function () {
                             return {
                                 $extends: tmp
                             };
                         });
 
-                    return Class.create(tmp, function ($super, $self, $parent) {
+                    return Class.create(tmp, function ($super) {
                         return {
                             initialize: function (a, $b, $c) {}
                         };
@@ -2782,18 +2782,18 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = Class.create(function ($self) {
+                    var tmp = Class.create(function () {
                             return {
                                 get: function (a) {}
                             };
                         }),
-                        tmp2 = Class.create(function ($self) {
+                        tmp2 = Class.create(function () {
                             return {
                                 $extends: tmp
                             };
                         });
 
-                    return Class.create(tmp2, function ($super, $self, $parent) {
+                    return Class.create(tmp2, function ($super) {
                         return {
                             get: function (a, b) {}
                         };
@@ -2801,18 +2801,18 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = Class.create(function ($self) {
+                    var tmp = Class.create(function () {
                             return {
                                 get: function (a) {}
                             };
                         }),
-                        tmp2 = Class.create(function ($self) {
+                        tmp2 = Class.create(function () {
                             return {
                                 $extends: tmp
                             };
                         });
 
-                    return Class.create(tmp2, function ($super, $self, $parent) {
+                    return Class.create(tmp2, function ($super) {
                         return {
                             get: function () {}
                         };
@@ -2820,18 +2820,18 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = Class.create(function ($self) {
+                    var tmp = Class.create(function () {
                             return {
                                 get: function (a) {}
                             };
                         }),
-                        tmp2 = Class.create(function ($self) {
+                        tmp2 = Class.create(function () {
                             return {
                                 $extends: tmp
                             };
                         });
 
-                    return Class.create(tmp2, function ($super, $self, $parent) {
+                    return Class.create(tmp2, function ($super) {
                         return {
                             get: function ($a) {}
                         };
@@ -2839,18 +2839,18 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = Class.create(function ($self) {
+                    var tmp = Class.create(function () {
                             return {
                                 get: function (a) {}
                             };
                         }),
-                        tmp2 = Class.create(function ($self) {
+                        tmp2 = Class.create(function () {
                             return {
                                 $extends: tmp
                             };
                         });
 
-                    return Class.create(tmp2, function ($super, $self, $parent) {
+                    return Class.create(tmp2, function ($super) {
                         return {
                             get: function (a, $b) {}
                         };
@@ -2866,7 +2866,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if $abstracts is not an object', function () {
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: 'wtf'
                         };
@@ -2874,7 +2874,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: undefined
                         };
@@ -2882,7 +2882,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: null
                         };
@@ -2890,7 +2890,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {}
                         };
@@ -2902,7 +2902,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if $statics inside $abstracts is not an object', function () {
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: 'wtf'
@@ -2912,7 +2912,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: undefined
@@ -2922,7 +2922,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: null
@@ -2932,7 +2932,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: {}
@@ -2946,7 +2946,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if abstracts does not contain only functions without implementation', function () {
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 some: 'wtf'
@@ -2956,7 +2956,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a function/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 some: undefined
@@ -2966,7 +2966,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a function/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 some: null
@@ -2976,7 +2976,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a function/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -2988,7 +2988,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a function/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3000,7 +3000,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a function/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3012,7 +3012,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a function/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 some: function (a) {
@@ -3023,7 +3023,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 some: function (a) {
@@ -3043,7 +3043,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/no implementation/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3056,7 +3056,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3078,7 +3078,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/no implementation/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 some: Class.create({})
@@ -3088,7 +3088,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a function/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 some: AbstractClass.create({})
@@ -3098,7 +3098,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a function/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 some: Interface.create({})
@@ -3108,7 +3108,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a function/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3120,7 +3120,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a function/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3132,7 +3132,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a function/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3144,7 +3144,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a function/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 method1: function (a) {}
@@ -3154,7 +3154,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 method1: function (a) { }
@@ -3164,7 +3164,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3176,7 +3176,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3192,7 +3192,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if it any function is not well formed', function () {
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 method1: function ($a, b) {}
@@ -3202,7 +3202,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/contains optional arguments before mandatory ones/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3218,7 +3218,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error when defining incompatible methods compared to its base signature', function () {
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     method1: function () {}
@@ -3226,7 +3226,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return AbstractClass.create(tmp, function ($super, $self, $parent) {
+                    return AbstractClass.create(tmp, function ($super) {
                         return {
                             $abstracts: {
                                 method1: function (a) {}
@@ -3236,7 +3236,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     $statics: {
@@ -3246,7 +3246,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return AbstractClass.create(tmp, function ($super, $self, $parent) {
+                    return AbstractClass.create(tmp, function ($super) {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3258,7 +3258,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     method1: function (a, $b) {}
@@ -3266,7 +3266,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return AbstractClass.create(tmp, function ($super, $self, $parent) {
+                    return AbstractClass.create(tmp, function ($super) {
                         return {
                             $abstracts: {
                                 method1: function (a, b) {}
@@ -3276,7 +3276,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     $statics: {
@@ -3286,7 +3286,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return AbstractClass.create(tmp, function ($super, $self, $parent) {
+                    return AbstractClass.create(tmp, function ($super) {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3298,7 +3298,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     method1: function (a, $b) {}
@@ -3306,7 +3306,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return AbstractClass.create(tmp, function ($super, $self, $parent) {
+                    return AbstractClass.create(tmp, function ($super) {
                         return {
                             $abstracts: {
                                 method1: function (a, $b) {}
@@ -3316,7 +3316,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     $statics: {
@@ -3326,7 +3326,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return AbstractClass.create(tmp, function ($super, $self, $parent) {
+                    return AbstractClass.create(tmp, function ($super) {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3338,7 +3338,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     method1: function (a, $b) {}
@@ -3346,7 +3346,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return AbstractClass.create(tmp, function ($super, $self, $parent) {
+                    return AbstractClass.create(tmp, function ($super) {
                         return {
                             $abstracts: {
                                 method1: function (a, $b, $c) {}
@@ -3356,7 +3356,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     $statics: {
@@ -3366,7 +3366,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return AbstractClass.create(tmp, function ($super, $self, $parent) {
+                    return AbstractClass.create(tmp, function ($super) {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3382,7 +3382,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if declared abstract functions in $abstracts are already defined', function () {
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             some: function () {},
                             $abstracts: {
@@ -3393,7 +3393,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $statics: {
                                 some: function () {}
@@ -3408,13 +3408,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
-                    var tmp =  Class.create(function ($self) {
+                    var tmp =  Class.create(function () {
                             return {
                                 some: function () {}
                             };
                         });
 
-                    return AbstractClass.create(tmp, function ($super, $self, $parent) {
+                    return AbstractClass.create(tmp, function ($super) {
                         return {
                             $abstracts: {
                                 some: function () {}
@@ -3424,13 +3424,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 some: function () {}
                             };
                         });
 
-                    return AbstractClass.create(tmp, function ($super, $self, $parent) {
+                    return AbstractClass.create(tmp, function ($super) {
                         return {
                             $abstracts: {
                                 some: function () {}
@@ -3440,13 +3440,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 some: 'foo'
                             };
                         });
 
-                    return AbstractClass.create(tmp, function ($super, $self, $parent) {
+                    return AbstractClass.create(tmp, function ($super) {
                         return {
                             $abstracts: {
                                 some: function () {}
@@ -3456,7 +3456,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/defined property/);
 
                 expect(function () {
-                    var tmp = Class.create(function ($self) {
+                    var tmp = Class.create(function () {
                             return {
                                 $statics: {
                                     some: function () {}
@@ -3464,7 +3464,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return AbstractClass.create(tmp, function ($super, $self, $parent) {
+                    return AbstractClass.create(tmp, function ($super) {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3476,7 +3476,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $statics: {
                                     some: function () {}
@@ -3484,7 +3484,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return AbstractClass.create(tmp, function ($super, $self, $parent) {
+                    return AbstractClass.create(tmp, function ($super) {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3496,7 +3496,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $statics: {
                                     some: 'some'
@@ -3504,7 +3504,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return AbstractClass.create(tmp, function ($super, $self, $parent) {
+                    return AbstractClass.create(tmp, function ($super) {
                         return {
                             $abstracts: {
                                 $statics: {
@@ -3520,7 +3520,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should not throw an error while extending another abstract class while not implementing its methods', function () {
 
                 expect(function () {
-                    var AbstractExample = AbstractClass.create(function ($self) {
+                    var AbstractExample = AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 someMethod: function () {},
@@ -3530,7 +3530,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         };
                     });
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $extends: AbstractExample
                         };
@@ -3542,7 +3542,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should not throw an error when specifying binds poiting to abstract methods', function () {
 
                 expect(function () {
-                    return AbstractClass.create(function ($self) {
+                    return AbstractClass.create(function () {
                         return {
                             $abstracts: {
                                 method1: function () {}.$bound()
@@ -3654,7 +3654,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             function createExtendedInterface() {
                 createSomeInterface();
-                ExtendedInterface = Interface.create(SomeInterface, function ($super, $self, $parent) {
+                ExtendedInterface = Interface.create(SomeInterface, function ($super) {
                     return {    // Interface that extends another
                         otherMethod: function () {},
                         $statics: {
@@ -3665,7 +3665,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             }
 
             function createAbstractClass() {
-                SomeAbstractClass = AbstractClass.create(function ($self) {
+                SomeAbstractClass = AbstractClass.create(function () {
                     return {        // Simple abstract class
                         $implements: SomeInterface
                     };
@@ -3674,7 +3674,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             function createExtendedAbstractClass() {
                 createAbstractClass();
-                ExtendedAbstractClass = AbstractClass.create(SomeAbstractClass, function ($super, $self, $parent) {
+                ExtendedAbstractClass = AbstractClass.create(SomeAbstractClass, function ($super) {
                     return {    // Abstract class that extends another
                         $abstracts: {
                             otherMethod: function () {},
@@ -3691,7 +3691,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 // Interfaces
                 expect(function () {
                     createSomeInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [SomeInterface]
                             // miss all methods
@@ -3702,7 +3702,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     createSomeInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [SomeInterface],
                             someMethod: function () {}
@@ -3713,7 +3713,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     createSomeInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [SomeInterface],
                             someMethod: function () {},
@@ -3727,7 +3727,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     createExtendedInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [ExtendedInterface],
                             otherMethod: function () {},
@@ -3742,7 +3742,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     createExtendedInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [ExtendedInterface],
                             someMethod: function () {},
@@ -3757,7 +3757,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     createExtendedInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [ExtendedInterface],
                             someMethod: function () {},
@@ -3772,7 +3772,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     createExtendedInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [ExtendedInterface],
                             someMethod: function () {},
@@ -3788,7 +3788,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createSomeInterface();
                     createOtherInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [SomeInterface, OtherInterface],
                             someMethod: function () {},
@@ -3804,7 +3804,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createSomeInterface();
                     createOtherInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [SomeInterface, OtherInterface],
                             extraMethod: function () {},
@@ -3820,7 +3820,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createSomeInterface();
                     createOtherInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [SomeInterface, OtherInterface],
                             extraMethod: function () {},
@@ -3836,7 +3836,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createSomeInterface();
                     createOtherInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [SomeInterface, OtherInterface],
                             someMethod: function () {},
@@ -3852,7 +3852,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createExtendedInterface();
                     createOtherInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [ExtendedInterface, OtherInterface],
                             extraMethod: function () {},
@@ -3870,7 +3870,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createExtendedInterface();
                     createOtherInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [ExtendedInterface, OtherInterface],
                             otherMethod: function () {},
@@ -3888,7 +3888,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 // Abstract Classes
                 expect(function () {
                     createAbstractClass();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $extends: SomeAbstractClass
                             // miss all methods
@@ -3899,7 +3899,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     createAbstractClass();
-                    return Class.create(SomeAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(SomeAbstractClass, function ($super) {
                         return {
                             someMethod: function () {}
                             // miss all static methods
@@ -3909,7 +3909,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     createAbstractClass();
-                    return Class.create(SomeAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(SomeAbstractClass, function ($super) {
                         return {
                             someMethod: function () {},
                             $statics: {
@@ -3923,7 +3923,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
 
                     createExtendedAbstractClass();
-                    return Class.create(ExtendedAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(ExtendedAbstractClass, function ($super) {
                         return {
                             otherMethod: function () {},
                             // miss someMethod()
@@ -3937,7 +3937,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     createExtendedAbstractClass();
-                    return Class.create(ExtendedAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(ExtendedAbstractClass, function ($super) {
                         return {
                             someMethod: function () {},
                             // miss otherMethod()
@@ -3951,7 +3951,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     createExtendedAbstractClass();
-                    return Class.create(ExtendedAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(ExtendedAbstractClass, function ($super) {
                         return {
                             someMethod: function () {},
                             otherMethod: function () {},
@@ -3965,7 +3965,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     createExtendedAbstractClass();
-                    return Class.create(ExtendedAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(ExtendedAbstractClass, function ($super) {
                         return {
                             someMethod: function () {},
                             otherMethod: function () {},
@@ -3980,7 +3980,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createAbstractClass();
                     createOtherInterface();
-                    return Class.create(SomeAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(SomeAbstractClass, function ($super) {
                         return {
                             $implements: [OtherInterface],
                             someMethod: function () {},
@@ -3996,7 +3996,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createAbstractClass();
                     createOtherInterface();
-                    return Class.create(SomeAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(SomeAbstractClass, function ($super) {
                         return {
                             $implements: [OtherInterface],
                             extraMethod: function () {},
@@ -4012,7 +4012,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createAbstractClass();
                     createOtherInterface();
-                    return Class.create(SomeAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(SomeAbstractClass, function ($super) {
                         return {
                             $implements: [OtherInterface],
                             extraMethod: function () {},
@@ -4028,7 +4028,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createAbstractClass();
                     createOtherInterface();
-                    return Class.create(SomeAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(SomeAbstractClass, function ($super) {
                         return {
                             $implements: [OtherInterface],
                             someMethod: function () {},
@@ -4044,7 +4044,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createExtendedAbstractClass();
                     createOtherInterface();
-                    return Class.create(ExtendedAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(ExtendedAbstractClass, function ($super) {
                         return {
                             $implements: [OtherInterface],
                             extraMethod: function () {},
@@ -4062,7 +4062,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createExtendedAbstractClass();
                     createOtherInterface();
-                    return Class.create(ExtendedAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(ExtendedAbstractClass, function ($super) {
                         return {
                             $implements: [OtherInterface],
                             otherMethod: function () {},
@@ -4078,7 +4078,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/was not found/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     _protectedMethod: function () {}
@@ -4086,7 +4086,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $extends: tmp
                         };
@@ -4094,7 +4094,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/was not found/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     $statics: {
@@ -4104,7 +4104,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $extends: tmp
                         };
@@ -4112,7 +4112,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/was not found/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     _protectedMethod: function () {}
@@ -4120,7 +4120,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return Class.create(tmp, function ($super, $self, $parent) {
+                    return Class.create(tmp, function ($super) {
                         return {
                             _protectedMethod: function () {}
                         };
@@ -4128,7 +4128,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     $statics: {
@@ -4138,7 +4138,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return Class.create(tmp, function ($super, $self, $parent) {
+                    return Class.create(tmp, function ($super) {
                         return {
                             $statics: {
                                 _protectedMethod: function () {}
@@ -4147,7 +4147,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     });
                 }).to.not.throwException();
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     _protectedMethod: function () {}
@@ -4155,7 +4155,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $extends: tmp
                         };
@@ -4163,7 +4163,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/was not found/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     $statics: {
@@ -4173,7 +4173,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $extends: tmp
                         };
@@ -4181,7 +4181,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/was not found/);
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     _protectedMethod: function () {}
@@ -4189,7 +4189,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return Class.create(tmp, function ($super, $self, $parent) {
+                    return Class.create(tmp, function ($super) {
                         return {
                             _protectedMethod: function () {}
                         };
@@ -4197,7 +4197,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) {
+                    var tmp = AbstractClass.create(function () {
                             return {
                                 $abstracts: {
                                     $statics: {
@@ -4207,7 +4207,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         });
 
-                    return Class.create(tmp, function ($super, $self, $parent) {
+                    return Class.create(tmp, function ($super) {
                         return {
                             $statics: {
                                 _protectedMethod: function () {}
@@ -4222,7 +4222,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 // Interfaces
                 expect(function () {
                     createSomeInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [SomeInterface],
                             someMethod: function () {},
@@ -4235,7 +4235,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     createExtendedInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [ExtendedInterface],
                             someMethod: function () {},
@@ -4251,7 +4251,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createSomeInterface();
                     createOtherInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [SomeInterface, OtherInterface],
                             someMethod: function () {},
@@ -4267,7 +4267,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createExtendedInterface();
                     createOtherInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [ExtendedInterface, OtherInterface],
                             someMethod: function () {},
@@ -4285,7 +4285,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 // Abstract Classes
                 expect(function () {
                     createAbstractClass();
-                    return Class.create(SomeAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(SomeAbstractClass, function ($super) {
                         return {
                             someMethod: function () {},
                             $statics: {
@@ -4297,7 +4297,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     createExtendedAbstractClass();
-                    return Class.create(ExtendedAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(ExtendedAbstractClass, function ($super) {
                         return {
                             someMethod: function () {},
                             otherMethod: function () {},
@@ -4312,7 +4312,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createAbstractClass();
                     createOtherInterface();
-                    return Class.create(SomeAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(SomeAbstractClass, function ($super) {
                         return {
                             $implements: [OtherInterface],
                             someMethod: function () {},
@@ -4328,7 +4328,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     createExtendedAbstractClass();
                     createOtherInterface();
-                    return Class.create(ExtendedAbstractClass, function ($super, $self, $parent) {
+                    return Class.create(ExtendedAbstractClass, function ($super) {
                         return {
                             $implements: [OtherInterface],
                             someMethod: function () {},
@@ -4405,7 +4405,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             it('should not throw an error if they are complete, even using borrowed methods to implement interfaces/abstract classes', function () {
 
-                var Mixin1 = Class.create(function ($self) {
+                var Mixin1 = Class.create(function () {
                     return {
                         $implements: [SomeInterface],
                         someMethod: function () {},
@@ -4423,7 +4423,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     createSomeInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [SomeInterface],
                             $borrows: [Mixin1]
@@ -4433,7 +4433,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 expect(function () {
                     createSomeInterface();
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $implements: [SomeInterface],
                             $borrows: [Mixin2]
@@ -4446,7 +4446,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if they define abstract methods', function () {
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $abstracts: {}
                         };
@@ -4454,7 +4454,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/has abstract methods/);
 
                 expect(function () {
-                    return Class.create(function ($self) {
+                    return Class.create(function () {
                         return {
                             $abstracts: {
                                 method1: function () {}
@@ -4483,7 +4483,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
         describe('Instantiation of Abstract Classes', function () {
 
-            var AbstractExample = AbstractClass.create(function ($self) {
+            var AbstractExample = AbstractClass.create(function () {
                 return {
                     initialize: function () {},
                     $abstracts: {
@@ -4504,8 +4504,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             it('should throw an error if we do it without using the new keyword', function () {
 
-                var SomeClass = Class.create(function ($self) { return {}; }),
-                    OtherClass = FinalClass.create(function ($self) { return {}; });
+                var SomeClass = Class.create(function () { return {}; }),
+                    OtherClass = FinalClass.create(function () { return {}; });
 
                 expect(function () {
                     return SomeClass();
@@ -4521,12 +4521,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 it('should throw an error if the constructor is private/protected', function () {
 
-                    var SomeClass = Class.create(function ($self) {
+                    var SomeClass = Class.create(function () {
                         return {
                             _initialize: function () {}
                         };
                     }),
-                        OtherClass = Class.create(function ($self) {
+                        OtherClass = Class.create(function () {
                             return {
                                 __initialize: function () {}
                             };
@@ -4546,8 +4546,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should not throw an error while invoking the the parent abstract class constructor', function () {
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) { return { initialize: function () {} }; }),
-                        SomeImplementation = Class.create(tmp, function ($super, $self, $parent) {
+                    var tmp = AbstractClass.create(function () { return { initialize: function () {} }; }),
+                        SomeImplementation = Class.create(tmp, function ($super) {
                             return {
                                 initialize: function () {
                                     $super.initialize.call(this);
@@ -4559,8 +4559,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) { return { initialize: function () {} }; }),
-                        SomeImplementation = Class.create(function ($self) {
+                    var tmp = AbstractClass.create(function () { return { initialize: function () {} }; }),
+                        SomeImplementation = Class.create(function () {
                             return {
                                 $extends: tmp
                             };
@@ -4574,8 +4574,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should not throw an error while invoking the the parent class protected constructor', function () {
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) { return { _initialize: function () {} }; }),
-                        SomeImplementation = Class.create(tmp, function ($super, $self, $parent) {
+                    var tmp = AbstractClass.create(function () { return { _initialize: function () {} }; }),
+                        SomeImplementation = Class.create(tmp, function ($super) {
                             return {
                                 initialize: function () {
                                     $super.initialize.call(this);
@@ -4588,8 +4588,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 if (/strict/.test(global.build) && hasDefineProperty) {
                     expect(function () {
-                        var tmp = AbstractClass.create(function ($self) { return { _initialize: function () {} }; }),
-                            SomeImplementation = Class.create(function ($self) {
+                        var tmp = AbstractClass.create(function () { return { _initialize: function () {} }; }),
+                            SomeImplementation = Class.create(function () {
                                 return {
                                     $extends: tmp
                                 };
@@ -4600,8 +4600,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }
 
                 expect(function () {
-                    var tmp = Class.create(function ($self) { return { _initialize: function () {} }; }),
-                        SomeImplementation = Class.create(tmp, function ($super, $self, $parent) {
+                    var tmp = Class.create(function () { return { _initialize: function () {} }; }),
+                        SomeImplementation = Class.create(tmp, function ($super) {
                             return {
                                 initialize: function () {
                                     $super.initialize.call(this);
@@ -4614,8 +4614,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 if (/strict/.test(global.build) && hasDefineProperty) {
                     expect(function () {
-                        var tmp = Class.create(function ($self) { return { _initialize: function () {} }; }),
-                            SomeImplementation = Class.create(function ($self) {
+                        var tmp = Class.create(function () { return { _initialize: function () {} }; }),
+                            SomeImplementation = Class.create(function () {
                                 return {
                                     $extends: tmp
                                 };
@@ -4630,8 +4630,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error while invoking the parent class private constructor', function () {
 
                 expect(function () {
-                    var tmp = AbstractClass.create(function ($self) { return { __initialize: function () {} }; }),
-                        SomeImplementation = Class.create(tmp, function ($super, $self, $parent) {
+                    var tmp = AbstractClass.create(function () { return { __initialize: function () {} }; }),
+                        SomeImplementation = Class.create(tmp, function ($super) {
                             return {
                                 initialize: function () {
                                     $super.initialize.call(this);
@@ -4644,8 +4644,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 if (/strict/.test(global.build) && hasDefineProperty) {
                     expect(function () {
-                        var tmp = AbstractClass.create(function ($self) { return { __initialize: function () {} }; }),
-                            SomeImplementation = Class.create(function ($self) {
+                        var tmp = AbstractClass.create(function () { return { __initialize: function () {} }; }),
+                            SomeImplementation = Class.create(function () {
                                 return {
                                     $extends: tmp
                                 };
@@ -4656,8 +4656,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }
 
                 expect(function () {
-                    var tmp = Class.create(function ($self) { return { __initialize: function () {} }; }),
-                        SomeImplementation = Class.create(tmp, function ($super, $self, $parent) {
+                    var tmp = Class.create(function () { return { __initialize: function () {} }; }),
+                        SomeImplementation = Class.create(tmp, function ($super) {
                             return {
                                 initialize: function () {
                                     $super.initialize.call(this);
@@ -4670,8 +4670,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 if (/strict/.test(global.build) && hasDefineProperty) {
                     expect(function () {
-                        var tmp = Class.create(function ($self) { return { __initialize: function () {} }; }),
-                            SomeImplementation = Class.create(function ($self) {
+                        var tmp = Class.create(function () { return { __initialize: function () {} }; }),
+                            SomeImplementation = Class.create(function () {
                                 return {
                                     $extends: tmp
                                 };
@@ -4682,8 +4682,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }
 
                 expect(function () {
-                    var tmp = Class.create(function ($self) { return { __initialize: function () {} }; }),
-                            SomeImplementation = Class.create(tmp, function ($super, $self, $parent) {
+                    var tmp = Class.create(function () { return { __initialize: function () {} }; }),
+                            SomeImplementation = Class.create(tmp, function ($super) {
                             return {
                                 initialize: function () {}
                             };
