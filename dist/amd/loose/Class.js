@@ -329,7 +329,10 @@ define([
         var key,
             value,
             saved = {},
-            has = {};
+            has = {},
+            tmp = constructor[$class],
+            newConstructor,
+            nrArgs;
 
          // Save constants & finals to parse later
         if (hasOwn(params, '$constants')) {
@@ -354,7 +357,7 @@ define([
 
                 value = saved.$constants[key];
 
-                constructor[$class].staticProperties[key] = value;
+                tmp.staticProperties[key] = value;
                 constructor[key] = value;
             }
         }
@@ -363,6 +366,25 @@ define([
         if (has.$finals) {
             parseMembers(saved.$finals, constructor, true);
         }
+
+        // Check we can optimize the constructor
+        if (tmp.efficient) {
+            nrArgs = constructor.$funcNrArgs;
+            delete constructor.$funcNrArgs;
+
+            if (!tmp.properties.length && !tmp.binds.length && nrArgs === (constructor.$parent ? 1 : 0)) {
+                newConstructor = constructor.prototype.initialize;
+                mixIn(newConstructor, constructor);
+                newConstructor.prototype = constructor.prototype;
+                newConstructor[$class] = tmp;
+
+                console.log('optimized!');
+                return newConstructor;
+            }
+        }
+
+
+        return constructor;
     }
 
     /**
@@ -526,8 +548,7 @@ define([
             }
 
             dejavu = constructor || createConstructor();
-            dejavu.$parent = parent;
-            dejavu[$class].id = parent[$class].id;
+            obfuscateProperty(dejavu, '$parent', parent);
             dejavu.prototype = createObject(parent.prototype);
 
             inheritParent(dejavu, parent);
@@ -542,7 +563,7 @@ define([
         delete params.__initialize;
 
         // Parse class members
-        parseClass(params, dejavu);
+        dejavu = parseClass(params, dejavu);
 
         // Assign aliases
         obfuscateProperty(dejavu.prototype, '$static', dejavu);
@@ -595,6 +616,7 @@ define([
             // create(parentClass, func)
             if (isFunction(arg2)) {
                 constructor = createConstructor();
+                constructor.$funcNrArgs = arg2.length;
                 params = arg2(arg1.prototype, constructor, arg1);
             // create(parentClass, props)
             } else {
@@ -606,6 +628,7 @@ define([
         // create(func)
         } else if (isFunction(arg1)) {
             constructor = createConstructor();
+            constructor.$funcNrArgs = arg1.length;
             params = arg1(constructor);
         // create (props)
         } else {

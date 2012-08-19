@@ -992,7 +992,10 @@ define([
         var key,
             value,
             saved = {},
-            has = {};
+            has = {},
+            tmp = constructor[$class],
+            newConstructor,
+            nrArgs;
 //>>excludeEnd('strict');
 
          // Save constants & finals to parse later
@@ -1096,7 +1099,7 @@ define([
                 addProperty(key, value, constructor, opts);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-                constructor[$class].staticProperties[key] = value;
+                tmp.staticProperties[key] = value;
                 constructor[key] = value;
 //>>excludeEnd('strict');
             }
@@ -1110,6 +1113,27 @@ define([
         if (has.$finals) {
             parseMembers(saved.$finals, constructor, true);
         }
+
+//>>excludeStart('strict', pragmas.strict);
+        // Check we can optimize the constructor
+        if (tmp.efficient) {
+            nrArgs = constructor.$funcNrArgs;
+            delete constructor.$funcNrArgs;
+
+            if (!tmp.properties.length && !tmp.binds.length && nrArgs === (constructor.$parent ? 1 : 0)) {
+                newConstructor = constructor.prototype.initialize;
+                mixIn(newConstructor, constructor);
+                newConstructor.prototype = constructor.prototype;
+                newConstructor[$class] = tmp;
+
+                console.log('optimized!');
+                return newConstructor;
+            }
+        }
+
+
+        return constructor;
+//>>excludeEnd('strict');
     }
 
     /**
@@ -1885,7 +1909,6 @@ define([
             x,
             found;
 
-
         // Validate class name
         if (hasOwn(params, '$name')) {
             if (!isString(params.$name)) {
@@ -1961,8 +1984,7 @@ define([
             }
 
             dejavu = constructor || createConstructor();
-            dejavu.$parent = parent;
-            dejavu[$class].id = parent[$class].id;
+            obfuscateProperty(dejavu, '$parent', parent);
             dejavu.prototype = createObject(parent.prototype);
 //>>excludeEnd('strict');
 
@@ -2001,7 +2023,12 @@ define([
 
 //>>includeEnd('strict');
         // Parse class members
+//>>includeStart('strict', pragmas.strict);
         parseClass(params, dejavu);
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+        dejavu = parseClass(params, dejavu);
+//>>excludeEnd('strict');
 
         // Assign aliases
         obfuscateProperty(dejavu.prototype, '$static', dejavu);
@@ -2082,6 +2109,9 @@ define([
             // create(parentClass, func)
             if (isFunction(arg2)) {
                 constructor = createConstructor();
+//>>excludeStart('strict', pragmas.strict);
+                constructor.$funcNrArgs = arg2.length;
+//>>excludeEnd('strict');
                 params = arg2(arg1.prototype, constructor, arg1);
             // create(parentClass, props)
             } else {
@@ -2099,6 +2129,9 @@ define([
         // create(func)
         } else if (isFunction(arg1)) {
             constructor = createConstructor();
+//>>excludeStart('strict', pragmas.strict);
+            constructor.$funcNrArgs = arg1.length;
+//>>excludeEnd('strict');
             params = arg1(constructor);
         // create (props)
         } else {
