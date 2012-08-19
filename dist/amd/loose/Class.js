@@ -406,8 +406,7 @@ define([
             }
 
             if (!tmp.efficient) {
-                obfuscateProperty(this, '$super', null, true);               // Add the super to the instance object to speed lookup of the wrapper function
-                obfuscateProperty(this, '$self', null, true);                // Add the self to the instance object to speed lookup of the wrapper function
+                this.$super = this.$self = null;               // Add the super & self to the instance object to speed lookup of the wrapper function
             }
 
             // Apply binds
