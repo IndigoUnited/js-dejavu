@@ -1126,11 +1126,9 @@ define([
                 newConstructor.prototype = constructor.prototype;
                 newConstructor[$class] = tmp;
 
-                console.log('optimized!');
                 return newConstructor;
             }
         }
-
 
         return constructor;
 //>>excludeEnd('strict');
@@ -1681,7 +1679,7 @@ define([
         obfuscateProperty(Instance, $class, { methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, interfaces: [], binds: [] });
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-        Instance[$class] = { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] };
+        obfuscateProperty(Instance, $class, { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] });
 //>>excludeEnd('strict');
 
         return Instance;
@@ -1899,7 +1897,6 @@ define([
 //>>excludeStart('strict', pragmas.strict);
         var dejavu,
             parent;
-
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
         var dejavu,
