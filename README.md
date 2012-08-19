@@ -60,7 +60,7 @@ The loose build has no overhead associated with verifications and therefore is s
 If your classes schema work in the strict version then is safe to use them in the loose version.
 The loose version also has lower memory footprint and less size in bytes.
 
-I've publish a new test revision on [jsperf](http://jsperf.com/oop-benchmark/50) comparing dejavu with other OOP libraries.
+I've publish a new test revision on [jsperf](http://jsperf.com/oop-benchmark/51) comparing dejavu with other OOP libraries.
 The version running is the regular (loose build), dejavu uses a wrapper for the constructor function therefore its performance might be slightly lower than JSFace or my.Class on instantiation.
 The constructor wrapper is needed in order to apply binds and to make mutable types unique for each instance (for example, if an property is an array it should not be shared among instances, but in JSFace and my.Class they actually are).
 
