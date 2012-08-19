@@ -86,13 +86,11 @@ define([
     /**
      * Function to create an Interface.
      *
-     * @param {Function} arg1 Object containing the members or a function to obtain it.
+     * @param {Object} obj An object containing the interface members.
      *
      * @return {Function} The Interface
      */
-    Interface.create = function (arg1) {
-        return createInterface(isFunction(arg1) ? arg1() : arg1);
-    };
+    Interface.create = createInterface;
 
     return Interface;
 });

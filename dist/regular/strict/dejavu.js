@@ -1719,11 +1719,6 @@ define('Class',[
      */
     function wrapStaticMethod(method, constructor, classId, classBaseId, parentMeta) {
 
-        // Return the method if the class was created efficiently
-        if (constructor[$class].efficient) {
-            return method;
-        }
-
         if (method[$wrapped]) {
             method = method[$wrapped];
         }
@@ -3152,7 +3147,6 @@ define('Class',[
             dejavu.prototype = params;
         }
 
-        dejavu[$class].efficient = !!constructor;
         delete params._initialize;
         delete params.__initialize;
 
@@ -3229,8 +3223,7 @@ define('Class',[
      * @return {Function} The constructor
      */
     Class.create = function (arg1, arg2) {
-        var def,
-            params,
+        var params,
             callable = isFunction(this) ? this : createClass,
             constructor;
 
@@ -3257,7 +3250,7 @@ define('Class',[
         // create(func)
         } else if (isFunction(arg1)) {
             constructor = createConstructor();
-            params = arg1(def);
+            params = arg1(constructor);
         // create (props)
         } else {
             params = arg1;
@@ -4135,13 +4128,11 @@ define('Interface',[
     /**
      * Function to create an Interface.
      *
-     * @param {Function} arg1 Object containing the members or a function to obtain it.
+     * @param {Object} obj An object containing the interface members.
      *
      * @return {Function} The Interface
      */
-    Interface.create = function (arg1) {
-        return createInterface(isFunction(arg1) ? arg1() : arg1);
-    };
+    Interface.create = createInterface;
 
     return Interface;
 });

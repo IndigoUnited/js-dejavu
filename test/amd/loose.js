@@ -13,4 +13,4 @@ global.build = 'amd/loose';
     define.undef('specs/functional');
 }*/
 
-define(['specs/functional'], function () {});
+define(['specs/functional', 'specs/functional_optimized'], function () {});

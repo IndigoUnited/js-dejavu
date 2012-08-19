@@ -197,11 +197,6 @@ define([
      */
     function wrapStaticMethod(method, constructor, classId, classBaseId, parentMeta) {
 
-        // Return the method if the class was created efficiently
-        if (constructor[$class].efficient) {
-            return method;
-        }
-
         if (method[$wrapped]) {
             method = method[$wrapped];
         }
@@ -1630,7 +1625,6 @@ define([
             dejavu.prototype = params;
         }
 
-        dejavu[$class].efficient = !!constructor;
         delete params._initialize;
         delete params.__initialize;
 
@@ -1707,8 +1701,7 @@ define([
      * @return {Function} The constructor
      */
     Class.create = function (arg1, arg2) {
-        var def,
-            params,
+        var params,
             callable = isFunction(this) ? this : createClass,
             constructor;
 
@@ -1735,7 +1728,7 @@ define([
         // create(func)
         } else if (isFunction(arg1)) {
             constructor = createConstructor();
-            params = arg1(def);
+            params = arg1(constructor);
         // create (props)
         } else {
             params = arg1;
