@@ -2378,6 +2378,7 @@ define('Class',[
         if (has.$finals) {
             parseMembers(saved.$finals, constructor, true);
         }
+
     }
 
     /**
@@ -3072,7 +3073,6 @@ define('Class',[
             key,
             x,
             found;
-
 
         // Validate class name
         if (hasOwn(params, '$name')) {
