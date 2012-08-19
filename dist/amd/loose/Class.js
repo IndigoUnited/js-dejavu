@@ -406,7 +406,7 @@ define([
             }
 
             if (!tmp.efficient) {
-                this.$super = this.$self = null;               // Add the super & self to the instance object to speed lookup of the wrapper function
+                this.$super = this.$self = null;  // Add the super & self to the instance object to speed lookup of the wrapper function
             }
 
             // Apply binds
