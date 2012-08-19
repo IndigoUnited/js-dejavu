@@ -329,10 +329,7 @@ define([
         var key,
             value,
             saved = {},
-            has = {},
-            tmp = constructor[$class],
-            newConstructor,
-            nrArgs;
+            has = {};
 
          // Save constants & finals to parse later
         if (hasOwn(params, '$constants')) {
@@ -357,7 +354,7 @@ define([
 
                 value = saved.$constants[key];
 
-                tmp.staticProperties[key] = value;
+                constructor[$class].staticProperties[key] = value;
                 constructor[key] = value;
             }
         }
@@ -366,23 +363,6 @@ define([
         if (has.$finals) {
             parseMembers(saved.$finals, constructor, true);
         }
-
-        // Check we can optimize the constructor
-        if (tmp.efficient) {
-            nrArgs = constructor.$funcNrArgs;
-            delete constructor.$funcNrArgs;
-
-            if (!tmp.properties.length && !tmp.binds.length && nrArgs === (constructor.$parent ? 1 : 0)) {
-                newConstructor = constructor.prototype.initialize;
-                mixIn(newConstructor, constructor);
-                newConstructor.prototype = constructor.prototype;
-                newConstructor[$class] = tmp;
-
-                return newConstructor;
-            }
-        }
-
-        return constructor;
     }
 
     /**
@@ -509,6 +489,37 @@ define([
     }
 
     /**
+     * Attempts to optimize the constructor function.
+     *
+     * @param {Function} constructor The constructor
+     *
+     * @param {Function} The old or the new constructor
+     */
+    function optimizeConstructor(constructor) {
+
+        var tmp = constructor[$class],
+            nrArgs,
+            newConstructor;
+
+        // Check if we can optimize the constructor
+        if (tmp.efficient) {
+            nrArgs = constructor.$funcNrArgs;
+            delete constructor.$funcNrArgs;
+
+            if (!tmp.properties.length && !tmp.binds.length && nrArgs === (constructor.$parent ? 1 : 0)) {
+                newConstructor = constructor.prototype.initialize;
+                mixIn(newConstructor, constructor);
+                newConstructor.prototype = constructor.prototype;
+                newConstructor[$class] = tmp;
+
+                return newConstructor;
+            }
+        }
+
+        return constructor;
+    }
+
+    /**
      * Function to easily extend another class.
      *
      * @param {Object|Function} params An object containing methods and properties or a function that returns it
@@ -560,7 +571,13 @@ define([
         delete params.__initialize;
 
         // Parse class members
-        dejavu = parseClass(params, dejavu);
+        parseClass(params, dejavu);
+
+        // Parse mixins
+        parseBorrows(dejavu);
+
+        // Optimize constructor if possible
+        dejavu = optimizeConstructor(dejavu);
 
         // Assign aliases
         obfuscateProperty(dejavu.prototype, '$static', dejavu);
@@ -570,9 +587,6 @@ define([
         if (!dejavu.$parent) {
             obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
         }
-
-        // Parse mixins
-        parseBorrows(dejavu);
 
         // Handle interfaces
         if (hasOwn(params, '$implements')) {

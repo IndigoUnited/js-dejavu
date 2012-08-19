@@ -992,10 +992,7 @@ define([
         var key,
             value,
             saved = {},
-            has = {},
-            tmp = constructor[$class],
-            newConstructor,
-            nrArgs;
+            has = {};
 //>>excludeEnd('strict');
 
          // Save constants & finals to parse later
@@ -1099,7 +1096,7 @@ define([
                 addProperty(key, value, constructor, opts);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-                tmp.staticProperties[key] = value;
+                constructor[$class].staticProperties[key] = value;
                 constructor[key] = value;
 //>>excludeEnd('strict');
             }
@@ -1113,25 +1110,6 @@ define([
         if (has.$finals) {
             parseMembers(saved.$finals, constructor, true);
         }
-
-//>>excludeStart('strict', pragmas.strict);
-        // Check we can optimize the constructor
-        if (tmp.efficient) {
-            nrArgs = constructor.$funcNrArgs;
-            delete constructor.$funcNrArgs;
-
-            if (!tmp.properties.length && !tmp.binds.length && nrArgs === (constructor.$parent ? 1 : 0)) {
-                newConstructor = constructor.prototype.initialize;
-                mixIn(newConstructor, constructor);
-                newConstructor.prototype = constructor.prototype;
-                newConstructor[$class] = tmp;
-
-                return newConstructor;
-            }
-        }
-
-        return constructor;
-//>>excludeEnd('strict');
     }
 
     /**
@@ -1850,6 +1828,39 @@ define([
         constructor[$class].interfaces = [].concat(parent[$class].interfaces);
     }
 
+//>>excludeStart('strict', pragmas.strict);
+    /**
+     * Attempts to optimize the constructor function.
+     *
+     * @param {Function} constructor The constructor
+     *
+     * @param {Function} The old or the new constructor
+     */
+    function optimizeConstructor(constructor) {
+
+        var tmp = constructor[$class],
+            nrArgs,
+            newConstructor;
+
+        // Check if we can optimize the constructor
+        if (tmp.efficient) {
+            nrArgs = constructor.$funcNrArgs;
+            delete constructor.$funcNrArgs;
+
+            if (!tmp.properties.length && !tmp.binds.length && nrArgs === (constructor.$parent ? 1 : 0)) {
+                newConstructor = constructor.prototype.initialize;
+                mixIn(newConstructor, constructor);
+                newConstructor.prototype = constructor.prototype;
+                newConstructor[$class] = tmp;
+
+                return newConstructor;
+            }
+        }
+
+        return constructor;
+    }
+
+//>>excludeEnd('strict');
     /**
      * Function to easily extend another class.
      *
@@ -2020,13 +2031,16 @@ define([
 
 //>>includeEnd('strict');
         // Parse class members
-//>>includeStart('strict', pragmas.strict);
         parseClass(params, dejavu);
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
-        dejavu = parseClass(params, dejavu);
-//>>excludeEnd('strict');
 
+        // Parse mixins
+        parseBorrows(dejavu);
+
+//>>excludeStart('strict', pragmas.strict);
+        // Optimize constructor if possible
+        dejavu = optimizeConstructor(dejavu);
+
+//>>excludeEnd('strict');
         // Assign aliases
         obfuscateProperty(dejavu.prototype, '$static', dejavu);
         obfuscateProperty(dejavu, '$static', dejavu);
@@ -2041,9 +2055,6 @@ define([
         if (!dejavu.$parent) {
             obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
         }
-
-        // Parse mixins
-        parseBorrows(dejavu);
 
 //>>includeStart('strict', pragmas.strict);
         // Add toString() if not defined yet

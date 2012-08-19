@@ -2378,7 +2378,6 @@ define('Class',[
         if (has.$finals) {
             parseMembers(saved.$finals, constructor, true);
         }
-
     }
 
     /**
@@ -3165,6 +3164,9 @@ define('Class',[
         // Parse class members
         parseClass(params, dejavu);
 
+        // Parse mixins
+        parseBorrows(dejavu);
+
         // Assign aliases
         obfuscateProperty(dejavu.prototype, '$static', dejavu);
         obfuscateProperty(dejavu, '$static', dejavu);
@@ -3174,9 +3176,6 @@ define('Class',[
         if (!dejavu.$parent) {
             obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
         }
-
-        // Parse mixins
-        parseBorrows(dejavu);
 
         // Add toString() if not defined yet
         if (params.toString === Object.prototype.toString) {
