@@ -378,11 +378,9 @@ define([
                 newConstructor.prototype = constructor.prototype;
                 newConstructor[$class] = tmp;
 
-                console.log('optimized!');
                 return newConstructor;
             }
         }
-
 
         return constructor;
     }
@@ -440,7 +438,7 @@ define([
             this.initialize.apply(this, arguments);
         };
 
-        Instance[$class] = { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] };
+        obfuscateProperty(Instance, $class, { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] });
 
         return Instance;
     }
