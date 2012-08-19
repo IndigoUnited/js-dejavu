@@ -154,6 +154,16 @@ function optimize(objStr, directive, parent) {
     // Process object
     len = objStr.length - 1;
 
+    function superStaticReplacer() {
+        efficient = false;
+        return '$parent';
+    }
+
+    function selfReplacer() {
+        efficient = false;
+        return '$self';
+    }
+
     for (x = 0; x < len; x += 1) {
         currentChar = objStr.charAt(x);
 
@@ -175,17 +185,11 @@ function optimize(objStr, directive, parent) {
 
                 // If in static context, $super is actually $parent
                 if (isStatic) {
-                    value = value.replace(/\$super/g, function () {
-                        efficient = false;
-                        return '$parent';
-                    });
+                    value = value.replace(/\$super/g, superStaticReplacer);
                 }
 
                 // Self replacement
-                value = value.replace(/(this|that)(?:\.|(?:[\'])?)\$self(?:'\])?/g, function () {
-                    efficient = false;
-                    return '$self';
-                });
+                value = value.replace(/(this|that)(?:\.|(?:[\'])?)\$self(?:'\])?/g, selfReplacer);
 
                 buffer += value;
             }
