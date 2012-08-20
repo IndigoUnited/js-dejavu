@@ -1443,7 +1443,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         myOtherClass.test2();
                     }).to.not.throwException();
 
-                    expect(function () {
+                    // This was commented out because under strict was temporarly removed
+                    /*expect(function () {
                         var SomeClass = Class.create({
                             __someVar: 'foo',
                             exec: function (func) {
@@ -1501,7 +1502,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return someClass.exec(function () {
                             return SomeClass.__someFunc;
                         });
-                    }).to.throwException(/access private/);
+                    }).to.throwException(/access private/);*/
 
                 });
 
@@ -1821,7 +1822,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         myOtherClass.test2();
                     }).to.not.throwException();
 
-                    expect(function () {
+                    // This was commented out because under strict was temorarly removed
+                    /*expect(function () {
                         var SomeClass = Class.create({
                             _someVar: 'foo',
                             exec: function (func) {
@@ -1879,7 +1881,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return someClass.exec(function () {
                             return SomeClass._someFunc;
                         });
-                    }).to.throwException(/access protected/);
+                    }).to.throwException(/access protected/);*/
 
                 });
 
