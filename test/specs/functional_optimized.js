@@ -1576,7 +1576,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         myOtherClass.test2();
                     }).to.not.throwException();
 
-                    expect(function () {
+                    // This was commented out because under strict was temporarly removed
+                    /*expect(function () {
                         var SomeClass = Class.create(function () {
                             return {
                                 __someVar: 'foo',
@@ -1590,9 +1591,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return someClass.exec(function () {
                             return someClass.__someVar;
                         });
-                    }).to.throwException(/access private/);
+                    }).to.throwException(/access private/);*/
 
-                    expect(function () {
+                    /*expect(function () {
                         var SomeClass = Class.create(function () {
                             return {
                                 __someFunc: function () {},
@@ -1606,9 +1607,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return someClass.exec(function () {
                             return someClass.__someFunc;
                         });
-                    }).to.throwException(/access private/);
+                    }).to.throwException(/access private/);*/
 
-                    expect(function () {
+                    /*expect(function () {
                         var SomeClass = Class.create(function () {
                             return {
                                 $statics: {
@@ -1624,9 +1625,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return someClass.exec(function () {
                             return SomeClass.__someVar;
                         });
-                    }).to.throwException(/access private/);
+                    }).to.throwException(/access private/);*/
 
-                    expect(function () {
+                    /*expect(function () {
                         var SomeClass = Class.create(function () {
                             return {
                                 $statics: {
@@ -1642,7 +1643,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return someClass.exec(function () {
                             return SomeClass.__someFunc;
                         });
-                    }).to.throwException(/access private/);
+                    }).to.throwException(/access private/);*/
 
                 });
 
@@ -1987,7 +1988,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         myOtherClass.test2();
                     }).to.not.throwException();
 
-                    expect(function () {
+                    // This was commented out because under strict was temorarly removed
+                    /*expect(function () {
                         var SomeClass = Class.create(function () {
                             return {
                                 _someVar: 'foo',
@@ -2001,7 +2003,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return someClass.exec(function () {
                             return someClass._someVar;
                         });
-                    }).to.throwException(/access protected/);
+                    }).to.throwException(/access protected/);*/
 
                     expect(function () {
                         var SomeClass = Class.create(function () {
