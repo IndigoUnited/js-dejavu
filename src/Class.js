@@ -1871,7 +1871,7 @@ define([
     function extend(params) {
         /*jshint validthis:true*/
 
-        return Class.create(this, params);
+        return Class.declare(this, params);
     }
 
 //>>includeStart('strict', pragmas.strict);
@@ -2096,7 +2096,7 @@ define([
     };
 
     /**
-     * Function to create a class.
+     * Function to declare a class.
      * This function can be called with various formats.
      *
      * @param {Function|Object} arg1 A class to extend or an object/function to obtain the members
@@ -2104,7 +2104,7 @@ define([
      *
      * @return {Function} The constructor
      */
-    Class.create = function (arg1, arg2) {
+    Class.declare = function (arg1, arg2) {
 
         var params,
             callable = isFunction(this) ? this : createClass,

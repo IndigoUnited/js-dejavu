@@ -74,7 +74,7 @@ function optimize(objStr, directive, parent) {
 
     // If the file is set to be ignored
     if (/\s*\$optimizer:\s*ignore/.test(objStr)) {
-        process.stdout.write(parent + '.create(' + objStr);
+        process.stdout.write(parent + '.declare(' + objStr);
         return;
     }
 
@@ -103,7 +103,7 @@ function optimize(objStr, directive, parent) {
         buffer += parent + '.extend(function ($super, $self, $parent) {';
     } else if ((matches = objStr.match(/\$extends\s*:\s*(\w+)\s*(\}?),/m))) {
         extendsSomething = true;
-        buffer += parent + '.create(' + matches[1] + ', function ($super, $self, $parent) {';
+        buffer += parent + '.declare(' + matches[1] + ', function ($super, $self, $parent) {';
 
         // If a } is not next to an $extends, remove the empty lines also after
         if (!matches[2]) {
@@ -119,11 +119,11 @@ function optimize(objStr, directive, parent) {
     } else {
         // If is an interface, we do not need to optimize
         if (parent === 'Interface') {
-            process.stdout.write(parent + '.create(' + objStr);
+            process.stdout.write(parent + '.declare(' + objStr);
             return;
         }
 
-        buffer += parent + '.create(function ($self) {';
+        buffer += parent + '.declare(function ($self) {';
     }
 
     // Calculate alignment
@@ -241,7 +241,7 @@ function parse(contents) {
         tmp = pos,
         objStr,
         matches,
-        regExp = /(\w+)\.(create|extend)\(\{/g;
+        regExp = /(\w+)\.(declare|extend)\(\{/g;
 
     // While find usage matches..
     while ((matches = regExp.exec(contents))) {

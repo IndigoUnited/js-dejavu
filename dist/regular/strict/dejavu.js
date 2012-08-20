@@ -3034,7 +3034,7 @@ define('Class',[
     function extend(params) {
         /*jshint validthis:true*/
 
-        return Class.create(this, params);
+        return Class.declare(this, params);
     }
 
     /**
@@ -3213,7 +3213,7 @@ define('Class',[
     };
 
     /**
-     * Function to create a class.
+     * Function to declare a class.
      * This function can be called with various formats.
      *
      * @param {Function|Object} arg1 A class to extend or an object/function to obtain the members
@@ -3221,7 +3221,7 @@ define('Class',[
      *
      * @return {Function} The constructor
      */
-    Class.create = function (arg1, arg2) {
+    Class.declare = function (arg1, arg2) {
 
         var params,
             callable = isFunction(this) ? this : createClass,
@@ -3684,7 +3684,7 @@ define('AbstractClass',[
     }
 
     /**
-     * Function to create an abstract class.
+     * Function to declare an abstract class.
      * This function can be called with various formats.
      * The first parameter can be a class to extend.
      * The second parameter must be an object containing the class members or a function to obtain it.
@@ -3694,8 +3694,8 @@ define('AbstractClass',[
      *
      * @return {Function} The constructor
      */
-    AbstractClass.create = function (arg1, arg2) {
-        return Class.create.call(createAbstractClass, arg1, arg2);
+    AbstractClass.declare = function (arg1, arg2) {
+        return Class.declare.call(createAbstractClass, arg1, arg2);
     };
 
     return AbstractClass;
@@ -3918,7 +3918,7 @@ define('Interface',[
 
         params.$extends = this;
 
-        return Interface.create(params);
+        return Interface.declare(params);
     }
 
     /**
@@ -4126,13 +4126,13 @@ define('Interface',[
     }
 
     /**
-     * Function to create an Interface.
+     * Function to declare an Interface.
      *
      * @param {Object} obj An object containing the interface members.
      *
      * @return {Function} The Interface
      */
-    Interface.create = createInterface;
+    Interface.declare = createInterface;
 
     return Interface;
 });
@@ -4173,7 +4173,7 @@ define('FinalClass',[
     }
 
     /**
-     * Function to create a final class.
+     * Function to declare a final class.
      * This function can be called with various formats.
      *
      * @param {Function|Object} arg1 A class to extend or an object/function to obtain the members
@@ -4181,8 +4181,8 @@ define('FinalClass',[
      *
      * @return {Function} The constructor
      */
-    FinalClass.create = function (arg1, arg2) {
-        return Class.create.call(createFinalClass, arg1, arg2);
+    FinalClass.declare = function (arg1, arg2) {
+        return Class.declare.call(createFinalClass, arg1, arg2);
     };
 
     return FinalClass;
