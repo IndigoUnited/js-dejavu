@@ -23,7 +23,7 @@ define([
     }
 
     /**
-     * Function to create a final class.
+     * Function to declare a final class.
      * This function can be called with various formats.
      *
      * @param {Function|Object} arg1 A class to extend or an object/function to obtain the members
@@ -31,8 +31,8 @@ define([
      *
      * @return {Function} The constructor
      */
-    FinalClass.create = function (arg1, arg2) {
-        return Class.create.call(createFinalClass, arg1, arg2);
+    FinalClass.declare = function (arg1, arg2) {
+        return Class.declare.call(createFinalClass, arg1, arg2);
     };
 
     return FinalClass;
