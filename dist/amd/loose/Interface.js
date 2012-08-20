@@ -25,7 +25,7 @@ define([
 
         params.$extends = this;
 
-        return Interface.create(params);
+        return Interface.declare(params);
     }
 
     /**
@@ -84,13 +84,13 @@ define([
     }
 
     /**
-     * Function to create an Interface.
+     * Function to declare an Interface.
      *
      * @param {Object} obj An object containing the interface members.
      *
      * @return {Function} The Interface
      */
-    Interface.create = createInterface;
+    Interface.declare = createInterface;
 
     return Interface;
 });
