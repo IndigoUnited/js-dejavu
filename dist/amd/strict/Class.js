@@ -892,14 +892,14 @@ define([
                 get: function get() {
 
                     var method = this[cacheKeyword].methods[name],
-                        currCaller,
+                        currCaller = caller,
                         isConstructor = name === 'initialize';
 
-                    if (!isConstructor && !this.$underStrict && !this.$static[$class].$underStrict) {
+                    /*if (!isConstructor && !this.$underStrict && !this.$static[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
-                    }
+                    }*/
 
                     if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
                         return method;
@@ -927,14 +927,14 @@ define([
                 get: function get() {
 
                     var method = this[cacheKeyword].methods[name],
-                        currCaller,
+                        currCaller = caller,
                         isConstructor = name === 'initialize';
 
-                    if (!isConstructor && !this.$underStrict && !this.$static[$class].$underStrict) {
+                    /*if (!isConstructor && !this.$underStrict && !this.$static[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
-                    }
+                    }*/
 
                     if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
                         return method;
@@ -992,13 +992,13 @@ define([
                 get: function get() {
 
                     var method = this[cacheKeyword].methods[name],
-                        currCaller;
+                        currCaller = caller;
 
-                    if (!this[$class].$underStrict) {
+                    /*if (!this[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
-                    }
+                    }*/
 
                     if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
                         return method;
@@ -1017,13 +1017,13 @@ define([
                 get: function get() {
 
                     var method = this[cacheKeyword].methods[name],
-                        currCaller;
+                        currCaller = caller;
 
-                    if (!this[$class].$underStrict) {
+                    /*if (!this[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
-                    }
+                    }*/
 
                     if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
                         return method;
@@ -1066,13 +1066,13 @@ define([
             Object.defineProperty(instance, name, {
                 get: function get() {
 
-                    var currCaller;
+                    var currCaller = caller;
 
-                    if (!this.$underStrict && !this.$static[$class].$underStrict) {
+                    /*if (!this.$underStrict && !this.$static[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
-                    }
+                    }*/
 
                     if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
                         return this[cacheKeyword].properties[name];
@@ -1082,13 +1082,13 @@ define([
                 },
                 set: function set(newValue) {
 
-                    var currCaller;
+                    var currCaller = caller;
 
-                    if (!this.$underStrict && !this.$static[$class].$underStrict) {
+                    /*if (!this.$underStrict && !this.$static[$class].$underStrict) {
                         currCaller = set.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
-                    }
+                    }*/
 
                     if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
                         this[cacheKeyword].properties[name] = newValue;
@@ -1105,13 +1105,13 @@ define([
             Object.defineProperty(instance, name, {
                 get: function get() {
 
-                    var currCaller;
+                    var currCaller = caller;
 
-                    if (!this.$underStrict && !this.$static[$class].$underStrict) {
+                    /*if (!this.$underStrict && !this.$static[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
-                    }
+                    }*/
 
                     if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
                         return this[cacheKeyword].properties[name];
@@ -1121,13 +1121,13 @@ define([
                 },
                 set: function set(newValue) {
 
-                    var currCaller;
+                    var currCaller = caller;
 
-                    if (!this.$underStrict && !this.$static[$class].$underStrict) {
+                    /*if (!this.$underStrict && !this.$static[$class].$underStrict) {
                         currCaller = set.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
-                    }
+                    }*/
 
                     if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
                         this[cacheKeyword].properties[name] = newValue;
@@ -1160,13 +1160,13 @@ define([
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
-                    var currCaller;
+                    var currCaller = caller;
 
-                    if (!this[$class].$underStrict) {
+                    /*if (!this[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
-                    }
+                    }*/
 
                     if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
                         return this[cacheKeyword].properties[name];
@@ -1180,13 +1180,13 @@ define([
                         } :
                         function set(newValue) {
 
-                            var currCaller;
+                            var currCaller = caller;
 
-                            if (!this[$class].$underStrict) {
+                            /*if (!this[$class].$underStrict) {
                                 currCaller = set.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                             } else {
                                 currCaller = caller;
-                            }
+                            }*/
 
                             if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId)))) {
                                 this[cacheKeyword].properties[name] = newValue;
@@ -1203,13 +1203,13 @@ define([
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
-                    var currCaller;
+                    var currCaller = caller;
 
-                    if (!this[$class].$underStrict) {
+                    /*if (!this[$class].$underStrict) {
                         currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                     } else {
                         currCaller = caller;
-                    }
+                    }*/
 
                     if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
                         return constructor[cacheKeyword].properties[name];
@@ -1223,13 +1223,13 @@ define([
                         } :
                         function set(newValue) {
 
-                            var currCaller;
+                            var currCaller = caller;
 
-                            if (!this[$class].$underStrict) {
+                            /*if (!this[$class].$underStrict) {
                                 currCaller = set.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
                             } else {
                                 currCaller = caller;
-                            }
+                            }*/
 
                             if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId))))) {
                                 this[cacheKeyword].properties[name] = newValue;
@@ -1338,12 +1338,12 @@ define([
             }
 
             // Check if we are under strict mode
-            try {
+            /*try {
                 Instance.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
                 obfuscateProperty(this, '$underStrict', false);
             } catch (e) {
                 obfuscateProperty(this, '$underStrict', true);
-            }
+            }*/
 
             obfuscateProperty(this, '$initializing', true, true, true);  // Mark it in order to let abstract classes run their initialize
             obfuscateProperty(this, '$super', null, true);               // Add the super to the instance object to speed lookup of the wrapper function
@@ -1512,7 +1512,7 @@ define([
     function extend(params) {
         /*jshint validthis:true*/
 
-        return Class.create(this, params);
+        return Class.declare(this, params);
     }
 
     /**
@@ -1632,12 +1632,12 @@ define([
         }
 
         // Check if we are under strict mode
-        try {
+        /*try {
             Class.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
             dejavu[$class].$underStrict = false;
         } catch (e) {
             dejavu[$class].$underStrict = true;
-        }
+        }*/
 
         // Parse class members
         parseClass(params, dejavu);
@@ -1691,7 +1691,7 @@ define([
     };
 
     /**
-     * Function to create a class.
+     * Function to declare a class.
      * This function can be called with various formats.
      *
      * @param {Function|Object} arg1 A class to extend or an object/function to obtain the members
@@ -1699,7 +1699,7 @@ define([
      *
      * @return {Function} The constructor
      */
-    Class.create = function (arg1, arg2) {
+    Class.declare = function (arg1, arg2) {
 
         var params,
             callable = isFunction(this) ? this : createClass,

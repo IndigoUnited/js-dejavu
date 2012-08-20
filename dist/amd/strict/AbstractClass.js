@@ -348,7 +348,7 @@ define([
     }
 
     /**
-     * Function to create an abstract class.
+     * Function to declare an abstract class.
      * This function can be called with various formats.
      * The first parameter can be a class to extend.
      * The second parameter must be an object containing the class members or a function to obtain it.
@@ -358,8 +358,8 @@ define([
      *
      * @return {Function} The constructor
      */
-    AbstractClass.create = function (arg1, arg2) {
-        return Class.create.call(createAbstractClass, arg1, arg2);
+    AbstractClass.declare = function (arg1, arg2) {
+        return Class.declare.call(createAbstractClass, arg1, arg2);
     };
 
     return AbstractClass;

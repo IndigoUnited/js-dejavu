@@ -7,7 +7,7 @@ define(['dejavu/Class'], function (Class) {
 
     'use strict';
 
-    return Class.create({
+    return Class.declare({
         __a: 4,
 
         run: function () {

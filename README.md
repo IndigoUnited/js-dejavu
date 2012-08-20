@@ -93,7 +93,7 @@ As for the `loose` build, there is no overhead associated with checks, thus
 making it suitable for __production__, since it will be more efficient and 
 have a __lower memory footprint and filesize__.
 
-You can check a performance test in [jsperf](http://jsperf.com/oop-benchmark/52)
+You can check a performance test in [jsperf](http://jsperf.com/oop-benchmark/54)
 comparing `dejavu` with other OOP libraries. Note that the regular version,
 in loose mode is used for this test.
 
