@@ -892,7 +892,7 @@ define([
                 get: function get() {
 
                     var method = this[cacheKeyword].methods[name],
-                        currCaller = caller;
+                        currCaller = caller,
                         isConstructor = name === 'initialize';
 
                     /*if (!isConstructor && !this.$underStrict && !this.$static[$class].$underStrict) {
@@ -927,7 +927,7 @@ define([
                 get: function get() {
 
                     var method = this[cacheKeyword].methods[name],
-                        currCaller = caller;
+                        currCaller = caller,
                         isConstructor = name === 'initialize';
 
                     /*if (!isConstructor && !this.$underStrict && !this.$static[$class].$underStrict) {

@@ -1591,9 +1591,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return someClass.exec(function () {
                             return someClass.__someVar;
                         });
-                    }).to.throwException(/access private/);*/
+                    }).to.throwException(/access private/);
 
-                    /*expect(function () {
+                    expect(function () {
                         var SomeClass = Class.create(function () {
                             return {
                                 __someFunc: function () {},
@@ -1607,9 +1607,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return someClass.exec(function () {
                             return someClass.__someFunc;
                         });
-                    }).to.throwException(/access private/);*/
+                    }).to.throwException(/access private/);
 
-                    /*expect(function () {
+                    expect(function () {
                         var SomeClass = Class.create(function () {
                             return {
                                 $statics: {
@@ -1625,9 +1625,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return someClass.exec(function () {
                             return SomeClass.__someVar;
                         });
-                    }).to.throwException(/access private/);*/
+                    }).to.throwException(/access private/);
 
-                    /*expect(function () {
+                    expect(function () {
                         var SomeClass = Class.create(function () {
                             return {
                                 $statics: {
@@ -2003,7 +2003,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return someClass.exec(function () {
                             return someClass._someVar;
                         });
-                    }).to.throwException(/access protected/);*/
+                    }).to.throwException(/access protected/);
 
                     expect(function () {
                         var SomeClass = Class.create(function () {
@@ -2055,7 +2055,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return someClass.exec(function () {
                             return SomeClass._someFunc;
                         });
-                    }).to.throwException(/access protected/);
+                    }).to.throwException(/access protected/);*/
 
                 });
 
