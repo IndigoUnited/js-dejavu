@@ -1,37 +1,61 @@
-# dejavu, a set of object-oriented tools for JavaScript #
+# dejavu, the OOP you've seen before for JS #
 
 ---
 
-Have you ever had the feeling that something is somewhat familiar? Thats the feeling you will have if you use this library.
-Prototypal inheritance is powerful and flexible, yet difficult to understand and to use on large projects.
-dejavu is a library that delivers classic inheritance on top of JavaScript prototypal inheritance.
+Have you ever had the feeling that you're seeing something you've already seen
+before? That's the feeling you get when using `dejavu`.
 
+If you are a developer coming from a language like PHP, Java, ActionScript 3.0,
+and others, it's likely that you are already familiar with Object Oriented
+Programming. However, JavaScript uses prototypal inheritance which, although
+powerful and flexible, can be difficult to understand, and specially to maintain
+in large projects. `dejavu` is a library that delivers classical inheritance on
+top of JavaScript prototypal inheritance, making it a breeze to move into
+JavaScript.
 
 
 ## Why another? ##
 
-There are some libraries around that are able to shim classical inheritance, though none of them offered all the functionality that I was looking for.
-Besides that, I was looking for something fast on top of [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD).
+There are some libraries out there able to shim classical inheritance,
+however none offers all the functionality that most programmers look for.
+
+Plus, performance and testing round-trips are really important for developers,
+which is why `dejavu` is built on top of
+[AMD](https://github.com/amdjs/amdjs-api/wiki/AMD).
 
 
 
 ## Features ##
 
-* Basic classical inheritance
+* Classical inheritance
 * Abstract classes
 * Interfaces
 * Mixins (so you can get some sort of multiple inheritance)
 * Private and protected members
 * Ability to declare true singletons via protected/private constructors
-* Context binding for functions (useful for functions that will be used as callbacks/handlers)
+* Context binding for functions (useful for functions that will be used as
+  callbacks/handlers)
 * Method signature checks
-* Custom instanceOf that also works with interfaces
-* Has two builds, one regular and one AMD based
-* Has two versions for each build, a strict one (to be used in development) and a loose one (to be used in production)
-* Classes and instances are locked, members cannot be changed or added (only applicable to some browsers, such as Chrome)
+* Custom instanceOf with support for Interfaces
+* Two builds, `regular` and `AMD` based
+    * `AMD` optimized for speeding up developer workflow, allowing testing
+      without the need to re-compile everything into a single file
+    * `regular` ideal if you want to deploy, with less files
+* Two modes for each build, `strict` and `loose`
+    * `strict` best in development, enforcing a lot of checks, making sure you
+      don't make many typical mistakes
+    * `loose` best for production, without checks, improving performance
+* Classes and instances are locked, members cannot be changed or added (only
+  applicable to some browsers, such as Chrome)
 
-Users are encouraged to declare 'use strict' while using the strict build otherwise some code can fail [silently](https://developer.mozilla.org/en/JavaScript/Strict_mode).
-This is because dejavu uses Object.freeze and/or Object.seal to lock classes and instances, guaranteeing that nobody changes the behaviour of your classes the wrong way (replacing methods, etc).
+Users are encouraged to declare
+['use strict'](https://developer.mozilla.org/en/JavaScript/Strict_mode) while
+using the strict build, otherwise some code might fail silently.
+
+This can happen because `dejavu` uses `Object.freeze` and `Object.seal` to lock
+classes and instances, guaranteeing that no one changes the behaviour of your
+classes by replacing methods, etc, and possibly breaking your code, making it 
+really hard to pin point what's wrong.
 
 
 
@@ -42,30 +66,53 @@ This is because dejavu uses Object.freeze and/or Object.seal to lock classes and
 * Safari (3+?)
 * Firefox (3.6+?)
 * Opera (9+?)
-* Node and Rhino
+* Node.js and Rhino
 
-Some features like private and protected members access management are only available in modern JavaScript engines (the ones that support Object.defineProperty).
-Still, the library provide fallbacks for those cases.
-The regular build is also compatible with CommonJS modules, so it works well with Node and Rhino.
+Even though only modern JavaScript engines support some features, like
+protected/private visibility through `Object.defineProperty`, `dejavu` provides
+fallback mechanisms that enforce these restrictions.
+
+Since the regular build is compatible with CommonJS modules, it works well with
+[Node.js](http://nodejs.org/) and
+[Rhino](https://developer.mozilla.org/en-US/docs/Rhino).
 
 
 
 ## Performance ##
 
-All kind of validations to ensure that your classes are well defined and obey all the common rules of classic inheritance degrade performance.
-That's why there is a __strict__ and a __loose__ version for each build.
+Since all those nice features and common rules of classic OOP degrade
+performance, `dejavu` has two separates builds, for different stages in the
+development.
 
-The strict version throws an error when something is not right and therefore is suitable for development.
-The loose build has no overhead associated with verifications and therefore is suitable for production.
-If your classes schema work in the strict version then is safe to use them in the loose version.
-The loose version also has lower memory footprint and less size in bytes.
+The `strict` build is suitable for __development__, and will do all sorts of
+checks, throwing an error when you try to do something considered illegal.
+**Note that if your class schema works in strict mode, it will also work in loose
+mode.**
 
-I've publish a new test revision on [jsperf](http://jsperf.com/oop-benchmark/52) comparing dejavu with other OOP libraries.
-The version running is the regular (loose build).
+As for the `loose` build, there is no overhead associated with checks, thus
+making it suitable for __production__, since it will be more efficient and 
+have a __lower memory footprint and filesize__.
+
+You can check a performance test in [jsperf](http://jsperf.com/oop-benchmark/52)
+comparing `dejavu` with other OOP libraries. Note that the regular version,
+in loose mode is used for this test.
 
 
 
-## Usage ##
+## Quick start ##
+
+The quickest way to start using `dejavu` in your project, is by simply including
+`dist/regular/strict/dejavu.js`.
+
+
+--------------- PUT EXAMPLES HERE ---------------
+
+
+This will make `dejavu` available for you in _strict_ mode. Remember to replace
+it with the _loose_ version before deploying. You can find it in
+`dist/regular/loose/dejavu.js`.
+
+If you're an [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD) fan, 
 
 All examples below use the AMD format.
 
