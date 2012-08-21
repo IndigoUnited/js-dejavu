@@ -56,7 +56,7 @@ performances, rivaling with vanilla JS in production.
 
 Users are encouraged to declare
 ['use strict'](https://developer.mozilla.org/en/JavaScript/Strict_mode) while
-using the strict build, otherwise some code might fail silently.
+using the `dejavu` strict mode, otherwise some code might fail silently.
 
 This can happen because `dejavu` uses `Object.freeze` and `Object.seal` to lock
 classes and instances, guaranteeing that no one changes the behaviour of your
