@@ -3,11 +3,11 @@
  *
  * @author André Cruz <andremiguelcruz@msn.com>
  */
-define(['dejavu/Class'], function (Class) {
+define(['dejavu'], function (dejavu) {
 
     'use strict';
 
-    return Class.declare({
+    return dejavu.Class.declare({
         __a: 4,
 
         run: function () {

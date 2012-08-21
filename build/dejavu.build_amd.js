@@ -9,9 +9,10 @@
     paths : {
         'amd-utils': '../vendor/amd-utils/src'
     },
-    /*pragmas: {
-        'strict': true
-    },*/
+    pragmas: {
+        'strict': true,
+        'regular': false
+    },
     optimize: 'none',
     uglify: {
         beautify: false,

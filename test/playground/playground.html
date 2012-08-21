@@ -8,9 +8,13 @@
             requirejs.config({
                 baseUrl: './',
                 paths: {
-                    'amd-utils': '../../vendor/amd-utils/src',
-                    'dejavu': '../../dist/amd/loose'
-                }
+                    'amd-utils': '../../vendor/amd-utils/src'
+                },
+                packages: ['dejavu', {
+                        location: '../../dist/amd/loose',
+                        name: 'dejavu'
+                    }
+                ]
             });
         </script>
     </head>

@@ -3,11 +3,11 @@
  *
  * @author André Cruz <andremiguelcruz@msn.com>
  */
-define(['./marcelo'], function (Marcelo) {
+define(['dejavu/Class', './marcelo'], function (Class, Marcelo) {
 
     'use strict';
 
-    return Marcelo.extend(function ($super) {
+    return Class.declare(Marcelo, function ($super) {
         return {
             _test: 2,
 
