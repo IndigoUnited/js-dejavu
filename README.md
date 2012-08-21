@@ -63,7 +63,7 @@ classes and instances, guaranteeing that no one changes the behaviour of your
 classes by replacing methods, etc, and possibly breaking your code, making it 
 really hard to pin point what's wrong.
 
-** Do not confuse 'use strict' with the dejavu strict mode. **
+**Do not confuse 'use strict' with the dejavu strict mode.**
 
 
 ## Works on ##
@@ -178,7 +178,7 @@ development.
 The `strict` build is suitable for __development__, and will do all sorts of
 checks, throwing an error when you try to do something considered illegal.
 
-** Note that if your project works in strict mode, it will work in loose mode **
+**Note that if your project works in strict mode, it will work in loose mode.**
 
 As for the `loose` build, there is no overhead associated with checks, thus
 making it suitable for __production__, since it will be more efficient and 
