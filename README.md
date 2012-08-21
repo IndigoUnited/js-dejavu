@@ -94,10 +94,15 @@ If you're developing a __client-side__ app, simply put the file in some folder,
 and include it in the HTML:
 
 ```HTML
+<!DOCTYPE html>
 <html>
-<body>
-    <script>
-        window.onload = function () {
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script type="text/javascript" src="dejavu.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            'use strict';
 
             // declare the "Person" class
             var Person = dejavu.Class.declare({
@@ -121,12 +126,8 @@ and include it in the HTML:
             // create a new instance of person
             var indigo = new Person("Marco");
             console.log("A new indigo was born,", indigo.getName());
-
-        }
-    </script>
-
-    <script type="text/javascript" src="dejavu.js"></script>
-</body>
+        </script>
+    </body>
 </html>
 ```
 
