@@ -85,7 +85,7 @@ Since the regular build is compatible with CommonJS modules, it works well with
 
 
 
-## Quick start ##
+## Getting started ##
 
 The quickest way to start using `dejavu` in your project, is by simply including
 `dist/regular/strict/dejavu.js` (note that this is in __strict__ mode).
