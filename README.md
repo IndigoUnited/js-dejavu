@@ -184,9 +184,17 @@ As for the `loose` mode, there is no overhead associated with checks, thus
 making it suitable for __production__, since it will be more efficient and 
 have a __lower memory footprint and filesize__.
 
+Finally, in order to achieve that extra edge, that puts `dejavu` next to vanilla
+JS in terms of performance, you should run the optimizer that is bundled with
+the library. Note that this step is completely optional, and `dejavu` will still
+perform faster than the other libraries in most browsers, even if you don't run
+the optimizer. The optimizer will analyse your code, and make some improvements
+boosting it a bit further.
+
 You can check the benchmarks in [jsperf](http://jsperf.com/oop-benchmark/54)
 comparing `dejavu` with other OOP libraries. Note that the loose regular version
-is used in this test, simulating a production environment.
+is used in this test, simulating a production environment, and both the normal
+and optimized versions are tested.
 
 
 
