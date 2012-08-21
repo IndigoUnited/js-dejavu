@@ -172,15 +172,15 @@ is exactly supported.
 ## Performance ##
 
 Since all those nice features and common rules of classic OOP degrade
-performance, `dejavu` has two separates builds, for different stages in the
+performance, `dejavu` has two separates modes, for different stages in the
 development.
 
-The `strict` build is suitable for __development__, and will do all sorts of
+The `strict` mode is suitable for __development__, and will do all sorts of
 checks, throwing an error when you try to do something considered illegal.
 
 **Note that if your project works in strict mode, it will work in loose mode.**
 
-As for the `loose` build, there is no overhead associated with checks, thus
+As for the `loose` mode, there is no overhead associated with checks, thus
 making it suitable for __production__, since it will be more efficient and 
 have a __lower memory footprint and filesize__.
 
