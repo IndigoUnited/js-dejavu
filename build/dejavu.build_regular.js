@@ -7,19 +7,24 @@
     baseUrl: '.',
     dir : '../tmp',
     paths : {
-        'amd-utils': '../vendor/amd-utils/src'
+        'amd-utils': '../vendor/amd-utils/src',
+        'almond': '../vendor/almond/almond'
     },
-    /*pragmas: {
-        'strict': true
-    },*/
+    pragmas: {
+        'strict': true,
+        'regular': true
+    },
     optimize: 'none',
     uglify: {
         beautify: false,
         unsafe : true
     },
-    wrap: true,
+    wrap: {
+        start: "(function() {",
+        end: "\nrequire('dejavu', null, null, true);\n\n}());"
+    },
     modules: [{
         name: 'dejavu',
-        include: ['../vendor/almond/almond.js']
+        include: ['almond']
     }]
 })

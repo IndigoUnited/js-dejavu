@@ -1,4 +1,4 @@
-(function () {
+(function() {
 /**
  * almond 0.1.2 Copyright (c) 2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
@@ -330,7 +330,7 @@ var requirejs, require, define;
     };
 }());
 
-define("../vendor/almond/almond.js", function(){});
+define("almond", function(){});
 
 define('amd-utils/lang/kindOf',[],function () {
 
@@ -4278,7 +4278,7 @@ define('dejavu',[
     './AbstractClass',
     './Interface',
     './FinalClass',
-    'instanceOf'
+    './instanceOf'
 ], function (
     isFunction,
     Class,
@@ -4312,7 +4312,8 @@ define('dejavu',[
     if (isFunction(Object.freeze)) {
         Object.freeze(dejavu);
     }
-
 });
 
-require('dejavu');}());
+require('dejavu', null, null, true);
+
+}());
