@@ -134,13 +134,13 @@ having to keep closer attention to what you need exactly.
 
 The AMD approach is usually more useful for your own code, since you don't have
 to keep building your project into a monolithic file, after editing a single
-line in one of the dozens of files that composes the project, thus speeding up
+line in one of the dozens of files that compose the project, thus speeding up
 testing round trips.
 
 
 Still, if you really want to have a full-blown AMD set up, and by this you mean
 having not only your code using an AMD philosophy, but also `dejavu` code, these
-are the modules you can include (assuming you're developing in __strict__ mode):
+are the modules you can include:
 
 * Interface
 * AbstractClass
@@ -163,10 +163,10 @@ function (Human, TalkInterface, Class) {
         $implements: [TalkInterface],
 
         /**
-         * Class constructor.
+         * class constructor.
          */
         initialize: function (name) {
-            // Call super
+            // call super
             this.$super(name);
 
             // greet the universe
