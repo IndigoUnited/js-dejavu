@@ -3170,9 +3170,9 @@ define('Class',[
         // Assign aliases
         obfuscateProperty(dejavu.prototype, '$static', dejavu);
         obfuscateProperty(dejavu, '$static', dejavu);
-        obfuscateProperty(dejavu, '$self', dejavu, true);
-        obfuscateProperty(dejavu, '$bind', anonymousBindStatic);
+        obfuscateProperty(dejavu, '$self', null, true);
         obfuscateProperty(dejavu, '$super', null, true);
+        obfuscateProperty(dejavu, '$bind', anonymousBindStatic);
         if (!dejavu.$parent) {
             obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
         }
