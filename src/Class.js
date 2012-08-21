@@ -208,7 +208,7 @@ define([
             };
         }
 
-        obfuscateProperty(wrapper, $wrapped, method);
+        wrapper[$wrapped] = method;
 
         return wrapper;
     }
@@ -1657,7 +1657,7 @@ define([
         obfuscateProperty(Instance, $class, { methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, interfaces: [], binds: [] });
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-        obfuscateProperty(Instance, $class, { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] });
+        Instance[$class] = { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] };
 //>>excludeEnd('strict');
 
         return Instance;
@@ -1907,7 +1907,8 @@ define([
 
 //>>excludeStart('strict', pragmas.strict);
         var dejavu,
-            parent;
+            parent,
+            isEfficient = !!constructor;
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
         var dejavu,
@@ -1992,7 +1993,7 @@ define([
             }
 
             dejavu = constructor || createConstructor();
-            obfuscateProperty(dejavu, '$parent', parent);
+            dejavu.$parent = parent;
             dejavu.prototype = createObject(parent.prototype);
 //>>excludeEnd('strict');
 
@@ -2011,7 +2012,7 @@ define([
         }
 
 //>>excludeStart('strict', pragmas.strict);
-        dejavu[$class].efficient = !!constructor;
+        dejavu[$class].efficient = isEfficient;
 //>>excludeEnd('strict');
         delete params._initialize;
         delete params.__initialize;
@@ -2041,20 +2042,29 @@ define([
         dejavu = optimizeConstructor(dejavu);
 
 //>>excludeEnd('strict');
+//>>includeStart('strict', pragmas.strict);
         // Assign aliases
         obfuscateProperty(dejavu.prototype, '$static', dejavu);
         obfuscateProperty(dejavu, '$static', dejavu);
-        obfuscateProperty(dejavu, '$self', dejavu, true);
-//>>includeStart('strict', pragmas.strict);
-        obfuscateProperty(dejavu, '$bind', anonymousBindStatic);
+        obfuscateProperty(dejavu, '$self', null, true);
         obfuscateProperty(dejavu, '$super', null, true);
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
-        obfuscateProperty(dejavu, '$bind', anonymousBind);
-//>>excludeEnd('strict');
+        obfuscateProperty(dejavu, '$bind', anonymousBindStatic);
         if (!dejavu.$parent) {
             obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
         }
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+        // Assign aliases
+        dejavu.prototype.$static = dejavu.$static = dejavu;
+        if (!isEfficient) {
+            dejavu.$super = null;
+            dejavu.$self = null;
+        }
+        dejavu.$bind = anonymousBind;
+        if (!dejavu.$parent) {
+            dejavu.prototype.$bind = anonymousBind;
+        }
+//>>excludeEnd('strict');
 
 //>>includeStart('strict', pragmas.strict);
         // Add toString() if not defined yet

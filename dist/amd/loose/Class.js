@@ -135,7 +135,7 @@ define([
             };
         }
 
-        obfuscateProperty(wrapper, $wrapped, method);
+        wrapper[$wrapped] = method;
 
         return wrapper;
     }
@@ -418,7 +418,7 @@ define([
             this.initialize.apply(this, arguments);
         };
 
-        obfuscateProperty(Instance, $class, { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] });
+        Instance[$class] = { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] };
 
         return Instance;
     }
@@ -544,7 +544,8 @@ define([
     createClass = function (params, constructor, isAbstract) {
 
         var dejavu,
-            parent;
+            parent,
+            isEfficient = !!constructor;
 
         if (hasOwn(params, '$extends')) {
             parent = params.$extends;
@@ -556,7 +557,7 @@ define([
             }
 
             dejavu = constructor || createConstructor();
-            obfuscateProperty(dejavu, '$parent', parent);
+            dejavu.$parent = parent;
             dejavu.prototype = createObject(parent.prototype);
 
             inheritParent(dejavu, parent);
@@ -566,7 +567,7 @@ define([
             dejavu.prototype = params;
         }
 
-        dejavu[$class].efficient = !!constructor;
+        dejavu[$class].efficient = isEfficient;
         delete params._initialize;
         delete params.__initialize;
 
@@ -580,12 +581,14 @@ define([
         dejavu = optimizeConstructor(dejavu);
 
         // Assign aliases
-        obfuscateProperty(dejavu.prototype, '$static', dejavu);
-        obfuscateProperty(dejavu, '$static', dejavu);
-        obfuscateProperty(dejavu, '$self', dejavu, true);
-        obfuscateProperty(dejavu, '$bind', anonymousBind);
+        dejavu.prototype.$static = dejavu.$static = dejavu;
+        if (!isEfficient) {
+            dejavu.$super = null;
+            dejavu.$self = null;
+        }
+        dejavu.$bind = anonymousBind;
         if (!dejavu.$parent) {
-            obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
+            dejavu.prototype.$bind = anonymousBind;
         }
 
         // Handle interfaces
