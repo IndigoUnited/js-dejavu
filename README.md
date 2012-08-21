@@ -102,20 +102,89 @@ in loose mode is used for this test.
 ## Quick start ##
 
 The quickest way to start using `dejavu` in your project, is by simply including
-`dist/regular/strict/dejavu.js`.
+`dist/regular/strict/dejavu.js` (note that this is in __strict__ mode).
 
+If you're developing in __client-side__, simply put the file in some folder, and
+include it in the HTML:
 
---------------- PUT EXAMPLES HERE ---------------
+```HTML
+<script type="text/javascript" src="path/to/dejavu.js"></script>
+```
 
+If you're developing in __Node.js__, put the `dejavu.js` somewhere, and require
+it:
 
-This will make `dejavu` available for you in _strict_ mode. Remember to replace
-it with the _loose_ version before deploying. You can find it in
+```js
+// in this case, dejavu.js is in the root folder of the project
+var dejavu = require('./dejavu');
+```
+
+This will make a `dejavu` global available for you. Remember to replace it with
+the _loose_ version before deploying. You can find it in
 `dist/regular/loose/dejavu.js`.
 
-If you're an [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD) fan, 
+## Taking it to another level
 
-All examples below use the AMD format.
+If you're an [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD) fan, and just
+want to require specific parts of `dejavu`, you can do so.
 
+Please note that this is only useful if you're developing something that
+absolutely can't live with those extra bytes, and it will be at the expense of
+having to keep closer attention to what you need exactly.
+
+The AMD approach is usually more useful for your own code, since you don't have
+to keep building your project into a monolithic file, after editing a single
+line in one of the dozens of files that composes the project, thus speeding up
+testing round trips.
+
+
+Still, if you really want to have a full-blown AMD set up, and by this you mean
+having not only your code using an AMD philosophy, but also `dejavu` code, these
+are the modules you can include (assuming you're developing in __strict__ mode):
+
+* Interface
+* AbstractClass
+* Class
+* FinalClass
+* instanceOf
+
+Here's an example requiring `dejavu` selectively, using an AMD approach:
+
+```js
+define([
+    'path/to/Human',
+    'path/to/TalkInterface',
+    'path/to/dejavu/Class'
+],
+function (Human, TalkInterface, Class) {
+
+    var Person = Class.declare({
+        $extends: Human,
+        $implements: [TalkInterface],
+
+        /**
+         * Class constructor.
+         */
+        initialize: function (name) {
+            // Call super
+            this.$super(name);
+
+            // greet the universe
+            this._say("Hi universe! I'm " + this.name);
+        },
+
+        _say: function (message) {
+            // implementation
+        },
+
+    });
+
+    return Person;
+});
+```
+
+As you can see, in this case, only the `Class` module of `dejavu` is included,
+which means all the other modules are not loaded.
 
 
 ### Interface definition ###
