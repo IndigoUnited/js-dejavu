@@ -14,6 +14,7 @@ top of JavaScript prototypal inheritance, making it a breeze to move into
 JavaScript.
 
 
+
 ## Why another? ##
 
 There are some libraries out there able to shim classical inheritance,
@@ -78,6 +79,85 @@ Since the regular build is compatible with CommonJS modules, it works well with
 
 
 
+## Quick start ##
+
+The quickest way to start using `dejavu` in your project, is by simply including
+`dist/regular/strict/dejavu.js` (note that this is in __strict__ mode).
+
+If you're developing a __client-side__ app, simply put the file in some folder,
+and include it in the HTML:
+
+```HTML
+<html>
+<body>
+    <script>
+        window.onload = function () {
+            var Person = dejavu.Class.declare({
+                _name: null,
+
+                initialize: function(name) {
+                    this.setName(name);
+                },
+
+                setName: function(name) {
+                    this._name = name;
+
+                    return this;
+                },
+
+                getName: function() {
+                    return this._name;
+                }
+            });
+
+            var indigo = new Person("Marco");
+
+            console.log("A new indigo was born,", indigo.getName());
+        }
+    </script>
+
+    <script type="text/javascript" src="dejavu.js"></script>
+</body>
+</html>
+```
+
+If you're developing in __Node.js__, put `dejavu.js` somewhere, and require it:
+
+```js
+// in this case, dejavu.js is in the root folder of the project
+var dejavu = require('./dejavu');
+
+// declare the "Person" class
+var Person = dejavu.Class.declare({
+    _name: null,
+
+    initialize: function(name) {
+        this.setName(name);
+    },
+
+    setName: function(name) {
+        this._name = name;
+
+        return this;
+    },
+
+    getName: function() {
+        return this._name;
+    }
+});
+
+// create a new instance of person
+var indigo = new Person("Marco");
+
+console.log("A new indigo was born,", indigo.getName());
+```
+
+This will make a `dejavu` global available for you. Remember to replace it with
+the _loose_ version before deploying. You can find it in
+`dist/regular/loose/dejavu.js`.
+
+
+
 ## Performance ##
 
 Since all those nice features and common rules of classic OOP degrade
@@ -86,6 +166,7 @@ development.
 
 The `strict` build is suitable for __development__, and will do all sorts of
 checks, throwing an error when you try to do something considered illegal.
+
 **Note that if your class schema works in strict mode, it will also work in loose
 mode.**
 
@@ -95,33 +176,10 @@ have a __lower memory footprint and filesize__.
 
 You can check a performance test in [jsperf](http://jsperf.com/oop-benchmark/54)
 comparing `dejavu` with other OOP libraries. Note that the regular version,
-in loose mode is used for this test.
+in loose mode is used in this test, simulating a production environment.
 
 
 
-## Quick start ##
-
-The quickest way to start using `dejavu` in your project, is by simply including
-`dist/regular/strict/dejavu.js` (note that this is in __strict__ mode).
-
-If you're developing in __client-side__, simply put the file in some folder, and
-include it in the HTML:
-
-```HTML
-<script type="text/javascript" src="path/to/dejavu.js"></script>
-```
-
-If you're developing in __Node.js__, put the `dejavu.js` somewhere, and require
-it:
-
-```js
-// in this case, dejavu.js is in the root folder of the project
-var dejavu = require('./dejavu');
-```
-
-This will make a `dejavu` global available for you. Remember to replace it with
-the _loose_ version before deploying. You can find it in
-`dist/regular/loose/dejavu.js`.
 
 ## Taking it to another level
 
