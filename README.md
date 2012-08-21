@@ -1,4 +1,4 @@
-# dejavu, the OOP you've seen before for JS #
+# dejavu, make the leap into JavaScript #
 
 ---
 
