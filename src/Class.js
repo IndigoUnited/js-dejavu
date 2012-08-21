@@ -2129,7 +2129,7 @@ define([
             if (isFunction(arg2)) {
                 constructor = createConstructor();
 //>>excludeStart('strict', pragmas.strict);
-                constructor.$funcNrArgs = arg2.length;
+                //constructor.$funcNrArgs = arg2.length;
 //>>excludeEnd('strict');
                 params = arg2(arg1.prototype, constructor, arg1);
             // create(parentClass, props)

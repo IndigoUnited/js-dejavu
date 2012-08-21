@@ -631,7 +631,7 @@ define([
             // create(parentClass, func)
             if (isFunction(arg2)) {
                 constructor = createConstructor();
-                constructor.$funcNrArgs = arg2.length;
+                //constructor.$funcNrArgs = arg2.length;
                 params = arg2(arg1.prototype, constructor, arg1);
             // create(parentClass, props)
             } else {
