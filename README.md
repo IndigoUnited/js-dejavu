@@ -1,4 +1,4 @@
-# dejavu, make the leap into JavaScript #
+# dejavu #
 
 ---
 
@@ -9,20 +9,23 @@ If you are a developer coming from a language like PHP, Java, ActionScript 3.0,
 and others, it's likely that you are already familiar with Object Oriented
 Programming. However, JavaScript uses prototypal inheritance which, although
 powerful and flexible, can be difficult to understand, and specially to maintain
-in large projects. `dejavu` is a library that delivers classical inheritance on
-top of JavaScript prototypal inheritance, making it a breeze to move into
-JavaScript.
+in large projects.
+
+`dejavu` is a library that delivers classical inheritance on top of JavaScript
+prototypal inheritance, making it a breeze to move into JavaScript.
 
 
 
 ## Why another? ##
 
 There are some libraries out there able to shim classical inheritance,
-however none offers all the functionality that most programmers look for.
+however none offers all the functionality that many programmers require.
 
 Plus, performance and testing round-trips are really important for developers,
 which is why `dejavu` is built on top of
-[AMD](https://github.com/amdjs/amdjs-api/wiki/AMD).
+[AMD](https://github.com/amdjs/amdjs-api/wiki/AMD). Also, even though being one
+of the most feature rich OOP libraries out there, it has one of the best
+performances, rivaling with vanilla JS in production.
 
 
 
@@ -33,6 +36,8 @@ which is why `dejavu` is built on top of
 * Interfaces
 * Mixins (so you can get some sort of multiple inheritance)
 * Private and protected members
+* Static members
+* Constants
 * Ability to declare true singletons via protected/private constructors
 * Context binding for functions (useful for functions that will be used as
   callbacks/handlers)
@@ -58,6 +63,7 @@ classes and instances, guaranteeing that no one changes the behaviour of your
 classes by replacing methods, etc, and possibly breaking your code, making it 
 really hard to pin point what's wrong.
 
+** Do not confuse 'use strict' with the dejavu strict mode. **
 
 
 ## Works on ##
@@ -92,6 +98,8 @@ and include it in the HTML:
 <body>
     <script>
         window.onload = function () {
+
+            // declare the "Person" class
             var Person = dejavu.Class.declare({
                 _name: null,
 
@@ -110,9 +118,10 @@ and include it in the HTML:
                 }
             });
 
+            // create a new instance of person
             var indigo = new Person("Marco");
-
             console.log("A new indigo was born,", indigo.getName());
+
         }
     </script>
 
@@ -148,13 +157,15 @@ var Person = dejavu.Class.declare({
 
 // create a new instance of person
 var indigo = new Person("Marco");
-
 console.log("A new indigo was born,", indigo.getName());
 ```
 
 This will make a `dejavu` global available for you. Remember to replace it with
 the _loose_ version before deploying. You can find it in
 `dist/regular/loose/dejavu.js`.
+
+Read further in order to check the syntax of `dejavu`, and also to check what
+is exactly supported.
 
 
 
@@ -167,17 +178,15 @@ development.
 The `strict` build is suitable for __development__, and will do all sorts of
 checks, throwing an error when you try to do something considered illegal.
 
-**Note that if your class schema works in strict mode, it will also work in loose
-mode.**
+** Note that if your project works in strict mode, it will work in loose mode **
 
 As for the `loose` build, there is no overhead associated with checks, thus
 making it suitable for __production__, since it will be more efficient and 
 have a __lower memory footprint and filesize__.
 
-You can check a performance test in [jsperf](http://jsperf.com/oop-benchmark/54)
-comparing `dejavu` with other OOP libraries. Note that the regular version,
-in loose mode is used in this test, simulating a production environment.
-
+You can check the benchmarks in [jsperf](http://jsperf.com/oop-benchmark/54)
+comparing `dejavu` with other OOP libraries. Note that the loose regular version
+is used in this test, simulating a production environment.
 
 
 
@@ -193,8 +202,7 @@ having to keep closer attention to what you need exactly.
 The AMD approach is usually more useful for your own code, since you don't have
 to keep building your project into a monolithic file, after editing a single
 line in one of the dozens of files that compose the project, thus speeding up
-testing round trips.
-
+testing round-trips.
 
 Still, if you really want to have a full-blown AMD set up, and by this you mean
 having not only your code using an AMD philosophy, but also `dejavu` code, these
@@ -244,6 +252,12 @@ function (Human, TalkInterface, Class) {
 As you can see, in this case, only the `Class` module of `dejavu` is included,
 which means all the other modules are not loaded.
 
+You can find these modules in `dist/amd/strict`, for strict mode, and
+`dist/amd/loose`, for loose mode.
+
+
+
+## Syntax
 
 ### Interface definition ###
 
