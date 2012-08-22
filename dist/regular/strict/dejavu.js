@@ -3031,10 +3031,10 @@ define('Class',[
      *
      * @return {Function} The new class constructor
      */
-    function extend(params) {
+    function extend(params, $arg) {
         /*jshint validthis:true*/
 
-        return Class.declare(this, params);
+        return Class.declare(this, params, $arg);
     }
 
     /**
@@ -3221,13 +3221,13 @@ define('Class',[
      *
      * @return {Function} The constructor
      */
-    Class.declare = function (arg1, arg2) {
+    Class.declare = function (arg1, arg2, $arg3) {
 
         var params,
             callable = isFunction(this) ? this : createClass,
             constructor;
 
-        if (arg1 && arg2) {
+        if (arg1 && arg2 && arg2 !== true) {
             if (!isFunction(arg1) || !arg1[$class]) {
                 throw new Error('Expected first argument to be a class.');
             }
@@ -3244,7 +3244,6 @@ define('Class',[
             if (params.$extends) {
                 throw new Error('Object cannot contain an $extends property.');
             }
-
 
             params.$extends = arg1;
         // create(func)
@@ -3694,8 +3693,8 @@ define('AbstractClass',[
      *
      * @return {Function} The constructor
      */
-    AbstractClass.declare = function (arg1, arg2) {
-        return Class.declare.call(createAbstractClass, arg1, arg2);
+    AbstractClass.declare = function (arg1, arg2, $arg3) {
+        return Class.declare.call(createAbstractClass, arg1, arg2, $arg3);
     };
 
     return AbstractClass;
@@ -4181,8 +4180,8 @@ define('FinalClass',[
      *
      * @return {Function} The constructor
      */
-    FinalClass.declare = function (arg1, arg2) {
-        return Class.declare.call(createFinalClass, arg1, arg2);
+    FinalClass.declare = function (arg1, arg2, $arg3) {
+        return Class.declare.call(createFinalClass, arg1, arg2, $arg3);
     };
 
     return FinalClass;

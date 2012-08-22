@@ -221,7 +221,6 @@ function optimize(objStr, directive, parent) {
         buffer += '}; ';
     }
 
-    buffer += '}';
 
     // Final optimization
     if (efficient) {
@@ -230,6 +229,10 @@ function optimize(objStr, directive, parent) {
         } else {
             buffer = buffer.replace('function ($self) {', 'function () {');
         }
+
+        buffer += '}, true';
+    } else {
+        buffer += '}';
     }
 
     process.stdout.write(buffer);

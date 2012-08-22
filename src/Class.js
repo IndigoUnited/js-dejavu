@@ -1839,15 +1839,15 @@ define([
     function optimizeConstructor(constructor) {
 
         var tmp = constructor[$class],
-            nrArgs,
+            canOptimizeConst,
             newConstructor;
 
         // Check if we can optimize the constructor
         if (tmp.efficient) {
-            nrArgs = constructor.$funcNrArgs;
-            delete constructor.$funcNrArgs;
+            canOptimizeConst = constructor.$canOptimizeConst;
+            delete constructor.$canOptimizeConst;
 
-            if (!tmp.properties.length && !tmp.binds.length && nrArgs === (constructor.$parent ? 1 : 0)) {
+            if (!tmp.properties.length && !tmp.binds.length && canOptimizeConst) {
                 newConstructor = constructor.prototype.initialize;
                 mixIn(newConstructor, constructor);
                 newConstructor.prototype = constructor.prototype;
@@ -1868,10 +1868,10 @@ define([
      *
      * @return {Function} The new class constructor
      */
-    function extend(params) {
+    function extend(params, $arg) {
         /*jshint validthis:true*/
 
-        return Class.declare(this, params);
+        return Class.declare(this, params, $arg);
     }
 
 //>>includeStart('strict', pragmas.strict);
@@ -2114,22 +2114,24 @@ define([
      *
      * @return {Function} The constructor
      */
-    Class.declare = function (arg1, arg2) {
+    Class.declare = function (arg1, arg2, $arg3) {
 
         var params,
             callable = isFunction(this) ? this : createClass,
             constructor;
 
-        if (arg1 && arg2) {
+        if (arg1 && arg2 && arg2 !== true) {
+//>>includeStart('strict', pragmas.strict);
             if (!isFunction(arg1) || !arg1[$class]) {
                 throw new Error('Expected first argument to be a class.');
             }
 
+//>>includeEnd('strict');
             // create(parentClass, func)
             if (isFunction(arg2)) {
                 constructor = createConstructor();
 //>>excludeStart('strict', pragmas.strict);
-                //constructor.$funcNrArgs = arg2.length;
+                constructor.$canOptimizeConst = !!$arg3;
 //>>excludeEnd('strict');
                 params = arg2(arg1.prototype, constructor, arg1);
             // create(parentClass, props)
@@ -2143,13 +2145,12 @@ define([
             }
 
 //>>includeEnd('strict');
-
             params.$extends = arg1;
         // create(func)
         } else if (isFunction(arg1)) {
             constructor = createConstructor();
 //>>excludeStart('strict', pragmas.strict);
-            constructor.$funcNrArgs = arg1.length;
+            constructor.$canOptimizeConst = !!arg2;
 //>>excludeEnd('strict');
             params = arg1(constructor);
         // create (props)
