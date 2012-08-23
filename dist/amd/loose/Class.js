@@ -506,7 +506,7 @@ define([
             canOptimizeConst = constructor.$canOptimizeConst;
             delete constructor.$canOptimizeConst;
 
-            if (!tmp.properties.length && !tmp.binds.length && canOptimizeConst) {
+            if (canOptimizeConst && !tmp.properties.length && !tmp.binds.length) {
                 newConstructor = constructor.prototype.initialize;
                 mixIn(newConstructor, constructor);
                 newConstructor.prototype = constructor.prototype;
