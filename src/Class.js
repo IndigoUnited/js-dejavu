@@ -1851,7 +1851,6 @@ define([
                 newConstructor = constructor.prototype.initialize;
                 mixIn(newConstructor, constructor);
                 newConstructor.prototype = constructor.prototype;
-                newConstructor[$class] = tmp;
 
                 return newConstructor;
             }
