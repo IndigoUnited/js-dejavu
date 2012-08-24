@@ -16,7 +16,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
         describe('Instantiation of a simple Class', function () {
 
-            var SomeClass = Class.declare(function () { return {}; }),
+            var SomeClass = Class.declare(function () { return {}; }, true),
                 Example = Class.declare(function () {
                     return {
                         some: 'property',
@@ -71,7 +71,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             staticSome: 'property'
                         }
                     };
-                }),
+                }, true),
                 example = new Example(),
                 example2 = new Example();
 
@@ -200,17 +200,17 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         this.status = 'alive';
                     }
                 };
-            }),
+            }, true),
                 Andre = Class.declare(Person, function ($super) {
                     return {
                         $name: 'André'
                     };
-                }),
+                }, true),
                 SuperAndre = Class.declare(Andre, function ($super) {
                     return {
                         $name: 'SuperAndre'
                     };
-                }),
+                }, true),
                 PersonAbstract = AbstractClass.declare(function () {
                     return {
                         status: null,
@@ -218,17 +218,17 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             this.status = 'alive';
                         }
                     };
-                }),
+                }, true),
                 AndreAbstract = AbstractClass.declare(PersonAbstract, function ($super) {
                     return {
                         $name: 'André'
                     };
-                }),
+                }, true),
                 SuperAndre2 = Class.declare(AndreAbstract, function ($super) {
                     return {
                         $name: 'SuperAndre'
                     };
-                }),
+                }, true),
                 ProtectedPerson = Class.declare(function () {
                     return {
                         status: null,
@@ -236,29 +236,29 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             this.status = 'alive';
                         }
                     };
-                }),
+                }, true),
                 PrivatePerson = Class.declare(function () {
                     return {
                         __initialize: function () {}
                     };
-                }),
+                }, true),
                 FreakPerson = Class.declare(function () {
                     return {
                         $extends: ProtectedPerson
                     };
-                }),
+                }, true),
                 NerdPerson = Class.declare(function () {
                     return {
                         $extends: PrivatePerson
                     };
-                }),
+                }, true),
                 ComplexProtectedPerson = ProtectedPerson.extend(function ($super) {
                     return {
                         initialize: function () {
                             $super.initialize.call(this);
                         }
                     };
-                });
+                }, true);
 
             it('should invoke the parent constructor automatically if no constructor was defined', function () {
 
@@ -335,7 +335,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         }
                     }
                 };
-            }),
+            }, true),
                 OtherClass = Class.declare(SomeClass, function ($super, $self, $parent) {
                     return {
                         _lastName: null,
@@ -462,7 +462,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         }
                     }
                 };
-            }),
+            }, true),
                 OtherClass = Class.declare(SomeClass, function ($super) {
                     return {
                         initialize: function () {
@@ -478,7 +478,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         }
                     };
-                });
+                }, true);
 
             it('should give access the static layer of itself (using late binding)', function () {
 
@@ -554,7 +554,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         }
                     }
                 };
-            });
+            }, true);
 
             cat = new Cat();
 
@@ -621,7 +621,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         $implements: [Interface.declare({ method1: function () {}})],
                         method1: function () {}
                     };
-                }),
+                }, true),
                     someImplementation = new SomeImplementation();
 
                 return expect(someImplementation.$implements).to.be.equal(undefined);
@@ -633,12 +633,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             it('should not have the $abstracts property', function () {
 
-                var tmp = AbstractClass.declare(function () { return { $abstracts: { method1: function () {} }}; }),
+                var tmp = AbstractClass.declare(function () { return { $abstracts: { method1: function () {} }}; }, true),
                     SomeImplementation = Class.declare(tmp, function ($super) {
                         return {
                             method1: function () {}
                         };
-                    }),
+                    }, true),
                     someImplementation = new SomeImplementation();
 
                 return expect(someImplementation.$abstracts).to.be.equal(undefined);
@@ -653,23 +653,23 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 it('should throw an error', function () {
 
                     expect(function () {
-                        var tmp = FinalClass.declare(function () { return {}; });
+                        var tmp = FinalClass.declare(function () { return {}; }, true);
 
                         return Class.declare(function () {
                             return {
                                 $extends: tmp
                             };
-                        });
+                        }, true);
                     }).to.throwException(/cannot inherit from final/);
 
                     expect(function () {
-                        var tmp = FinalClass.declare(function () { return {}; });
+                        var tmp = FinalClass.declare(function () { return {}; }, true);
 
                         return AbstractClass.declare(function () {
                             return {
                                 $extends: tmp
                             };
-                        });
+                        }, true);
                     }).to.throwException(/cannot inherit from final/);
                 });
 
@@ -688,37 +688,37 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         $name: 'SomeClass',
                         $implements: SomeInterface
                     };
-                }),
+                }, true),
                 OtherClass = Class.declare(function () {
                     return {
                         $name: 'OtherClass',
                         $extends: SomeClass
                     };
-                }),
+                }, true),
                 SomeOtherClass = Class.declare(SomeClass, function ($super) {
                     return {
                         $name: 'SomeOtherClass',
                         $implements: SomeInterface
                     };
-                }),
+                }, true),
                 SomeAbstractClass = AbstractClass.declare(function () {
                     return {
                         $name: 'SomeAbstractClass',
                         $implements: SomeInterface
                     };
-                }),
+                }, true),
                 OtherAbstractClass = AbstractClass.declare(function () {
                     return {
                         $name: 'OtherAbstractClass',
                         $extends: SomeAbstractClass
                     };
-                }),
+                }, true),
                 SomeOtherAbstractClass = Class.declare(SomeAbstractClass, function ($super) {
                     return {
                         $name: 'SomeOtherAbstractClass',
                         $implements: SomeInterface
                     };
-                });
+                }, true);
 
             it('should inherit the interface constants', function () {
 
@@ -740,7 +740,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     return {
                         method1: function () {}
                     };
-                });
+                }, true);
 
                 (function () {
                     var SomeImplementation = Class.declare(function () {
@@ -758,7 +758,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    }),
+                    }, true),
                         OtherImplementation = Class.declare(function () {
                             return {
                                 $borrows: [Class.declare({
@@ -767,7 +767,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     some: 'property'
                                 }), { method3: function () {} }]
                             };
-                        }),
+                        }, true),
                         EvenOtherImplementation = Class.declare(function () {
                             return {
                                 $borrows: Class.declare({
@@ -776,7 +776,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     some: 'property'
                                 })
                             };
-                        }),
+                        }, true),
                         someImplementation = new SomeImplementation(),
                         otherImplementation = new OtherImplementation(),
                         evenOtherImplementation = new EvenOtherImplementation();
@@ -827,7 +827,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 return this._some;
                             }
                         };
-                    }),
+                    }, true),
                         someImplementation = new SomeImplementation();
 
 
@@ -855,7 +855,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 return this.__some;
                             }
                         };
-                    }),
+                    }, true),
                         someImplementation = new SomeImplementation();
 
 
@@ -866,17 +866,17 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }());
 
                 expect(function () {
-                    var SomeClass = Class.declare(function () { return {}; }),
+                    var SomeClass = Class.declare(function () { return {}; }, true),
                         Common1 = Class.declare(SomeClass, function ($super) {
                             return {
                                 $borrows: CommonMixin
                             };
-                        }),
+                        }, true),
                         Common2 = Class.declare(SomeClass, function ($super) {
                             return {
                                 $borrows: CommonMixin
                             };
-                        }),
+                        }, true),
                         common1 = new Common1(),
                         common2  = new Common2();
                 }).to.not.throwException();
@@ -887,12 +887,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             _protectedProp: 'foo',
                             _privateProp: 'bar'
                         };
-                    }),
+                    }, true),
                         Common1 = Class.declare(function () {
                             return {
                                 $extends: SomeClass
                             };
-                        }),
+                        }, true),
                         Common2 = Class.declare(SomeClass, function ($super) {
                             return {
                                 accessProtected: function (inst) {
@@ -902,7 +902,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     return inst._protectedProp;
                                 }
                             };
-                        }),
+                        }, true),
                         common1 = new Common1(),
                         common2  = new Common2();
 
@@ -920,7 +920,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             staticMethod1: function () {}
                         }
                     };
-                }),
+                }, true),
                     OtherMixin = Class.declare(function () {
                         return {
                             method1: function () {},
@@ -928,17 +928,17 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 staticMethod1: function () {}
                             }
                         };
-                    }),
+                    }, true),
                     SomeClass = Class.declare(function () {
                         return {
                             $borrows: [SomeMixin, OtherMixin]
                         };
-                    }),
+                    }, true),
                     OtherClass = Class.declare(function () {
                         return {
                             $borrows: [OtherMixin, SomeMixin]
                         };
-                    }),
+                    }, true),
                     method1 = function () {
                         return 'foo';
                     },
@@ -953,7 +953,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 staticMethod1: method2
                             }
                         };
-                    }),
+                    }, true),
                     someClass = new SomeClass(),
                     otherClass = new OtherClass(),
                     someOtherClass = new SomeOtherClass();
@@ -978,13 +978,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             some: 'property',
                             initialize: initialize
                         };
-                    }),
+                    }, true),
                     OtherImplementation = Class.declare(function () {
                         return {
                             $borrows: Class.declare({ initialize: function () { this.some = 'nooo'; } }),
                             some: 'property'
                         };
-                    }),
+                    }, true),
                     someImplementation = new SomeImplementation(),
                     otherImplementation = new OtherImplementation();
 
@@ -1007,7 +1007,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }),
                             some: 'property'
                         };
-                    }),
+                    }, true),
                     OtherImplementation = Class.declare(function () {
                         return {
                             $borrows: Class.declare({
@@ -1020,7 +1020,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }.$bound(),
                             some: 'property'
                         };
-                    }),
+                    }, true),
                     SomeOtherImplementation = Class.declare(function () {
                         return {
                             $borrows: [Class.declare({
@@ -1036,7 +1036,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             },
                             some: 'property'
                         };
-                    }),
+                    }, true),
                     AbstractUsageImplementation = (function () {
                         var tmp = AbstractClass.declare(function () {
                             return {
@@ -1044,7 +1044,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     method1: function () {}.$bound()
                                 }
                             };
-                        });
+                        }, true);
 
                         return Class.declare(tmp, function ($super) {
                             return {
@@ -1056,7 +1056,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }.$bound(),
                                 some: 'property'
                             };
-                        });
+                        }, true);
                     }()),
                     OtherAbstractUsageImplementation = (function () {
                         var tmp = AbstractClass.declare(function () {
@@ -1068,7 +1068,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     this.some = 'test2';
                                 }.$bound()
                             };
-                        });
+                        }, true);
 
                         return Class.declare(tmp, function ($super) {
                             return {
@@ -1077,7 +1077,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 },
                                 some: 'property'
                             };
-                        });
+                        }, true);
                     }()),
                     someImplementation = new SomeImplementation(),
                     otherImplementation = new OtherImplementation(),
@@ -1146,7 +1146,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         }
                     };
-                }),
+                }, true),
                     someClass = new SomeClass();
 
                 expect(someClass.foo).to.be.equal('bar');
@@ -1164,7 +1164,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         FOO: 'bar'
                     }
                 };
-            }),
+            }, true),
                 SomeInterface = Interface.declare({
                     $constants: {
                         FOO: 'bar'
@@ -1280,7 +1280,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $extends: SomeClass
                         };
-                    });
+                    }, true);
                     return OtherClass.__funcStatic;
                 }())).to.be.equal(undefined);
 
@@ -1289,7 +1289,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $extends: SomeClass
                         };
-                    });
+                    }, true);
                     return OtherClass.__propStatic;
                 }())).to.be.equal(undefined);
 
@@ -1298,7 +1298,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $extends: SomeClass
                         };
-                    });
+                    }, true);
                     return OtherClass.__SOME;
                 }())).to.be.equal(undefined);
 
@@ -1313,7 +1313,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 $extends: SomeClass
                             };
-                        });
+                        }, true);
                         return OtherClass.__funcStatic;
                     }())).to.be.equal(undefined);
 
@@ -1322,7 +1322,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 $extends: SomeClass
                             };
-                        });
+                        }, true);
                         return OtherClass.__propStatic;
                     }())).to.be.equal(undefined);
 
@@ -1333,7 +1333,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     this.__privateMethod();
                                 }
                             };
-                        });
+                        }, true);
                         new OtherClass().some();
                     }).to.throwException(/access private/);
 
@@ -1344,7 +1344,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     SomeClass.__funcStatic();
                                 }
                             };
-                        });
+                        }, true);
                         new OtherClass().some();
                     }).to.throwException(/access private/);
 
@@ -1357,7 +1357,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     }
                                 }
                             };
-                        });
+                        }, true);
                         OtherClass.some();
                     }).to.throwException();
 
@@ -1368,7 +1368,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     return this.__privateProperty;
                                 }
                             };
-                        });
+                        }, true);
                         new OtherClass().some();
                     }).to.throwException(/access private/);
 
@@ -1379,7 +1379,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     return SomeClass.__propStatic;
                                 }
                             };
-                        });
+                        }, true);
                         new OtherClass().some();
                     }).to.throwException(/access private/);
 
@@ -1392,7 +1392,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     }
                                 }
                             };
-                        });
+                        }, true);
                         return OtherClass.some();
                     }())).to.be.equal(undefined);
 
@@ -1401,7 +1401,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 __test: function () {}
                             };
-                        });
+                        }, true);
                         return new OtherClass().callTest();
                     }).to.throwException(/access private/);
 
@@ -1412,7 +1412,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     __test: function () {}
                                 }
                             };
-                        });
+                        }, true);
                         OtherClass.callTest();
                     }).to.throwException(/access private/);
 
@@ -1421,7 +1421,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 __test: 'some'
                             };
-                        });
+                        }, true);
                         return new OtherClass().accessTest();
                     }).to.throwException(/access private/);
 
@@ -1432,7 +1432,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     __test: 'some'
                                 }
                             };
-                        });
+                        }, true);
                         return OtherClass.accessTest();
                     }).to.throwException(/access private/);
 
@@ -1443,13 +1443,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                         this.__test();
                                     }
                                 };
-                            }),
+                            }, true),
                             OtherClass = Class.declare(tmp, function ($super) {
                                 return {
                                     __test: function () {}
 
                                 };
-                            });
+                            }, true);
 
                         return new OtherClass();
                     }).to.throwException(/access private/);
@@ -1461,12 +1461,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                         this.__test = 'test';
                                     }
                                 };
-                            }),
+                            }, true),
                             OtherClass = Class.declare(tmp, function ($super) {
                                 return {
                                     __test: 'some'
                                 };
-                            });
+                            }, true);
 
                         return new OtherClass();
                     }).to.throwException(/set private/);
@@ -1502,7 +1502,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     return $super.getProp.call(this);
                                 }
                             };
-                        });
+                        }, true);
 
                         return (new OtherClass()).getProp();
                     }).to.not.throwException();
@@ -1518,7 +1518,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     return $super.getProp2.call(this);
                                 }
                             };
-                        });
+                        }, true);
 
                         return (new OtherClass()).getProp2();
                     }).to.not.throwException();
@@ -1565,11 +1565,11 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     this.__someMethod();
                                 }
                             };
-                        }), OtherClass = Class.declare(function () {
+                        }, true), OtherClass = Class.declare(function () {
                             return {
                                 $borrows: SomeTestClass
                             };
-                        }),
+                        }, true),
                             myOtherClass = new OtherClass();
 
                         myOtherClass.test();
@@ -1585,7 +1585,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     func();
                                 }
                             };
-                        }),
+                        }, true),
                             someClass = new SomeClass();
 
                         return someClass.exec(function () {
@@ -1601,7 +1601,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     func();
                                 }
                             };
-                        }),
+                        }, true),
                             someClass = new SomeClass();
 
                         return someClass.exec(function () {
@@ -1619,7 +1619,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     func();
                                 }
                             };
-                        }),
+                        }, true),
                             someClass = new SomeClass();
 
                         return someClass.exec(function () {
@@ -1637,7 +1637,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     func();
                                 }
                             };
-                        }),
+                        }, true),
                             someClass = new SomeClass();
 
                         return someClass.exec(function () {
@@ -1654,7 +1654,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 __getProp: function () {}
                             };
-                        });
+                        }, true);
                     }).to.throwException(/override private/);
 
                     expect(function () {
@@ -1662,7 +1662,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 __privateProperty: 'foo'
                             };
-                        });
+                        }, true);
                     }).to.throwException(/override private/);
 
                 });
@@ -1765,7 +1765,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     this._protectedMethod();
                                 }
                             };
-                        });
+                        }, true);
                         new OtherClass().some();
                     }).to.not.throwException();
 
@@ -1789,7 +1789,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     }
                                 }
                             };
-                        });
+                        }, true);
                         OtherClass.some();
                     }).to.not.throwException();
 
@@ -1800,7 +1800,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     return this._protectedProperty;
                                 }
                             };
-                        });
+                        }, true);
                         new OtherClass().some();
                     }).to.not.throwException();
 
@@ -1813,7 +1813,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     }
                                 }
                             };
-                        });
+                        }, true);
                         return OtherClass.some();
                     }())).to.be.equal(undefined);
 
@@ -1822,7 +1822,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 _test: function () {}
                             };
-                        });
+                        }, true);
                         return new OtherClass().callTest();
                     }).to.not.throwException();
 
@@ -1833,7 +1833,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     _test: function () {}
                                 }
                             };
-                        });
+                        }, true);
                         OtherClass.callTest();
                     }).to.not.throwException();
 
@@ -1842,7 +1842,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 _test: 'some'
                             };
-                        });
+                        }, true);
                         return new OtherClass().accessTest();
                     }).to.not.throwException();
 
@@ -1853,7 +1853,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     _test: 'some'
                                 }
                             };
-                        });
+                        }, true);
                         return OtherClass.accessTest();
                     }).to.not.throwException();
 
@@ -1864,12 +1864,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                         this._test();
                                     }
                                 };
-                            }),
+                            }, true),
                             OtherClass = Class.declare(tmp, function ($super) {
                                 return {
                                     _test: function () {}
                                 };
-                            });
+                            }, true);
 
                         return new OtherClass();
                     }).to.not.throwException();
@@ -1881,12 +1881,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                         this._test = 'test';
                                     }
                                 };
-                            }),
+                            }, true),
                             OtherClass = Class.declare(tmp, function ($super) {
                                 return {
                                     _test: 'some'
                                 };
-                            });
+                            }, true);
 
                         return new OtherClass();
                     }).to.not.throwException();
@@ -1922,7 +1922,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     return $super.getProp.call(this);
                                 }
                             };
-                        });
+                        }, true);
 
                         return (new OtherClass()).getProp();
                     }).to.not.throwException();
@@ -1938,7 +1938,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     return $super.getProp2.call(this);
                                 }
                             };
-                        });
+                        }, true);
 
                         return (new OtherClass()).getProp2();
                     }).to.not.throwException();
@@ -1977,11 +1977,11 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     this._someMethod();
                                 }
                             };
-                        }), OtherClass = Class.declare(function () {
+                        }, true), OtherClass = Class.declare(function () {
                             return {
                                 $borrows: SomeClass
                             };
-                        }),
+                        }, true),
                             myOtherClass = new OtherClass();
 
                         myOtherClass.test();
@@ -1997,7 +1997,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     func();
                                 }
                             };
-                        }),
+                        }, true),
                             someClass = new SomeClass();
 
                         return someClass.exec(function () {
@@ -2013,7 +2013,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     func();
                                 }
                             };
-                        }),
+                        }, true),
                             someClass = new SomeClass();
 
                         return someClass.exec(function () {
@@ -2031,7 +2031,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     func();
                                 }
                             };
-                        }),
+                        }, true),
                             someClass = new SomeClass();
 
                         return someClass.exec(function () {
@@ -2049,7 +2049,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     func();
                                 }
                             };
-                        }),
+                        }, true),
                             someClass = new SomeClass();
 
                         return someClass.exec(function () {
@@ -2102,12 +2102,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             it('should work the same was as native instanceof works (for normal classes)', function () {
 
-                var Class1 = Class.declare(function () { return {}; }),
-                    Class2 = AbstractClass.declare(function () { return {}; }),
-                    Class3 = Class.declare(function () { return { $extends: Class1 }; }),
-                    Class4 = Class.declare(function () { return { $extends: Class2 }; }),
-                    Class5 = AbstractClass.declare(function () { return { $extends: Class1 }; }),
-                    Class6 = Class.declare(function () { return { $extends: Class5 }; });
+                var Class1 = Class.declare(function () { return {}; }, true),
+                    Class2 = AbstractClass.declare(function () { return {}; }, true),
+                    Class3 = Class.declare(function () { return { $extends: Class1 }; }, true),
+                    Class4 = Class.declare(function () { return { $extends: Class2 }; }, true),
+                    Class5 = AbstractClass.declare(function () { return { $extends: Class1 }; }, true),
+                    Class6 = Class.declare(function () { return { $extends: Class5 }; }, true);
 
                 expect(instanceOf(new Class1(), Class1)).to.be.equal(true);
                 expect(instanceOf(new Class3(), Class3)).to.be.equal(true);
@@ -2133,14 +2133,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     Interface5 = Interface.declare({ $extends: [Interface4, Interface1] }),
                     Interface6 = Interface5.extend({}),
 
-                    Class1 = Class.declare(function () { return { $implements: Interface1 }; }),
-                    Class2 = AbstractClass.declare(function () { return { $implements: [Interface1, Interface2] }; }),
-                    Class3 = Class.declare(function () { return { $extends: Class1 }; }),
-                    Class4 = Class.declare(function () { return { $extends: Class2 }; }),
-                    Class5 = AbstractClass.declare(Class1, function ($super) { return { $implements: Interface3 }; }),
-                    Class6 = Class.declare(function () { return { $extends: Class5 }; }),
-                    Class7 = Class.declare(function () { return { $implements: [Interface2, Interface5] }; }),
-                    Class8 = Class.declare(function () { return { $implements: Interface6 }; });
+                    Class1 = Class.declare(function () { return { $implements: Interface1 }; }, true),
+                    Class2 = AbstractClass.declare(function () { return { $implements: [Interface1, Interface2] }; }, true),
+                    Class3 = Class.declare(function () { return { $extends: Class1 }; }, true),
+                    Class4 = Class.declare(function () { return { $extends: Class2 }; }, true),
+                    Class5 = AbstractClass.declare(Class1, function ($super) { return { $implements: Interface3 }; }, true),
+                    Class6 = Class.declare(function () { return { $extends: Class5 }; }, true),
+                    Class7 = Class.declare(function () { return { $implements: [Interface2, Interface5] }; }, true),
+                    Class8 = Class.declare(function () { return { $implements: Interface6 }; }, true);
 
                 expect(instanceOf(new Class1(), Interface1)).to.be.equal(true);
                 expect(instanceOf(new Class3(), Interface1)).to.be.equal(true);
@@ -2244,7 +2244,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             __privateMethodStatic: function () {}
                         }
                     };
-                }),
+                }, true),
                 someClass = new SomeClass(),
                 ReplicaClass = Class.declare(function () {
                     return {
@@ -2326,7 +2326,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             __privateMethodStatic: function () {}
                         }
                     };
-                }),
+                }, true),
                 replicaClass = new ReplicaClass();
 
             if (/strict/.test(global.build))  {
@@ -2424,7 +2424,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         }
                     }
                 };
-            }),
+            }, true),
                 Singleton2 = Class.declare(function () {
                     return {
                         foo: null,
@@ -2438,17 +2438,17 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         }
                     };
-                }),
+                }, true),
                 SubSingleton = Class.declare(function () {
                     return {
                         $extends: Singleton
                     };
-                }),
+                }, true),
                 SubSingleton2 = Class.declare(function () {
                     return {
                         $extends: Singleton2
                     };
-                }),
+                }, true),
                 OtherSubSingleton = Class.declare(SubSingleton, function ($super) {
                     return {
                         $statics: {
@@ -2457,7 +2457,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         }
                     };
-                }),
+                }, true),
                 OtherSubSingleton2 = Class.declare(SubSingleton2, function ($super) {
                     return {
                         $statics: {
@@ -2466,7 +2466,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         }
                     };
-                });
+                }, true);
 
             it('should be accomplished with protected constructors', function () {
 

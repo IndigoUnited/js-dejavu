@@ -192,7 +192,7 @@ perform faster than the other libraries in most browsers, even if you don't run
 the optimizer. The optimizer will analyse your code, and make some improvements
 boosting it a bit further.
 
-You can check the benchmarks in [jsperf](http://jsperf.com/oop-benchmark/54)
+You can check the benchmarks in [jsperf](http://jsperf.com/oop-benchmark/58)
 comparing `dejavu` with other OOP libraries. Note that the loose regular version
 is used in this test, simulating a production environment, and both the normal
 and optimized versions are tested.

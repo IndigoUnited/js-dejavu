@@ -70,7 +70,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: OtherInterface
                         };
-                    }),
+                    }, true),
                     someClass = new SomeClass();
 
                 expect(instanceOf(someClass, OtherInterface)).to.be.equal(true);
@@ -179,7 +179,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
-                    var tmp = Class.declare(function () { return {}; });
+                    var tmp = Class.declare(function () { return {}; }, true);
 
                     return Interface.declare({
                         $extends: tmp
@@ -607,7 +607,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             method1: function (a) {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -623,7 +623,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -635,7 +635,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             method1: function (a, b) {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -651,7 +651,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a, b) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -663,7 +663,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             method1: function (a, $b) {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -679,7 +679,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a, $b) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -691,7 +691,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             method1: function (a, $b, $c) {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -707,7 +707,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a, $b, $c) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -832,7 +832,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 FOO: 'test'
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/override constant/);
 
             });
@@ -908,35 +908,35 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error when using an invalid name', function () {
 
                 expect(function () {
-                    return Class.declare(function () { return { $name: undefined }; });
+                    return Class.declare(function () { return { $name: undefined }; }, true);
                 }).to.throwException(/must be a string/);
 
                 expect(function () {
-                    return Class.declare(function () { return { $name: null }; });
+                    return Class.declare(function () { return { $name: null }; }, true);
                 }).to.throwException(/must be a string/);
 
                 expect(function () {
-                    return Class.declare(function () { return { $name: 'Some $name' }; });
+                    return Class.declare(function () { return { $name: 'Some $name' }; }, true);
                 }).to.throwException(/spaces/);
 
                 expect(function () {
-                    return Class.declare(function () { return { $name: 'SomeName' }; });
+                    return Class.declare(function () { return { $name: 'SomeName' }; }, true);
                 }).to.not.throwException();
 
                 expect(function () {
-                    return AbstractClass.declare(function () { return { $name: undefined }; });
+                    return AbstractClass.declare(function () { return { $name: undefined }; }, true);
                 }).to.throwException(/must be a string/);
 
                 expect(function () {
-                    return AbstractClass.declare(function () { return { $name: null }; });
+                    return AbstractClass.declare(function () { return { $name: null }; }, true);
                 }).to.throwException(/must be a string/);
 
                 expect(function () {
-                    return AbstractClass.declare(function () { return { $name: 'Some $name' }; });
+                    return AbstractClass.declare(function () { return { $name: 'Some $name' }; }, true);
                 }).to.throwException(/spaces/);
 
                 expect(function () {
-                    return AbstractClass.declare(function () { return { $name: 'SomeName' }; });
+                    return AbstractClass.declare(function () { return { $name: 'SomeName' }; }, true);
                 }).to.not.throwException();
 
             });
@@ -948,7 +948,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             initialize: undefined
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be a function/);
 
                 expect(function () {
@@ -956,7 +956,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             initialize: null
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be a function/);
 
                 expect(function () {
@@ -964,7 +964,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             initialize: 'some'
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be a function/);
 
             });
@@ -972,7 +972,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if using .extend() with an $extend property', function () {
 
                 expect(function () {
-                    var SomeClass = Class.declare(function () { return {}; }),
+                    var SomeClass = Class.declare(function () { return {}; }, true),
                         OtherClass = SomeClass.extend({
                             $extends: SomeClass
                         });
@@ -988,7 +988,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             initialize: function () {},
                             _initialize: function () {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/several constructors/i);
 
                 expect(function () {
@@ -997,7 +997,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             initialize: function () {},
                             __initialize: function () {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/several constructors/i);
 
                 expect(function () {
@@ -1006,7 +1006,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             _initialize: function () {},
                             __initialize: function () {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/several constructors/i);
 
             });
@@ -1021,7 +1021,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             test: a,
                             test2: a
                         };
-                    });
+                    }, true);
                 }).to.throwException(/by the same/);
 
                 expect(function () {
@@ -1032,7 +1032,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 test2: a
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/by the same/);
 
                 expect(function () {
@@ -1045,7 +1045,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 test2: a
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/by the same/);
 
             });
@@ -1059,7 +1059,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $finals: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1069,7 +1069,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $abstracts: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1079,7 +1079,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $statics: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1089,7 +1089,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $constants: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1099,7 +1099,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $abstracts: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1109,7 +1109,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $finals: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1119,7 +1119,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $constants: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1129,7 +1129,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $name: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1139,7 +1139,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $name: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1149,7 +1149,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $constants: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1159,7 +1159,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $extends: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1169,7 +1169,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $extends: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1179,7 +1179,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $abstracts: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1189,7 +1189,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $constants: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1199,7 +1199,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $finals: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1211,7 +1211,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
                 expect(function () {
@@ -1223,7 +1223,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/unallowed/);
 
             });
@@ -1240,7 +1240,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 SOME: 'foo'
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/different modifiers/);
 
                 expect(function () {
@@ -1255,7 +1255,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 SOME: 'foo'
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/different modifiers/);
 
                 expect(function () {
@@ -1270,7 +1270,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 other: 'foo'
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -1281,7 +1281,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             },
                             some: 'foo'
                         };
-                    });
+                    }, true);
                 }).to.throwException(/different modifiers/);
 
                 expect(function () {
@@ -1296,7 +1296,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 SOME: 'foo'
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/different modifiers/);
 
                 expect(function () {
@@ -1311,7 +1311,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: 'foo'
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/already defined/);
 
                 expect(function () {
@@ -1324,7 +1324,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: 'foo'
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/already defined/);
 
                 expect(function () {
@@ -1335,7 +1335,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             },
                             some: 'foo'
                         };
-                    });
+                    }, true);
                 }).to.throwException(/already defined/);
 
                 expect(function () {
@@ -1348,7 +1348,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
@@ -1359,7 +1359,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             },
                             some: function () {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/already implemented/);
 
             });
@@ -1371,7 +1371,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             some: undefined
                         };
-                    });
+                    }, true);
                 }).to.throwException(/cannot be parsed/);
 
                 expect(function () {
@@ -1381,7 +1381,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: undefined
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/cannot be parsed/);
 
 
@@ -1392,7 +1392,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: undefined
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/cannot be parsed/);
 
                 expect(function () {
@@ -1400,7 +1400,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             some: undefined
                         };
-                    });
+                    }, true);
                 }).to.throwException(/cannot be parsed/);
 
                 expect(function () {
@@ -1410,7 +1410,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: undefined
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/cannot be parsed/);
 
                 expect(function () {
@@ -1420,7 +1420,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: undefined
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/cannot be parsed/);
 
             });
@@ -1432,7 +1432,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $extends: 'wtf'
                         };
-                    });
+                    }, true);
                 }).to.throwException(/is not a valid class/);
 
                 expect(function () {
@@ -1440,7 +1440,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $extends: undefined
                         };
-                    });
+                    }, true);
                 }).to.throwException(/is not a valid class/);
 
                 expect(function () {
@@ -1448,7 +1448,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $extends: null
                         };
-                    });
+                    }, true);
                 }).to.throwException(/is not a valid class/);
 
                 expect(function () {
@@ -1456,7 +1456,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $extends: function () {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/is not a valid class/);
 
                 expect(function () {
@@ -1466,17 +1466,17 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $extends: tmp
                         };
-                    });
+                    }, true);
                 }).to.throwException(/is not a valid class/);
 
                 expect(function () {
-                    var tmp = Class.declare(function () { return {}; });
+                    var tmp = Class.declare(function () { return {}; }, true);
 
                     return Class.declare(function () {
                         return {
                             $extends: tmp
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -1488,7 +1488,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             method1: function ($a, b) {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/contains optional arguments before mandatory ones/);
 
                 expect(function () {
@@ -1498,7 +1498,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function ($a, b) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/contains optional arguments before mandatory ones/);
 
                 expect(function () {
@@ -1516,7 +1516,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -1528,7 +1528,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $statics: 'wtf'
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -1536,7 +1536,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $statics: undefined
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -1544,7 +1544,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $statics: null
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -1552,7 +1552,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $statics: {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -1566,7 +1566,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $statics: 'wtf'
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -1576,7 +1576,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $statics: undefined
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -1586,7 +1586,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $statics: null
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -1596,7 +1596,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $statics: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -1608,7 +1608,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $finals: 'wtf'
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -1616,7 +1616,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $finals: undefined
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -1624,7 +1624,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $finals: null
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -1632,7 +1632,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $finals: {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -1649,7 +1649,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/classified as final/);
 
             });
@@ -1665,14 +1665,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         }
                     };
-                });
+                }, true);
 
                 expect(function () {
                     return Class.declare(SomeClass, function ($super) {
                         return {
                             foo: 'wtf'
                         };
-                    });
+                    }, true);
                 }).to.throwException(/override final/);
 
                 expect(function () {
@@ -1680,7 +1680,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             someFunction: function () {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/override final/);
 
                 expect(function () {
@@ -1690,7 +1690,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 foo: 'wtf'
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/override final/);
 
                 expect(function () {
@@ -1700,7 +1700,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 someFunction: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/override final/);
 
             });
@@ -1712,7 +1712,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $constants: 'wtf'
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -1720,7 +1720,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $constants: undefined
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -1728,7 +1728,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $constants: null
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -1736,7 +1736,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $constants: {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -1750,7 +1750,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 SOME: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/primitive type/);
 
                 expect(function () {
@@ -1760,7 +1760,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 SOME: new Date()
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/primitive type/);
 
                 expect(function () {
@@ -1770,7 +1770,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 SOME: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/primitive type/);
 
                 expect(function () {
@@ -1780,7 +1780,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 SOME: []
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/primitive type/);
 
                 expect(function () {
@@ -1790,7 +1790,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 SOME: false
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -1800,7 +1800,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 SOME: null
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -1810,7 +1810,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 SOME: 'SOME'
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -1820,7 +1820,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 SOME: 1
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -1833,7 +1833,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             FOO: 'bar'
                         }
                     };
-                });
+                }, true);
 
                 expect(function () {
                     return Class.declare(SomeClass, function ($super) {
@@ -1844,7 +1844,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/override constant/);
 
                 expect(function () {
@@ -1854,7 +1854,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 FOO: 'WTF'
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/override constant/);
 
                 expect(function () {
@@ -1864,7 +1864,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 FOO: 'WTF'
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/override constant/);
 
                 expect(function () {
@@ -1879,7 +1879,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 FOO: 'WTF'
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/override constant/);
             });
 
@@ -1892,7 +1892,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [SomeInterface, SomeInterface]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/duplicate entries/);
 
                 expect(function () {
@@ -1900,7 +1900,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [SomeInterface, SomeInterface]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/duplicate entries/);
 
                 expect(function () {
@@ -1908,7 +1908,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [undefined, undefined]
                         };
-                    });
+                    }, true);
                 }).to.not.throwException(/duplicate entries/);
 
                 expect(function () {
@@ -1916,7 +1916,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [undefined, undefined]
                         };
-                    });
+                    }, true);
                 }).to.not.throwException(/duplicate entries/);
 
             });
@@ -1928,7 +1928,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: function () {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
@@ -1936,7 +1936,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: undefined
                         };
-                    });
+                    }, true);
                 }).to.throwException(/a class\/object or an array of classes\/objects/);
 
                 expect(function () {
@@ -1944,7 +1944,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: null
                         };
-                    });
+                    }, true);
                 }).to.throwException(/a class\/object or an array of classes\/objects/);
 
                 expect(function () {
@@ -1952,7 +1952,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: 'wtf'
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
@@ -1960,7 +1960,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: ['wtf']
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
@@ -1968,7 +1968,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: [undefined]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
@@ -1976,7 +1976,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: [null]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
@@ -1984,7 +1984,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: [undefined, undefined]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
@@ -1992,7 +1992,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: [null, null]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
@@ -2000,7 +2000,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: [function () {}]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
@@ -2012,7 +2012,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             })
                         };
-                    });
+                    }, true);
                 }).to.throwException(/abstract class with abstract members/);
 
                 expect(function () {
@@ -2024,7 +2024,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             })]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/abstract class with abstract members/);
 
                 expect(function () {
@@ -2032,7 +2032,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: Interface.declare({})
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
@@ -2040,16 +2040,16 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: [Interface.declare({})]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
-                    var SomeClass = Class.declare(function () { return {}; });
+                    var SomeClass = Class.declare(function () { return {}; }, true);
                     return Class.declare(function () {
                         return {
                             $borrows: new SomeClass()
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
@@ -2057,7 +2057,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2065,7 +2065,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: Class.declare({})
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2073,7 +2073,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: [{}]
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2081,7 +2081,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: [Class.declare({})]
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2091,7 +2091,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $abstracts: {}
                             })
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2099,7 +2099,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: [AbstractClass.declare({})]
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -2107,33 +2107,33 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error if $borrows contains an inherited class', function () {
 
                 expect(function () {
-                    var tmp = Class.declare(function () { return {}; }),
+                    var tmp = Class.declare(function () { return {}; }, true),
                         tmp2 = Class.declare(function () {
                             return {
                                 $extends: tmp
                             };
-                        });
+                        }, true);
 
                     return Class.declare(function () {
                         return {
                             $borrows: tmp2
                         };
-                    });
+                    }, true);
                 }).to.throwException(/inherited class/);
 
                 expect(function () {
-                    var tmp = Class.declare(function () { return {}; }),
+                    var tmp = Class.declare(function () { return {}; }, true),
                         tmp2 = Class.declare(function () {
                             return {
                                 $extends: tmp
                             };
-                        });
+                        }, true);
 
                     return AbstractClass.declare(function () {
                         return {
                             $borrows: tmp2
                         };
-                    });
+                    }, true);
                 }).to.throwException(/inherited class/);
 
             });
@@ -2141,12 +2141,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error on duplicate $borrows', function () {
 
                 expect(function () {
-                    var Mixin = Class.declare(function () { return {}; });
+                    var Mixin = Class.declare(function () { return {}; }, true);
                     return Class.declare(function () {
                         return {
                             $borrows: [Mixin, Mixin]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/duplicate entries/);
 
                 expect(function () {
@@ -2154,7 +2154,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $borrows: [undefined, undefined]
                         };
-                    });
+                    }, true);
                 }).to.not.throwException(/duplicate entries/);
             });
 
@@ -2165,7 +2165,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: 'wtf'
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
@@ -2173,7 +2173,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: undefined
                         };
-                    });
+                    }, true);
                 }).to.throwException(/an interface or an array of interfaces/);
 
                 expect(function () {
@@ -2181,7 +2181,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: null
                         };
-                    });
+                    }, true);
                 }).to.throwException(/an interface or an array of interfaces/);
 
                 expect(function () {
@@ -2189,7 +2189,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: ['wtf']
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
@@ -2197,7 +2197,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [undefined]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
@@ -2205,7 +2205,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [null]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
@@ -2213,7 +2213,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [undefined, undefined]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
@@ -2221,7 +2221,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [null, null]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
@@ -2229,7 +2229,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: AbstractClass.declare({})
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
@@ -2237,7 +2237,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [AbstractClass.declare({})]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
@@ -2245,7 +2245,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: Class.declare({})
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
@@ -2253,7 +2253,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [Class.declare({})]
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
@@ -2261,7 +2261,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: 'wtf'
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
@@ -2269,7 +2269,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: undefined
                         };
-                    });
+                    }, true);
                 }).to.throwException(/an interface or an array of interfaces/);
 
                 expect(function () {
@@ -2277,7 +2277,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: null
                         };
-                    });
+                    }, true);
                 }).to.throwException(/an interface or an array of interfaces/);
 
                 expect(function () {
@@ -2285,7 +2285,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: ['wtf']
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a valid interface/);
 
                 expect(function () {
@@ -2293,7 +2293,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [undefined]
                         };
-                    }).to.throwException(/not a valid interface/);
+                    }, true).to.throwException(/not a valid interface/);
                 });
 
                 expect(function () {
@@ -2301,7 +2301,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [null]
                         };
-                    }).to.throwException(/not a valid interface/);
+                    }, true).to.throwException(/not a valid interface/);
                 });
 
                 expect(function () {
@@ -2309,7 +2309,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [undefined, undefined]
                         };
-                    }).to.throwException(/not a valid interface/);
+                    }, true).to.throwException(/not a valid interface/);
                 });
 
                 expect(function () {
@@ -2317,7 +2317,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [null, null]
                         };
-                    }).to.throwException(/not a valid interface/);
+                    }, true).to.throwException(/not a valid interface/);
                 });
 
                 expect(function () {
@@ -2325,7 +2325,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: AbstractClass.declare({})
                         };
-                    }).to.throwException(/not a valid interface/);
+                    }, true).to.throwException(/not a valid interface/);
                 });
 
                 expect(function () {
@@ -2333,7 +2333,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [AbstractClass.declare({})]
                         };
-                    }).to.throwException(/not a valid interface/);
+                    }, true).to.throwException(/not a valid interface/);
                 });
 
                 expect(function () {
@@ -2341,7 +2341,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: Class.declare({})
                         };
-                    }).to.throwException(/not a valid interface/);
+                    }, true).to.throwException(/not a valid interface/);
                 });
 
                 expect(function () {
@@ -2349,7 +2349,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $implements: [Class.declare({})]
                         };
-                    }).to.throwException(/not a valid interface/);
+                    }, true).to.throwException(/not a valid interface/);
                 });
 
             });
@@ -2361,21 +2361,21 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         func: function () {},
                         prop: 'some'
                     };
-                }),
+                }, true),
                     SomeAbstractClass = AbstractClass.declare(function () {
                         return {
                             $abstracts: {
                                 func: function () {}
                             }
                         };
-                    });
+                    }, true);
 
                 expect(function () {
                     return Class.declare(SomeClass, function ($super) {
                         return {
                             func: 'some'
                         };
-                    });
+                    }, true);
                 }).to.throwException(/with the same name/);
 
                 expect(function () {
@@ -2383,7 +2383,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             prop: function () {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/with the same name/);
 
                 expect(function () {
@@ -2391,7 +2391,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             func: 'some'
                         };
-                    });
+                    }, true);
                 }).to.throwException(/(with the same name)|(was not found)/);
 
             });
@@ -2437,7 +2437,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             $implements: Interface1,
                             method1: function () {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -2446,7 +2446,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             $implements: [Interface1, Interface3],
                             method1: function (a) {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -2455,7 +2455,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             $implements: Interface4,
                             method1: function (a) {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -2464,7 +2464,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             $implements: [Interface1, Interface2],
                             method1: function (a) {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2473,7 +2473,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             $implements: Interface1,
                             method1: function (a, $b) {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2482,7 +2482,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             $implements: Interface1,
                             method1: function (a, $b, $c) {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2493,7 +2493,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -2504,7 +2504,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -2515,7 +2515,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -2526,7 +2526,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a, b) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -2542,7 +2542,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -2553,7 +2553,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2564,7 +2564,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a, $b) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2575,7 +2575,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a, $b, $c) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2586,7 +2586,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function ($a) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -2597,7 +2597,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -2610,7 +2610,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -2621,7 +2621,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2632,14 +2632,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     method1: function (a) {}
                                 }
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp, function ($super) {
                         return {
                             $implements: Interface3,
                             method1: function (a, b) {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -2650,7 +2650,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     method1: function (a) {}
                                 }
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp, function ($super) {
                         return {
@@ -2659,7 +2659,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a, b) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -2670,14 +2670,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     method1: function (a) {}
                                 }
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp, function ($super) {
                         return {
                             $implements: Interface1,
                             method1: function () {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -2685,14 +2685,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 $implements: Interface1
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp, function ($super) {
                         return {
                             $implements: Interface1,
                             method1: function (a) {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2701,7 +2701,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $implements: Interface1,
                                 initialize: function (a, $b) {}
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp, function ($super) {
                         return {
@@ -2709,7 +2709,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             initialize: function (a) {},
                             method1: function (a) {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2718,7 +2718,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $implements: Interface1,
                                 initialize: function (a, $b) {}
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp, function ($super) {
                         return {
@@ -2726,7 +2726,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             initialize: function (a, b) {},
                             method1: function (a) {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2735,7 +2735,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $implements: Interface1,
                                 initialize: function (a, $b) {}
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp, function ($super) {
                         return {
@@ -2743,7 +2743,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             initialize: function (a, $b) {},
                             method1: function (a) {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2752,14 +2752,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $implements: Interface1,
                                 initialize: function (a, $b) {}
                             };
-                        });
+                        }, true);
                     return Class.declare(tmp, function ($super) {
                         return {
                             $implements: Interface1,
                             initialize: function (a, $b, $c) {},
                             method1: function (a) {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2767,18 +2767,18 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 initialize: function (a, $b) {}
                             };
-                        }),
+                        }, true),
                         tmp2 = Class.declare(function () {
                             return {
                                 $extends: tmp
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp, function ($super) {
                         return {
                             initialize: function (a, $b, $c) {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2786,18 +2786,18 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 get: function (a) {}
                             };
-                        }),
+                        }, true),
                         tmp2 = Class.declare(function () {
                             return {
                                 $extends: tmp
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp2, function ($super) {
                         return {
                             get: function (a, b) {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2805,18 +2805,18 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 get: function (a) {}
                             };
-                        }),
+                        }, true),
                         tmp2 = Class.declare(function () {
                             return {
                                 $extends: tmp
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp2, function ($super) {
                         return {
                             get: function () {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2824,18 +2824,18 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 get: function (a) {}
                             };
-                        }),
+                        }, true),
                         tmp2 = Class.declare(function () {
                             return {
                                 $extends: tmp
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp2, function ($super) {
                         return {
                             get: function ($a) {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2843,18 +2843,18 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 get: function (a) {}
                             };
-                        }),
+                        }, true),
                         tmp2 = Class.declare(function () {
                             return {
                                 $extends: tmp
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp2, function ($super) {
                         return {
                             get: function (a, $b) {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -2870,7 +2870,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $abstracts: 'wtf'
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -2878,7 +2878,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $abstracts: undefined
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -2886,7 +2886,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $abstracts: null
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -2894,7 +2894,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $abstracts: {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -2908,7 +2908,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $statics: 'wtf'
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -2918,7 +2918,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $statics: undefined
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -2928,7 +2928,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $statics: null
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/must be an object/);
 
                 expect(function () {
@@ -2938,7 +2938,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 $statics: {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -2952,7 +2952,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: 'wtf'
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a function/);
 
                 expect(function () {
@@ -2962,7 +2962,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: undefined
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a function/);
 
                 expect(function () {
@@ -2972,7 +2972,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: null
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a function/);
 
                 expect(function () {
@@ -2984,7 +2984,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a function/);
 
                 expect(function () {
@@ -2996,7 +2996,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a function/);
 
                 expect(function () {
@@ -3008,7 +3008,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a function/);
 
                 expect(function () {
@@ -3019,7 +3019,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -3039,7 +3039,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/no implementation/);
 
                 expect(function () {
@@ -3052,7 +3052,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -3074,7 +3074,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/no implementation/);
 
                 expect(function () {
@@ -3084,7 +3084,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: Class.declare({})
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a function/);
 
                 expect(function () {
@@ -3094,7 +3094,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: AbstractClass.declare({})
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a function/);
 
                 expect(function () {
@@ -3104,7 +3104,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: Interface.declare({})
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a function/);
 
                 expect(function () {
@@ -3116,7 +3116,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a function/);
 
                 expect(function () {
@@ -3128,7 +3128,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a function/);
 
                 expect(function () {
@@ -3140,7 +3140,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not a function/);
 
                 expect(function () {
@@ -3150,7 +3150,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -3160,7 +3160,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a) { }
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -3172,7 +3172,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -3184,7 +3184,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -3198,7 +3198,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function ($a, b) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/contains optional arguments before mandatory ones/);
 
                 expect(function () {
@@ -3210,7 +3210,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/contains optional arguments before mandatory ones/);
 
             });
@@ -3224,7 +3224,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     method1: function () {}
                                 }
                             };
-                        });
+                        }, true);
 
                     return AbstractClass.declare(tmp, function ($super) {
                         return {
@@ -3232,7 +3232,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -3244,7 +3244,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     }
                                 }
                             };
-                        });
+                        }, true);
 
                     return AbstractClass.declare(tmp, function ($super) {
                         return {
@@ -3254,7 +3254,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -3264,7 +3264,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     method1: function (a, $b) {}
                                 }
                             };
-                        });
+                        }, true);
 
                     return AbstractClass.declare(tmp, function ($super) {
                         return {
@@ -3272,7 +3272,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a, b) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -3284,7 +3284,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     }
                                 }
                             };
-                        });
+                        }, true);
 
                     return AbstractClass.declare(tmp, function ($super) {
                         return {
@@ -3294,7 +3294,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/not compatible with/);
 
                 expect(function () {
@@ -3304,7 +3304,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     method1: function (a, $b) {}
                                 }
                             };
-                        });
+                        }, true);
 
                     return AbstractClass.declare(tmp, function ($super) {
                         return {
@@ -3312,7 +3312,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a, $b) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -3324,7 +3324,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     }
                                 }
                             };
-                        });
+                        }, true);
 
                     return AbstractClass.declare(tmp, function ($super) {
                         return {
@@ -3334,7 +3334,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -3344,7 +3344,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     method1: function (a, $b) {}
                                 }
                             };
-                        });
+                        }, true);
 
                     return AbstractClass.declare(tmp, function ($super) {
                         return {
@@ -3352,7 +3352,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function (a, $b, $c) {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -3364,7 +3364,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     }
                                 }
                             };
-                        });
+                        }, true);
 
                     return AbstractClass.declare(tmp, function ($super) {
                         return {
@@ -3374,7 +3374,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -3389,7 +3389,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
@@ -3404,7 +3404,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
@@ -3412,7 +3412,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 some: function () {}
                             };
-                        });
+                        }, true);
 
                     return AbstractClass.declare(tmp, function ($super) {
                         return {
@@ -3420,7 +3420,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
@@ -3428,7 +3428,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 some: function () {}
                             };
-                        });
+                        }, true);
 
                     return AbstractClass.declare(tmp, function ($super) {
                         return {
@@ -3436,7 +3436,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
@@ -3444,7 +3444,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 some: 'foo'
                             };
-                        });
+                        }, true);
 
                     return AbstractClass.declare(tmp, function ($super) {
                         return {
@@ -3452,7 +3452,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 some: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/defined property/);
 
                 expect(function () {
@@ -3462,7 +3462,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     some: function () {}
                                 }
                             };
-                        });
+                        }, true);
 
                     return AbstractClass.declare(tmp, function ($super) {
                         return {
@@ -3472,7 +3472,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
@@ -3482,7 +3482,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     some: function () {}
                                 }
                             };
-                        });
+                        }, true);
 
                     return AbstractClass.declare(tmp, function ($super) {
                         return {
@@ -3492,7 +3492,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/already implemented/);
 
                 expect(function () {
@@ -3502,7 +3502,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     some: 'some'
                                 }
                             };
-                        });
+                        }, true);
 
                     return AbstractClass.declare(tmp, function ($super) {
                         return {
@@ -3512,7 +3512,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/defined property/);
 
             });
@@ -3529,12 +3529,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    });
+                    }, true);
                     return AbstractClass.declare(function () {
                         return {
                             $extends: AbstractExample
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -3548,7 +3548,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function () {}.$bound()
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -3661,7 +3661,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             otherStaticMethod: function () {}
                         }
                     };
-                });
+                }, true);
             }
 
             function createAbstractClass() {
@@ -3669,7 +3669,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     return {        // Simple abstract class
                         $implements: SomeInterface
                     };
-                });
+                }, true);
             }
 
             function createExtendedAbstractClass() {
@@ -3683,7 +3683,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         }
                     };
-                });
+                }, true);
             }
 
             it('should throw an error when it is incomplete', function () {
@@ -3697,7 +3697,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             // miss all methods
                             // miss all static methods
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3708,7 +3708,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             someMethod: function () {}
                             // miss all static methods
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3722,7 +3722,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 // miss staticMethod()
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3737,7 +3737,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 otherStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3752,7 +3752,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 otherStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3767,7 +3767,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 // miss staticMethod()
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3782,7 +3782,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 // miss otherStaticMethod()
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3798,7 +3798,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 // missing extraStaticMethod()
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3814,7 +3814,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 extraStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3830,7 +3830,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 extraStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3846,7 +3846,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 extraStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3864,7 +3864,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 extraStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3882,7 +3882,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 extraStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 // Abstract Classes
@@ -3894,7 +3894,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             // miss all methods
                             // miss all static methods
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3904,7 +3904,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             someMethod: function () {}
                             // miss all static methods
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3917,7 +3917,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 // miss staticMethod()
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3932,7 +3932,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 otherStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3946,7 +3946,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 otherStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3960,7 +3960,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 // miss staticMethod()
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3974,7 +3974,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 // miss otherStaticMethod()
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -3990,7 +3990,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 // missing extraStaticMethod()
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -4006,7 +4006,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 extraStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -4022,7 +4022,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 extraStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -4038,7 +4038,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 extraStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -4056,7 +4056,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 extraStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -4074,7 +4074,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 extraStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -4084,13 +4084,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     _protectedMethod: function () {}
                                 }
                             };
-                        });
+                        }, true);
 
                     return Class.declare(function () {
                         return {
                             $extends: tmp
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -4102,13 +4102,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     }
                                 }
                             };
-                        });
+                        }, true);
 
                     return Class.declare(function () {
                         return {
                             $extends: tmp
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -4118,13 +4118,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     _protectedMethod: function () {}
                                 }
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp, function ($super) {
                         return {
                             _protectedMethod: function () {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -4136,7 +4136,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     }
                                 }
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp, function ($super) {
                         return {
@@ -4144,7 +4144,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 _protectedMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
                 expect(function () {
                     var tmp = AbstractClass.declare(function () {
@@ -4153,13 +4153,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     _protectedMethod: function () {}
                                 }
                             };
-                        });
+                        }, true);
 
                     return Class.declare(function () {
                         return {
                             $extends: tmp
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -4171,13 +4171,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     }
                                 }
                             };
-                        });
+                        }, true);
 
                     return Class.declare(function () {
                         return {
                             $extends: tmp
                         };
-                    });
+                    }, true);
                 }).to.throwException(/was not found/);
 
                 expect(function () {
@@ -4187,13 +4187,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     _protectedMethod: function () {}
                                 }
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp, function ($super) {
                         return {
                             _protectedMethod: function () {}
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -4205,7 +4205,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     }
                                 }
                             };
-                        });
+                        }, true);
 
                     return Class.declare(tmp, function ($super) {
                         return {
@@ -4213,7 +4213,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 _protectedMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
             });
 
@@ -4230,7 +4230,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 staticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -4245,7 +4245,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 otherStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -4261,7 +4261,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 extraStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -4279,7 +4279,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 extraStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 // Abstract Classes
@@ -4292,7 +4292,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 staticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -4306,7 +4306,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 otherStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -4322,7 +4322,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 extraStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -4340,7 +4340,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 extraStaticMethod: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
             });
 
@@ -4413,7 +4413,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             staticMethod: function () {}
                         }
                     };
-                }),
+                }, true),
                     Mixin2 = {
                         someMethod: function () {},
                         $statics: {
@@ -4428,7 +4428,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             $implements: [SomeInterface],
                             $borrows: [Mixin1]
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
                 expect(function () {
@@ -4438,7 +4438,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             $implements: [SomeInterface],
                             $borrows: [Mixin2]
                         };
-                    });
+                    }, true);
                 }).to.not.throwException();
 
             });
@@ -4450,7 +4450,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             $abstracts: {}
                         };
-                    });
+                    }, true);
                 }).to.throwException(/has abstract methods/);
 
                 expect(function () {
@@ -4460,7 +4460,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 method1: function () {}
                             }
                         };
-                    });
+                    }, true);
                 }).to.throwException(/has abstract methods/);
             });
 
@@ -4490,7 +4490,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         abstractMethod: function () {}
                     }
                 };
-            });
+            }, true);
 
             it('should throw an error while using new', function () {
 
@@ -4504,8 +4504,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             it('should throw an error if we do it without using the new keyword', function () {
 
-                var SomeClass = Class.declare(function () { return {}; }),
-                    OtherClass = FinalClass.declare(function () { return {}; });
+                var SomeClass = Class.declare(function () { return {}; }, true),
+                    OtherClass = FinalClass.declare(function () { return {}; }, true);
 
                 expect(function () {
                     return SomeClass();
@@ -4525,12 +4525,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return {
                             _initialize: function () {}
                         };
-                    }),
+                    }, true),
                         OtherClass = Class.declare(function () {
                             return {
                                 __initialize: function () {}
                             };
-                        });
+                        }, true);
 
                     expect(function () {
                         return new SomeClass();
@@ -4546,25 +4546,25 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should not throw an error while invoking the the parent abstract class constructor', function () {
 
                 expect(function () {
-                    var tmp = AbstractClass.declare(function () { return { initialize: function () {} }; }),
+                    var tmp = AbstractClass.declare(function () { return { initialize: function () {} }; }, true),
                         SomeImplementation = Class.declare(tmp, function ($super) {
                             return {
                                 initialize: function () {
                                     $super.initialize.call(this);
                                 }
                             };
-                        });
+                        }, true);
 
                     return new SomeImplementation();
                 }).to.not.throwException();
 
                 expect(function () {
-                    var tmp = AbstractClass.declare(function () { return { initialize: function () {} }; }),
+                    var tmp = AbstractClass.declare(function () { return { initialize: function () {} }; }, true),
                         SomeImplementation = Class.declare(function () {
                             return {
                                 $extends: tmp
                             };
-                        });
+                        }, true);
 
                     return new SomeImplementation();
                 }).to.not.throwException();
@@ -4574,52 +4574,52 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should not throw an error while invoking the the parent class protected constructor', function () {
 
                 expect(function () {
-                    var tmp = AbstractClass.declare(function () { return { _initialize: function () {} }; }),
+                    var tmp = AbstractClass.declare(function () { return { _initialize: function () {} }; }, true),
                         SomeImplementation = Class.declare(tmp, function ($super) {
                             return {
                                 initialize: function () {
                                     $super.initialize.call(this);
                                 }
                             };
-                        });
+                        }, true);
 
                     return new SomeImplementation();
                 }).to.not.throwException();
 
                 if (/strict/.test(global.build) && hasDefineProperty) {
                     expect(function () {
-                        var tmp = AbstractClass.declare(function () { return { _initialize: function () {} }; }),
+                        var tmp = AbstractClass.declare(function () { return { _initialize: function () {} }; }, true),
                             SomeImplementation = Class.declare(function () {
                                 return {
                                     $extends: tmp
                                 };
-                            });
+                            }, true);
 
                         return new SomeImplementation();
                     }).to.throwException(/is protected/);
                 }
 
                 expect(function () {
-                    var tmp = Class.declare(function () { return { _initialize: function () {} }; }),
+                    var tmp = Class.declare(function () { return { _initialize: function () {} }; }, true),
                         SomeImplementation = Class.declare(tmp, function ($super) {
                             return {
                                 initialize: function () {
                                     $super.initialize.call(this);
                                 }
                             };
-                        });
+                        }, true);
 
                     return new SomeImplementation();
                 }).to.not.throwException();
 
                 if (/strict/.test(global.build) && hasDefineProperty) {
                     expect(function () {
-                        var tmp = Class.declare(function () { return { _initialize: function () {} }; }),
+                        var tmp = Class.declare(function () { return { _initialize: function () {} }; }, true),
                             SomeImplementation = Class.declare(function () {
                                 return {
                                     $extends: tmp
                                 };
-                            });
+                            }, true);
 
                         return new SomeImplementation();
                     }).to.throwException(/is protected/);
@@ -4630,64 +4630,64 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should throw an error while invoking the parent class private constructor', function () {
 
                 expect(function () {
-                    var tmp = AbstractClass.declare(function () { return { __initialize: function () {} }; }),
+                    var tmp = AbstractClass.declare(function () { return { __initialize: function () {} }; }, true),
                         SomeImplementation = Class.declare(tmp, function ($super) {
                             return {
                                 initialize: function () {
                                     $super.initialize.call(this);
                                 }
                             };
-                        });
+                        }, true);
 
                     return new SomeImplementation();
                 }).to.throwException(/parent constructor/);
 
                 if (/strict/.test(global.build) && hasDefineProperty) {
                     expect(function () {
-                        var tmp = AbstractClass.declare(function () { return { __initialize: function () {} }; }),
+                        var tmp = AbstractClass.declare(function () { return { __initialize: function () {} }; }, true),
                             SomeImplementation = Class.declare(function () {
                                 return {
                                     $extends: tmp
                                 };
-                            });
+                            }, true);
 
                         return new SomeImplementation();
                     }).to.throwException(/is private/);
                 }
 
                 expect(function () {
-                    var tmp = Class.declare(function () { return { __initialize: function () {} }; }),
+                    var tmp = Class.declare(function () { return { __initialize: function () {} }; }, true),
                         SomeImplementation = Class.declare(tmp, function ($super) {
                             return {
                                 initialize: function () {
                                     $super.initialize.call(this);
                                 }
                             };
-                        });
+                        }, true);
 
                     return new SomeImplementation();
                 }).to.throwException(/parent constructor/);
 
                 if (/strict/.test(global.build) && hasDefineProperty) {
                     expect(function () {
-                        var tmp = Class.declare(function () { return { __initialize: function () {} }; }),
+                        var tmp = Class.declare(function () { return { __initialize: function () {} }; }, true),
                             SomeImplementation = Class.declare(function () {
                                 return {
                                     $extends: tmp
                                 };
-                            });
+                            }, true);
 
                         return new SomeImplementation();
                     }).to.throwException(/is private/);
                 }
 
                 expect(function () {
-                    var tmp = Class.declare(function () { return { __initialize: function () {} }; }),
+                    var tmp = Class.declare(function () { return { __initialize: function () {} }; }, true),
                             SomeImplementation = Class.declare(tmp, function ($super) {
                             return {
                                 initialize: function () {}
                             };
-                        });
+                        }, true);
 
                     return new SomeImplementation();
                 }).to.not.throwException();

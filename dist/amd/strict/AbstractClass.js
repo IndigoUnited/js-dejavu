@@ -358,8 +358,8 @@ define([
      *
      * @return {Function} The constructor
      */
-    AbstractClass.declare = function (arg1, arg2) {
-        return Class.declare.call(createAbstractClass, arg1, arg2);
+    AbstractClass.declare = function (arg1, arg2, $arg3) {
+        return Class.declare.call(createAbstractClass, arg1, arg2, $arg3);
     };
 
     return AbstractClass;

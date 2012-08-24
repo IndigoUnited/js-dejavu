@@ -1509,10 +1509,10 @@ define([
      *
      * @return {Function} The new class constructor
      */
-    function extend(params) {
+    function extend(params, $arg) {
         /*jshint validthis:true*/
 
-        return Class.declare(this, params);
+        return Class.declare(this, params, $arg);
     }
 
     /**
@@ -1699,13 +1699,13 @@ define([
      *
      * @return {Function} The constructor
      */
-    Class.declare = function (arg1, arg2) {
+    Class.declare = function (arg1, arg2, $arg3) {
 
         var params,
             callable = isFunction(this) ? this : createClass,
             constructor;
 
-        if (arg1 && arg2) {
+        if (arg1 && arg2 && arg2 !== true) {
             if (!isFunction(arg1) || !arg1[$class]) {
                 throw new Error('Expected first argument to be a class.');
             }
@@ -1722,7 +1722,6 @@ define([
             if (params.$extends) {
                 throw new Error('Object cannot contain an $extends property.');
             }
-
 
             params.$extends = arg1;
         // create(func)
