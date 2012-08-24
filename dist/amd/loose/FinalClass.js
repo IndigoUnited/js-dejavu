@@ -31,8 +31,8 @@ define([
      *
      * @return {Function} The constructor
      */
-    FinalClass.declare = function (arg1, arg2) {
-        return Class.declare.call(createFinalClass, arg1, arg2);
+    FinalClass.declare = function (arg1, arg2, $arg3) {
+        return Class.declare.call(createFinalClass, arg1, arg2, $arg3);
     };
 
     return FinalClass;
