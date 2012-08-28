@@ -35,7 +35,7 @@ performances, rivaling with vanilla JS in production.
 * Abstract classes
 * Interfaces
 * Mixins (so you can get some sort of multiple inheritance)
-* Private and protected members
+* Private and protected members (access is only managed when Object.defineProperty is available)
 * Static members
 * Constants
 * Ability to declare true singletons via protected/private constructors
@@ -43,6 +43,9 @@ performances, rivaling with vanilla JS in production.
   callbacks/handlers)
 * Method signature checks
 * Custom instanceOf with support for Interfaces
+* Classes and instances are locked (only when Object.defineProperty is available)
+    * Functions cannot be added, replaced or deleted
+    * Properties can only be modified
 * Two builds, `regular` and `AMD` based
     * `AMD` optimized for speeding up developer workflow, allowing testing
       without the need to re-compile everything into a single file
@@ -51,12 +54,10 @@ performances, rivaling with vanilla JS in production.
     * `strict` best in development, enforcing a lot of checks, making sure you
       don't make many typical mistakes
     * `loose` best for production, without checks, improving performance
-* Classes and instances are locked, members cannot be changed or added (only
-  applicable to some browsers, such as Chrome)
 
 Users are encouraged to declare
 ['use strict'](https://developer.mozilla.org/en/JavaScript/Strict_mode) while
-using the `dejavu` strict mode, otherwise some code might fail silently.
+using the `dejavu` in strict mode, otherwise some code might fail silently.
 
 This can happen because `dejavu` uses `Object.freeze` and `Object.seal` to lock
 classes and instances, guaranteeing that no one changes the behaviour of your
@@ -74,10 +75,6 @@ really hard to pin point what's wrong.
 * Firefox (3.6+?)
 * Opera (9+?)
 * Node.js and Rhino
-
-Even though only modern JavaScript engines support some features, like
-protected/private visibility through `Object.defineProperty`, `dejavu` provides
-fallback mechanisms that enforce these restrictions.
 
 Since the regular build is compatible with CommonJS modules, it works well with
 [Node.js](http://nodejs.org/) and
