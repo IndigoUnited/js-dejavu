@@ -273,7 +273,7 @@ Below there's an example of an _EventsInterface_ that has the role of adding eve
 ```js
 define(['path/to/dejavu/Interface'], function (Interface) {
 
-    var EventsInterface = Interface({
+    var EventsInterface = Interface.declare({
 
         addListener: function (name, fn, context) {},
 
@@ -292,7 +292,7 @@ Be aware that all functions must obey its base signature (see explanation later 
 ```js
 define(['path/to/EventsInterface', 'path/to/dejavu/Interface'], function (EventsInterface, Interface) {
 
-    var SomeEventsInterface = Interface({
+    var SomeEventsInterface = Interface.declare({
         $extends: EventsInterface,   // This interface extends EventsInterface
                                      // Interfaces can extend multiple ones, just reference them in an array
 
@@ -337,7 +337,7 @@ define([
     'path/to/dejavu/Class'
 ], function (EventsInterface, Class) {
 
-    var EventsEmitter = Class({
+    var EventsEmitter = Class.declare({
         $implements: EventsInterface,   // The class implements the EventsInterface interface
                                         // You can specify multiple interfaces in an array
 
@@ -374,7 +374,7 @@ define([
 ],
 function (EventsInterface, AbstractClass) {
 
-    var AbstractEventsEmitter = AbstractClass({
+    var AbstractEventsEmitter = AbstractClass.declare({
         $implements: EventsInterface,   // The class must implement the EventsInterface
 
         initialize: function (argument1) {
@@ -413,12 +413,12 @@ Abstract classes can extend other abstract classes or concrete classes while imp
 define([
     'path/to/some/class',
     'path/to/some/interface',
-    'path/to/other/interfaces',
+    'path/to/other/interface',
     'path/to/dejavu/AbstractClass'
 ],
 function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
 
-    var ComplexAbstractClass = AbstractClass({
+    var ComplexAbstractClass = AbstractClass.declare({
         $extends: SomeClass,
         $implements: [SomeInterface, OtherInterface],
 
@@ -456,7 +456,7 @@ Alternatively, one can extend a concrete or abstract class with the extend() fun
 define([
     'path/to/some/class',
     'path/to/some/interface',
-    'path/to/other/interfaces',
+    'path/to/other/interface',
     'path/to/dejavu/AbstractClass'
 ],
 function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
@@ -505,12 +505,12 @@ define([
     'path/to/some/class',
     'path/to/other/class',
     'path/to/some/interface',
-    'path/to/other/interfaces',
+    'path/to/other/interface',
     'path/to/dejavu/Class'
 ],
 function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
 
-    var ConcreteClass = Class({
+    var ConcreteClass = Class.declare({
         $extends: SomeClass,
         $implements: [SomeInterface, OtherInterface],
         $borrows: OtherClass,                           // We can add mixins by specifying them in here
@@ -563,7 +563,7 @@ define([
 ],
 function (Class) {
 
-    var ConcreteClass = Class({
+    var ConcreteClass = Class.declare({
 
         /**
          * Constructor.
@@ -591,7 +591,7 @@ define([
 ],
 function (Class) {
 
-    var ConcreteClass = Class({
+    var ConcreteClass = Class.declare({
 
         /**
          * Constructor.
@@ -629,7 +629,7 @@ Constants can be defined in classes, abstract classes and interfaces.
 ```js
 define(['path/to/dejavu/Class', function (Class) {
 
-    var SomeClass = Class({
+    var SomeClass = Class.declare({
         $constants: {
             FOO: 'bar'
             BAR: 'foo'
@@ -660,7 +660,7 @@ If the class itself is being defined final then it cannot be extended.
 ```js
 define(['path/to/dejavu/FinalClass', function (FinalClass) {
 
-    var SomeClass = FinalClass({    // This class cannot be extended
+    var SomeClass = FinalClass.declare({    // This class cannot be extended
 
         /**
          * Class constructor.
@@ -675,7 +675,7 @@ define(['path/to/dejavu/FinalClass', function (FinalClass) {
 
 define(['path/to/dejavu/Class', function (Class) {
 
-    var SomeClass = Class({
+    var SomeClass = Class.declare({
 
         /**
          * Class constructor.
@@ -718,13 +718,13 @@ additionally, if a method is abstract, a subclass can only implement/override it
 Arguments prefixed with a $ are evaluated as optional. The signature check is done for all abstract functions (interface functions are also considered abstract).
 
 ```js
-var SomeAbstractClass = AbstractClass({
+var SomeAbstractClass = AbstractClass.declare({
     $abstracts: {
         foo: function (param1) {}
     }
 });
 
-var SomeClass = Class({
+var SomeClass = Class.declare({
     $extends: SomeAbstractClass,
 
     foo: function (param1) {             // Signature is equal, it's valid
@@ -732,7 +732,7 @@ var SomeClass = Class({
     }
 });
 
-var ComplexClass = Class({
+var ComplexClass = Class.declare({
     $extends: SomeClass,
 
     foo: function (param1, $param2) {    // Although it's signature is not equal, was augmented with an additional optional argument, so it's valid
@@ -740,7 +740,7 @@ var ComplexClass = Class({
     }
 });
 
-var OtherComplexClass = Class({
+var OtherComplexClass = Class.declare({
     $extends: SomeClass,
 
     foo: function (param1, param2) {     // Will throw an error because foo(param1) is not compatible with foo(param1, param2)
@@ -757,7 +757,7 @@ $self gives access to the class itself and $static gives access to the called cl
 $self is the same as using the class variable itself.
 
 ```js
-var Example1 = Class({
+var Example1 = Class.declare({
     foo: function (param1) {
         return this.$self.bar;    // same as Example1.bar;
     },
@@ -766,7 +766,7 @@ var Example1 = Class({
     }
 });
 
-var Example2 = Class({
+var Example2 = Class.declare({
     foo: function (param1) {
         return this.$static.bar;
     },
@@ -775,14 +775,14 @@ var Example2 = Class({
     }
 });
 
-var Example3 = Class({
+var Example3 = Class.declare({
     $extends: Example1
     $statics: {
         bar: 'bye'
     }
 });
 
-var Example4 = Class({
+var Example4 = Class.declare({
     $extends: Example2
     $statics: {
         bar: 'bye'
@@ -806,7 +806,7 @@ The instanceOf function works exactly the same way as the native instanceof exce
 Please avoid using object constructors for strings, objects, booleans and numbers:
 
 ```js
-var MyClass = Class({
+var MyClass = Class.declare({
     foo: new String('bar'),  // Don't use this
     foz: 'bar'               // Ok
 });
