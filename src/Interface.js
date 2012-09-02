@@ -3,7 +3,7 @@ define([
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
     'amd-utils/lang/isString',
-    'amd-utils/lang/bind',
+    'amd-utils/function/bind',
     'amd-utils/array/intersection',
     'amd-utils/array/unique',
     'amd-utils/array/compact',
