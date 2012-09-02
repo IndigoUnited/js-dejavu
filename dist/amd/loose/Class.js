@@ -16,7 +16,7 @@ define([
     'amd-utils/array/contains',
     './common/mixIn',
     'amd-utils/array/append',
-    'amd-utils/lang/bind',
+    'amd-utils/function/bind',
     'amd-utils/lang/toArray',
     'amd-utils/lang/clone',
     'amd-utils/array/insert'

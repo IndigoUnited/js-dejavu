@@ -4,7 +4,7 @@ define([
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isString',
     'amd-utils/lang/toArray',
-    'amd-utils/lang/bind',
+    'amd-utils/function/bind',
     './common/functionMeta',
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',

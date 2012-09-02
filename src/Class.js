@@ -41,7 +41,7 @@ define([
 //>>excludeStart('strict', pragmas.strict);
     'amd-utils/array/append',
 //>>excludeEnd('strict');
-    'amd-utils/lang/bind',
+    'amd-utils/function/bind',
     'amd-utils/lang/toArray',
     'amd-utils/lang/clone',
     'amd-utils/array/insert'

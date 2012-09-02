@@ -1,6 +1,6 @@
 (function() {
 /**
- * almond 0.1.2 Copyright (c) 2011, The Dojo Foundation All Rights Reserved.
+ * almond 0.1.3 Copyright (c) 2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/almond for details
  */
@@ -11,12 +11,12 @@
 
 var requirejs, require, define;
 (function (undef) {
-    var defined = {},
+    var main, req,
+        defined = {},
         waiting = {},
         config = {},
         defining = {},
-        aps = [].slice,
-        main, req;
+        aps = [].slice;
 
     /**
      * Given a relative module name, like ./something, normalize it to
@@ -27,11 +27,11 @@ var requirejs, require, define;
      * @returns {String} normalized name
      */
     function normalize(name, baseName) {
-        var baseParts = baseName && baseName.split("/"),
+        var nameParts, nameSegment, mapValue, foundMap,
+            foundI, foundStarMap, starI, i, j, part,
+            baseParts = baseName && baseName.split("/"),
             map = config.map,
-            starMap = (map && map['*']) || {},
-            nameParts, nameSegment, mapValue, foundMap,
-            foundI, foundStarMap, starI, i, j, part;
+            starMap = (map && map['*']) || {};
 
         //Adjust any relative paths.
         if (name && name.charAt(0) === ".") {
@@ -49,7 +49,8 @@ var requirejs, require, define;
                 name = baseParts.concat(name.split("/"));
 
                 //start trimDots
-                for (i = 0; (part = name[i]); i++) {
+                for (i = 0; i < name.length; i += 1) {
+                    part = name[i];
                     if (part === ".") {
                         name.splice(i, 1);
                         i -= 1;
@@ -202,9 +203,9 @@ var requirejs, require, define;
     }
 
     main = function (name, deps, callback, relName) {
-        var args = [],
-            usingExports,
-            cjsModule, depName, ret, map, i;
+        var cjsModule, depName, ret, map, i,
+            args = [],
+            usingExports;
 
         //Use name if no relName
         relName = relName || name;
@@ -216,7 +217,7 @@ var requirejs, require, define;
             //values to the callback.
             //Default to [require, exports, module] if no deps
             deps = !deps.length && callback.length ? ['require', 'exports', 'module'] : deps;
-            for (i = 0; i < deps.length; i++) {
+            for (i = 0; i < deps.length; i += 1) {
                 map = makeMap(deps[i], relName);
                 depName = map.f;
 
@@ -252,7 +253,7 @@ var requirejs, require, define;
                 //favor that over return value and exports. After that,
                 //favor a non-undefined return value over exports use.
                 if (cjsModule && cjsModule.exports !== undef &&
-                    cjsModule.exports !== defined[name]) {
+                        cjsModule.exports !== defined[name]) {
                     defined[name] = cjsModule.exports;
                 } else if (ret !== undef || !usingExports) {
                     //Use the return value from the function.
@@ -266,7 +267,7 @@ var requirejs, require, define;
         }
     };
 
-    requirejs = require = req = function (deps, callback, relName, forceSync) {
+    requirejs = require = req = function (deps, callback, relName, forceSync, alt) {
         if (typeof deps === "string") {
             //Just return the module wanted. In this scenario, the
             //deps arg is the module name, and second arg (if passed)
@@ -289,6 +290,13 @@ var requirejs, require, define;
 
         //Support require(['a'])
         callback = callback || function () {};
+
+        //If relName is a function, it is an errback handler,
+        //so remove it.
+        if (typeof relName === 'function') {
+            relName = forceSync;
+            forceSync = alt;
+        }
 
         //Simulate async callback;
         if (forceSync) {
@@ -330,7 +338,7 @@ var requirejs, require, define;
     };
 }());
 
-define("almond", function(){});
+define("almond",[], function(){});
 
 define('amd-utils/lang/kindOf',[],function () {
 
@@ -597,16 +605,12 @@ define('amd-utils/object/forOwn',['./hasOwn'], function (hasOwn) {
      * Similar to Array/forEach but works over object properties and fixes Don't
      * Enum bug on IE.
      * based on: http://whattheheadsaid.com/2010/10/a-safer-object-keys-compatibility-implementation
-     * @version 0.1.2 (2012/08/08)
+     * @version 0.2.0 (2012/08/30)
      */
     function forOwn(obj, fn, thisObj){
         var key, i = 0;
-
-        if (typeof obj !== 'object') {
-            // any object will be good (Array, Date, etc..) that way it can
-            // be used in other things besides plain objects
-            throw new TypeError('forOwn called on a non-object');
-        }
+        // no need to check if argument is a real object that way we can use
+        // it for arrays, functions, date, etc.
 
         //post-pone check till needed
         if (_hasDontEnumBug == null) checkDontEnum();
@@ -1382,7 +1386,7 @@ define('common/mixIn',[], function () {
     return mixIn;
 });
 
-define('amd-utils/lang/bind',[],function(){
+define('amd-utils/function/bind',[],function(){
 
     function slice(arr, offset){
         return Array.prototype.slice.call(arr, offset || 0);
@@ -1407,32 +1411,33 @@ define('amd-utils/lang/bind',[],function(){
 });
 
 
-define('amd-utils/lang/toArray',[],function () {
+define('amd-utils/lang/toArray',['./kindOf'], function (kindOf) {
 
     var _win = this;
 
     /**
      * Convert array-like object into array
-     * @version 0.3.0 (2012/08/11)
+     * @version 0.3.1 (2012/08/30)
      */
     function toArray(val){
-        var ret, n;
+        var ret = [],
+            kind = kindOf(val),
+            n;
 
-        if (val == null) {
-            ret = [];
-        } else if ( typeof val === 'object' && val !== _win && 'length' in val ) {
-            //window returns true on isObject in IE7 and may have length property
-            //only convert object to array if it is a array-like object
-            // typeof val === 'object' is enough since array is also an object
-            ret = [];
-            n = val.length;
-            while (n--) {
-                ret[n] = val[n];
+        if (val != null) {
+            if ( val.length == null || kind === 'String' || kind === 'Function' || kind === 'RegExp' || val === _win ) {
+                //string, regexp, function have .length but user probably just want
+                //to wrap value into an array..
+                ret[ret.length] = val;
+            } else {
+                //window returns true on isObject in IE7 and may have length
+                //property. `typeof NodeList` returns `function` on Safari so
+                //we can't use it (#58)
+                n = val.length;
+                while (n--) {
+                    ret[n] = val[n];
+                }
             }
-        } else {
-            //string, regexp, function have .length but user probably just want
-            //to wrap value into an array..
-            ret = [val];
         }
         return ret;
     }
@@ -1553,7 +1558,7 @@ define('Class',[
     'amd-utils/array/combine',
     'amd-utils/array/contains',
     './common/mixIn',
-    'amd-utils/lang/bind',
+    'amd-utils/function/bind',
     'amd-utils/lang/toArray',
     'amd-utils/lang/clone',
     'amd-utils/array/insert'
@@ -3338,7 +3343,7 @@ define('AbstractClass',[
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isString',
     'amd-utils/lang/toArray',
-    'amd-utils/lang/bind',
+    'amd-utils/function/bind',
     './common/functionMeta',
     './common/isFunctionEmpty',
     './common/isFunctionCompatible',
@@ -3704,7 +3709,7 @@ define('Interface',[
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
     'amd-utils/lang/isString',
-    'amd-utils/lang/bind',
+    'amd-utils/function/bind',
     'amd-utils/array/intersection',
     'amd-utils/array/unique',
     'amd-utils/array/compact',
