@@ -143,17 +143,18 @@ define([
     /**
      * Parse borrows (mixins).
      *
+     * @param {Object}   params      The parameters
      * @param {Function} constructor The constructor
      */
-    function parseBorrows(constructor) {
+    function parseBorrows(params, constructor) {
 
-        if (hasOwn(constructor.prototype, '$borrows')) {
+        if (hasOwn(params, '$borrows')) {
 
             var current,
                 k,
                 key,
                 value,
-                mixins = toArray(constructor.prototype.$borrows),
+                mixins = toArray(params.$borrows),
                 i = mixins.length;
 
             for (i -= 1; i >= 0; i -= 1) {
@@ -207,8 +208,6 @@ define([
                 // Merge the binds
                 combine(constructor[$class].binds, current.$static[$class].binds);
             }
-
-            delete constructor.prototype.$borrows;
         }
     }
 
@@ -575,7 +574,7 @@ define([
         parseClass(params, dejavu);
 
         // Parse mixins
-        parseBorrows(dejavu);
+        parseBorrows(params, dejavu);
 
         // Optimize constructor if possible
         dejavu = optimizeConstructor(dejavu);

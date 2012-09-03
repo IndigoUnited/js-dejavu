@@ -514,11 +514,12 @@ define([
     /**
      * Parse borrows (mixins).
      *
+     * @param {Object}   params      The parameters
      * @param {Function} constructor The constructor
      */
-    function parseBorrows(constructor) {
+    function parseBorrows(params, constructor) {
 
-        if (hasOwn(constructor.prototype, '$borrows')) {
+        if (hasOwn(params, '$borrows')) {
 
             var current,
                 mixins = toArray(constructor.prototype.$borrows),
@@ -527,7 +528,7 @@ define([
                 opts = {};
 
             // Verify argument type
-            if (!i && !isArray(constructor.prototype.$borrows)) {
+            if (!i && !isArray(params.$borrows)) {
                 throw new Error('$borrows of class "' + constructor.prototype.$name + '" must be a class/object or an array of classes/objects.');
             }
             // Verify duplicate entries
@@ -1643,7 +1644,7 @@ define([
         parseClass(params, dejavu);
 
         // Parse mixins
-        parseBorrows(dejavu);
+        parseBorrows(params, dejavu);
 
         // Assign aliases
         obfuscateProperty(dejavu.prototype, '$static', dejavu);
