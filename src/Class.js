@@ -1657,7 +1657,7 @@ define([
         obfuscateProperty(Instance, $class, { methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, interfaces: [], binds: [] });
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-        Instance[$class] = { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] };
+        obfuscateProperty(Instance, $class, { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] });
 //>>excludeEnd('strict');
 
         return Instance;
@@ -1849,6 +1849,7 @@ define([
 
             if (canOptimizeConst && !tmp.properties.length && !tmp.binds.length) {
                 newConstructor = constructor.prototype.initialize;
+                newConstructor[$class] = constructor[$class];
                 mixIn(newConstructor, constructor);
                 newConstructor.prototype = constructor.prototype;
 
@@ -1992,7 +1993,7 @@ define([
             }
 
             dejavu = constructor || createConstructor();
-            dejavu.$parent = parent;
+            obfuscateProperty(dejavu, '$parent', parent);
             dejavu.prototype = createObject(parent.prototype);
 //>>excludeEnd('strict');
 
@@ -2041,27 +2042,21 @@ define([
         dejavu = optimizeConstructor(dejavu);
 
 //>>excludeEnd('strict');
-//>>includeStart('strict', pragmas.strict);
         // Assign aliases
         obfuscateProperty(dejavu.prototype, '$static', dejavu);
         obfuscateProperty(dejavu, '$static', dejavu);
         obfuscateProperty(dejavu, '$self', null, true);
         obfuscateProperty(dejavu, '$super', null, true);
+//>>includeStart('strict', pragmas.strict);
         obfuscateProperty(dejavu, '$bind', anonymousBindStatic);
         if (!dejavu.$parent) {
             obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
         }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-        // Assign aliases
-        dejavu.prototype.$static = dejavu.$static = dejavu;
-        if (!isEfficient) {
-            dejavu.$super = null;
-            dejavu.$self = null;
-        }
-        dejavu.$bind = anonymousBind;
+        obfuscateProperty(dejavu, '$bind', anonymousBind);
         if (!dejavu.$parent) {
-            dejavu.prototype.$bind = anonymousBind;
+            obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
         }
 //>>excludeEnd('strict');
 
