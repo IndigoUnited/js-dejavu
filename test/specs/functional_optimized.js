@@ -866,22 +866,6 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }());
 
                 expect(function () {
-                    var SomeClass = Class.declare(function () { return {}; }, true),
-                        Common1 = Class.declare(SomeClass, function ($super) {
-                            return {
-                                $borrows: CommonMixin
-                            };
-                        }, true),
-                        Common2 = Class.declare(SomeClass, function ($super) {
-                            return {
-                                $borrows: CommonMixin
-                            };
-                        }, true),
-                        common1 = new Common1(),
-                        common2  = new Common2();
-                }).to.not.throwException();
-
-                expect(function () {
                     var SomeClass = Class.declare(function () {
                         return {
                             _protectedProp: 'foo',
@@ -908,6 +892,24 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                     common2.accessProtected(common1);
                 }).to.not.throwException();
+
+                (function () {
+                    var SomeClass = Class.declare(function () { return {}; }, true),
+                        Common1 = Class.declare(SomeClass, function ($super) {
+                            return {
+                                $borrows: CommonMixin
+                            };
+                        }, true),
+                        Common2 = Class.declare(SomeClass, function ($super) {
+                            return {
+                                $borrows: CommonMixin
+                            };
+                        }, true),
+                        common1 = new Common1(),
+                        common2  = new Common2();
+
+                    expect(common1.method1).to.be.a('function');
+                }());
 
             });
 
