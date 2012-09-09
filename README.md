@@ -826,9 +826,10 @@ For example, if you use [RequireJS](http://requirejs.org/):
         'amd-utils': '../vendor/amd-utils/src'
     },
 
-    packages: ['dejavu', {
-            location: '../../dist/amd/strict',
+    packages: [
+        {
             name: 'dejavu'
+            location: '../../dist/amd/strict',
         }
     ]
 ```
