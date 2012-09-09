@@ -804,20 +804,6 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }());
 
                 expect(function () {
-                    var SomeClass = Class.declare({}),
-                        Common1 = Class.declare({
-                            $extends: SomeClass,
-                            $borrows: CommonMixin
-                        }),
-                        Common2 = Class.declare({
-                            $extends: SomeClass,
-                            $borrows: CommonMixin
-                        }),
-                        common1 = new Common1(),
-                        common2  = new Common2();
-                }).to.not.throwException();
-
-                expect(function () {
                     var SomeClass = Class.declare({
                         _protectedProp: 'foo',
                         _privateProp: 'bar'
@@ -839,6 +825,22 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                     common2.accessProtected(common1);
                 }).to.not.throwException();
+
+                (function () {
+                    var SomeClass = Class.declare({}),
+                        Common1 = Class.declare({
+                            $extends: SomeClass,
+                            $borrows: CommonMixin
+                        }),
+                        Common2 = Class.declare({
+                            $extends: SomeClass,
+                            $borrows: CommonMixin
+                        }),
+                        common1 = new Common1(),
+                        common2  = new Common2();
+
+                    expect(common1.method1).to.be.a('function');
+                }());
 
             });
 

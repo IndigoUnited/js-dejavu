@@ -611,11 +611,12 @@ define([
     /**
      * Parse borrows (mixins).
      *
+     * @param {Object}   params      The parameters
      * @param {Function} constructor The constructor
      */
-    function parseBorrows(constructor) {
+    function parseBorrows(params, constructor) {
 
-        if (hasOwn(constructor.prototype, '$borrows')) {
+        if (hasOwn(params, '$borrows')) {
 
 //>>includeStart('strict', pragmas.strict);
             var current,
@@ -629,13 +630,13 @@ define([
                 k,
                 key,
                 value,
-                mixins = toArray(constructor.prototype.$borrows),
+                mixins = toArray(params.$borrows),
                 i = mixins.length;
 //>>excludeEnd('strict');
 
 //>>includeStart('strict', pragmas.strict);
             // Verify argument type
-            if (!i && !isArray(constructor.prototype.$borrows)) {
+            if (!i && !isArray(params.$borrows)) {
                 throw new Error('$borrows of class "' + constructor.prototype.$name + '" must be a class/object or an array of classes/objects.');
             }
             // Verify duplicate entries
@@ -766,8 +767,10 @@ define([
                 // Merge the binds
                 combine(constructor[$class].binds, current.$static[$class].binds);
             }
+//>>includeStart('strict', pragmas.strict);
 
             delete constructor.prototype.$borrows;
+//>>includeEnd('strict');
         }
     }
 
@@ -1657,7 +1660,7 @@ define([
         obfuscateProperty(Instance, $class, { methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, interfaces: [], binds: [] });
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-        Instance[$class] = { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] };
+        obfuscateProperty(Instance, $class, { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] });
 //>>excludeEnd('strict');
 
         return Instance;
@@ -1849,6 +1852,7 @@ define([
 
             if (canOptimizeConst && !tmp.properties.length && !tmp.binds.length) {
                 newConstructor = constructor.prototype.initialize;
+                newConstructor[$class] = constructor[$class];
                 mixIn(newConstructor, constructor);
                 newConstructor.prototype = constructor.prototype;
 
@@ -1992,7 +1996,7 @@ define([
             }
 
             dejavu = constructor || createConstructor();
-            dejavu.$parent = parent;
+            obfuscateProperty(dejavu, '$parent', parent);
             dejavu.prototype = createObject(parent.prototype);
 //>>excludeEnd('strict');
 
@@ -2034,34 +2038,28 @@ define([
         parseClass(params, dejavu);
 
         // Parse mixins
-        parseBorrows(dejavu);
+        parseBorrows(params, dejavu);
 
 //>>excludeStart('strict', pragmas.strict);
         // Optimize constructor if possible
         dejavu = optimizeConstructor(dejavu);
 
 //>>excludeEnd('strict');
-//>>includeStart('strict', pragmas.strict);
         // Assign aliases
         obfuscateProperty(dejavu.prototype, '$static', dejavu);
         obfuscateProperty(dejavu, '$static', dejavu);
         obfuscateProperty(dejavu, '$self', null, true);
         obfuscateProperty(dejavu, '$super', null, true);
+//>>includeStart('strict', pragmas.strict);
         obfuscateProperty(dejavu, '$bind', anonymousBindStatic);
         if (!dejavu.$parent) {
             obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
         }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-        // Assign aliases
-        dejavu.prototype.$static = dejavu.$static = dejavu;
-        if (!isEfficient) {
-            dejavu.$super = null;
-            dejavu.$self = null;
-        }
-        dejavu.$bind = anonymousBind;
+        obfuscateProperty(dejavu, '$bind', anonymousBind);
         if (!dejavu.$parent) {
-            dejavu.prototype.$bind = anonymousBind;
+            obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
         }
 //>>excludeEnd('strict');
 
