@@ -9,7 +9,6 @@ define([], function () {
      * @return {Boolean} True if it is, false otherwise
      */
     function isObjectPrototypeSpoiled() {
-
         var obj = {},
             key;
 

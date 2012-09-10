@@ -9,7 +9,6 @@ define(['amd-utils/lang/isFunction'], function (isFunction) {
      * @return {Boolean} True if it supports, false otherwise
      */
     function hasDefineProperty() {
-
         if (!isFunction(Object.defineProperty)) {
             return false;
         }

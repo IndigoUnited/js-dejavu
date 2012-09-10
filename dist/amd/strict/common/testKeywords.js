@@ -22,7 +22,6 @@ define([
      * @return {Mixed} False if is ok, or the key that is unallowed.
      */
     function testKeywords(object, allowed) {
-
         var test = allowed ? difference(keywords, allowed) : keywords,
             x;
 

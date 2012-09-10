@@ -24,7 +24,6 @@ define([
      * @return {Function} The constructor
      */
     function createAbstractClass(params, constructor) {
-
         var def,
             savedMembers,
             key,

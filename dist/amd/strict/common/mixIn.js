@@ -13,7 +13,6 @@ define([], function () {
      * @return {object} Target Object
      */
     function mixIn(target, objects) {
-
         var x,
             length = arguments.length,
             key,

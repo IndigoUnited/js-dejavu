@@ -16,7 +16,6 @@ define(['amd-utils/array/contains'], function (contains) {
      * @return {String} The random string
      */
     function randomAccessor(caller) {
-
         if (nrAccesses > 5 || !contains(allowed, caller)) {
             throw new Error('Can\'t access random identifier.');
         }

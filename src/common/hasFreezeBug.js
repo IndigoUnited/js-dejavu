@@ -11,7 +11,6 @@ define(['amd-utils/lang/isFunction'], function (isFunction) {
      * @return {Boolean} True if it has, false otherwise
      */
     function checkHasFreezeBug() {
-
         if (!isFunction(Object.freeze)) {
             return false;
         }

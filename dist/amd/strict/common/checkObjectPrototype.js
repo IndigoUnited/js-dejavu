@@ -13,7 +13,6 @@ define([
      * Also seals it, preventing any additions or deletions.
      */
     function checkObjectPrototype() {
-
         if (isObjectPrototypeSpoiled()) {
             throw new Error('dejavu will not work properly if Object.prototype has enumerable properties!');
         }

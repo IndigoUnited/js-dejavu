@@ -37,7 +37,6 @@ define([
      * @return {Function} The constructor
      */
     function createFinalClass(params, constructor) {
-
         var def = Class.$create(params, constructor);
 //>>includeStart('strict', pragmas.strict);
         def[$class].finalClass = true;

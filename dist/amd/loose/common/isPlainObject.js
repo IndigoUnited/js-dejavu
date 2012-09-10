@@ -16,7 +16,6 @@ define([
      * @param {Object} obj The object
      */
     function isPlainObject(obj) {
-
         var proto = '__proto__',
             key;
 

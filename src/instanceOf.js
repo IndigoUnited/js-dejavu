@@ -29,7 +29,6 @@ define([
      * @return {Boolean} True if it's a descendant, false otherwise
      */
     function interfaceDescendantOf(interf1, interf2) {
-
         var x,
             parents = interf1[$interface].parents;
 
@@ -54,7 +53,6 @@ define([
      * @return {Boolean} True if it is, false otherwise
      */
     function instanceOfInterface(instance, target) {
-
         var x,
             interfaces = instance.$static[$class].interfaces;
 
@@ -76,7 +74,6 @@ define([
      * @return {Boolean} True if it is a valid instance of target, false otherwise
      */
     function instanceOf(instance, target) {
-
         if (instance instanceof target) {
             return true;
         }
