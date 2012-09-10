@@ -61,7 +61,6 @@ define([
      * @return {Mixed} The cloned property
      */
     function cloneProperty(prop) {
-
         // We treat object differently than amd-utils
         // If is a plain object, we use our built-in mixIn to be faster
         // Otherwise we do a createObject
@@ -87,7 +86,6 @@ define([
      * @return {Function} The wrapper
      */
     function wrapMethod(method, constructor, parent) {
-
         // Return the method if the class was created efficiently
         if (constructor[$class].efficient) {
             return method;
@@ -147,7 +145,6 @@ define([
      * @param {Function} constructor The constructor
      */
     function parseBorrows(params, constructor) {
-
         if (hasOwn(params, '$borrows')) {
 
             var current,
@@ -158,12 +155,10 @@ define([
                 i = mixins.length;
 
             for (i -= 1; i >= 0; i -= 1) {
-
                 current = isObject(mixins[i]) ? createClass(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
 
                 // Grab mixin members
                 for (key in current) {
-
                     value = current[key];
 
                     if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
@@ -185,7 +180,6 @@ define([
 
                 // Grab mixin static methods
                 for (k = current.$static[$class].staticMethods.length - 1; k >= 0; k -= 1) {
-
                     key = current.$static[$class].staticMethods[k];
 
                     if (constructor[key] === undefined) {    // Already defined members are not overwritten
@@ -196,7 +190,6 @@ define([
 
                 // Grab mixin static properties
                 for (key in current.$static[$class].staticProperties) {
-
                     value = current.$static[$class].staticProperties[key];
 
                     if (constructor[key] === undefined) {              // Already defined members are not overwritten
@@ -218,7 +211,6 @@ define([
      * @param {Object} target  The target that has the interfaces
      */
     function handleInterfaces(interfs, target) {
-
         interfs = toArray(interfs);
 
         var interf,
@@ -226,7 +218,6 @@ define([
             k;
 
         for (x -= 1; x >= 0; x -= 1) {
-
             interf = interfs[x];
 
             // Inherit constants and add interface to the interfaces array
@@ -250,15 +241,12 @@ define([
      * @param {Boolean}  isFinal     Parse the members as finals
      */
     function parseMembers(params, constructor, isFinal) {
-
         var key,
             value,
             cache = {};
 
         if (hasOwn(params, '$statics')) {
-
             for (key in params.$statics) {
-
                 value = params.$statics[key];
 
                 if (isFunction(value) && !value[$class] && !value[$interface]) {
@@ -290,7 +278,6 @@ define([
         }
 
         for (key in params) {
-
             value = params[key];
 
             if (isFunction(value) && !value[$class] && !value[$interface]) {
@@ -324,7 +311,6 @@ define([
      * @param {Function} constructor The constructor
      */
     function parseClass(params, constructor) {
-
         var key,
             value,
             saved = {},
@@ -348,7 +334,6 @@ define([
 
         // Parse constants
         if (has.$constants) {
-
             for (key in saved.$constants) {
 
                 value = saved.$constants[key];
@@ -371,7 +356,6 @@ define([
      * @param {Object} instance The target instance
      */
     function applyBinds(fns, instance) {
-
         var i,
             current;
 
@@ -393,7 +377,6 @@ define([
     function createConstructor(isAbstract) {
 
         var Instance = function Instance() {
-
             var x,
                 tmp;
 
@@ -430,7 +413,6 @@ define([
      */
     function anonymousBind(func) {
         /*jshint validthis:true*/
-
         var args = toArray(arguments),
             bound;
 
@@ -448,7 +430,6 @@ define([
      * @param {Function} parent      The parent
      */
     function inheritParent(constructor, parent) {
-
         var x,
             binds = parent[$class].binds,
             key,
@@ -474,7 +455,6 @@ define([
         }
 
         for (key in parent[$class].staticProperties) {
-
             value = parent[$class].staticProperties[key];
 
             if (key.substr(0, 2) !== '__') {
@@ -495,7 +475,6 @@ define([
      * @param {Function} The old or the new constructor
      */
     function optimizeConstructor(constructor) {
-
         var tmp = constructor[$class],
             canOptimizeConst,
             newConstructor;
@@ -527,7 +506,6 @@ define([
      */
     function extend(params, $arg) {
         /*jshint validthis:true*/
-
         return Class.declare(this, params, $arg);
     }
 
@@ -541,7 +519,6 @@ define([
      * @return {Function} The constructor
      */
     createClass = function (params, constructor, isAbstract) {
-
         var dejavu,
             parent,
             isEfficient = !!constructor;
@@ -616,7 +593,6 @@ define([
      * @return {Function} The constructor
      */
     Class.declare = function (arg1, arg2, $arg3) {
-
         var params,
             callable = isFunction(this) ? this : createClass,
             constructor;
@@ -665,7 +641,7 @@ define([
         }
     }
 
-    obfuscateProperty(Function.prototype, '$bound', function (context) {
+    obfuscateProperty(Function.prototype, '$bound', function () {
         this[$bound] = true;
 
         return this;

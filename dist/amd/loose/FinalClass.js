@@ -16,7 +16,6 @@ define([
      * @return {Function} The constructor
      */
     function createFinalClass(params, constructor) {
-
         var def = Class.$create(params, constructor);
 
         return def;

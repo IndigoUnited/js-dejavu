@@ -691,7 +691,6 @@ define('common/functionMeta',[], function () {
      * @return {Object|null} An object containg the function metadata
      */
     function functionMeta(func, name) {
-
         var matches = /^function(\s+[a-zA-Z0-9_$]*)*\s*\(([^\(]*)\)/m.exec(func.toString()),
             ret,
             split,
@@ -710,7 +709,6 @@ define('common/functionMeta',[], function () {
         ret = { mandatory: 0, optional: 0, signature: '' };
 
         if (split[0] !== '') {
-
             for (x = 0; x < length; x += 1) {
                 if (split[x].charAt(0) === '$') {
                     ret.optional += 1;
@@ -760,7 +758,6 @@ define('common/propertyMeta',[], function () {
      * @return {Object} An object containg the metadata
      */
     function propertyMeta(prop, name) {
-
         var ret = {};
 
         // Is it undefined?
@@ -850,7 +847,6 @@ define('common/checkKeywords',[
      * @param {String} [type] The list of reserved word to test (defaults to all)
      */
     function checkKeywords(object, type) {
-
         var reserved = type === 'normal' || !type ? reservedNormal : (type === 'all' ? reservedAll : reservedStatics),
             x;
 
@@ -933,7 +929,6 @@ define('common/testKeywords',[
      * @return {Mixed} False if is ok, or the key that is unallowed.
      */
     function testKeywords(object, allowed) {
-
         var test = allowed ? difference(keywords, allowed) : keywords,
             x;
 
@@ -960,7 +955,6 @@ define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFun
      * @return {Boolean} True if it supports, false otherwise
      */
     function hasDefineProperty() {
-
         if (!isFunction(Object.defineProperty)) {
             return false;
         }
@@ -987,7 +981,6 @@ define('common/isObjectPrototypeSpoiled',[], function () {
      * @return {Boolean} True if it is, false otherwise
      */
     function isObjectPrototypeSpoiled() {
-
         var obj = {},
             key;
 
@@ -1018,7 +1011,6 @@ define('common/checkObjectPrototype',[
      * Also seals it, preventing any additions or deletions.
      */
     function checkObjectPrototype() {
-
         if (isObjectPrototypeSpoiled()) {
             throw new Error('dejavu will not work properly if Object.prototype has enumerable properties!');
         }
@@ -1049,7 +1041,6 @@ define('common/randomAccessor',['amd-utils/array/contains'], function (contains)
      * @return {String} The random string
      */
     function randomAccessor(caller) {
-
         if (nrAccesses > 5 || !contains(allowed, caller)) {
             throw new Error('Can\'t access random identifier.');
         }
@@ -1074,7 +1065,6 @@ define('common/hasFreezeBug',['amd-utils/lang/isFunction'], function (isFunction
      * @return {Boolean} True if it has, false otherwise
      */
     function checkHasFreezeBug() {
-
         if (!isFunction(Object.freeze)) {
             return false;
         }
@@ -1108,8 +1098,12 @@ define('common/printWarning',['amd-utils/lang/isFunction'], function (isFunction
 
     'use strict';
 
+    /**
+     * Simple function to print warning in the console only if the console is available.
+     *
+     * @param {String} message The message to print
+     */
     function printWarning(message) {
-
         if (typeof console !== 'undefined' && isFunction(console.warn)) {
             console.warn(message);
         }
@@ -1134,7 +1128,6 @@ define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefinePr
      * @param {Boolean} [isDeletable] True to be deletable, false otherwise (defaults to false)
      */
     function obfuscateProperty(obj, key, value, isWritable, isDeletable) {
-
         if (hasDefineProperty) {
             Object.defineProperty(obj, key, {
                 value: value,
@@ -1214,7 +1207,6 @@ define('common/isPlainObject',[
      * @param {Object} obj The object
      */
     function isPlainObject(obj) {
-
         var proto = '__proto__',
             key;
 
@@ -1367,7 +1359,6 @@ define('common/mixIn',[], function () {
      * @return {object} Target Object
      */
     function mixIn(target, objects) {
-
         var x,
             length = arguments.length,
             key,
@@ -1630,7 +1621,6 @@ define('Class',[
      * @return {Mixed} The cloned property
      */
     function cloneProperty(prop) {
-
         // We treat object differently than amd-utils
         // If is a plain object, we use our built-in mixIn to be faster
         // Otherwise we do a createObject
@@ -1658,7 +1648,6 @@ define('Class',[
      * @return {Function} The wrapper
      */
     function wrapMethod(method, constructor, classId, classBaseId, parentMeta) {
-
         if (method[$wrapped]) {
             method = method[$wrapped];
         }
@@ -1673,7 +1662,6 @@ define('Class',[
         }
 
         wrapper = function () {
-
             var prevCaller = caller,
                 prevCallerClassId = callerClassId,
                 prevCallerClassBaseId = callerClassBaseId,
@@ -1723,7 +1711,6 @@ define('Class',[
      * @return {Function} The wrapper
      */
     function wrapStaticMethod(method, constructor, classId, classBaseId, parentMeta) {
-
         if (method[$wrapped]) {
             method = method[$wrapped];
         }
@@ -1732,7 +1719,6 @@ define('Class',[
             wrapper;
 
         wrapper = function () {
-
             var prevCaller = caller,
                 prevCallerClassId = callerClassId,
                 prevCallerClassBaseId = callerClassBaseId,
@@ -1791,7 +1777,6 @@ define('Class',[
      * @param {Object}   [opts]      The options, defaults to {}
      */
     function addMethod(name, method, constructor, opts) {
-
         var metadata,
             isStatic = !!(opts && opts.isStatic),
             isFinal,
@@ -1936,7 +1921,6 @@ define('Class',[
      * @param {Object}   [opts]      The options (defaults to {})
      */
     function addProperty(name, value, constructor, opts) {
-
         var metadata,
             isStatic = !!(opts && (opts.isStatic || opts.isConst)),
             isFinal,
@@ -2045,7 +2029,6 @@ define('Class',[
      * @param {Function} constructor The constructor
      */
     function parseBorrows(params, constructor) {
-
         if (hasOwn(params, '$borrows')) {
 
             var current,
@@ -2064,7 +2047,6 @@ define('Class',[
             }
 
             for (i -= 1; i >= 0; i -= 1) {
-
                 // Verify each mixin
                 if ((!isFunction(mixins[i]) || !mixins[i][$class]) && (!isObject(mixins[i]) || mixins[i].$static)) {
                     throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
@@ -2144,7 +2126,6 @@ define('Class',[
      * @param {Object} target  The target that has the interfaces
      */
     function handleInterfaces(interfs, target) {
-
         var interfaces = toArray(interfs),
             interf,
             x = interfaces.length,
@@ -2161,7 +2142,6 @@ define('Class',[
         }
 
         for (x -= 1; x >= 0; x -= 1) {
-
             interf = interfaces[x];
 
             // Verify if it's a valid interface
@@ -2195,7 +2175,6 @@ define('Class',[
      * @param {Boolean}  isFinal     Parse the members as finals
      */
     function parseMembers(params, constructor, isFinal) {
-
         var opts = { isFinal: !!isFinal },
             key,
             value,
@@ -2204,7 +2183,6 @@ define('Class',[
 
         // Add each method metadata, verifying its signature
         if (hasOwn(params, '$statics')) {
-
             // Check if is an object
             if (!isObject(params.$statics)) {
                 throw new Error('$statics definition of class "' + params.$name + '" must be an object.');
@@ -2222,7 +2200,6 @@ define('Class',[
             opts.isStatic = true;
 
             for (key in params.$statics) {
-
                 value = params.$statics[key];
 
                 if (isFunction(value) && !value[$class] && !value[$interface]) {
@@ -2253,7 +2230,6 @@ define('Class',[
         }
 
         for (key in params) {
-
             value = params[key];
 
             if (isFunction(value) && !value[$class] && !value[$interface]) {
@@ -2274,7 +2250,6 @@ define('Class',[
      * @param {Function} constructor The constructor
      */
     function parseClass(params, constructor) {
-
         var opts = {},
             key,
             value,
@@ -2285,7 +2260,6 @@ define('Class',[
 
          // Save constants & finals to parse later
         if (hasOwn(params, '$constants')) {
-
             // Check argument
             if (!isObject(params.$constants)) {
                 throw new Error('$constants of class "' + constructor.prototype.$name + '" must be an object.');
@@ -2314,7 +2288,6 @@ define('Class',[
         }
 
         if (hasOwn(params, '$finals')) {
-
             // Check argument
             if (!isObject(params.$finals)) {
                 throw new Error('$finals of class "' + constructor.prototype.$name + '" must be an object.');
@@ -2331,7 +2304,6 @@ define('Class',[
 
             // Check ambiguity
             if (isObject(params.$finals.$statics)) {
-
                 if (isObject(params.$statics)) {
                     ambiguous = intersection(keys(params.$finals.$statics), keys(params.$statics));
                     if (ambiguous.length) {
@@ -2363,7 +2335,6 @@ define('Class',[
 
         // Parse constants
         if (has.$constants) {
-
             opts.isConst = true;
 
             for (key in saved.$constants) {
@@ -2393,7 +2364,6 @@ define('Class',[
      * @param {Object} instance The target instance
      */
     function applyBinds(fns, instance) {
-
         var i,
             current;
 
@@ -2412,7 +2382,6 @@ define('Class',[
      * @param {Object} instance The instance that will have the method
      */
     function protectMethod(name, meta, instance) {
-
         instance[cacheKeyword].methods[name] = meta.implementation;
 
         if (meta.isPrivate) {
@@ -2512,7 +2481,6 @@ define('Class',[
      * @param {Function} constructor The constructor that will have the method
      */
     function protectStaticMethod(name, meta, constructor) {
-
         constructor[cacheKeyword].methods[name] = meta.implementation;
 
         if (meta.isPrivate) {
@@ -2570,7 +2538,7 @@ define('Class',[
                 get: function get() {
                     return this[cacheKeyword].methods[name];
                 },
-                set: function set(newVal) {
+                set: function set() {
                     throw new Error('Cannot set public static method "' + name + '" of class "' + this.$name + '".');
                 },
                 configurable: false,
@@ -2587,7 +2555,6 @@ define('Class',[
      * @param {Object} instance The instance that will have the property
      */
     function protectProperty(name, meta, instance) {
-
         if (meta.isPrivate) {
             instance[cacheKeyword].properties[name] = cloneProperty(meta.value);
 
@@ -2681,7 +2648,6 @@ define('Class',[
      * @param {Function} constructor The constructor that will have the property
      */
     function protectStaticProperty(name, meta, constructor) {
-
         if (meta.isPrivate) {
             constructor[cacheKeyword].properties[name] = !meta.isConst ? cloneProperty(meta.value) : meta.value;
 
@@ -2792,7 +2758,6 @@ define('Class',[
      * @param {Object} instance The instance to be protected
      */
     function protectInstance(instance) {
-
         var key;
 
         obfuscateProperty(instance, cacheKeyword, { properties: {}, methods: {} });
@@ -2814,7 +2779,6 @@ define('Class',[
      * @param {Function} constructor The constructor to be protected
      */
     function protectConstructor(constructor) {
-
         var key;
 
         obfuscateProperty(constructor, cacheKeyword, { properties: {}, methods: {} });
@@ -2851,7 +2815,6 @@ define('Class',[
     function createConstructor(isAbstract) {
 
         var Instance = function Instance() {
-
             var x,
                 tmp;
 
@@ -2927,7 +2890,6 @@ define('Class',[
      */
     function anonymousBind(func) {
         /*jshint validthis:true*/
-
         if (func[$name]) {
             throw new Error('Function with name "' + func[$name] + '" is not anonymous.');
         }
@@ -2956,7 +2918,6 @@ define('Class',[
      */
     function anonymousBindStatic(func) {
         /*jshint validthis:true*/
-
         if (func[$name]) {
             throw new Error('Function with name "' + func[$name] + '" is not anonymous.');
         }
@@ -2984,7 +2945,6 @@ define('Class',[
      * @param {Function} parent      The parent
      */
     function inheritParent(constructor, parent) {
-
         var x,
             binds = parent[$class].binds,
             key,
@@ -3005,7 +2965,6 @@ define('Class',[
 
         // Inherit static methods and properties
         for (key in parent[$class].staticMethods) {
-
             value = parent[$class].staticMethods[key];
 
             if (!value.isPrivate) {
@@ -3015,7 +2974,6 @@ define('Class',[
         }
 
         for (key in parent[$class].staticProperties) {
-
             value = parent[$class].staticProperties[key];
 
             if (!value.isPrivate) {
@@ -3039,7 +2997,6 @@ define('Class',[
      */
     function extend(params, $arg) {
         /*jshint validthis:true*/
-
         return Class.declare(this, params, $arg);
     }
 
@@ -3071,7 +3028,6 @@ define('Class',[
      * @return {Function} The constructor
      */
     createClass = function (params, constructor, isAbstract) {
-
         var dejavu,
             parent,
             tmp,
@@ -3124,7 +3080,7 @@ define('Class',[
             }
             // Verify if we are inheriting a final class
             if (params.$extends[$class].finalClass) {
-                throw new Error('Class "' + params.$name + '" cannot inherit from final class "' + params.$extends.prototype.$name + "'.");
+                throw new Error('Class "' + params.$name + '" cannot inherit from final class "' + params.$extends.prototype.$name + '".');
             }
 
             parent = params.$extends;
@@ -3228,7 +3184,6 @@ define('Class',[
      * @return {Function} The constructor
      */
     Class.declare = function (arg1, arg2, $arg3) {
-
         var params,
             callable = isFunction(this) ? this : createClass,
             constructor;
@@ -3283,7 +3238,7 @@ define('Class',[
         }
     }
 
-    obfuscateProperty(Function.prototype, '$bound', function (context) {
+    obfuscateProperty(Function.prototype, '$bound', function () {
         this[$bound] = true;
 
         return this;
@@ -3400,7 +3355,6 @@ define('AbstractClass',[
      * @param {Object}   [opts]      The options, defaults to {}
      */
     function addMethod(name, method, constructor, opts) {
-
         var metadata,
             isStatic = opts && opts.isStatic,
             target;
@@ -3462,7 +3416,6 @@ define('AbstractClass',[
      */
     function checkClass(target) {
         /*jshint validthis:true*/
-
         var key,
             value;
 
@@ -3500,7 +3453,6 @@ define('AbstractClass',[
      * @param {Function} constructor The constructor
      */
     function parseAbstracts(abstracts, constructor) {
-
         var optsStatic = { isStatic: true },
             key,
             value,
@@ -3508,7 +3460,7 @@ define('AbstractClass',[
 
         // Check argument
         if (!isObject(abstracts)) {
-            throw new Error('$abstracts defined in abstract class "' + constructor.prototype.$name + "' must be an object.");
+            throw new Error('$abstracts defined in abstract class "' + constructor.prototype.$name + '" must be an object.');
         }
 
         // Check reserved keywords
@@ -3521,7 +3473,6 @@ define('AbstractClass',[
         }
 
         if (hasOwn(abstracts, '$statics')) {
-
             // Check argument
             if (!isObject(abstracts.$statics)) {
                 throw new Error('$statics definition in $abstracts of abstract class "' + constructor.prototype.$name + '" must be an object.');
@@ -3537,7 +3488,6 @@ define('AbstractClass',[
             }
 
             for (key in abstracts.$statics) {
-
                 value = abstracts.$statics[key];
 
                 // Check if it is not a function
@@ -3552,7 +3502,6 @@ define('AbstractClass',[
         }
 
         for (key in abstracts) {
-
             value = abstracts[key];
 
             // Check if it is not a function
@@ -3571,7 +3520,6 @@ define('AbstractClass',[
      * @param {Function} constructor The constructor
      */
     function parseInterfaces(interfaces, constructor) {
-
         var interfs = toArray(interfaces),
             x = interfs.length,
             interf,
@@ -3579,7 +3527,6 @@ define('AbstractClass',[
             value;
 
         for (x -= 1; x >= 0; x -= 1) {
-
             interf = interfs[x];
 
             // Grab methods
@@ -3623,7 +3570,6 @@ define('AbstractClass',[
      * @return {Function} The constructor
      */
     function createAbstractClass(params, constructor) {
-
         if (!isObject(params)) {
             throw new Error('Argument "params" must be an object while defining an abstract class.');
         }
@@ -3644,7 +3590,6 @@ define('AbstractClass',[
 
         // If we are extending an abstract class also, inherit the abstract methods
         if (isFunction(params.$extends)) {
-
             if (params.$extends[$abstract]) {
                 mixIn(abstractObj.methods, params.$extends[$abstract].methods);
                 mixIn(abstractObj.staticMethods, params.$extends[$abstract].staticMethods);
@@ -3771,13 +3716,11 @@ define('Interface',[
      */
     function checkClass(target) {
         /*jshint validthis:true*/
-
         var key,
             value;
 
         // Check normal functions
         for (key in this[$interface].methods) {
-
             value = this[$interface].methods[key];
 
             if (!target[$class].methods[key]) {
@@ -3814,7 +3757,6 @@ define('Interface',[
      * @param {Object}   [opts] The options (defaults to {})
      */
     function addMethod(name, method, interf, opts) {
-
         var metadata,
             isStatic = opts && opts.isStatic,
             target;
@@ -3858,7 +3800,6 @@ define('Interface',[
      * @param {Function} interf      The interface in which the constant will be saved
      */
     function assignConstant(name, value, interf) {
-
         if (hasDefineProperty) {
             Object.defineProperty(interf, name, {
                 get: function () {
@@ -3884,7 +3825,6 @@ define('Interface',[
      * @param {Function} interf      The interface in which the constant will be saved
      */
     function addConstant(name, value, interf) {
-
         var target;
 
         // Check if it is public
@@ -3916,7 +3856,6 @@ define('Interface',[
      */
     function extend(params) {
         /*jshint validthis:true*/
-
         if (params.$extends) {
             throw new Error('Object passed cannot contain an $extends property.');
         }
@@ -3934,7 +3873,6 @@ define('Interface',[
      * @return {Function} The constructor
      */
     function createInterface(params) {
-
         // Validate params as an object
         if (!isObject(params)) {
             throw new Error('Expected "params" to be an object with the interface members.');
@@ -3970,7 +3908,6 @@ define('Interface',[
         interf.prototype.$name = params.$name;
 
         if (hasOwn(params, '$extends')) {
-
             parents = toArray(params.$extends);
             k = parents.length;
 
@@ -3984,7 +3921,6 @@ define('Interface',[
             }
 
             for (k -= 1; k >= 0; k -= 1) {
-
                 current = parents[k];
 
                 // Check if it is a valid interface
@@ -4044,7 +3980,6 @@ define('Interface',[
 
         // Parse constants
         if (hasOwn(params, '$constants')) {
-
             // Check argument
             if (!isObject(params.$constants)) {
                 throw new Error('$constants definition of interface "' + params.$name + '" must be an object.');
@@ -4076,7 +4011,6 @@ define('Interface',[
 
         // Parse statics
         if (hasOwn(params, '$statics')) {
-
             // Check argument
             if (!isObject(params.$statics)) {
                 throw new Error('$statics definition of interface "' + params.$name + '" must be an object.');
@@ -4094,7 +4028,6 @@ define('Interface',[
             opts.isStatic = true;
 
             for (k in params.$statics) {
-
                 value = params.$statics[k];
 
                 // Check if it is not a function
@@ -4170,7 +4103,6 @@ define('FinalClass',[
      * @return {Function} The constructor
      */
     function createFinalClass(params, constructor) {
-
         var def = Class.$create(params, constructor);
         def[$class].finalClass = true;
 
@@ -4214,7 +4146,6 @@ define('instanceOf',[
      * @return {Boolean} True if it's a descendant, false otherwise
      */
     function interfaceDescendantOf(interf1, interf2) {
-
         var x,
             parents = interf1[$interface].parents;
 
@@ -4239,7 +4170,6 @@ define('instanceOf',[
      * @return {Boolean} True if it is, false otherwise
      */
     function instanceOfInterface(instance, target) {
-
         var x,
             interfaces = instance.$static[$class].interfaces;
 
@@ -4261,7 +4191,6 @@ define('instanceOf',[
      * @return {Boolean} True if it is a valid instance of target, false otherwise
      */
     function instanceOf(instance, target) {
-
         if (instance instanceof target) {
             return true;
         }

@@ -22,7 +22,6 @@ define([
      */
     function extend(params) {
         /*jshint validthis:true*/
-
         params.$extends = this;
 
         return Interface.declare(params);
@@ -36,7 +35,6 @@ define([
      * @return {Function} The constructor
      */
     function createInterface(params) {
-
         delete params.$name;
 
         var parents,
@@ -48,12 +46,10 @@ define([
         interf[$interface] = { parents: [], constants: [] };
 
         if (hasOwn(params, '$extends')) {
-
             parents = toArray(params.$extends);
             k = parents.length;
 
             for (k -= 1; k >= 0; k -= 1) {
-
                 current = parents[k];
 
                 // Add interface constants
@@ -70,7 +66,6 @@ define([
 
         // Parse constants
         if (hasOwn(params, '$constants')) {
-
             for (k in params.$constants) {
                 interf[k] = params.$constants[k];
                 interf[$interface].constants.push(k);

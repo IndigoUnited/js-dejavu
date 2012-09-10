@@ -25,7 +25,6 @@ define([
      * @param {String} [type] The list of reserved word to test (defaults to all)
      */
     function checkKeywords(object, type) {
-
         var reserved = type === 'normal' || !type ? reservedNormal : (type === 'all' ? reservedAll : reservedStatics),
             x;
 

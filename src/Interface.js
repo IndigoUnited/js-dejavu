@@ -73,13 +73,11 @@ define([
      */
     function checkClass(target) {
         /*jshint validthis:true*/
-
         var key,
             value;
 
         // Check normal functions
         for (key in this[$interface].methods) {
-
             value = this[$interface].methods[key];
 
             if (!target[$class].methods[key]) {
@@ -116,7 +114,6 @@ define([
      * @param {Object}   [opts] The options (defaults to {})
      */
     function addMethod(name, method, interf, opts) {
-
         var metadata,
             isStatic = opts && opts.isStatic,
             target;
@@ -160,7 +157,6 @@ define([
      * @param {Function} interf      The interface in which the constant will be saved
      */
     function assignConstant(name, value, interf) {
-
         if (hasDefineProperty) {
             Object.defineProperty(interf, name, {
                 get: function () {
@@ -186,7 +182,6 @@ define([
      * @param {Function} interf      The interface in which the constant will be saved
      */
     function addConstant(name, value, interf) {
-
         var target;
 
         // Check if it is public
@@ -219,7 +214,6 @@ define([
      */
     function extend(params) {
         /*jshint validthis:true*/
-
 //>>includeStart('strict', pragmas.strict);
         if (params.$extends) {
             throw new Error('Object passed cannot contain an $extends property.');
@@ -239,7 +233,6 @@ define([
      * @return {Function} The constructor
      */
     function createInterface(params) {
-
 //>>includeStart('strict', pragmas.strict);
         // Validate params as an object
         if (!isObject(params)) {
@@ -291,7 +284,6 @@ define([
 //>>excludeEnd('strict');
 
         if (hasOwn(params, '$extends')) {
-
             parents = toArray(params.$extends);
             k = parents.length;
 
@@ -307,7 +299,6 @@ define([
 
 //>>includeEnd('strict');
             for (k -= 1; k >= 0; k -= 1) {
-
                 current = parents[k];
 
 //>>includeStart('strict', pragmas.strict);
@@ -377,7 +368,6 @@ define([
 //>>includeEnd('strict');
         // Parse constants
         if (hasOwn(params, '$constants')) {
-
 //>>includeStart('strict', pragmas.strict);
             // Check argument
             if (!isObject(params.$constants)) {
@@ -420,7 +410,6 @@ define([
 //>>includeStart('strict', pragmas.strict);
         // Parse statics
         if (hasOwn(params, '$statics')) {
-
             // Check argument
             if (!isObject(params.$statics)) {
                 throw new Error('$statics definition of interface "' + params.$name + '" must be an object.');
@@ -438,7 +427,6 @@ define([
             opts.isStatic = true;
 
             for (k in params.$statics) {
-
                 value = params.$statics[k];
 
                 // Check if it is not a function

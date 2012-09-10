@@ -12,7 +12,6 @@ define([], function () {
      * @return {Object} An object containg the metadata
      */
     function propertyMeta(prop, name) {
-
         var ret = {};
 
         // Is it undefined?

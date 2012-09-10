@@ -133,7 +133,6 @@ define([
      * @return {Mixed} The cloned property
      */
     function cloneProperty(prop) {
-
         // We treat object differently than amd-utils
         // If is a plain object, we use our built-in mixIn to be faster
         // Otherwise we do a createObject
@@ -160,7 +159,6 @@ define([
      * @return {Function} The wrapper
      */
     function wrapMethod(method, constructor, parent) {
-
         // Return the method if the class was created efficiently
         if (constructor[$class].efficient) {
             return method;
@@ -227,7 +225,6 @@ define([
      * @return {Function} The wrapper
      */
     function wrapMethod(method, constructor, classId, classBaseId, parentMeta) {
-
         if (method[$wrapped]) {
             method = method[$wrapped];
         }
@@ -242,7 +239,6 @@ define([
         }
 
         wrapper = function () {
-
             var prevCaller = caller,
                 prevCallerClassId = callerClassId,
                 prevCallerClassBaseId = callerClassBaseId,
@@ -292,7 +288,6 @@ define([
      * @return {Function} The wrapper
      */
     function wrapStaticMethod(method, constructor, classId, classBaseId, parentMeta) {
-
         if (method[$wrapped]) {
             method = method[$wrapped];
         }
@@ -301,7 +296,6 @@ define([
             wrapper;
 
         wrapper = function () {
-
             var prevCaller = caller,
                 prevCallerClassId = callerClassId,
                 prevCallerClassBaseId = callerClassBaseId,
@@ -360,7 +354,6 @@ define([
      * @param {Object}   [opts]      The options, defaults to {}
      */
     function addMethod(name, method, constructor, opts) {
-
         var metadata,
             isStatic = !!(opts && opts.isStatic),
             isFinal,
@@ -505,7 +498,6 @@ define([
      * @param {Object}   [opts]      The options (defaults to {})
      */
     function addProperty(name, value, constructor, opts) {
-
         var metadata,
             isStatic = !!(opts && (opts.isStatic || opts.isConst)),
             isFinal,
@@ -615,7 +607,6 @@ define([
      * @param {Function} constructor The constructor
      */
     function parseBorrows(params, constructor) {
-
         if (hasOwn(params, '$borrows')) {
 
 //>>includeStart('strict', pragmas.strict);
@@ -646,7 +637,6 @@ define([
 
 //>>includeEnd('strict');
             for (i -= 1; i >= 0; i -= 1) {
-
 //>>includeStart('strict', pragmas.strict);
                 // Verify each mixin
                 if ((!isFunction(mixins[i]) || !mixins[i][$class]) && (!isObject(mixins[i]) || mixins[i].$static)) {
@@ -684,7 +674,6 @@ define([
 
                 // Grab mixin members
                 for (key in current) {
-
                     value = current[key];
 
                     if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
@@ -743,7 +732,6 @@ define([
 //>>excludeStart('strict', pragmas.strict);
                 // Grab mixin static methods
                 for (k = current.$static[$class].staticMethods.length - 1; k >= 0; k -= 1) {
-
                     key = current.$static[$class].staticMethods[k];
 
                     if (constructor[key] === undefined) {    // Already defined members are not overwritten
@@ -754,7 +742,6 @@ define([
 
                 // Grab mixin static properties
                 for (key in current.$static[$class].staticProperties) {
-
                     value = current.$static[$class].staticProperties[key];
 
                     if (constructor[key] === undefined) {              // Already defined members are not overwritten
@@ -781,7 +768,6 @@ define([
      * @param {Object} target  The target that has the interfaces
      */
     function handleInterfaces(interfs, target) {
-
 //>>includeStart('strict', pragmas.strict);
         var interfaces = toArray(interfs),
             interf,
@@ -799,7 +785,6 @@ define([
         }
 
         for (x -= 1; x >= 0; x -= 1) {
-
             interf = interfaces[x];
 
             // Verify if it's a valid interface
@@ -832,7 +817,6 @@ define([
             k;
 
         for (x -= 1; x >= 0; x -= 1) {
-
             interf = interfs[x];
 
             // Inherit constants and add interface to the interfaces array
@@ -857,7 +841,6 @@ define([
      * @param {Boolean}  isFinal     Parse the members as finals
      */
     function parseMembers(params, constructor, isFinal) {
-
 //>>excludeStart('strict', pragmas.strict);
         var key,
             value,
@@ -874,7 +857,6 @@ define([
         // Add each method metadata, verifying its signature
 //>>includeEnd('strict');
         if (hasOwn(params, '$statics')) {
-
 //>>includeStart('strict', pragmas.strict);
             // Check if is an object
             if (!isObject(params.$statics)) {
@@ -894,7 +876,6 @@ define([
 
 //>>includeEnd('strict');
             for (key in params.$statics) {
-
                 value = params.$statics[key];
 
 //>>includeStart('strict', pragmas.strict);
@@ -938,7 +919,6 @@ define([
         }
 
         for (key in params) {
-
             value = params[key];
 
 //>>includeStart('strict', pragmas.strict);
@@ -981,7 +961,6 @@ define([
      * @param {Function} constructor The constructor
      */
     function parseClass(params, constructor) {
-
 //>>includeStart('strict', pragmas.strict);
         var opts = {},
             key,
@@ -1001,7 +980,6 @@ define([
          // Save constants & finals to parse later
         if (hasOwn(params, '$constants')) {
 //>>includeStart('strict', pragmas.strict);
-
             // Check argument
             if (!isObject(params.$constants)) {
                 throw new Error('$constants of class "' + constructor.prototype.$name + '" must be an object.');
@@ -1032,7 +1010,6 @@ define([
 
         if (hasOwn(params, '$finals')) {
 //>>includeStart('strict', pragmas.strict);
-
             // Check argument
             if (!isObject(params.$finals)) {
                 throw new Error('$finals of class "' + constructor.prototype.$name + '" must be an object.');
@@ -1049,7 +1026,6 @@ define([
 
             // Check ambiguity
             if (isObject(params.$finals.$statics)) {
-
                 if (isObject(params.$statics)) {
                     ambiguous = intersection(keys(params.$finals.$statics), keys(params.$statics));
                     if (ambiguous.length) {
@@ -1082,7 +1058,6 @@ define([
 
         // Parse constants
         if (has.$constants) {
-
 //>>includeStart('strict', pragmas.strict);
             opts.isConst = true;
 
@@ -1122,7 +1097,6 @@ define([
      * @param {Object} instance The target instance
      */
     function applyBinds(fns, instance) {
-
         var i,
             current;
 
@@ -1144,7 +1118,6 @@ define([
      * @param {Object} instance The instance that will have the method
      */
     function protectMethod(name, meta, instance) {
-
         instance[cacheKeyword].methods[name] = meta.implementation;
 
         if (meta.isPrivate) {
@@ -1244,7 +1217,6 @@ define([
      * @param {Function} constructor The constructor that will have the method
      */
     function protectStaticMethod(name, meta, constructor) {
-
         constructor[cacheKeyword].methods[name] = meta.implementation;
 
         if (meta.isPrivate) {
@@ -1302,7 +1274,7 @@ define([
                 get: function get() {
                     return this[cacheKeyword].methods[name];
                 },
-                set: function set(newVal) {
+                set: function set() {
                     throw new Error('Cannot set public static method "' + name + '" of class "' + this.$name + '".');
                 },
                 configurable: false,
@@ -1319,7 +1291,6 @@ define([
      * @param {Object} instance The instance that will have the property
      */
     function protectProperty(name, meta, instance) {
-
         if (meta.isPrivate) {
             instance[cacheKeyword].properties[name] = cloneProperty(meta.value);
 
@@ -1413,7 +1384,6 @@ define([
      * @param {Function} constructor The constructor that will have the property
      */
     function protectStaticProperty(name, meta, constructor) {
-
         if (meta.isPrivate) {
             constructor[cacheKeyword].properties[name] = !meta.isConst ? cloneProperty(meta.value) : meta.value;
 
@@ -1524,7 +1494,6 @@ define([
      * @param {Object} instance The instance to be protected
      */
     function protectInstance(instance) {
-
         var key;
 
         obfuscateProperty(instance, cacheKeyword, { properties: {}, methods: {} });
@@ -1546,7 +1515,6 @@ define([
      * @param {Function} constructor The constructor to be protected
      */
     function protectConstructor(constructor) {
-
         var key;
 
         obfuscateProperty(constructor, cacheKeyword, { properties: {}, methods: {} });
@@ -1584,7 +1552,6 @@ define([
     function createConstructor(isAbstract) {
 
         var Instance = function Instance() {
-
             var x,
                 tmp;
 
@@ -1675,7 +1642,6 @@ define([
      */
     function anonymousBind(func) {
         /*jshint validthis:true*/
-
         var args = toArray(arguments),
             bound;
 
@@ -1702,7 +1668,6 @@ define([
      */
     function anonymousBind(func) {
         /*jshint validthis:true*/
-
         if (func[$name]) {
             throw new Error('Function with name "' + func[$name] + '" is not anonymous.');
         }
@@ -1731,7 +1696,6 @@ define([
      */
     function anonymousBindStatic(func) {
         /*jshint validthis:true*/
-
         if (func[$name]) {
             throw new Error('Function with name "' + func[$name] + '" is not anonymous.');
         }
@@ -1760,7 +1724,6 @@ define([
      * @param {Function} parent      The parent
      */
     function inheritParent(constructor, parent) {
-
         var x,
             binds = parent[$class].binds,
             key,
@@ -1787,7 +1750,6 @@ define([
         }
 
         for (key in parent[$class].staticProperties) {
-
             value = parent[$class].staticProperties[key];
 
             if (key.substr(0, 2) !== '__') {
@@ -1805,7 +1767,6 @@ define([
 
         // Inherit static methods and properties
         for (key in parent[$class].staticMethods) {
-
             value = parent[$class].staticMethods[key];
 
             if (!value.isPrivate) {
@@ -1815,7 +1776,6 @@ define([
         }
 
         for (key in parent[$class].staticProperties) {
-
             value = parent[$class].staticProperties[key];
 
             if (!value.isPrivate) {
@@ -1840,7 +1800,6 @@ define([
      * @param {Function} The old or the new constructor
      */
     function optimizeConstructor(constructor) {
-
         var tmp = constructor[$class],
             canOptimizeConst,
             newConstructor;
@@ -1873,7 +1832,6 @@ define([
      */
     function extend(params, $arg) {
         /*jshint validthis:true*/
-
         return Class.declare(this, params, $arg);
     }
 
@@ -1907,7 +1865,6 @@ define([
      * @return {Function} The constructor
      */
     createClass = function (params, constructor, isAbstract) {
-
 //>>excludeStart('strict', pragmas.strict);
         var dejavu,
             parent,
@@ -1968,7 +1925,7 @@ define([
             }
             // Verify if we are inheriting a final class
             if (params.$extends[$class].finalClass) {
-                throw new Error('Class "' + params.$name + '" cannot inherit from final class "' + params.$extends.prototype.$name + "'.");
+                throw new Error('Class "' + params.$name + '" cannot inherit from final class "' + params.$extends.prototype.$name + '".');
             }
 
 //>>includeEnd('strict');
@@ -2112,7 +2069,6 @@ define([
      * @return {Function} The constructor
      */
     Class.declare = function (arg1, arg2, $arg3) {
-
         var params,
             callable = isFunction(this) ? this : createClass,
             constructor;
@@ -2177,7 +2133,7 @@ define([
         }
     }
 
-    obfuscateProperty(Function.prototype, '$bound', function (context) {
+    obfuscateProperty(Function.prototype, '$bound', function () {
         this[$bound] = true;
 
         return this;

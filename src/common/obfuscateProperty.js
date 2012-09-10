@@ -13,7 +13,6 @@ define(['./hasDefineProperty'], function (hasDefineProperty) {
      * @param {Boolean} [isDeletable] True to be deletable, false otherwise (defaults to false)
      */
     function obfuscateProperty(obj, key, value, isWritable, isDeletable) {
-
         if (hasDefineProperty) {
             Object.defineProperty(obj, key, {
                 value: value,

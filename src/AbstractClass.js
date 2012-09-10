@@ -71,7 +71,6 @@ define([
      * @param {Object}   [opts]      The options, defaults to {}
      */
     function addMethod(name, method, constructor, opts) {
-
         var metadata,
             isStatic = opts && opts.isStatic,
             target;
@@ -133,7 +132,6 @@ define([
      */
     function checkClass(target) {
         /*jshint validthis:true*/
-
         var key,
             value;
 
@@ -171,7 +169,6 @@ define([
      * @param {Function} constructor The constructor
      */
     function parseAbstracts(abstracts, constructor) {
-
         var optsStatic = { isStatic: true },
             key,
             value,
@@ -179,7 +176,7 @@ define([
 
         // Check argument
         if (!isObject(abstracts)) {
-            throw new Error('$abstracts defined in abstract class "' + constructor.prototype.$name + "' must be an object.");
+            throw new Error('$abstracts defined in abstract class "' + constructor.prototype.$name + '" must be an object.');
         }
 
         // Check reserved keywords
@@ -192,7 +189,6 @@ define([
         }
 
         if (hasOwn(abstracts, '$statics')) {
-
             // Check argument
             if (!isObject(abstracts.$statics)) {
                 throw new Error('$statics definition in $abstracts of abstract class "' + constructor.prototype.$name + '" must be an object.');
@@ -208,7 +204,6 @@ define([
             }
 
             for (key in abstracts.$statics) {
-
                 value = abstracts.$statics[key];
 
                 // Check if it is not a function
@@ -223,7 +218,6 @@ define([
         }
 
         for (key in abstracts) {
-
             value = abstracts[key];
 
             // Check if it is not a function
@@ -242,7 +236,6 @@ define([
      * @param {Function} constructor The constructor
      */
     function parseInterfaces(interfaces, constructor) {
-
         var interfs = toArray(interfaces),
             x = interfs.length,
             interf,
@@ -250,7 +243,6 @@ define([
             value;
 
         for (x -= 1; x >= 0; x -= 1) {
-
             interf = interfs[x];
 
             // Grab methods
@@ -295,7 +287,6 @@ define([
      * @return {Function} The constructor
      */
     function createAbstractClass(params, constructor) {
-
 //>>includeStart('strict', pragmas.strict);
         if (!isObject(params)) {
             throw new Error('Argument "params" must be an object while defining an abstract class.');
@@ -325,7 +316,6 @@ define([
 
         // If we are extending an abstract class also, inherit the abstract methods
         if (isFunction(params.$extends)) {
-
             if (params.$extends[$abstract]) {
                 mixIn(abstractObj.methods, params.$extends[$abstract].methods);
                 mixIn(abstractObj.staticMethods, params.$extends[$abstract].staticMethods);
