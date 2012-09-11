@@ -404,7 +404,7 @@ define([
 
         params.$name = name;
 
-        // Supply .extend() to easily extend a class
+        // Supply .extend() to easily extend an interface
         interf.extend = extend;
 
         return interf;
