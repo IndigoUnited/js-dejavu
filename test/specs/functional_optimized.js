@@ -406,7 +406,6 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             }),
                 OtherClass = Class.declare(SomeClass, function ($super, $self, $parent) {
                     return {
-                        $name: 'OtherClass',
                         initialize: function () {
                             $super.initialize.call(this);
                         },
@@ -1677,6 +1676,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
             var SomeClass = Class.declare(function ($self) {
                 return {
+                    $name: 'SomeClass',
                     _protectedMethod: function () {
                         this._protectedProperty = 'test';
                     }.$bound(),
@@ -2059,6 +2059,27 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         });
                     }).to.throwException(/access protected/);*/
 
+                    expect(function () {
+                        var Common = Class.declare(function () { return {}; }, true),
+                            A = Class.declare(Common, function ($super) {
+                                return {
+                                    foo: function (b) {
+                                        return 'ola ' + b._bar();
+                                    }
+                                };
+                            }, true),
+                            B = Class.declare(Common, function ($super) {
+                                return {
+                                    _bar: function () {
+                                        return 'mundo';
+                                    }
+                                };
+                            }, true),
+                            a = new A(),
+                            b = new B();
+
+                        a.foo(b);
+                    }).to.throwException(/access protected/);
                 });
 
             }
@@ -2457,6 +2478,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             getInstance: function () {
                                 return new OtherSubSingleton();
                             }
+
                         }
                     };
                 }, true),
@@ -2465,6 +2487,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         $statics: {
                             getInstance: function () {
                                 return new OtherSubSingleton2();
+                            },
+                            getInstanceWrong: function () {
+                                return new Singleton2();
+                            },
+                            getInstanceWrong2: function () {
+                                return new SubSingleton2();
                             }
                         }
                     };
@@ -2477,7 +2505,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }).to.not.throwException();
 
                 expect(function () {
-                    return SubSingleton2.getInstance();
+                    return SubSingleton.getInstance();
                 }).to.not.throwException();
 
                 expect(function () {
@@ -2487,6 +2515,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             });
 
             it('should be accomplished with private constructors', function () {
+
 
                 expect(function () {
                     return Singleton2.getInstance();
@@ -2499,6 +2528,16 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     return OtherSubSingleton2.getInstance();
                 }).to.not.throwException();
+
+                if (/strict/.test(global.build)) {
+                    expect(function () {
+                        return OtherSubSingleton2.getInstanceWrong();
+                    }).to.throwException(/is private/);
+
+                    expect(function () {
+                        return OtherSubSingleton2.getInstanceWrong2();
+                    }).to.throwException(/is private/);
+                }
 
             });
 
