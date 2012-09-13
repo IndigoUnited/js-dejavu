@@ -89,8 +89,8 @@ define([
         descriptor,
         nextId = 0,
         caller,
+        callerClass,
         callerClassId,
-        callerClassBaseId,
         toStringInstance,
         toStringConstructor;
 
@@ -124,12 +124,11 @@ define([
      * @param {Function} method      The method to wrap
      * @param {Function} constructor The constructor
      * @param {String}   classId     The class id
-     * @param {String}   classBaseId The class base id
      * @param {Object}   parentMeta  The parent method metada
      *
      * @return {Function} The wrapper
      */
-    function wrapMethod(method, constructor, classId, classBaseId, parentMeta) {
+    function wrapMethod(method, constructor, classId, parentMeta) {
         if (method[$wrapped]) {
             method = method[$wrapped];
         }
@@ -144,28 +143,24 @@ define([
         }
 
         wrapper = function () {
-            var prevCaller = caller,
-                prevCallerClassId = callerClassId,
-                prevCallerClassBaseId = callerClassBaseId,
-                _super = this.$super,
+            var _super = this.$super,
                 _self = this.$self,
+                prevCaller = caller,
+                prevCallerClassId = callerClassId,
                 ret;
 
             caller = method;
             callerClassId = classId;
-            callerClassBaseId = classBaseId;
-
             this.$super = parent;
-            this.$self = constructor;
+            callerClass = this.$self = constructor;
 
             try {
                 ret = method.apply(this, arguments);
             } finally {
                 caller = prevCaller;
                 callerClassId = prevCallerClassId;
-                callerClassBaseId = prevCallerClassBaseId;
                 this.$super = _super;
-                this.$self = _self;
+                callerClass = this.$self = _self;
             }
 
             return ret;
@@ -187,12 +182,11 @@ define([
      * @param {Function} method      The method to wrap
      * @param {Function} constructor The constructor
      * @param {String}   classId     The class id
-     * @param {String}   classBaseId The class base id
      * @param {Object}   parentMeta  The parent method metadata
      *
      * @return {Function} The wrapper
      */
-    function wrapStaticMethod(method, constructor, classId, classBaseId, parentMeta) {
+    function wrapStaticMethod(method, constructor, classId, parentMeta) {
         if (method[$wrapped]) {
             method = method[$wrapped];
         }
@@ -200,29 +194,26 @@ define([
         var parent = parentMeta ? parentMeta.implementation : parentMeta,
             wrapper;
 
+
         wrapper = function () {
-            var prevCaller = caller,
-                prevCallerClassId = callerClassId,
-                prevCallerClassBaseId = callerClassBaseId,
-                _super = this.$super,
+            var _super = this.$super,
                 _self = this.$self,
+                prevCaller = caller,
+                prevCallerClassId = callerClassId,
                 ret;
 
             caller = method;
             callerClassId = classId;
-            callerClassBaseId = classBaseId;
-
             this.$super = parent;
-            this.$self =  constructor;
+            callerClass = this.$self = constructor;
 
             try {
                 ret = method.apply(this, arguments);
             } finally {
                 caller = prevCaller;
                 callerClassId = prevCallerClassId;
-                callerClassBaseId = prevCallerClassBaseId;
                 this.$super = _super;
-                this.$self = _self;
+                callerClass = this.$self = _self;
             }
 
             return ret;
@@ -259,12 +250,14 @@ define([
      * @param {Object}   [opts]      The options, defaults to {}
      */
     function addMethod(name, method, constructor, opts) {
+        opts = opts || {};
+
         var metadata,
-            isStatic = !!(opts && opts.isStatic),
+            isStatic = !!opts.isStatic,
             isFinal,
             target,
             originalMethod,
-            allowed;
+            inherited;
 
         // Check if function is already being used by another class or within the same class
         if (method[$name]) {
@@ -277,7 +270,8 @@ define([
 
         // If the initialize is inherited, copy the metadata
         if (!isStatic && name === 'initialize' && method.$inherited) {
-            metadata = constructor.$parent[$class].methods[name];
+            metadata = mixIn({}, constructor.$parent[$class].methods[name]);
+            inherited = true;
             delete method.$inherited;
         } else if (!opts.metadata) {
             // Grab function metadata and throw error if is not valid (its invalid if the arguments are invalid)
@@ -290,6 +284,16 @@ define([
             }
 
             metadata.isFinal = !!opts.isFinal;
+
+            if (isStatic) {
+                if (constructor[$class].staticMethods[name]) {
+                    metadata.allowed = constructor[$class].staticMethods[name].allowed;
+                }
+            } else {
+                if (constructor[$class].methods[name]) {
+                    metadata.allowed = constructor[$class].methods[name].allowed;
+                }
+            }
         } else {
             metadata = opts.metadata;
             opts.isFinal = metadata.isFinal;
@@ -344,8 +348,8 @@ define([
 
         originalMethod = method;
         method = !isStatic ?
-                  wrapMethod(method, constructor, constructor[$class].id, constructor[$class].baseId, constructor.$parent && constructor.$parent[$class].methods[name] ? constructor.$parent[$class].methods[name] : null) :
-                  wrapStaticMethod(method, constructor, constructor[$class].id, constructor[$class].baseId, constructor.$parent && constructor.$parent[$class].staticMethods[name] ? constructor.$parent[$class].staticMethods[name] : null);
+                  wrapMethod(method, constructor, constructor[$class].id, constructor.$parent && constructor.$parent[$class].methods[name] ? constructor.$parent[$class].methods[name] : null) :
+                  wrapStaticMethod(method, constructor, constructor[$class].id, constructor.$parent && constructor.$parent[$class].staticMethods[name] ? constructor.$parent[$class].staticMethods[name] : null);
 
         obfuscateProperty(method, $name, name);
 
@@ -367,12 +371,6 @@ define([
             metadata.isFinal = isFinal;
         }
 
-        if (metadata.isProtected) {
-            allowed = constructor[$class].baseId;
-        } else if (metadata.isPrivate) {
-            allowed = constructor[$class].id;
-        }
-
         // If the function is specified to be bound, add it to the binds
         if (originalMethod[$bound]) {
             if (!isStatic) {
@@ -381,11 +379,14 @@ define([
             delete originalMethod[$bound];
         }
 
-        if (allowed) {
+        if (metadata.isProtected) {
             if (metadata.allowed) {
-                allowed = toArray(allowed).concat(metadata.allowed);
+                insert(metadata.allowed, constructor[$class].id);
+            } else {
+                metadata.allowed = [constructor[$class].id];
             }
-            metadata.allowed = allowed;
+        } else if (metadata.isPrivate) {
+            metadata.allowed = constructor[$class].id;
         }
     }
 
@@ -403,28 +404,37 @@ define([
      * @param {Object}   [opts]      The options (defaults to {})
      */
     function addProperty(name, value, constructor, opts) {
+        opts = opts || {};
+
         var metadata,
-            isStatic = !!(opts && (opts.isStatic || opts.isConst)),
+            isStatic,
             isFinal,
             isConst,
-            target,
-            allowed;
+            target;
 
-        if (opts) {
-            if (opts.metadata) {
-                metadata = opts.metadata;
-                isFinal = metadata.isFinal;
-                isConst = metadata.isConst;
-            } else {
-                metadata = propertyMeta(value, name);
-                if (!metadata) {
-                    throw new Error('Value of property "' + name + '"  in class "' + constructor.prototype.$name + '" cannot be parsed (undefined values are not allowed).');
-                }
-                isFinal = !!opts.isFinal;
-                isConst = !!opts.isConst;
-            }
+        if (opts.metadata) {
+            metadata = opts.metadata;
+            isFinal = metadata.isFinal;
+            isConst = metadata.isConst;
+            isStatic = !!opts.isStatic || isConst;
         } else {
-            isFinal = isStatic = isConst = false;
+            metadata = propertyMeta(value, name);
+            if (!metadata) {
+                throw new Error('Value of property "' + name + '"  in class "' + constructor.prototype.$name + '" cannot be parsed (undefined values are not allowed).');
+            }
+            isFinal = !!opts.isFinal;
+            isConst = !!opts.isConst;
+            isStatic = !!opts.isStatic || isConst;
+
+            if (isStatic) {
+                if (constructor[$class].staticProperties[name]) {
+                    metadata.allowed = constructor[$class].staticProperties[name].allowed;
+                }
+            } else {
+                if (constructor[$class].properties[name]) {
+                    metadata.allowed = constructor[$class].properties[name].allowed;
+                }
+            }
         }
 
         // If the property is protected/private we delete it from the target because they will be protected later
@@ -489,18 +499,14 @@ define([
             metadata.isConst = isConst;
         }
 
-
         if (metadata.isProtected) {
-            allowed = constructor[$class].baseId;
-        } else if (metadata.isPrivate) {
-            allowed = constructor[$class].id;
-        }
-
-        if (allowed) {
             if (metadata.allowed) {
-                allowed = toArray(allowed).concat(metadata.allowed);
+                insert(metadata.allowed, constructor[$class].id);
+            } else {
+                metadata.allowed = [constructor[$class].id];
             }
-            metadata.allowed = allowed;
+        } else if (metadata.isPrivate) {
+            metadata.allowed = constructor[$class].id;
         }
     }
 
@@ -514,7 +520,7 @@ define([
         if (hasOwn(params, '$borrows')) {
 
             var current,
-                mixins = toArray(constructor.prototype.$borrows),
+                mixins = toArray(params.$borrows),
                 i = mixins.length,
                 key,
                 opts = {};
@@ -880,7 +886,7 @@ define([
                         currCaller = caller;
                     }*/
 
-                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
                         return method;
                     }
 
@@ -915,7 +921,7 @@ define([
                         currCaller = caller;
                     }*/
 
-                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this instanceof callerClass))) {
                         return method;
                     }
 
@@ -978,7 +984,7 @@ define([
                         currCaller = caller;
                     }*/
 
-                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
                         return method;
                     }
 
@@ -1003,7 +1009,7 @@ define([
                         currCaller = caller;
                     }*/
 
-                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this.prototype instanceof callerClass))) {
                         return method;
                     }
 
@@ -1051,7 +1057,7 @@ define([
                         currCaller = caller;
                     }*/
 
-                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -1067,7 +1073,7 @@ define([
                         currCaller = caller;
                     }*/
 
-                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
                         throw new Error('Cannot set private property "' + name + '" of class "' + this.$name + '".');
@@ -1090,7 +1096,7 @@ define([
                         currCaller = caller;
                     }*/
 
-                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this instanceof callerClass))) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -1106,7 +1112,7 @@ define([
                         currCaller = caller;
                     }*/
 
-                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this instanceof callerClass))) {
                         this[cacheKeyword].properties[name] = newValue;
                     } else {
                         throw new Error('Cannot set protected property "' + name + '" of class "' + this.$name + '".');
@@ -1144,7 +1150,7 @@ define([
                         currCaller = caller;
                     }*/
 
-                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId))))) {
+                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
                         return this[cacheKeyword].properties[name];
                     }
 
@@ -1164,7 +1170,7 @@ define([
                                 currCaller = caller;
                             }*/
 
-                            if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || (isArray(meta.allowed) && contains(meta.allowed, callerClassId)))) {
+                            if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId) {
                                 this[cacheKeyword].properties[name] = newValue;
                             } else {
                                 throw new Error('Cannot set private property "' + name + '" of class "' + this.prototype.$name + '".');
@@ -1187,7 +1193,7 @@ define([
                         currCaller = caller;
                     }*/
 
-                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId)))))) {
+                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this.prototype instanceof callerClass))) {
                         return constructor[cacheKeyword].properties[name];
                     }
 
@@ -1207,7 +1213,7 @@ define([
                                 currCaller = caller;
                             }*/
 
-                            if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (meta.allowed === callerClassId || meta.allowed === callerClassBaseId || (isArray(meta.allowed) && (contains(meta.allowed, callerClassId) || contains(meta.allowed, callerClassBaseId))))) {
+                            if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this.prototype instanceof callerClass)) {
                                 this[cacheKeyword].properties[name] = newValue;
                             } else {
                                 throw new Error('Cannot set protected static property "' + name + '" of class "' + this.prototype.$name + '".');
@@ -1387,7 +1393,7 @@ define([
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
         bound[$anonymous] = func[$anonymous] = true;
-        bound = wrapMethod(bound, this.$self || this.$static, callerClassId, callerClassBaseId);
+        bound = wrapMethod(bound, this.$self || this.$static, callerClassId);
 
         return bound;
     }
@@ -1415,7 +1421,7 @@ define([
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
         bound[$anonymous] = func[$anonymous] = true;
-        bound = wrapStaticMethod(bound, this.$self, callerClassId, callerClassBaseId);
+        bound = wrapStaticMethod(bound, this.$self, callerClassId);
 
         return bound;
     }
@@ -1430,7 +1436,8 @@ define([
         var x,
             binds = parent[$class].binds,
             key,
-            value;
+            value,
+            classId = constructor[$class].id;
 
         // Inherit binds
         for (x = binds.length - 1; x >= 0; x -= 1) {
@@ -1441,9 +1448,24 @@ define([
 
         inheriting = true;
 
-        // Grab methods and properties definitions
-        mixIn(constructor[$class].methods,  parent[$class].methods);
-        mixIn(constructor[$class].properties,  parent[$class].properties);
+        // Inherit methods and properties
+        for (key in parent[$class].methods) {
+            value = parent[$class].methods[key];
+            constructor[$class].methods[key] = value;
+
+            if (value.isProtected) {
+                value.allowed.push(classId);
+            }
+        }
+
+        for (key in parent[$class].properties) {
+            value = parent[$class].properties[key];
+            constructor[$class].properties[key] = value;
+
+            if (value.isProtected) {
+                value.allowed.push(classId);
+            }
+        }
 
         // Inherit static methods and properties
         for (key in parent[$class].staticMethods) {
@@ -1452,6 +1474,10 @@ define([
             if (!value.isPrivate) {
                 constructor[$class].staticMethods[key] = value;
                 constructor[key] = parent[key];
+
+                if (value.isProtected) {
+                    value.allowed.push(classId);
+                }
             }
         }
 
@@ -1461,6 +1487,11 @@ define([
             if (!value.isPrivate) {
                 constructor[$class].staticProperties[key] = value;
                 constructor[key] = cloneProperty(value.value);
+
+                if (value.isProtected) {
+                    value.allowed.push(classId);
+                }
+
             }
         }
 
@@ -1576,18 +1607,15 @@ define([
             }
 
             dejavu = constructor || createConstructor(isAbstract);
-            obfuscateProperty(dejavu, '$parent', parent);
-            dejavu[$class].baseId = parent[$class].baseId;
             dejavu[$class].id = nextId += 1;
-            dejavu.prototype = createObject(parent.prototype, params);
+            obfuscateProperty(dejavu, '$parent', parent);
+            dejavu.prototype = createObject(parent.prototype);
 
             inheritParent(dejavu, parent);
         } else {
             params.initialize = params.initialize || params._initialize || params.__initialize || function () {};
             dejavu = constructor || createConstructor(isAbstract);
-            dejavu[$class].baseId = nextId += 1;
-            dejavu[$class].id = dejavu[$class].baseId;
-            dejavu.prototype = params;
+            dejavu[$class].id = nextId += 1;
         }
 
         delete params._initialize;

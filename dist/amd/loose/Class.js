@@ -540,7 +540,6 @@ define([
         } else {
             params.initialize = params.initialize || params._initialize || params.__initialize || function () {};
             dejavu = constructor || createConstructor();
-            dejavu.prototype = params;
         }
 
         dejavu[$class].efficient = isEfficient;
