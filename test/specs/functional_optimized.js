@@ -17,7 +17,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         describe('Instantiation of a simple Class', function () {
 
             var SomeClass = Class.declare(function () { return {}; }, true),
-                Example = Class.declare(function () {
+                Example = Class.declare(SomeClass, function ($super) {
                     return {
                         some: 'property',
                         someOther: null,
