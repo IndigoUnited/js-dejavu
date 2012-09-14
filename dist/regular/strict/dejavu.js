@@ -1641,18 +1641,18 @@ define('Class',[
      *
      * @param {Function} method      The method to wrap
      * @param {Function} constructor The constructor
-     * @param {String}   classId     The class id
      * @param {Object}   parentMeta  The parent method metada
      *
      * @return {Function} The wrapper
      */
-    function wrapMethod(method, constructor, classId, parentMeta) {
+    function wrapMethod(method, constructor, parentMeta) {
         if (method[$wrapped]) {
             method = method[$wrapped];
         }
 
         var parent,
-            wrapper;
+            wrapper,
+            classId = constructor[$class].id;
 
         if (parentMeta) {
             parent = parentMeta.isPrivate && method[$name] === 'initialize' ? callingPrivateConstructor : parentMeta.implementation;
@@ -1699,18 +1699,18 @@ define('Class',[
      *
      * @param {Function} method      The method to wrap
      * @param {Function} constructor The constructor
-     * @param {String}   classId     The class id
      * @param {Object}   parentMeta  The parent method metadata
      *
      * @return {Function} The wrapper
      */
-    function wrapStaticMethod(method, constructor, classId, parentMeta) {
+    function wrapStaticMethod(method, constructor, parentMeta) {
         if (method[$wrapped]) {
             method = method[$wrapped];
         }
 
         var parent = parentMeta ? parentMeta.implementation : parentMeta,
-            wrapper;
+            wrapper,
+            classId = constructor[$class].id;
 
 
         wrapper = function () {
@@ -1866,8 +1866,8 @@ define('Class',[
 
         originalMethod = method;
         method = !isStatic ?
-                  wrapMethod(method, constructor, constructor[$class].id, constructor.$parent && constructor.$parent[$class].methods[name] ? constructor.$parent[$class].methods[name] : null) :
-                  wrapStaticMethod(method, constructor, constructor[$class].id, constructor.$parent && constructor.$parent[$class].staticMethods[name] ? constructor.$parent[$class].staticMethods[name] : null);
+                  wrapMethod(method, constructor, constructor.$parent && constructor.$parent[$class].methods[name] ? constructor.$parent[$class].methods[name] : null) :
+                  wrapStaticMethod(method, constructor, constructor.$parent && constructor.$parent[$class].staticMethods[name] ? constructor.$parent[$class].staticMethods[name] : null);
 
         obfuscateProperty(method, $name, name);
 
