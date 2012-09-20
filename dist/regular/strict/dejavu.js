@@ -1651,8 +1651,8 @@ define('Class',[
         }
 
         var parent,
-            wrapper,
-            classId = constructor[$class].id;
+            classId = constructor[$class].id,
+            wrapper;
 
         if (parentMeta) {
             parent = parentMeta.isPrivate && method[$name] === 'initialize' ? callingPrivateConstructor : parentMeta.implementation;
@@ -1664,13 +1664,14 @@ define('Class',[
             var _super = this.$super,
                 _self = this.$self,
                 prevCaller = caller,
+                prevCallerClass = callerClass,
                 prevCallerClassId = callerClassId,
                 ret;
 
             caller = method;
             callerClassId = classId;
             this.$super = parent;
-            callerClass = this.$self = constructor;
+            this.$self = callerClass = constructor;
 
             try {
                 ret = method.apply(this, arguments);
@@ -1678,7 +1679,8 @@ define('Class',[
                 caller = prevCaller;
                 callerClassId = prevCallerClassId;
                 this.$super = _super;
-                callerClass = this.$self = _self;
+                this.$self = _self;
+                callerClass = prevCallerClass;
             }
 
             return ret;
@@ -1694,7 +1696,7 @@ define('Class',[
     }
 
     /**
-     * Wraps a method.
+     * Wraps a static method.
      * This is to make some alias such as $super and $self to work correctly.
      *
      * @param {Function} method      The method to wrap
@@ -1709,21 +1711,21 @@ define('Class',[
         }
 
         var parent = parentMeta ? parentMeta.implementation : parentMeta,
-            wrapper,
-            classId = constructor[$class].id;
-
+            classId = constructor[$class].id,
+            wrapper;
 
         wrapper = function () {
             var _super = this.$super,
                 _self = this.$self,
                 prevCaller = caller,
                 prevCallerClassId = callerClassId,
+                prevCallerClass = callerClass,
                 ret;
 
             caller = method;
             callerClassId = classId;
             this.$super = parent;
-            callerClass = this.$self = constructor;
+            this.$self = callerClass = constructor;
 
             try {
                 ret = method.apply(this, arguments);
@@ -1731,7 +1733,8 @@ define('Class',[
                 caller = prevCaller;
                 callerClassId = prevCallerClassId;
                 this.$super = _super;
-                callerClass = this.$self = _self;
+                this.$self = _self;
+                callerClass = prevCallerClass;
             }
 
             return ret;
