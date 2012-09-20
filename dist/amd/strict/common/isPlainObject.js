@@ -19,6 +19,7 @@ define([
         var proto = '__proto__',
             key;
 
+        // This function is based on the jquery one
         if (obj.nodeType || obj === obj.window) {
             return false;
         }
@@ -37,6 +38,8 @@ define([
             return false;       // IE8,9 Will throw exceptions on certain host objects
         }
 
+        // Own properties are enumerated firstly, so to speed up,
+        // if last one is own, then all properties are own
         for (key in obj) {}
 
         return key === undefined || hasOwn(obj, key);
