@@ -31,6 +31,8 @@
     "plusplus": true,
     "regexp": true,
     "undef": true,
+    "unused": false,
+    "quotmark": "single",
     "strict": true,
     "trailing": true,
 
