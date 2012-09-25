@@ -22,5 +22,7 @@ define([
     dejavu.FinalClass = FinalClass;
     dejavu.instanceOf = instanceOf;
 
+    dejavu.mode = 'loose';
+
     return dejavu;
 });

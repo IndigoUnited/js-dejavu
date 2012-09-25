@@ -158,7 +158,7 @@ var indigo = new Person("Marco");
 console.log("A new indigo was born,", indigo.getName());
 ```
 
-This will make a `dejavu` global available for you. The default version running will be the strict one unless the STRICT environment variable is set to false.
+This will make a `dejavu` global available for you. The default mode running will be the strict one unless the STRICT environment variable is set to false.
 Environment variables can be changed system wide or per process like so:
 
 ```js
@@ -193,7 +193,7 @@ the optimizer. The optimizer will analyse your code, and make some improvements
 boosting it a bit further.
 
 You can check the benchmarks in [jsperf](http://jsperf.com/oop-benchmark/58)
-comparing `dejavu` with other OOP libraries. Note that the loose regular version
+comparing `dejavu` with other OOP libraries. Note that the loose mode
 is used in this test, simulating a production environment, and both the normal
 and optimized versions are tested.
 
@@ -626,7 +626,7 @@ function (Class) {
 ### Constants ###
 
 The $constants keyword allows you to defined constants.
-If Object.defineProperty is available, any attempt to modify the constant value will throw an error (only in the strict version).
+If Object.defineProperty is available, any attempt to modify the constant value will throw an error (only in the strict mode).
 Constants can be defined in classes, abstract classes and interfaces.
 
 ```js
@@ -710,7 +710,7 @@ define(['path/to/dejavu/Class', function (Class) {
 ### Protected and private members ###
 
 Protected and private members should be prefixed with _ and __ respectively.
-If Object.defineProperty is available, it will be used to manage their access (only in the strict version).
+If Object.defineProperty is available, it will be used to manage their access (only in the strict mode).
 
 
 

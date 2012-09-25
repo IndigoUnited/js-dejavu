@@ -37,7 +37,6 @@ define([
     dejavu.Interface = Interface;
     dejavu.FinalClass = FinalClass;
     dejavu.instanceOf = instanceOf;
-//>>includeStart('regular', pragmas.regular);
 
     if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.exports) {
         module.exports = dejavu;
@@ -48,15 +47,15 @@ define([
         }
         target.dejavu = dejavu;
     }
-//>>includeEnd('regular');
+
 //>>includeStart('strict', pragmas.strict);
+    dejavu.mode = 'strict';
 
     if (isFunction(Object.freeze)) {
         Object.freeze(dejavu);
     }
 //>>includeEnd('strict');
-//>>excludeStart('regular', pragmas.regular);
-
-    return dejavu;
-//>>excludeEnd('regular');
+//>>excludeStart('strict', pragmas.strict);
+    dejavu.mode = 'loose';
+//>>excludeEnd('strict');
 });
