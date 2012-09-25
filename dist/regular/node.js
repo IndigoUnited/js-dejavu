@@ -1,0 +1,1 @@
+module.exports = process.env.STRICT == null || process.env.STRICT ? require('./strict/dejavu') : require('./loose/dejavu');
