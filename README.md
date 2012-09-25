@@ -132,7 +132,7 @@ If you're developing in __Node.js__, install it with `npm install dejavu` and us
 
 ```js
 // in this case, dejavu.js is in the root folder of the project
-var dejavu = require('./dejavu');
+var dejavu = require('dejavu');
 
 // declare the "Person" class
 var Person = dejavu.Class.declare({
