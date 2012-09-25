@@ -1,7 +1,5 @@
 /**
  * Module/Class description.
- *
- * @author André Cruz <andremiguelcruz@msn.com>
  */
 define(['dejavu/Class', './marcelo'], function (Class, Marcelo) {
 
@@ -16,7 +14,7 @@ define(['dejavu/Class', './marcelo'], function (Class, Marcelo) {
             },
 
             run: function () {
-                console.log("andre run", this._test);
+                console.log('andre run', this._test);
                 $super.run.call(this);
             }
         };

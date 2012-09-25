@@ -13,8 +13,7 @@ var cp = require('child_process'),
     mochaBin,
     currentDistDir,
     currentBuild,
-    files,
-    stat;
+    files;
 
 /**
  * Removes all files from a folder.
@@ -121,6 +120,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
 
             emptyDir(currentDistDir);
 
+            // Build regular strict
             cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
 
                 // Print success or error
@@ -137,8 +137,11 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                 emptyDir(currentDistDir);
                 fs.rmdirSync(currentDistDir);
 
+                // Create node.js file
+                fs.writeFileSync(distDir + 'regular/node.js', 'module.exports = process.env.STRICT == null || process.env.STRICT ? require(\'./strict/dejavu\') : require(\'./loose/dejavu\');');
+
                 // Generate optimized test files
-                tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/functional.js" > "' + testDir + 'specs/functional_optimized.js"', function (error, stdout, stderr) {
+                tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/functional.js" > "' + testDir + 'specs/functional_optimized.js"', function (error) {
                     if (error) {
                         console.error('Could not generate optimized tests.');
                         process.exit(1);

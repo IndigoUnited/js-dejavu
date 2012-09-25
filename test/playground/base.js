@@ -1,7 +1,5 @@
 /**
  * Module/Class description.
- *
- * @author André Cruz <andremiguelcruz@msn.com>
  */
 define(['dejavu'], function (dejavu) {
 

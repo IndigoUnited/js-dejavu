@@ -908,6 +908,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         common2  = new Common2();
 
                     expect(common1.method1).to.be.a('function');
+                    expect(common2.method1).to.be.a('function');
+
                 }());
 
             });
