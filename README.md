@@ -128,7 +128,7 @@ and include it in the HTML:
 </html>
 ```
 
-If you're developing in __Node.js__, put `dejavu.js` somewhere, and require it:
+If you're developing in __Node.js__, install it with `npm install dejavu` and use it like so:
 
 ```js
 // in this case, dejavu.js is in the root folder of the project
@@ -158,9 +158,12 @@ var indigo = new Person("Marco");
 console.log("A new indigo was born,", indigo.getName());
 ```
 
-This will make a `dejavu` global available for you. Remember to replace it with
-the _loose_ version before deploying. You can find it in
-`dist/regular/loose/dejavu.js`.
+This will make a `dejavu` global available for you. The default version running will be the strict one unless the STRICT environment variable is set to false.
+Environment variables can be changed system wide or per process like so:
+
+```js
+process.env.STRICT = false;
+```
 
 Read further in order to check the syntax of `dejavu`, and also to check what
 is exactly supported.
