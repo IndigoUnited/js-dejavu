@@ -4277,6 +4277,8 @@ define('dejavu',[
         target.dejavu = dejavu;
     }
 
+    dejavu.mode = 'strict';
+
     if (isFunction(Object.freeze)) {
         Object.freeze(dejavu);
     }

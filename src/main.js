@@ -37,26 +37,17 @@ define([
     dejavu.Interface = Interface;
     dejavu.FinalClass = FinalClass;
     dejavu.instanceOf = instanceOf;
-//>>includeStart('regular', pragmas.regular);
 
-    if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.exports) {
-        module.exports = dejavu;
-    } else {
-        target = (typeof window !== 'undefined' && window.navigator && window.document) ? window : global;
-        if (!target) {
-            throw new Error('Could not grab global object.');
-        }
-        target.dejavu = dejavu;
-    }
-//>>includeEnd('regular');
 //>>includeStart('strict', pragmas.strict);
+    dejavu.mode = 'strict';
 
     if (isFunction(Object.freeze)) {
         Object.freeze(dejavu);
     }
 //>>includeEnd('strict');
-//>>excludeStart('regular', pragmas.regular);
+//>>excludeStart('strict', pragmas.strict);
+    dejavu.mode = 'loose';
+//>>excludeEnd('strict');
 
     return dejavu;
-//>>excludeEnd('regular');
 });
