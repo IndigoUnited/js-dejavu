@@ -121,13 +121,14 @@ and include it in the HTML:
             });
 
             // create a new instance of person
-            var indigo = new Person("Marco");
-            console.log("A new indigo was born,", indigo.getName());
+            var indigo = new Person('Marco');
+            console.log('A new indigo was born,', indigo.getName());
         </script>
     </body>
 </html>
 ```
 
+This will make a `dejavu` global available for you.
 If you're developing in __Node.js__, install it with `npm install dejavu` and use it like so:
 
 ```js
@@ -158,7 +159,7 @@ var indigo = new Person("Marco");
 console.log("A new indigo was born,", indigo.getName());
 ```
 
-This will make a `dejavu` global available for you. The default mode running will be the strict one unless the STRICT environment variable is set to false.
+The default mode running will be the strict mode unless the STRICT environment variable is set to false.
 Environment variables can be changed system wide or per process like so:
 
 ```js
