@@ -4,14 +4,15 @@
     "keywords": ["oop", "interface", "class", "abstract", "final", "inheritance"],
     "version": "0.0.2",
     "author": "IndigoUnited <hello@indigounited.com> (http://indigounited.com)",
-    "main": "dist/amd/node.js",
+    "main": "dist/node/node.js",
     "dependencies": {
         "amdefine": ">=0.0.2",
         "amd-utils": ">=0.x.x"
     },
     "devDependencies": {
         "mocha": ">= 1.5.x",
-        "commander": ">= 1.0.x"
+        "commander": ">= 1.0.x",
+        "wrench": ">=1.x.x"
     },
     "engine": "node >= 0.8.x"
 }

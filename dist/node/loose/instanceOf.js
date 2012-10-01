@@ -1,24 +1,15 @@
+if (typeof define !== 'function') {
+    var define = require('amdefine')(module);
+}
+
 define([
-//>>includeStart('strict', pragmas.strict);
-    './common/randomAccessor'
-//>>includeEnd('strict');
 ], function instanceOfWrapper(
-//>>includeStart('strict', pragmas.strict);
-    randomAccessor
-//>>includeEnd('strict');
 ) {
 
     'use strict';
 
-//>>includeStart('strict', pragmas.strict);
-    var random = randomAccessor('instanceOfWrapper'),
-        $class = '$class_' + random,
-        $interface = '$interface_' + random;
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
     var $class = '$class',
         $interface = '$interface';
-//>>excludeEnd('strict');
 
     /**
      * Check if an interface is descendant of another.

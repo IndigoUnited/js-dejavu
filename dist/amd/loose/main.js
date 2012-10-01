@@ -1,5 +1,3 @@
-/*global global,module*/
-
 define([
     './Class',
     './AbstractClass',
@@ -13,6 +11,8 @@ define([
     FinalClass,
     instanceOf
 ) {
+
+    'use strict';
 
     var dejavu = {};
 

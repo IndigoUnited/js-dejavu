@@ -1,4 +1,4 @@
-/*var dejavu = require('dejavu');
+var dejavu = require('dejavu');
 
 var MyClass = dejavu.Class.declare({
     initialize: function () {
@@ -6,7 +6,4 @@ var MyClass = dejavu.Class.declare({
     }
 });
 
-var instance = new MyClass();*/
-
-var amd = require('amd-utils');
-console.log(require.paths);
+var instance = new MyClass();

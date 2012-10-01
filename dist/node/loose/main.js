@@ -1,12 +1,14 @@
+if (typeof define !== 'function') {
+    var define = require('amdefine')(module);
+}
+
 define([
-    'amd-utils/lang/isFunction',
     './Class',
     './AbstractClass',
     './Interface',
     './FinalClass',
     './instanceOf'
 ], function (
-    isFunction,
     Class,
     AbstractClass,
     Interface,
@@ -24,11 +26,7 @@ define([
     dejavu.FinalClass = FinalClass;
     dejavu.instanceOf = instanceOf;
 
-    dejavu.mode = 'strict';
-
-    if (isFunction(Object.freeze)) {
-        Object.freeze(dejavu);
-    }
+    dejavu.mode = 'loose';
 
     return dejavu;
 });

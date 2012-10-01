@@ -6,6 +6,7 @@
 
 var cp = require('child_process'),
     fs = require('fs'),
+    wrench = require('wrench'),
     tests,
     command,
     distDir = __dirname + '/../dist/',
@@ -84,17 +85,35 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
         fs.unlinkSync(currentDistDir + 'dejavu.js');
 
         // Delete empty files
-        files = fs.readdirSync(currentDistDir + 'common');
+        files = wrench.readdirSyncRecursive(currentDistDir);
         files.forEach(function (file) {
-            file = currentDistDir + 'common/' + file;
-            var content = fs.readFileSync(file);
-            if ((/^\s*$/).test(content.toString())) {
-                fs.unlinkSync(file);
+            file = currentDistDir + file;
+
+            if (fs.statSync(file).isFile()) {
+                var content = fs.readFileSync(file);
+                if ((/^\s*$/).test(content.toString())) {
+                    fs.unlinkSync(file);
+                }
+            }
+        });
+
+        // Create node build
+        wrench.copyDirSyncRecursive(distDir + 'amd', distDir + 'node');
+
+        // Foreach file in the node build add the amdefine header
+        files = wrench.readdirSyncRecursive(distDir + 'node');
+        files.forEach(function (file) {
+            file = distDir + 'node/' + file;
+
+            if (fs.statSync(file).isFile()) {
+                var content = fs.readFileSync(file);
+                content = 'if (typeof define !== \'function\') {\n    var define = require(\'amdefine\')(module);\n}\n\n' + content;
+                fs.writeFileSync(file, content);
             }
         });
 
         // Create node.js file
-        fs.writeFileSync(distDir + 'amd/node.js', 'if (typeof define !== \'function\') { global.define = require(\'amdefine\')(module) }\nmodule.exports = process.env.STRICT == null || process.env.STRICT ? require(\'./strict/main\') : require(\'./loose/main\');');
+        fs.writeFileSync(distDir + 'node/node.js', 'module.exports = process.env.STRICT == null || process.env.STRICT ? require(\'./strict/main\') : require(\'./loose/main\');');
 
         // Create regular directories
         fs.mkdirSync(distDir + 'regular');
