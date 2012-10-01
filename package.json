@@ -4,7 +4,11 @@
     "keywords": ["oop", "interface", "class", "abstract", "final", "inheritance"],
     "version": "0.0.2",
     "author": "IndigoUnited <hello@indigounited.com> (http://indigounited.com)",
-    "main": "dist/regular/node.js",
+    "main": "dist/amd/node.js",
+    "dependencies": {
+        "amdefine": ">=0.0.2",
+        "amd-utils": ">=0.x.x"
+    },
     "devDependencies": {
         "mocha": ">= 1.5.x",
         "commander": ">= 1.0.x"

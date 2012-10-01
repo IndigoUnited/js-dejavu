@@ -93,6 +93,9 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
             }
         });
 
+        // Create node.js file
+        fs.writeFileSync(distDir + 'amd/node.js', 'if (typeof define !== \'function\') { global.define = require(\'amdefine\')(module) }\nmodule.exports = process.env.STRICT == null || process.env.STRICT ? require(\'./strict/main\') : require(\'./loose/main\');');
+
         // Create regular directories
         fs.mkdirSync(distDir + 'regular');
         fs.mkdirSync(distDir + 'regular/loose');
@@ -136,9 +139,6 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
 
                 emptyDir(currentDistDir);
                 fs.rmdirSync(currentDistDir);
-
-                // Create node.js file
-                fs.writeFileSync(distDir + 'regular/node.js', 'module.exports = process.env.STRICT == null || process.env.STRICT ? require(\'./strict/dejavu\') : require(\'./loose/dejavu\');');
 
                 // Generate optimized test files
                 tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/functional.js" > "' + testDir + 'specs/functional_optimized.js"', function (error) {
