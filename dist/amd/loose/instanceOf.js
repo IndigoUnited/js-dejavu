@@ -3,6 +3,7 @@ define([
 ) {
 
     'use strict';
+
     var $class = '$class',
         $interface = '$interface';
 

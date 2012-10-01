@@ -2,7 +2,8 @@
     "predef": [
         "console",
         "require",
-        "define"
+        "define",
+        "module"
     ],
 
     "browser": true,
