@@ -1,3 +1,5 @@
+/*jshint strict:false*/
+
 /**
  * Returns an object with the keys and values extract from a query string.
  *
@@ -6,7 +8,7 @@
  * @return {Object} The object
  */
 function getQueryParams(qs) {
-    qs = qs.split("+").join(" ");
+    qs = qs.split('+').join(' ');
     var params = {},
         tokens,
         re = /[?&]?([^=]+)=([^&]*)/g;
@@ -26,7 +28,6 @@ function getQueryParams(qs) {
  * @return {String} The build
  */
 function getBuild() {
-
     var build = getQueryParams(location.search).build;
 
     if (!build || !/^[a-z]/ig.test(build)) {    // Add some security
