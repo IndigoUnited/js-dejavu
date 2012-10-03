@@ -709,14 +709,18 @@ define([
                 // Grab mixin members
                 for (key in current.$static[$class].methods) {
                     if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
-                        opts.metadata = current.$static[$class].methods[key];
+                        // We need to clone the metadata and delete the allowed because otherwise multiple classes borrowing from the same would have access
+                        // Same applies to the things bellow
+                        opts.metadata = mixIn({}, current.$static[$class].methods[key]);
+                        delete opts.metadata.allowed;
                         addMethod(key, opts.metadata.implementation || current[key], constructor, opts);
                     }
                 }
 
                 for (key in current.$static[$class].properties) {
                     if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
-                        opts.metadata = current.$static[$class].properties[key];
+                        opts.metadata = mixIn({}, current.$static[$class].properties[key]);
+                        delete opts.metadata.allowed;
                         addProperty(key, opts.metadata.value || current[key], constructor, opts);
                     }
                 }
@@ -726,14 +730,16 @@ define([
                 // Grab mixin static members
                 for (key in current.$static[$class].staticMethods) {
                     if (constructor[key] === undefined) {              // Already defined members are not overwritten
-                        opts.metadata = current.$static[$class].staticMethods[key];
+                        opts.metadata = mixIn({}, current.$static[$class].staticMethods[key]);
+                        delete opts.metadata.allowed;
                         addMethod(key, opts.metadata.implementation || current.$static[key], constructor, opts);
                     }
                 }
 
                 for (key in current.$static[$class].staticProperties) {
                     if (constructor[key] === undefined) {              // Already defined members are not overwritten
-                        opts.metadata = current.$static[$class].staticProperties[key];
+                        opts.metadata = mixIn({}, current.$static[$class].staticProperties[key]);
+                        delete opts.metadata.allowed;
                         addProperty(key, opts.metadata.value || current.$static[key], constructor, opts);
                     }
                 }

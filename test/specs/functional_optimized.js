@@ -1,6 +1,14 @@
 /*jshint strict:false*/
 
-define(global.modules, function (Class, AbstractClass, Interface, FinalClass, instanceOf, hasDefineProperty) {
+define(global.modules, function (
+    Class,
+    AbstractClass,
+    Interface,
+    FinalClass,
+    instanceOf,
+    hasDefineProperty,
+    Emitter
+) {
 
     // We don't declare strict mode to ensure some micro validations to pass
     //'use strict';
@@ -1670,6 +1678,33 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
 
                 });
 
+                it('should do well with borrowed members', function () {
+
+                    // This was a bug that was associated with private access from two classes that borrowed from the same thing
+                    var secondClass,
+                        BaseClass = AbstractClass.declare(function () { return {}; }, true),
+                        FirstClass = Class.declare(BaseClass, function ($super) {
+                            return {
+                                $borrows: Emitter
+                            };
+                        }, true),
+                        firstClass = new FirstClass(),
+                        SecondClass = Class.declare(BaseClass, function ($super) {
+                            return {
+                                $borrows: Emitter,
+
+                                run: function () {
+                                    this._begin();
+                                },
+                                _begin: function () {
+                                    firstClass.addListener('yeaa', function () {}, this);
+                                }
+                            };
+                        }, true);
+
+                    secondClass = new SecondClass();
+                    secondClass.run();
+                });
             }
 
         });
