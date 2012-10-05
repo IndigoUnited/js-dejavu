@@ -558,8 +558,9 @@ define([
                     current = mixins[i].prototype;
                 }
 
-                // Verify if is an abstract class with members
-                if (current.$static[$abstract] && (size(current.$static[$abstract].methods) > 0 || size(current.$static[$abstract].staticMethods) > 0)) {
+                // Verify if is an abstract class with unimplemented members
+                if (current.$static[$abstract] && current.$static[$abstract].unimplemented) {
+                    console.log(current.$static[$abstract].unimplemented);
                     throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is an abstract class with abstract members, which are not allowed.');
                 }
 
