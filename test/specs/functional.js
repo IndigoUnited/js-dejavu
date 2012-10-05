@@ -1538,28 +1538,31 @@ define(global.modules, function (
 
                 it('should do well with borrowed members', function () {
 
-                    // This was a bug that was associated with private access from two classes that borrowed from the same thing
-                    var secondClass,
-                        BaseClass = AbstractClass.declare({}),
-                        FirstClass = Class.declare({
-                            $extends: BaseClass,
-                            $borrows: Emitter
-                        }),
-                        firstClass = new FirstClass(),
-                        SecondClass = Class.declare({
-                            $extends: BaseClass,
-                            $borrows: Emitter,
+                    expect(function () {
+                        // This was a bug that was associated with private access from two classes that borrowed from the same thing
+                        var secondClass,
+                            BaseClass = AbstractClass.declare({}),
+                            FirstClass = Class.declare({
+                                $extends: BaseClass,
+                                $borrows: Emitter.DirectEventsEmitter
+                            }),
+                            firstClass = new FirstClass(),
+                            SecondClass = Class.declare({
+                                $extends: BaseClass,
+                                $borrows: Emitter.DirectEventsEmitter,
 
-                            run: function () {
-                                this._begin();
-                            },
-                            _begin: function () {
-                                firstClass.addListener('yeaa', function () {}, this);
-                            }
-                        });
+                                run: function () {
+                                    this._begin();
+                                },
+                                _begin: function () {
+                                    firstClass.addListener('yeaa', function () {}, this);
+                                }
+                            });
 
-                    secondClass = new SecondClass();
-                    secondClass.run();
+                        secondClass = new SecondClass();
+                        secondClass.run();
+                    }).to.not.throwException();
+
                 });
             }
 

@@ -95,7 +95,7 @@ define([
         // Check if a variable exists with the same name
         target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
         if (isObject(target[name])) {
-            throw new Error('Abstract method "' + name + '" defined in abstract class "' + constructor.prototype.$name + "' conflicts with an already defined property.");
+            throw new Error('Abstract method "' + name + '" defined in abstract class "' + constructor.prototype.$name + '" conflicts with an already defined property.');
         }
 
 
@@ -103,7 +103,7 @@ define([
 
         // Check if it is already implemented
         if (isObject(target[name])) {
-            throw new Error('Abstract method "' + name + '" defined in abstract class "' + constructor.prototype.$name + "' seems to be already implemented and cannot be declared as abstract anymore.");
+            throw new Error('Abstract method "' + name + '" defined in abstract class "' + constructor.prototype.$name + '" seems to be already implemented and cannot be declared as abstract anymore.');
         }
 
         target = isStatic ? constructor[$abstract].staticMethods : constructor[$abstract].methods;
@@ -311,8 +311,9 @@ define([
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
         var def,
-            abstractObj = { methods: {}, staticMethods: {} },
-            saved = {};
+            abstractObj = { methods: {}, staticMethods: {}, unimplemented: 0 },
+            saved = {},
+            key;
 
         // If we are extending an abstract class also, inherit the abstract methods
         if (isFunction(params.$extends)) {
@@ -380,6 +381,18 @@ define([
         // Parse the abstract methods
         if (hasOwn(saved, '$abstracts')) {
             parseAbstracts(saved.$abstracts, def);
+        }
+
+        // Finally update the unimplemented count
+        for (key in def[$abstract].methods) {
+            if (!def[$class].methods[key]) {
+                abstractObj.unimplemented += 1;
+            }
+        }
+        for (key in def[$abstract].staticMethods) {
+            if (!def[$class].staticMethods[key]) {
+                abstractObj.unimplemented += 1;
+            }
         }
 //>>includeEnd('strict');
 

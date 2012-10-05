@@ -1,6 +1,14 @@
 /*jshint strict:false, regexp:false*/
 
-define(global.modules, function (Class, AbstractClass, Interface, FinalClass, instanceOf, hasDefineProperty) {
+define(global.modules, function (
+    Class,
+    AbstractClass,
+    Interface,
+    FinalClass,
+    instanceOf,
+    hasDefineProperty,
+    Emitter
+) {
 
     var expect = global.expect;
 
@@ -1818,6 +1826,19 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         })]
                     });
                 }).to.throwException(/abstract class with abstract members/);
+
+                // TODO: enable this test if we ever support classes with inherited in the $borrows
+                /*expect(function () {
+                    return Class.declare({
+                        $borrows: Emitter.EventsEmitter
+                    });
+                }).to.not.throwException();*/
+
+                expect(function () {
+                    return Class.declare({
+                        $borrows: Emitter.DirectEventsEmitter
+                    });
+                }).to.not.throwException();
 
                 expect(function () {
                     return Class.declare({
