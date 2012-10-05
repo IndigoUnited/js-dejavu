@@ -2,7 +2,7 @@
     "name": "dejavu",
     "description": "A set of object-oriented tools for JavaScript",
     "keywords": ["oop", "interface", "class", "abstract", "final", "inheritance"],
-    "version": "0.0.4",
+    "version": "0.0.5",
     "author": "IndigoUnited <hello@indigounited.com> (http://indigounited.com)",
     "main": "dist/node/node.js",
     "dependencies": {
@@ -13,6 +13,10 @@
         "mocha": ">= 1.5.x",
         "commander": ">= 1.0.x",
         "wrench": ">=1.x.x"
+    },
+    "scripts": {
+        "build": "node build/make",
+        "test": "mocha -R list & mocha -R list test/amd/loose"
     },
     "repository": {
         "type": "git",
