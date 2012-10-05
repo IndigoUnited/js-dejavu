@@ -560,7 +560,6 @@ define([
 
                 // Verify if is an abstract class with unimplemented members
                 if (current.$static[$abstract] && current.$static[$abstract].unimplemented) {
-                    console.log(current.$static[$abstract].unimplemented);
                     throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is an abstract class with abstract members, which are not allowed.');
                 }
 
