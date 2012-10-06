@@ -521,7 +521,6 @@ define([
      */
     function parseBorrows(params, constructor) {
         if (hasOwn(params, '$borrows')) {
-
             var current,
                 mixins = toArray(params.$borrows),
                 i = mixins.length,

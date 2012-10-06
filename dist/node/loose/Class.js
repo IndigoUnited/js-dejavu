@@ -150,7 +150,6 @@ define([
      */
     function parseBorrows(params, constructor) {
         if (hasOwn(params, '$borrows')) {
-
             var current,
                 k,
                 key,

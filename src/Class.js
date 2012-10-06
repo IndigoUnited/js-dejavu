@@ -617,7 +617,6 @@ define([
      */
     function parseBorrows(params, constructor) {
         if (hasOwn(params, '$borrows')) {
-
 //>>includeStart('strict', pragmas.strict);
             var current,
                 mixins = toArray(params.$borrows),
