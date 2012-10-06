@@ -55,8 +55,9 @@ emptyDir(distDir);
 
 // Build amd strict
 currentBuild = 'amd';
-command = 'node "' + __dirname + '/../vendor/r.js/dist/r.js" -o ' + __dirname + '/dejavu.build_' + currentBuild + '.js';
+command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/dejavu.build_' + currentBuild + '.js';
 currentDistDir = distDir + 'amd/strict/';
+
 cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
     // Print success or error
     if (error !== null) {
@@ -122,7 +123,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
 
         // Build regular loose
         currentBuild = 'regular';
-        command = 'node "' + __dirname + '/../vendor/r.js/dist/r.js" -o ' + __dirname + '/dejavu.build_' + currentBuild + '.js';
+        command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/dejavu.build_' + currentBuild + '.js';
         currentDistDir = __dirname + '/../tmp/';
 
         emptyDir(currentDistDir);

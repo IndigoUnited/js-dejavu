@@ -1,6 +1,6 @@
 var paths = {
-    'amd-utils': '../vendor/amd-utils/src',
-    'domReady': '../vendor/domReady/domReady',
+    'amd-utils': '../node_modules/amd-utils',
+    'domReady': '../node_modules/domReady/domReady',
     'amd/strict': '../dist/amd/strict',
     'amd/loose': '../dist/amd/loose',
     'test/amd/strict': 'amd/strict',
@@ -9,16 +9,16 @@ var paths = {
     requirejs;
 
 if (!(typeof window !== 'undefined' && window.navigator && window.document)) { // Test if we are at command line
-    requirejs = require('../../vendor/r.js/dist/r.js');
+    requirejs = require('requirejs');
     requirejs.config({
         baseUrl: __dirname + '/../',
         paths: paths,
         nodeRequire: require
     });
 
-    define = requirejs;
+    global.define = require('requirejs');
     global.browser = false;
-    global.expect = require('../../vendor/expect.js/expect.js');
+    global.expect = require('expect.js');
 
     // Change working directory due to some issues related with requirejs
     process.chdir(__dirname + '/..');

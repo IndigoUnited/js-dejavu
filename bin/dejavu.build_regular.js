@@ -5,20 +5,26 @@
 ({
     appDir : '../src',
     baseUrl: '.',
-    dir : '../dist',
+    dir : '../tmp',
     paths : {
-        'amd-utils': '../vendor/amd-utils/src'
+        'amd-utils': '../node_modules/amd-utils',
+        'almond': '../node_modules/almond/almond'
     },
     pragmas: {
         'strict': true,
-        'regular': false
+        'regular': true
     },
     optimize: 'none',
     uglify: {
         beautify: false,
         unsafe : true
     },
+    wrap: {
+        start: "(function() {",
+        end: "\nrequire('dejavu', null, null, true);\n\n}());"
+    },
     modules: [{
-        name: 'dejavu'
+        name: 'dejavu',
+        include: ['almond']
     }]
 })

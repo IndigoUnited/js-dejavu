@@ -652,9 +652,10 @@ define([
                     throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
                 }
 
-                // TODO: should we inherit interfaces of the borrowed class?!
-                // TODO: allow subclass classes
-                // TODO: allow abstract members fully
+                // TODO: ther are several gotchas at the moment regarding borrows:
+                // - should we inherit interfaces of the borrowed class?!
+                // - allow subclass classes
+                // - allow abstract members fully
 
                 if (isObject(mixins[i])) {
                     try {
@@ -1691,7 +1692,6 @@ define([
             throw new Error('Anonymous function cannot be bound twice.');
         }
 
-        // TODO: improve the bind here
         var args = toArray(arguments),
             bound;
 
@@ -1719,7 +1719,6 @@ define([
             throw new Error('Anonymous function cannot be bound twice.');
         }
 
-        // TODO: improve the bind here
         var args = toArray(arguments),
             bound;
 
