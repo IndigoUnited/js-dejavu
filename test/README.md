@@ -11,6 +11,8 @@ First run `npm install` to install all the tools needed.
 Finally type `"node_modules/.bin/mocha"` to run the strict tests.
 To run the loose tests type `"node_modules/.bin/mocha" test/amd/loose`
 
+If you got mocha installed globally you can also run `npm run-script test`.
+
 _Tip_: You can use the `-R list [file]` option to give you a full list of the tests.
 
 ## Browser ##

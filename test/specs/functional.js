@@ -27,6 +27,7 @@ define(global.modules, function (
             var SomeClass = Class.declare({}),
                 Example = Class.declare({
                     $extends: SomeClass,
+
                     some: 'property',
                     someOther: null,
                     someDate: new Date(),

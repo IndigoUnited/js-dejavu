@@ -4,8 +4,8 @@ The build process will create two kind of builds: AMD and regular.
 
 ## Tools needed ##
 
-Simply run npm install to install all the tools needed.
-Then just run build/make.js on node (`node build/make`).
+Simply run `npm install` to install all the tools needed.
+Then just run `npm run-script build`.
 This will create the builds described bellow in the [dist](https://github.com/IndigoUnited/dejavu/tree/master/dist) folder.
 Also the tests are automatically executed at the end of the build process.
 
