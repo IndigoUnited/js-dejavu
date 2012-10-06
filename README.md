@@ -842,8 +842,8 @@ For example, if you use [RequireJS](http://requirejs.org/):
 
 ## Bulding dejavu ##
 
-Please take a look at the [build](https://github.com/IndigoUnited/dejavu/tree/master/build) section.
-
+Simply run `npm install` to install all the tools needed.
+Then just run `npm run-script build` or `node build`.
 
 
 ## Testing dejavu ##
