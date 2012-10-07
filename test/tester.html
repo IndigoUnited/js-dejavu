@@ -25,7 +25,7 @@
 
             mocha.setup(options);
 
-            require(['domReady!', 'test/' + build], function () {
+            require(['domReady!', build.replace(/^[a-z0-9]+\//i, '')], function () {
 
                 var elem = document.getElementById(build.replace(/\//g, '_'));
                 if (elem) {
