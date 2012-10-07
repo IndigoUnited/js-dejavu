@@ -2,6 +2,6 @@
     "name": "dejavu",
     "version": "0.0.6",
     "dependencies": {
-        "amd-utils": "git://github.com/millermedeiros/amd-utils.git"
+        "amd-utils": ">= 0.6.x"
     }
 }
