@@ -2,4 +2,4 @@
 
 /*jshint node:true*/
 
-require(__dirname + '/bin/make');
+require(__dirname + '/bin/build');
