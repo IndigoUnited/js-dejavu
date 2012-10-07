@@ -19,7 +19,7 @@
         "requirejs": "= 2.0.x"
     },
     "scripts": {
-        "build": "node bin/make",
+        "build": "node bin/build",
         "test": "mocha -R list test/strict & mocha -R list test/loose"
     },
     "repository": {

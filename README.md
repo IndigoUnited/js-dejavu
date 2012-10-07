@@ -840,7 +840,7 @@ For example, if you use [RequireJS](http://requirejs.org/):
 
 
 
-## Bulding dejavu ##
+## Building dejavu ##
 
 Simply run `npm install` to install all the tools needed.
 Then just run `npm run-script build` or `node build`.
