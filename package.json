@@ -20,7 +20,7 @@
     },
     "scripts": {
         "build": "node bin/build",
-        "test": "mocha -R list test/strict & mocha -R list test/loose"
+        "test": "mocha -R spec test/strict & mocha -R spec test/loose"
     },
     "repository": {
         "type": "git",
