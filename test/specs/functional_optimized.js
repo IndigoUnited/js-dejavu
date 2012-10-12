@@ -2423,6 +2423,7 @@ define(global.modules, function (
             it('should work if double bound', function () {
 
                 expect(someClass.boundTwice()).to.equal(someClass);
+                expect(replicaClass.boundTwice()).to.equal(replicaClass);
 
             });
 
