@@ -2058,7 +2058,11 @@ define(global.modules, function (
                         return func.call(context);
                     },
                     boundTwice: function () {
-                        return this.$bind(this.$bind(function () { }));
+                        var func = function () {
+                            return this;
+                        }.$bind(this).$bind(context);
+
+                        return func.call({});
                     },
                     boundOfNamed: function () {
                         return this.$bind(this.simpleMethod);
@@ -2138,7 +2142,11 @@ define(global.modules, function (
                         return func.call(context);
                     },
                     boundTwice: function () {
-                        return function () {}.$bind(this).$bind(this);
+                        var func = function () {
+                            return this;
+                        }.$bind(this).$bind(context);
+
+                        return func.call({});
                     },
                     boundOfNamed: function () {
                         return this.$bind(this.simpleMethod);
@@ -2210,31 +2218,32 @@ define(global.modules, function (
                 }),
                 replicaClass = new ReplicaClass();
 
-            if (/strict/.test(global.build))  {
-                it('should throw an error if the function is not anonymous', function () {
+            it('should work outside classes', function () {
 
-                    expect(function () {
-                        someClass.boundOfNamed();
-                    }).to.throwException(/not anonymous/);
+                expect((function () {
+                    return this;
+                }.$bind(context)())).to.equal(context);
 
-                    expect(function () {
-                        replicaClass.boundOfNamed();
-                    }).to.throwException(/not anonymous/);
+            });
 
-                });
+            it('should work with named functions', function () {
 
-                it('should throw an error if bound twice', function () {
+                expect(function () {
+                    someClass.boundOfNamed();
+                }).to.not.throwException();
 
-                    expect(function () {
-                        someClass.boundOfNamed();
-                    }).to.throwException(/not anonymous/);
+                expect(function () {
+                    replicaClass.boundOfNamed();
+                }).to.not.throwException();
 
-                    expect(function () {
-                        replicaClass.boundOfNamed();
-                    }).to.throwException(/not anonymous/);
+            });
 
-                });
-            }
+            it('should work if double bound', function () {
+
+                expect(someClass.boundTwice()).to.equal(someClass);
+                expect(replicaClass.boundTwice()).to.equal(someClass);
+
+            });
 
             it('should have access to the right context', function () {
 

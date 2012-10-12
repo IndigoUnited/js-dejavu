@@ -421,7 +421,9 @@ define([
 
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
-        bound = wrapMethod(bound, this.$self || this.$static);
+        if (this.$static && this.$static[$class]) {
+            bound = wrapMethod(bound, this.$self || this.$static);
+        }
 
         return bound;
     }
