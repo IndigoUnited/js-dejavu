@@ -1662,7 +1662,9 @@ define([
 
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
-        bound = wrapMethod(bound, this.$self || this.$static);
+        if (this.$static && this.$static[$class]) {
+            bound = wrapMethod(bound, this.$self || this.$static);
+        }
 
         return bound;
     }
@@ -1683,21 +1685,15 @@ define([
      */
     function anonymousBind(func) {
         /*jshint validthis:true*/
-        if (func[$name]) {
-            throw new Error('Function with name "' + func[$name] + '" is not anonymous.');
-        }
-
-        if (func[$anonymous]) {
-            throw new Error('Anonymous function cannot be bound twice.');
-        }
-
         var args = toArray(arguments),
             bound;
 
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
-        bound[$anonymous] = func[$anonymous] = true;
-        bound = wrapMethod(bound, this.$self || this.$static, callerClassId);
+        if (this.$static && this.$static[$class]) {
+            bound[$anonymous] = func[$anonymous] = true;
+            bound = wrapMethod(bound, this.$self || this.$static, callerClassId);
+        }
 
         return bound;
     }
@@ -1710,21 +1706,15 @@ define([
      */
     function anonymousBindStatic(func) {
         /*jshint validthis:true*/
-        if (func[$name]) {
-            throw new Error('Function with name "' + func[$name] + '" is not anonymous.');
-        }
-
-        if (func[$anonymous]) {
-            throw new Error('Anonymous function cannot be bound twice.');
-        }
-
         var args = toArray(arguments),
             bound;
 
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
-        bound[$anonymous] = func[$anonymous] = true;
-        bound = wrapStaticMethod(bound, this.$self, callerClassId);
+        if (this.$static && this.$static[$class]) {
+            bound[$anonymous] = func[$anonymous] = true;
+            bound = wrapStaticMethod(bound, this.$self, callerClassId);
+        }
 
         return bound;
     }
