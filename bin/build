@@ -161,13 +161,13 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                 fs.rmdirSync(currentDistDir);
 
                 // Generate optimized test files
-                tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/functional.js" > "' + testDir + 'specs/functional_optimized.js"', function (error) {
+                tests = cp.exec('node "' + __dirname + '/../bin/optimizer" -r < "' + testDir + 'specs/functional.js" > "' + testDir + 'specs/functional_optimized.js"', function (error) {
                     if (error) {
                         console.error('Could not generate optimized tests.');
                         process.exit(1);
                     }
 
-                    tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/verifications.js" > "' + testDir + 'specs/verifications_optimized.js"', function (error) {
+                    tests = cp.exec('node "' + __dirname + '/../bin/optimizer" -r < "' + testDir + 'specs/verifications.js" > "' + testDir + 'specs/verifications_optimized.js"', function (error) {
                         if (error) {
                             console.error('Could not generate optimized tests.');
                             process.exit(1);

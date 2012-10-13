@@ -11,6 +11,7 @@ var fs = require('fs'),
 
 program
     .version('0.0.1')
+    .option('-r, --remove-strict', 'Remove "use strict" code.')
     .parse(process.argv);
 
 ////////////////////////////////////////////////////
@@ -28,7 +29,7 @@ function guessIndentation(str) {
     var matches,
         x;
 
-    if ((matches = str.match(/\{[^\n]*\n*((:? |\t)+)(:?\w|\/)/))) {
+    if ((matches = str.match(/\{[^\n]*\n*((:? |\t)+)(:?[\w\/'"])/))) {
         indentChar = matches[1].charAt(0);
         nrIndent = matches[1].length;
     } else {
@@ -272,5 +273,10 @@ function parse(contents) {
 
 // Guess file indentation
 guessIndentation(contents);
+
+// Remove use strict
+if (program.removeStrict) {
+    contents = contents.replace(/\s*['"]use strict['"];?/, '');
+}
 
 parse(contents);
