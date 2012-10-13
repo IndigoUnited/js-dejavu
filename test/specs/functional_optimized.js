@@ -10,9 +10,6 @@ define(global.modules, function (
     Emitter
 ) {
 
-    // We don't declare strict mode to ensure some micro validations to pass
-    //'use strict';
-
     var expect = global.expect;
 
     // TODO: remove this once mocha fixes it (https://github.com/visionmedia/mocha/issues/502)

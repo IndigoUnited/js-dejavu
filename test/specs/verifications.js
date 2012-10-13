@@ -10,6 +10,8 @@ define(global.modules, function (
     Emitter
 ) {
 
+    'use strict';
+
     var expect = global.expect;
 
     // TODO: remove this once mocha fixes it (https://github.com/visionmedia/mocha/issues/502)

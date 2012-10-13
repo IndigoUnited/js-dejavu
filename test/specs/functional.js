@@ -10,8 +10,7 @@ define(global.modules, function (
     Emitter
 ) {
 
-    // We don't declare strict mode to ensure some micro validations to pass
-    //'use strict';
+    'use strict';
 
     var expect = global.expect;
 
