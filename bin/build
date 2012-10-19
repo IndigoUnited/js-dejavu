@@ -44,8 +44,8 @@ function emptyDir(dir) {
 // Find mocha binary
 // We use statSync instead of existsSync because it is in path package in older node versions and in fs package in earlier ones
 try {
-    fs.statSync(__dirname + '/../node_modules/.bin/mocha');
     mochaBin = __dirname + '/../node_modules/.bin/mocha';
+    fs.statSync(mochaBin);
 } catch (e) {
     mochaBin = 'mocha';
 }

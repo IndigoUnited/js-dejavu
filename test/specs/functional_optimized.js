@@ -2562,7 +2562,6 @@ define(global.modules, function (
 
             it('should be accomplished with private constructors', function () {
 
-
                 expect(function () {
                     return Singleton2.getInstance();
                 }).to.not.throwException();
@@ -2575,7 +2574,7 @@ define(global.modules, function (
                     return OtherSubSingleton2.getInstance();
                 }).to.not.throwException();
 
-                if (/strict/.test(global.build)) {
+                if (/strict/.test(global.build) && hasDefineProperty) {
                     expect(function () {
                         return OtherSubSingleton2.getInstanceWrong();
                     }).to.throwException(/is private/);
