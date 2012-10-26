@@ -1,1 +1,1 @@
-module.exports = process.env.STRICT == null || process.env.STRICT ? require('./strict/main') : require('./loose/main');
+module.exports = process.env.STRICT == null || process.env.STRICT === true ? require('./strict/main') : require('./loose/main');
