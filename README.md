@@ -532,14 +532,6 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
             // Do other things here
         },
 
-        /**
-         * Handles some click event.
-         */
-        handleClick: function () {
-            // Handle click here
-        }.$bound(),                                     // $bound() let you automatically bind the function to the instance
-                                                        // Useful for handlers/callbacks
-
         $statics: {
             // Some class static members
         }
@@ -594,7 +586,7 @@ function (Class) {
     });
 });
 ```
-Alternatively, the $bound() function allows you to bind a function to the instance.
+Alternatively, the $bound() function allows you to bind a class function to the instance.
 This is useful if certain functions are meant to be used as callbacks or handlers.
 You don't need to bind the function manually, it will be bound for you automatically.
 
