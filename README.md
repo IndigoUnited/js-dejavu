@@ -559,37 +559,7 @@ If clashes occur with multiple mixins, that last one takes precedence.
 
 ### Binds ###
 
-The $bound() function allows you to bind a function to the instance.
-This is useful if certain functions are meant to be used as callbacks or handlers.
-You don't need to bind the function manually, it will be bound for you automatically.
-
-```js
-define([
-    'path/to/dejavu/Class'
-],
-function (Class) {
-
-    var ConcreteClass = Class.declare({
-
-        /**
-         * Constructor.
-         */
-        initialize: function (element) {
-            element.addEventListener('click', this._handleClick);
-        },
-
-        /**
-         * Handles some click event.
-         */
-        handleClick: function () {
-            // Handle click here
-        }.$bound(),
-
-    });
-});
-```
-
-Alternatively, one can use anonymous functions and bind them to the instance to preserve the context as well as allowing private/protected methods invocations.
+The $bind() function allows you to bind a anonymous functions to the instance to preserve the context as well as allowing private/protected methods invocations.
 
 ```js
 define([
@@ -624,7 +594,35 @@ function (Class) {
     });
 });
 ```
+Alternatively, the $bound() function allows you to bind a function to the instance.
+This is useful if certain functions are meant to be used as callbacks or handlers.
+You don't need to bind the function manually, it will be bound for you automatically.
 
+```js
+define([
+    'path/to/dejavu/Class'
+],
+function (Class) {
+
+    var ConcreteClass = Class.declare({
+
+        /**
+         * Constructor.
+         */
+        initialize: function (element) {
+            element.addEventListener('click', this._handleClick);
+        },
+
+        /**
+         * Handles some click event.
+         */
+        handleClick: function () {
+            // Handle click here
+        }.$bound(),
+
+    });
+});
+```
 
 ### Constants ###
 
