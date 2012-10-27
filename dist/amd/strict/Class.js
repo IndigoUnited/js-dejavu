@@ -540,6 +540,8 @@ define([
                 }
             }
         }
+
+        constructor[$class].forceUnlocked = true;
     }
 
     /**
@@ -1389,7 +1391,7 @@ define([
             delete this.$initializing;
 
             // Prevent any properties/methods to be added and deleted
-            if (isFunction(Object.seal)) {
+            if (!tmp.forceUnlocked && !tmp.locked && isFunction(Object.seal)) {
                 Object.seal(this);
             }
 
@@ -1521,6 +1523,14 @@ define([
         }
 
         inheriting = false;
+
+        // Inherit locked and forceUnlocked
+        if (hasOwn(constructor[$class], 'locked')) {
+            constructor[$class].locked = parent[$class].locked;
+        }
+        if (hasOwn(constructor[$class], 'forceUnlocked')) {
+            constructor[$class].forceUnlocked = parent[$class].forceUnlocked;
+        }
 
         // Inherit implemented interfaces
         constructor[$class].interfaces = [].concat(parent[$class].interfaces);
