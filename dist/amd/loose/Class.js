@@ -139,6 +139,38 @@ define([
     }
 
     /**
+     * Borrows members from a vanilla object definition.
+     *
+     * @param {Object}   params      The parameters
+     * @param {Function} constructor The constructor
+     */
+    function borrowFromVanilla(params, constructor) {
+        var key,
+            value;
+
+        // Grab mixin members
+        for (key in params) {
+            value = params[key];
+
+            if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
+                if (isFunction(value) && !value[$class] && !value[$interface]) {
+                    constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
+
+                    // If the function is specified to be bound, add it to the binds
+                    if (value[$bound]) {
+                        insert(constructor[$class].binds, key);
+                    }
+                } else {
+                    constructor.prototype[key] = value;
+                    if (!isImmutable(value)) {
+                        insert(constructor[$class].properties, key);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Parse borrows (mixins).
      *
      * @param {Object}   params      The parameters
@@ -154,28 +186,22 @@ define([
                 i = mixins.length;
 
             for (i -= 1; i >= 0; i -= 1) {
-                current = isObject(mixins[i]) ? createClass(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
+                current = mixins[i];
+                // If it's a vanilla object
+                if (isObject(current)) {
+                    borrowFromVanilla(current, constructor);
+                    continue;
+                }
+                // If it's a vanilla class
+                if (isFunction(current) && !current[$class]) {
+                    borrowFromVanilla(current.prototype, constructor);
+                    continue;
+                }
+
+                current = current.prototype;
 
                 // Grab mixin members
-                for (key in current) {
-                    value = current[key];
-
-                    if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
-                        if (isFunction(value) && !value[$class] && !value[$interface]) {
-                            constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
-
-                            // If the function is specified to be bound, add it to the binds
-                            if (value[$bound]) {
-                                insert(constructor[$class].binds, key);
-                            }
-                        } else {
-                            constructor.prototype[key] = value;
-                            if (!isImmutable(value)) {
-                                insert(constructor[$class].properties, key);
-                            }
-                        }
-                    }
-                }
+                borrowFromVanilla(current, constructor);
 
                 // Grab mixin static methods
                 for (k = current.$static[$class].staticMethods.length - 1; k >= 0; k -= 1) {

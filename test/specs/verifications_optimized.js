@@ -1934,14 +1934,6 @@ define(global.modules, function (
                 expect(function () {
                     return Class.declare(function () {
                         return {
-                            $borrows: function () {}
-                        };
-                    }, true);
-                }).to.throwException(/not a valid class\/object/);
-
-                expect(function () {
-                    return Class.declare(function () {
-                        return {
                             $borrows: undefined
                         };
                     }, true);
@@ -2003,13 +1995,6 @@ define(global.modules, function (
                     }, true);
                 }).to.throwException(/not a valid class\/object/);
 
-                expect(function () {
-                    return Class.declare(function () {
-                        return {
-                            $borrows: [function () {}]
-                        };
-                    }, true);
-                }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
                     return Class.declare(function () {
@@ -4438,13 +4423,7 @@ define(global.modules, function (
                             staticMethod: function () {}
                         }
                     };
-                }, true),
-                    Mixin2 = {
-                        someMethod: function () {},
-                        $statics: {
-                            staticMethod: function () {}
-                        }
-                    };
+                }, true);
 
                 expect(function () {
                     createSomeInterface();
@@ -4452,16 +4431,6 @@ define(global.modules, function (
                         return {
                             $implements: [SomeInterface],
                             $borrows: [Mixin1]
-                        };
-                    }, true);
-                }).to.not.throwException();
-
-                expect(function () {
-                    createSomeInterface();
-                    return Class.declare(function () {
-                        return {
-                            $implements: [SomeInterface],
-                            $borrows: [Mixin2]
                         };
                     }, true);
                 }).to.not.throwException();

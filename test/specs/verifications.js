@@ -1751,12 +1751,6 @@ define(global.modules, function (
 
                 expect(function () {
                     return Class.declare({
-                        $borrows: function () {}
-                    });
-                }).to.throwException(/not a valid class\/object/);
-
-                expect(function () {
-                    return Class.declare({
                         $borrows: undefined
                     });
                 }).to.throwException(/a class\/object or an array of classes\/objects/);
@@ -1803,11 +1797,6 @@ define(global.modules, function (
                     });
                 }).to.throwException(/not a valid class\/object/);
 
-                expect(function () {
-                    return Class.declare({
-                        $borrows: [function () {}]
-                    });
-                }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
                     return Class.declare({
@@ -3860,27 +3849,13 @@ define(global.modules, function (
                     $statics: {
                         staticMethod: function () {}
                     }
-                }),
-                    Mixin2 = {
-                        someMethod: function () {},
-                        $statics: {
-                            staticMethod: function () {}
-                        }
-                    };
+                });
 
                 expect(function () {
                     createSomeInterface();
                     return Class.declare({
                         $implements: [SomeInterface],
                         $borrows: [Mixin1]
-                    });
-                }).to.not.throwException();
-
-                expect(function () {
-                    createSomeInterface();
-                    return Class.declare({
-                        $implements: [SomeInterface],
-                        $borrows: [Mixin2]
                     });
                 }).to.not.throwException();
 
