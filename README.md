@@ -709,8 +709,8 @@ If Object.defineProperty is available, it will be used to manage their access (o
 
 ### Signature check ###
 
-All functions are virtual functions, therefore they can be overriden except if it's classified as final.
-additionally, if a method is abstract, a subclass can only implement/override it if they obey their signature (must be equal or augmented with additional optional arguments).
+All functions are virtual functions, therefore they can be overriden except if they are classified as final.
+Additionally, if a method is abstract, a subclass can only implement/override it if they obey their signature (must be equal or augmented with additional optional arguments).
 Arguments prefixed with a $ are evaluated as optional. The signature check is done for all abstract functions (interface functions are also considered abstract).
 
 ```js
