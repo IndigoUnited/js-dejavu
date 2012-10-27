@@ -1019,42 +1019,22 @@ define(global.modules, function (
 
             });
 
-            it('should throw an error when using the same function for different members', function () {
+            it('should work well when using the same function for different members', function () {
 
-                var a = function () {};
-
-                expect(function () {
-                    Class.declare(function () {
+                var a = function () { return 'ola'; },
+                    SomeClass = Class.declare(function () {
                         return {
                             test: a,
                             test2: a
                         };
-                    }, true);
-                }).to.throwException(/by the same/);
+                    }, true),
+                    someClass = new SomeClass(),
+                    otherClass = new SomeClass();
 
-                expect(function () {
-                    Class.declare(function () {
-                        return {
-                            test: a,
-                            $finals: {
-                                test2: a
-                            }
-                        };
-                    }, true);
-                }).to.throwException(/by the same/);
-
-                expect(function () {
-                    Class.declare(function () {
-                        return {
-                            $statics: {
-                                test: 1
-                            },
-                            $finals: {
-                                test2: a
-                            }
-                        };
-                    }, true);
-                }).to.throwException(/by the same/);
+                expect(someClass.test()).to.equal('ola');
+                expect(someClass.test2()).to.equal('ola');
+                expect(otherClass.test()).to.equal('ola');
+                expect(otherClass.test2()).to.equal('ola');
 
             });
 

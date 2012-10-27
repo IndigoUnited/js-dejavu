@@ -259,13 +259,23 @@ define([
             isStatic = !!opts.isStatic,
             isFinal,
             target,
+            tmp,
             originalMethod,
             inherited;
+
+        // Unwrap method if already wrapped
+        if (method[$wrapped]) {
+            method = method[$wrapped];
+        }
 
         // Check if function is already being used by another class or within the same class
         if (method[$name]) {
             if (method[$name] !== name) {
-                throw new Error('Method "' + name + '" of class "' + constructor.prototype.$name + '" seems to be used several times by the same or another class.');
+                tmp = method;
+                method = function () {
+                    return tmp.apply(this, arguments);
+                };
+                obfuscateProperty(method, $name, name);
             }
         } else {
             obfuscateProperty(method, $name, name);
@@ -343,11 +353,6 @@ define([
         }
 
         target[name] = metadata;
-
-        // Unwrap method if already wrapped
-        if (method[$wrapped]) {
-            method = method[$wrapped];
-        }
 
         originalMethod = method;
         method = !isStatic ?
