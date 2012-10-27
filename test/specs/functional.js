@@ -881,6 +881,51 @@ define(global.modules, function (
 
             });
 
+            it('should not protect the grabbed members of vanilla classes', function () {
+
+                var SomeVanillaClass = function () {},
+                    Def = {
+                        _method1: function () {},
+                        __method2: function () {},
+                        _grr: 'foo',
+                        __bleh: 'bar'
+                    },
+                    SomeClass,
+                    someClass;
+
+                SomeVanillaClass.prototype = Def;
+
+                SomeClass = Class.declare({
+                    $borrows: SomeVanillaClass,
+                    _bla: function () {},
+                    __buh: function () {}
+                });
+
+                someClass = new SomeClass();
+
+                if (/strict/.test(global.build) && hasDefineProperty) {
+                    expect(function () {
+                        someClass._bla();
+                    }).to.throwException(/access protected/);
+
+                    expect(function () {
+                        someClass.__buh();
+                    }).to.throwException(/access private/);
+                }
+
+                expect(function () {
+                    someClass._method1();
+                }).to.not.throwException();
+
+                expect(function () {
+                    someClass.__method2();
+                }).to.not.throwException();
+
+                expect(someClass._grr).to.equal('foo');
+                expect(someClass.__bleh).to.equal('bar');
+
+            });
+
             it('should grab the borrowed members, respecting the precedence order and not replace self methods', function () {
 
                 var SomeMixin = Class.declare({

@@ -352,6 +352,7 @@ define([
 
         var metadata,
             isStatic = !!opts.isStatic,
+            forcePublic = !!opts.forcePublic,
             isFinal,
             target,
             tmp,
@@ -405,6 +406,13 @@ define([
         } else {
             metadata = opts.metadata;
             opts.isFinal = metadata.isFinal;
+        }
+
+        // Force public if told so
+        if (forcePublic) {
+            delete metadata.isProtected;
+            delete metadata.isPrivate;
+            metadata.isPublic = true;
         }
 
         // Take care of $prefix if the method is initialize
@@ -513,6 +521,7 @@ define([
             isStatic,
             isFinal,
             isConst,
+            forcePublic = !! opts.forcePublic,
             target;
 
         if (opts.metadata) {
@@ -538,6 +547,13 @@ define([
                     metadata.allowed = constructor[$class].properties[name].allowed;
                 }
             }
+        }
+
+        // Force public if told so
+        if (forcePublic) {
+            delete metadata.isProtected;
+            delete metadata.isPrivate;
+            metadata.isPublic = true;
         }
 
         // If the property is protected/private we delete it from the target because they will be protected later
@@ -621,8 +637,19 @@ define([
      * @param {Function} constructor The constructor
      */
     function borrowFromVanilla(params, constructor) {
+//>>includeStart('strict', pragmas.strict);
+        // The members borrowed must be interpreted as public
+        // This is because they do not use the $binds and maybe calling protected/private members
+        // from anonymous functions
+
+        var key,
+            value,
+            opts = { forcePublic: true };
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
         var key,
             value;
+//>>excludeEnd('strict');
 
         // Grab mixin members
         for (key in params) {
@@ -631,7 +658,7 @@ define([
             if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
                 if (isFunction(value) && !value[$class] && !value[$interface]) {
 //>>includeStart('strict', pragmas.strict);
-                    addMethod(key, value, constructor);
+                    addMethod(key, value, constructor, opts);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
                     constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
@@ -643,7 +670,7 @@ define([
 //>>excludeEnd('strict');
                 } else {
 //>>includeStart('strict', pragmas.strict);
-                    addProperty(key, value, constructor);
+                    addProperty(key, value, constructor, opts);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
                     constructor.prototype[key] = value;

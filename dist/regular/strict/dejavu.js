@@ -1891,6 +1891,7 @@ define('Class',[
 
         var metadata,
             isStatic = !!opts.isStatic,
+            forcePublic = !!opts.forcePublic,
             isFinal,
             target,
             tmp,
@@ -1944,6 +1945,13 @@ define('Class',[
         } else {
             metadata = opts.metadata;
             opts.isFinal = metadata.isFinal;
+        }
+
+        // Force public if told so
+        if (forcePublic) {
+            delete metadata.isProtected;
+            delete metadata.isPrivate;
+            metadata.isPublic = true;
         }
 
         // Take care of $prefix if the method is initialize
@@ -2052,6 +2060,7 @@ define('Class',[
             isStatic,
             isFinal,
             isConst,
+            forcePublic = !! opts.forcePublic,
             target;
 
         if (opts.metadata) {
@@ -2077,6 +2086,13 @@ define('Class',[
                     metadata.allowed = constructor[$class].properties[name].allowed;
                 }
             }
+        }
+
+        // Force public if told so
+        if (forcePublic) {
+            delete metadata.isProtected;
+            delete metadata.isPrivate;
+            metadata.isPublic = true;
         }
 
         // If the property is protected/private we delete it from the target because they will be protected later
@@ -2159,8 +2175,13 @@ define('Class',[
      * @param {Function} constructor The constructor
      */
     function borrowFromVanilla(params, constructor) {
+        // The members borrowed must be interpreted as public
+        // This is because they do not use the $binds and maybe calling protected/private members
+        // from anonymous functions
+
         var key,
-            value;
+            value,
+            opts = { forcePublic: true };
 
         // Grab mixin members
         for (key in params) {
@@ -2168,9 +2189,9 @@ define('Class',[
 
             if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
                 if (isFunction(value) && !value[$class] && !value[$interface]) {
-                    addMethod(key, value, constructor);
+                    addMethod(key, value, constructor, opts);
                 } else {
-                    addProperty(key, value, constructor);
+                    addProperty(key, value, constructor, opts);
                 }
             }
         }
