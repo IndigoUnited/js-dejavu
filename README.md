@@ -51,7 +51,7 @@ performances, rivaling with vanilla JS in production.
 * Two builds, `regular` and `AMD` based
     * `AMD` optimized for speeding up developer workflow, allowing testing
       without the need to re-compile everything into a single file
-    * `regular` ideal if you want to deploy, with less files
+    * `regular` if you are not using `AMD` in your projects
 * Two modes for each build, `strict` and `loose`
     * `strict` best in development, enforcing a lot of checks, making sure you
       don't make many typical mistakes
