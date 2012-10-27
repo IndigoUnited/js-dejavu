@@ -61,11 +61,13 @@ currentDistDir = distDir + 'amd/strict/';
 cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
     // Print success or error
     if (error !== null) {
-        console.error(stderr);
-        process.exit(1);
-    } else {
-        console.log(stdout);
+        if (stderr) {
+            throw new Error(stderr.toString());
+        }
+        throw error;
     }
+
+    console.log(stdout);
 
     fs.unlinkSync(currentDistDir + 'build.txt');
     fs.unlinkSync(currentDistDir + 'dejavu.js');
@@ -76,11 +78,13 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
 
         // Print success or error
         if (error !== null) {
-            console.error(stderr);
-            process.exit(1);
-        } else {
-            console.log(stdout);
+            if (stderr) {
+                throw new Error(stderr.toString());
+            }
+            throw error;
         }
+
+        console.log(stdout);
 
         fs.unlinkSync(currentDistDir + 'build.txt');
         fs.unlinkSync(currentDistDir + 'dejavu.js');
@@ -132,11 +136,13 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
 
             // Print success or error
             if (error !== null) {
-                console.error(stderr);
-                process.exit(1);
-            } else {
-                console.log(stdout);
+                if (stderr) {
+                    throw new Error(stderr.toString());
+                }
+                throw error;
             }
+
+            console.log(stdout);
 
             // Move concatenated file
             fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/loose/dejavu.js');
@@ -148,11 +154,13 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
 
                 // Print success or error
                 if (error !== null) {
-                    console.error(stderr);
-                    process.exit(1);
-                } else {
-                    console.log(stdout);
+                    if (stderr) {
+                        throw new Error(stderr.toString());
+                    }
+                    throw error;
                 }
+
+                console.log(stdout);
 
                 // Move concatenated file
                 fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/strict/dejavu.js');
@@ -161,16 +169,20 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                 fs.rmdirSync(currentDistDir);
 
                 // Generate optimized test files
-                tests = cp.exec('node "' + __dirname + '/../bin/optimizer" -r < "' + testDir + 'specs/functional.js" > "' + testDir + 'specs/functional_optimized.js"', function (error) {
-                    if (error) {
-                        console.error('Could not generate optimized tests.');
-                        process.exit(1);
+                tests = cp.exec('node "' + __dirname + '/../bin/optimizer" -r < "' + testDir + 'specs/functional.js" > "' + testDir + 'specs/functional_optimized.js"', function (error, stdout, stderr) {
+                    if (error !== null) {
+                        if (stderr) {
+                            throw new Error(stderr.toString());
+                        }
+                        throw error;
                     }
 
-                    tests = cp.exec('node "' + __dirname + '/../bin/optimizer" -r < "' + testDir + 'specs/verifications.js" > "' + testDir + 'specs/verifications_optimized.js"', function (error) {
-                        if (error) {
-                            console.error('Could not generate optimized tests.');
-                            process.exit(1);
+                    tests = cp.exec('node "' + __dirname + '/../bin/optimizer" -r < "' + testDir + 'specs/verifications.js" > "' + testDir + 'specs/verifications_optimized.js"', function (error, stdout, stderr) {
+                        if (error !== null) {
+                            if (stderr) {
+                                throw new Error(stderr.toString());
+                            }
+                            throw error;
                         }
 
                         // Run tests
