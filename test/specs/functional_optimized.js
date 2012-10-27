@@ -752,23 +752,35 @@ define(global.modules, function (
                             $borrows: {
                                 method1: function () {},
                                 method2: function () {},
-                                some: 'property',
-                                $finals: {
-                                    finalProp: 'test',
-                                    finalFunc: function () {}
-                                },
-                                $constants: {
-                                    FOO: 'bar'
-                                }
+                                some: 'property'
                             }
                         };
                     }, true),
+                        VanillaImplementation = Class.declare(function () {
+                            return {
+                                $borrows: (function () {
+                                    var Vanilla = function () {};
+                                    Vanilla.prototype.method1 = function () {};
+                                    Vanilla.prototype.method2 = function () {};
+                                    Vanilla.prototype.some = 'property';
+
+                                    return Vanilla;
+                                }())
+                            };
+                        }, true),
                         OtherImplementation = Class.declare(function () {
                             return {
                                 $borrows: [Class.declare({
                                     method1: function () {},
                                     method2: function () {},
-                                    some: 'property'
+                                    some: 'property',
+                                    $finals: {
+                                        finalProp: 'test',
+                                        finalFunc: function () {}
+                                    },
+                                    $constants: {
+                                        FOO: 'bar'
+                                    }
                                 }), { method3: function () {} }]
                             };
                         }, true),
@@ -777,17 +789,28 @@ define(global.modules, function (
                                 $borrows: Class.declare({
                                     method1: function () {},
                                     method2: function () {},
-                                    some: 'property'
+                                    some: 'property',
+                                    $finals: {
+                                        finalProp: 'test',
+                                        finalFunc: function () {}
+                                    },
+                                    $constants: {
+                                        FOO: 'bar'
+                                    }
                                 })
                             };
                         }, true),
                         someImplementation = new SomeImplementation(),
+                        vanillaImplementation = new VanillaImplementation(),
                         otherImplementation = new OtherImplementation(),
                         evenOtherImplementation = new EvenOtherImplementation();
 
                     expect(SomeImplementation.prototype.method1).to.be.a('function');
                     expect(SomeImplementation.prototype.method2).to.be.a('function');
                     expect(SomeImplementation.prototype.some).to.be.equal('property');
+                    expect(VanillaImplementation.prototype.method1).to.be.a('function');
+                    expect(VanillaImplementation.prototype.method2).to.be.a('function');
+                    expect(VanillaImplementation.prototype.some).to.be.equal('property');
                     expect(OtherImplementation.prototype.method1).to.be.a('function');
                     expect(OtherImplementation.prototype.method2).to.be.a('function');
                     expect(OtherImplementation.prototype.method3).to.be.a('function');
@@ -799,6 +822,9 @@ define(global.modules, function (
                     expect(someImplementation.method1).to.be.a('function');
                     expect(someImplementation.method2).to.be.a('function');
                     expect(someImplementation.some).to.be.equal('property');
+                    expect(vanillaImplementation.method1).to.be.a('function');
+                    expect(vanillaImplementation.method2).to.be.a('function');
+                    expect(vanillaImplementation.some).to.be.equal('property');
                     expect(otherImplementation.method1).to.be.a('function');
                     expect(otherImplementation.method2).to.be.a('function');
                     expect(otherImplementation.method3).to.be.a('function');
@@ -807,10 +833,13 @@ define(global.modules, function (
                     expect(evenOtherImplementation.method2).to.be.a('function');
                     expect(evenOtherImplementation.some).to.be.equal('property');
 
-                    expect(someImplementation.finalProp).to.equal('test');
-                    expect(someImplementation.finalFunc).to.be.a('function');
-                    expect(SomeImplementation.FOO).to.equal('bar');
+                    expect(otherImplementation.finalProp).to.equal('test');
+                    expect(otherImplementation.finalFunc).to.be.a('function');
+                    expect(OtherImplementation.FOO).to.equal('bar');
 
+                    expect(evenOtherImplementation.finalProp).to.equal('test');
+                    expect(evenOtherImplementation.finalFunc).to.be.a('function');
+                    expect(EvenOtherImplementation.FOO).to.equal('bar');
                 }());
 
                 (function () {

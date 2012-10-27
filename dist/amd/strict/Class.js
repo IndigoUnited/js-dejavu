@@ -514,6 +514,30 @@ define([
     }
 
     /**
+     * Borrows members from a vanilla object definition.
+     *
+     * @param {Object}   params      The parameters
+     * @param {Function} constructor The constructor
+     */
+    function borrowFromVanilla(params, constructor) {
+        var key,
+            value;
+
+        // Grab mixin members
+        for (key in params) {
+            value = params[key];
+
+            if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
+                if (isFunction(value) && !value[$class] && !value[$interface]) {
+                    addMethod(key, value, constructor);
+                } else {
+                    addProperty(key, value, constructor);
+                }
+            }
+        }
+    }
+
+    /**
      * Parse borrows (mixins).
      *
      * @param {Object}   params      The parameters
@@ -537,26 +561,27 @@ define([
             }
 
             for (i -= 1; i >= 0; i -= 1) {
-                // Verify each mixin
-                if ((!isFunction(mixins[i]) || !mixins[i][$class]) && (!isObject(mixins[i]) || mixins[i].$static)) {
-                    throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
+                current = mixins[i];
+
+                // If is a vanilla object
+                if (isObject(current)) {
+                    if (current.$static) {
+                        throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is not a valid class/object.');
+                    }
+                    borrowFromVanilla(current, constructor);
+                    continue;
                 }
-
-                // TODO: ther are several gotchas at the moment regarding borrows:
-                // - should we inherit interfaces of the borrowed class?!
-                // - allow subclass classes
-                // - allow abstract members fully
-
-                if (isObject(mixins[i])) {
-                    try {
-                        current = createClass(mixIn({}, mixins[i])).prototype;
-                    } catch (e) {
-                        // When an object is being used, throw a more friend message if an error occurs
-                        throw new Error('Unable to define object as class at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" (' + e.message + ').');
+                // If is a vanilla class
+                if (isFunction(current) && !current[$interface]) {
+                    if (!current[$class]) {
+                        borrowFromVanilla(current.prototype, constructor);
+                        continue;
                     }
                 } else {
-                    current = mixins[i].prototype;
+                    throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is not a valid class/object.');
                 }
+
+                current = current.prototype;
 
                 // Verify if is an abstract class with unimplemented members
                 if (current.$static[$abstract] && current.$static[$abstract].unimplemented) {
