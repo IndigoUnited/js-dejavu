@@ -311,7 +311,7 @@ define([
             value = params[key];
 
             if (isFunction(value) && !value[$class] && !value[$interface]) {
-                constructor.prototype[key] = !value.$inherited ? wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null) : value;
+                constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
 
                 // If the function is specified to be bound, add it to the binds
                 if (value[$bound]) {
@@ -400,13 +400,14 @@ define([
      * Builds the constructor function that calls the initialize and do
      * more things internally.
      *
-     * @param {Boolean} isAbstract Treat this class as abstract
+     * @param {Function} constructor The constructor function to assume and fill
+     * @param {Boolean}  isAbstract  Treat this class as abstract
      *
      * @return {Function} The constructor function
      */
-    function createConstructor(isAbstract) {
+    function createConstructor(constructor, isAbstract) {
 
-        var Instance = function Instance() {
+        var Instance = constructor || function Instance() {
             var x,
                 tmp;
 
@@ -430,7 +431,9 @@ define([
             this.initialize.apply(this, arguments);
         };
 
-        obfuscateProperty(Instance, $class, { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] });
+        if (!Instance[$class]) {
+            obfuscateProperty(Instance, $class, { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] });
+        }
 
         return Instance;
     }
@@ -546,11 +549,13 @@ define([
      *
      * @param {Object}      params        An object containing methods and properties
      * @param {Constructor} [constructor] Assume the passed constructor
-     * @param {Boolean}     [isAbstract]  Treat this class as abstract
+     * @param {Object}      [opts]        Options
      *
      * @return {Function} The constructor
      */
-    createClass = function (params, constructor, isAbstract) {
+    createClass = function (params, constructor, opts) {
+        opts = opts || {};
+
         var dejavu,
             parent,
             isEfficient = !!constructor;
@@ -559,24 +564,31 @@ define([
             parent = params.$extends;
             delete params.$extends;
 
-            params.initialize = params.initialize || params._initialize || params.__initialize;
+            // If its a vanilla class create a dejavu class based on it
+            if (!parent[$class])  {
+                parent = createClass(parent.prototype, parent, { isVanilla: true });
+            }
+
+            params.initialize = opts.isVanilla ? dejavu : params.initialize || params._initialize || params.__initialize;
             if (!params.initialize) {
                 delete params.initialize;
             }
 
-            dejavu = constructor || createConstructor();
+            dejavu = createConstructor(constructor);
             obfuscateProperty(dejavu, '$parent', parent);
             dejavu.prototype = createObject(parent.prototype);
 
             inheritParent(dejavu, parent);
         } else {
-            params.initialize = params.initialize || params._initialize || params.__initialize || function () {};
-            dejavu = constructor || createConstructor();
+            dejavu = createConstructor(constructor);
+            params.initialize = opts.isVanilla ? dejavu : params.initialize || params._initialize || params.__initialize || function () {};
         }
 
         dejavu[$class].efficient = isEfficient;
-        delete params._initialize;
-        delete params.__initialize;
+        if (!opts.isVanilla) {
+            delete params._initialize;
+            delete params.__initialize;
+        }
 
         // Parse class members
         parseClass(params, dejavu);

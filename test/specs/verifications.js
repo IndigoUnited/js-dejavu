@@ -1344,11 +1344,6 @@ define(global.modules, function (
                     });
                 }).to.throwException(/is not a valid class/);
 
-                expect(function () {
-                    return Class.declare({
-                        $extends: function () {}
-                    });
-                }).to.throwException(/is not a valid class/);
 
                 expect(function () {
                     var tmp = Interface.declare({});
@@ -1802,13 +1797,6 @@ define(global.modules, function (
                     });
                 }).to.throwException(/abstract class with abstract members/);
 
-                // TODO: enable this test if we ever support classes with inherited in the $borrows
-                /*expect(function () {
-                    return Class.declare({
-                        $borrows: Emitter.EventsEmitter
-                    });
-                }).to.not.throwException();*/
-
                 expect(function () {
                     return Class.declare({
                         $borrows: Emitter.DirectEventsEmitter
@@ -1847,6 +1835,12 @@ define(global.modules, function (
                 }).to.not.throwException();
 
                 expect(function () {
+                    return AbstractClass.declare({
+                        $borrows: function () {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
                     return Class.declare({
                         $borrows: [{}]
                     });
@@ -1869,6 +1863,12 @@ define(global.modules, function (
                 expect(function () {
                     return AbstractClass.declare({
                         $borrows: [AbstractClass.declare({})]
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass.declare({
+                        $borrows: [function () {}]
                     });
                 }).to.not.throwException();
 

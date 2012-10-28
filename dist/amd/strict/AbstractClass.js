@@ -312,7 +312,7 @@ define([
         }
 
         // Create the class definition
-        def = Class.$create(params, constructor, true);
+        def = Class.$create(params, constructor, { isAbstract: true });
 
         abstractObj.check = bind(checkClass, def);
 

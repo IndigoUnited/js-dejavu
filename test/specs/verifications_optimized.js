@@ -1439,13 +1439,6 @@ define(global.modules, function (
                     }, true);
                 }).to.throwException(/is not a valid class/);
 
-                expect(function () {
-                    return Class.declare(function () {
-                        return {
-                            $extends: function () {}
-                        };
-                    }, true);
-                }).to.throwException(/is not a valid class/);
 
                 expect(function () {
                     var tmp = Interface.declare({});
@@ -2000,15 +1993,6 @@ define(global.modules, function (
                     }, true);
                 }).to.throwException(/abstract class with abstract members/);
 
-                // TODO: enable this test if we ever support classes with inherited in the $borrows
-                /*expect(function () {
-                    return Class.declare(function () {
-                        return {
-                            $borrows: Emitter.EventsEmitter
-                        };
-                    }, true);
-                }).to.not.throwException();*/
-
                 expect(function () {
                     return Class.declare(function () {
                         return {
@@ -2059,6 +2043,14 @@ define(global.modules, function (
                 }).to.not.throwException();
 
                 expect(function () {
+                    return AbstractClass.declare(function () {
+                        return {
+                            $borrows: function () {}
+                        };
+                    }, true);
+                }).to.not.throwException();
+
+                expect(function () {
                     return Class.declare(function () {
                         return {
                             $borrows: [{}]
@@ -2088,6 +2080,14 @@ define(global.modules, function (
                     return AbstractClass.declare(function () {
                         return {
                             $borrows: [AbstractClass.declare({})]
+                        };
+                    }, true);
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass.declare(function () {
+                        return {
+                            $borrows: [function () {}]
                         };
                     }, true);
                 }).to.not.throwException();

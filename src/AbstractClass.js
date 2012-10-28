@@ -342,7 +342,7 @@ define([
         }
 
         // Create the class definition
-        def = Class.$create(params, constructor, true);
+        def = Class.$create(params, constructor, { isAbstract: true });
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
         // Create the class definition
