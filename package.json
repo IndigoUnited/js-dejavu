@@ -2,7 +2,7 @@
     "name": "dejavu",
     "description": "A set of object-oriented tools for JavaScript",
     "keywords": ["oop", "interface", "class", "abstract", "final", "inheritance"],
-    "version": "0.0.10",
+    "version": "0.1.0",
     "author": "IndigoUnited <hello@indigounited.com> (http://indigounited.com)",
     "main": "dist/node/node.js",
     "dependencies": {
@@ -16,7 +16,9 @@
         "wrench": "1.3.x",
         "expect.js": "0.1.x",
         "domReady": "git://github.com/requirejs/domReady.git",
-        "requirejs": "2.0.x"
+        "requirejs": "2.0.x",
+        "esprima": "1.0.x",
+        "escodegen": "0.0.x"
     },
     "scripts": {
         "build": "node build",
