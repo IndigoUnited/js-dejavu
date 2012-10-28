@@ -3304,7 +3304,7 @@ define('Class',[
             obfuscateProperty(dejavu, 'toString', toStringConstructor, true);
         }
 
-        // If we are a concrete class that extends an abstract class, we need to verify the methods existence
+        // If we are a concrete class tha3t extends an abstract class, we need to verify the methods existence
         if (parent && parent[$abstract] && !opts.isAbstract) {
             parent[$abstract].check(dejavu);
         }
@@ -3323,17 +3323,21 @@ define('Class',[
         // Supply .extend() to easily extend a class
         dejavu.extend = extend;
 
-        // Prevent any properties/methods to be added and deleted
+        // Take care of $locked flag
         if (hasOwn(params, '$locked')) {
-            dejavu[$class].locked = !!params.$locked;
-            if (dejavu[$class].forceUnlocked && dejavu[$class].locked) {
+            if (dejavu[$class].forceUnlocked && params.$locked) {
                 throw new Error('Class "' + params.$name + '" cannot be locked because it borrows or extends from a vanilla class.');
             }
+            if (dejavu[$class].locked === false && params.$locked) {
+                throw new Error('Class "' + params.$name + '" inherits from an unlocked class, therefore its subclasses cannot be locked.');
+            }
+            dejavu[$class].locked = !!params.$locked;
             delete params.$locked;
-        } else {
+        } else if (!hasOwn(dejavu[$class], 'locked')) {
             dejavu[$class].locked = !!options.locked;
         }
 
+        // Prevent any properties/methods to be added and deleted
         if (hasDefineProperty) {
             protectConstructor(dejavu);
         }
