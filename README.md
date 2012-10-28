@@ -853,14 +853,14 @@ MyUnlockedClass.prototype.run = function () {   // Methods can be replaced in th
 
 var myUnlockedInstance = new MyUnlockedClass();
 myUnlockedInstance.undeclaredProperty = 'foo'   // Properties can be added to the instance
-myUnlockedInstance.run = function () {          // Methods can be replaced in the isntance
+myUnlockedInstance.run = function () {          // Methods can be replaced in the instance
     console.log('im running naked!');
 };
 ```
 
 #### By setting the global option:
 
-This will change the default option, but classes can still override the behaviour with the $locked flag.
+This will change the default behaviour, but classes can still override it with the $locked flag.
 
 ```
 dejavu.options.locked = false;
