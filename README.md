@@ -869,7 +869,7 @@ dejavu.options.locked = false;
 ```
 
 Note that once a class is unlocked, its subclasses cannot be locked.
-
+Also, although undeclared members are allowed, they will not have their access controlled (they are interpreted as public).
 ### Notes ###
 
 Please avoid using object constructors for strings, objects, booleans and numbers:
