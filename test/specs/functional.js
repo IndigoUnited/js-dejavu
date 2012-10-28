@@ -672,6 +672,14 @@ define(global.modules, function (
 
                     var SomeClass = function () {};
 
+                    // Tests bellow are duplicated on purpose
+                    expect(function () {
+                        return Class.declare({
+                            $extends: SomeClass,
+                            $locked: true
+                        });
+                    }).to.throwException(/cannot be locked/);
+
                     expect(function () {
                         return Class.declare({
                             $extends: SomeClass,
@@ -682,6 +690,20 @@ define(global.modules, function (
                     expect(function () {
                         return Class.declare({
                             $borrows: SomeClass,
+                            $locked: true
+                        });
+                    }).to.throwException(/cannot be locked/);
+
+                    expect(function () {
+                        return Class.declare({
+                            $borrows: SomeClass,
+                            $locked: true
+                        });
+                    }).to.throwException(/cannot be locked/);
+
+                    expect(function () {
+                        return Class.declare({
+                            $extends: SomeClass,
                             $locked: true
                         });
                     }).to.throwException(/cannot be locked/);
