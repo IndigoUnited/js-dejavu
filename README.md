@@ -45,7 +45,7 @@ performances, rivaling with vanilla JS in production.
   callbacks/handlers)
 * Method signature checks
 * Custom instanceOf with support for Interfaces
-* Classes and instances are locked (only when Object.defineProperty is available)
+* Classes and instances are locked by default
     * Functions cannot be added, replaced or deleted
     * Properties can only be modified
 * Two builds, `regular` and `AMD` based
@@ -826,6 +826,45 @@ Example4.foo(); // bye
 The instanceOf function works exactly the same way as the native instanceof except that it also works for interfaces.
 
 
+###  Classes and instances are locked ###
+
+By default, constructors and instances are locked. This means that no one can monkey match your code.
+This behaviour can be changed in two ways:
+
+#### With the $locked flag:
+
+```js
+var MyUnlockedClass = Class.declare({
+    $locked: false
+
+    initialize: function () {
+        this.foo = 'bar';           // Altough the foo property is not declared,
+                                    // it will not throw an error
+    },
+
+    run: function () {
+        console.log('run!');
+    }
+});
+
+MyUnlockedClass.prototype.run = function () {   // Methods can be replaced in the prototype
+    console.log('im running!');
+}
+
+var myUnlockedInstance = new MyUnlockedClass();
+myUnlockedInstance.undeclaredProperty = 'foo'   // Properties can be added to the instance
+myUnlockedInstance.run = function () {          // Methods can be replaced in the isntance
+    console.log('im running naked!');
+};
+```
+
+#### By setting the global option:
+
+This will change the default option, but classes can still override the behaviour with the $locked flag.
+
+```
+dejavu.options.locked = false;
+```
 
 ### Notes ###
 
