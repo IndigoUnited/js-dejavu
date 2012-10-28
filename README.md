@@ -134,6 +134,8 @@ This will make a `dejavu` global available for you.
 If you're developing in __Node.js__, install it with `npm install dejavu` and use it like so:
 
 ```js
+'use strict';
+
 // in this case, dejavu.js is in the root folder of the project
 var dejavu = require('dejavu');
 
@@ -236,6 +238,8 @@ define([
 ],
 function (Human, TalkInterface, Class) {
 
+    'use strict';
+
     var Person = Class.declare({
         $extends: Human,
         $implements: [TalkInterface],
@@ -279,6 +283,8 @@ Below there's an example of an _EventsInterface_ that has the role of adding eve
 ```js
 define(['path/to/dejavu/Interface'], function (Interface) {
 
+    'use strict';
+
     var EventsInterface = Interface.declare({
 
         addListener: function (name, fn, context) {},
@@ -298,6 +304,8 @@ Be aware that all functions must obey its base signature (see explanation later 
 ```js
 define(['path/to/EventsInterface', 'path/to/dejavu/Interface'], function (EventsInterface, Interface) {
 
+    'use strict';
+
     var SomeEventsInterface = Interface.declare({
         $extends: EventsInterface,   // This interface extends EventsInterface
                                      // Interfaces can extend multiple ones, just reference them in an array
@@ -315,6 +323,8 @@ Alternatively, one can extend an interface with the extend() function. The equiv
 
 ```js
 define(['path/to/EventsInterface', 'path/to/dejavu/Interface'], function (EventsInterface, Interface) {
+
+    'use strict';
 
     var SomeEventsInterface = EventsInterface.extend(
 
@@ -342,6 +352,8 @@ define([
     'path/to/EventsInterface',
     'path/to/dejavu/Class'
 ], function (EventsInterface, Class) {
+
+    'use strict';
 
     var EventsEmitter = Class.declare({
         $implements: EventsInterface,   // The class implements the EventsInterface interface
@@ -379,6 +391,8 @@ define([
     'path/to/dejavu/AbstractClass'
 ],
 function (EventsInterface, AbstractClass) {
+
+    'use strict';
 
     var AbstractEventsEmitter = AbstractClass.declare({
         $implements: EventsInterface,   // The class must implement the EventsInterface
@@ -424,6 +438,8 @@ define([
 ],
 function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
 
+    'use strict';
+
     var ComplexAbstractClass = AbstractClass.declare({
         $extends: SomeClass,
         $implements: [SomeInterface, OtherInterface],
@@ -466,6 +482,8 @@ define([
     'path/to/dejavu/AbstractClass'
 ],
 function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
+
+    'use strict';
 
     var ComplexAbstractClass = SomeClass.extend({
         $implements: [SomeInterface, OtherInterface],
@@ -516,6 +534,8 @@ define([
 ],
 function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
 
+    'use strict';
+
     var ConcreteClass = Class.declare({
         $extends: SomeClass,
         $implements: [SomeInterface, OtherInterface],
@@ -559,6 +579,8 @@ define([
 ],
 function (Class) {
 
+    'use strict';
+
     var ConcreteClass = Class.declare({
 
         /**
@@ -596,6 +618,8 @@ define([
 ],
 function (Class) {
 
+    'use strict';
+
     var ConcreteClass = Class.declare({
 
         /**
@@ -624,6 +648,8 @@ Constants can be defined in classes, abstract classes and interfaces.
 
 ```js
 define(['path/to/dejavu/Class', function (Class) {
+
+    'use strict';
 
     var SomeClass = Class.declare({
         $constants: {
@@ -656,6 +682,8 @@ If the class itself is being defined final then it cannot be extended.
 ```js
 define(['path/to/dejavu/FinalClass', function (FinalClass) {
 
+    'use strict';
+
     var SomeClass = FinalClass.declare({    // This class cannot be extended
 
         /**
@@ -670,6 +698,8 @@ define(['path/to/dejavu/FinalClass', function (FinalClass) {
 });
 
 define(['path/to/dejavu/Class', function (Class) {
+
+    'use strict';
 
     var SomeClass = Class.declare({
 
