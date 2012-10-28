@@ -306,6 +306,118 @@ define(global.modules, function (
 
         });
 
+        describe('Instantiation of a simple vanilla inheritance setup', function () {
+
+            var Person = function () {
+                this.status = 'alive';
+            },
+                Person2 = function () {
+                    this.status = 'alive';
+                },
+                Andre,
+                SuperAndre,
+                Mario,
+                Helena;
+
+            Person2.prototype.initialize = function () {
+                this.status = 'wrong!';
+            };
+            Person2.prototype._initialize = function () {
+                this.status = 'wrong!';
+            };
+            Person2.prototype.__initialize = function () {
+                this.status = 'wrong!';
+            };
+            Person2.prototype._what = function () {};
+            Person2.prototype.__hmm = function () {};
+            Andre = Class.declare({
+                $extends: Person,
+                $name: 'André'
+            });
+
+            SuperAndre = Class.declare({
+                $extends: Andre,
+                $name: 'SuperAndre'
+            }),
+
+            Mario = Class.declare({
+                $extends: Person,
+                initialize: function () {
+                    this.$super();
+                }
+            }),
+
+            Helena = Class.declare({
+                $extends: Person2,
+
+                initialize: function () {
+                    this.$super();
+                },
+
+                _walk: function () {},
+                __run: function () {}
+            });
+
+            it('should invoke the parent constructor automatically if no constructor was defined', function () {
+
+                var andre = new Andre(),
+                    superAndre = new SuperAndre(),
+                    mario = new Mario(),
+                    helena = new Helena();
+
+                expect(andre.status).to.be.equal('alive');
+                expect(superAndre.status).to.be.equal('alive');
+                expect(mario.status).to.be.equal('alive');
+                expect(helena.status).to.be.equal('alive');
+
+                expect(andre.$bind).to.be.ok();
+                expect(andre.$static).to.be.ok();
+                expect(superAndre.$bind).to.be.ok();
+                expect(superAndre.$static).to.be.ok();
+                expect(mario.$bind).to.be.ok();
+                expect(mario.$static).to.be.ok();
+                expect(helena.$bind).to.be.ok();
+                expect(helena.$static).to.be.ok();
+
+            });
+
+            it('should not delete _initialize and __initialize methods', function () {
+
+                var helena = new Helena();
+
+                expect(helena._initialize).to.be.a('function');
+                expect(helena.__initialize).to.be.a('function');
+
+            });
+
+            if (/strict/.test(global.build) && hasDefineProperty) {
+
+                it('should not protect the vanilla class methods', function () {
+
+                    var helena = new Helena();
+
+                    expect(function () {
+                        return helena._what();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        return helena.__hmm();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        return helena._walk();
+                    }).to.throwException(/access protected/);
+
+                    expect(function () {
+                        return helena.__run();
+                    }).to.throwException(/access private/);
+
+                });
+
+            }
+
+        });
+
         describe('$super()', function () {
 
             var SomeClass = Class.declare({
@@ -362,6 +474,10 @@ define(global.modules, function (
 
                 expect(OtherClass.getFruit()).to.be.equal('hot potato');
                 expect(HiClass.getFruit()).to.be.equal('hi hot potato');
+
+            });
+
+            it('should work fine with vanilla classes', function () {
 
             });
 
@@ -923,6 +1039,20 @@ define(global.modules, function (
 
                 expect(someClass._grr).to.equal('foo');
                 expect(someClass.__bleh).to.equal('bar');
+
+            });
+
+            it('should not lock instances if borrowing from vanilla classes', function () {
+
+                var SomeVanillaClass = function () {},
+                    SomeClass = Class.declare({
+                        $borrows: SomeVanillaClass
+                    }),
+                    someClass = new SomeVanillaClass();
+
+                someClass.foo = 'bar';
+
+                expect(someClass.foo).to.equal('bar');
 
             });
 
