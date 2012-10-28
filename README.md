@@ -826,6 +826,7 @@ Example4.foo(); // bye
 The instanceOf function works exactly the same way as the native instanceof except that it also works for interfaces.
 
 
+
 ###  Classes and instances are locked ###
 
 By default, constructors and instances are locked. This means that no one can monkey match your code.
@@ -865,6 +866,8 @@ This will change the default behaviour, but classes can still override it with t
 ```
 dejavu.options.locked = false;
 ```
+
+
 
 ### Notes ###
 
