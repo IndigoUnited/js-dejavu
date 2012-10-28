@@ -598,14 +598,14 @@ define(global.modules, function (
 
         if (/strict/.test(global.build) && (Object.seal || Object.freeze)) {
 
-            after(function () {
-                options.locked = true;
-            });
-
             describe('$locked', function () {
 
                 var SomeClass = Class.declare({
                     $locked: false
+                });
+
+                afterEach(function () {
+                    options.locked = true;
                 });
 
                 it('should not lock classes if it\'s false', function () {
@@ -709,6 +709,56 @@ define(global.modules, function (
                     }).to.throwException(/cannot be locked/);
 
                 });
+
+                it('should be inherited and once unlocked it can\'t be locked', function () {
+
+                    var SomeClass = function () {},
+                        OtherClass = Class.declare({ $locked: false }),
+                        SomeSubClass,
+                        OtherSubClass,
+                        someSubClass,
+                        otherSubClass;
+
+                    options.locked = true;
+
+                    SomeSubClass = Class.declare({ $extends: SomeClass });
+                    OtherSubClass = Class.declare({ $extends: OtherClass });
+
+                    someSubClass = new SomeSubClass();
+                    otherSubClass = new OtherSubClass();
+
+                    someSubClass.foo = 'bar';
+                    someSubClass._foo2 = 'bar';
+                    someSubClass.__foo3 = 'bar';
+
+                    otherSubClass.foo = 'bar';
+                    otherSubClass._foo2 = 'bar';
+                    otherSubClass.__foo3 = 'bar';
+
+                    expect(someSubClass.foo).to.equal('bar');
+                    expect(someSubClass._foo2).to.equal('bar');
+                    expect(someSubClass.__foo3).to.equal('bar');
+
+                    expect(someSubClass.foo).to.equal('bar');
+                    expect(someSubClass._foo2).to.equal('bar');
+                    expect(someSubClass.__foo3).to.equal('bar');
+
+                    expect(function () {
+                        return Class.declare({
+                            $extends: SomeClass,
+                            $locked: true
+                        });
+                    }).to.throwException(/cannot be locked/);
+
+                    expect(function () {
+                        return Class.declare({
+                            $extends: OtherClass,
+                            $locked: true
+                        });
+                    }).to.throwException(/cannot be locked/);
+
+                });
+
             });
 
         }

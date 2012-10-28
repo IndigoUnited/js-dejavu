@@ -868,7 +868,7 @@ This will change the default behaviour, but classes can still override it with t
 dejavu.options.locked = false;
 ```
 
-
+Note that once a class is unlocked, its subclasses cannot be locked.
 
 ### Notes ###
 
