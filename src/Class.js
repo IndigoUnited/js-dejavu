@@ -23,6 +23,7 @@ define([
     './common/checkObjectPrototype',
     './common/randomAccessor',
     './common/hasFreezeBug',
+    './options',
 //>>includeEnd('strict');
     './common/printWarning',
     './common/obfuscateProperty',
@@ -63,6 +64,7 @@ define([
     checkObjectPrototype,
     randomAccessor,
     hasFreezeBug,
+    options,
 //>>includeEnd('strict');
     printWarning,
     obfuscateProperty,
@@ -87,10 +89,8 @@ define([
     insert
 ) {
 
-//>>excludeStart('strict', pragmas.strict);
     'use strict';
 
-//>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
     checkObjectPrototype();
 
@@ -1544,15 +1544,17 @@ define([
         }
 
         // Prevent any properties/methods to be added and deleted to the constructor
-        if (isFunction(Object.seal)) {
-            Object.seal(constructor);
-        }
+        if (constructor[$class].locked && !constructor[$class].forceUnlocked) {
+            if (isFunction(Object.seal)) {
+                Object.seal(constructor);
+            }
 
-        // Prevent any properties/methods to modified in the prototype
-        if (isFunction(Object.freeze) && !hasFreezeBug) {
-            Object.freeze(constructor.prototype);
-        } else if (isFunction(Object.seal)) {
-            Object.seal(constructor.prototype);
+            // Prevent any properties/methods to modified in the prototype
+            if (isFunction(Object.freeze) && !hasFreezeBug) {
+                Object.freeze(constructor.prototype);
+            } else if (isFunction(Object.seal)) {
+                Object.seal(constructor.prototype);
+            }
         }
     }
 //>>includeEnd('strict');
@@ -1622,7 +1624,7 @@ define([
             delete this.$initializing;
 
             // Prevent any properties/methods to be added and deleted
-            if (!tmp.forceUnlocked && !tmp.locked && isFunction(Object.seal)) {
+            if (!tmp.forceUnlocked && tmp.locked && isFunction(Object.seal)) {
                 Object.seal(this);
             }
 
@@ -1970,7 +1972,8 @@ define([
             if (isFunction(parent) && !parent[$interface]) {
                 // If its a vanilla class create a dejavu class based on it
                 if (!parent[$class]) {
-                    parent = createClass(parent.prototype, parent, { isVanilla: true });
+                    tmp = parent;
+                    parent = createClass(parent.prototype, function () { return tmp.apply(this, arguments); }, { isVanilla: true });
                     extendsVanilla = true;
                 }
 
@@ -2106,6 +2109,16 @@ define([
 //>>includeStart('strict', pragmas.strict);
 
         // Prevent any properties/methods to be added and deleted
+        if (hasOwn(params, '$locked')) {
+            dejavu[$class].locked = !!params.$locked;
+            if (dejavu[$class].forceUnlocked && dejavu[$class].locked) {
+                throw new Error('Class "' + params.$name + '" cannot be locked because it borrows or extends from a vanilla class.');
+            }
+            delete params.$locked;
+        } else {
+            dejavu[$class].locked = !!options.locked;
+        }
+
         if (hasDefineProperty) {
             protectConstructor(dejavu);
         }

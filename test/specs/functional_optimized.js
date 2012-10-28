@@ -6,6 +6,7 @@ define(global.modules, function (
     Interface,
     FinalClass,
     instanceOf,
+    options,
     hasDefineProperty,
     Emitter
 ) {
@@ -295,7 +296,7 @@ define(global.modules, function (
                 });
             }
 
-            it('should run the parent constructor even if its defined as protected', function () {
+            it('should run the parent constructor even if it\'s defined as protected', function () {
 
                 var person = new ComplexProtectedPerson();
 
@@ -312,7 +313,7 @@ define(global.modules, function (
 
             });
 
-            it('should run the parent constructor even if its defined as protected', function () {
+            it('should run the parent constructor even if it\'s defined as protected', function () {
 
                 var person = new ComplexProtectedPerson();
 
@@ -624,6 +625,110 @@ define(global.modules, function (
 
         });
 
+        if (/strict/.test(global.build) && (Object.seal || Object.freeze)) {
+
+            after(function () {
+                options.locked = true;
+            });
+
+            describe('$locked', function () {
+
+                var SomeClass = Class.declare(function () {
+                    return {
+                        $locked: false
+                    };
+                }, true);
+
+                it('should not lock classes if it\'s false', function () {
+
+                    var SomeClass = Class.declare(function () {
+                        return {
+                            $locked: false
+                        };
+                    }, true),
+                        someClass = new SomeClass();
+
+                    SomeClass.foo = 'bar';
+                    SomeClass.prototype.foo = 'bar';
+                    someClass.bar = 'foo';
+
+                    expect(SomeClass.foo).to.equal('bar');
+                    expect(SomeClass.prototype.foo).to.equal('bar');
+
+                    expect(someClass.bar).to.equal('foo');
+
+                });
+
+                it('should lock classes if it\'s true', function () {
+
+                    var SomeClass = Class.declare(function () {
+                        return {
+                            $locked: true
+                        };
+                    }, true),
+                        someClass = new SomeClass();
+
+                    expect(function () {
+                        SomeClass.foo = 'bar';
+                    }).to.throwException('not extensible');
+
+                    expect(function () {
+                        SomeClass.prototype.foo = 'bar';
+                    }).to.throwException('not extensible');
+
+                    expect(function () {
+                        someClass.bar = 'foo';
+                    }).to.throwException('not extensible');
+
+                });
+
+                it('should read the default value', function () {
+
+                    options.locked = true;
+
+                    var SomeClass = Class.declare(function () { return {}; }, true),
+                        OtherClass;
+
+                    options.locked = false;
+
+                    OtherClass = Class.declare(function () { return {}; }, true);
+
+                    expect(function () {
+                        SomeClass.foo = 'bar';
+                    }).to.throwException('not extensible');
+
+                    OtherClass.foo = 'bar';
+
+                    expect(OtherClass.foo).to.equal('bar');
+
+                });
+
+                it('should throw an error when $force is true but it must be false (due to borrowing or extending from a vanilla class)', function () {
+
+                    var SomeClass = function () {};
+
+                    expect(function () {
+                        return Class.declare(SomeClass, function ($super) {
+                            return {
+                                $locked: true
+                            };
+                        }, true);
+                    }).to.throwException(/cannot be locked/);
+
+                    expect(function () {
+                        return Class.declare(function () {
+                            return {
+                                $borrows: SomeClass,
+                                $locked: true
+                            };
+                        }, true);
+                    }).to.throwException(/cannot be locked/);
+
+                });
+            });
+
+        }
+
         describe('Instantiation of inheritance Cat -> Pet', function () {
 
             var Pet = Class.declare(function ($self) {
@@ -794,6 +899,7 @@ define(global.modules, function (
                             };
                         }, true);
                     }).to.throwException(/cannot inherit from final/);
+
                 });
 
             });

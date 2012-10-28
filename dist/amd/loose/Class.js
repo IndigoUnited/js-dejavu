@@ -402,7 +402,6 @@ define([
      * @return {Function} The constructor function
      */
     function createConstructor(constructor, isAbstract) {
-
         var Instance = constructor || function Instance() {
             var x,
                 tmp;

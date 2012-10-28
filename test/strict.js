@@ -9,6 +9,7 @@ global.modules = [
     path + '/Interface',
     path + '/FinalClass',
     path + '/instanceOf',
+    path + '/options',
     path + '/common/hasDefineProperty',
     'specs/cases/Emitter'
 ];

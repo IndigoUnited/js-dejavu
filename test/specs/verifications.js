@@ -6,6 +6,7 @@ define(global.modules, function (
     Interface,
     FinalClass,
     instanceOf,
+    options,
     hasDefineProperty,
     Emitter
 ) {

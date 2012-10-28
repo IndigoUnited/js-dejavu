@@ -20,10 +20,8 @@ define([
     instanceOf
 ) {
 
-//>>includeStart('strict', pragmas.strict);
     'use strict';
 
-//>>includeEnd('strict');
 //>>includeStart('regular', pragmas.regular);
     var dejavu = {},
         target;
