@@ -6,7 +6,8 @@ define([
     './AbstractClass',
     './Interface',
     './FinalClass',
-    './instanceOf'
+    './instanceOf',
+    './options'
 ], function (
 //>>includeStart('strict', pragmas.strict);
     isFunction,
@@ -33,6 +34,7 @@ define([
     dejavu.Interface = Interface;
     dejavu.FinalClass = FinalClass;
     dejavu.instanceOf = instanceOf;
+    dejavu.options = options;
 
 //>>includeStart('strict', pragmas.strict);
     dejavu.mode = 'strict';
