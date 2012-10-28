@@ -227,6 +227,7 @@ are the modules you can include:
 * Class
 * FinalClass
 * instanceOf
+* options
 
 Here's an example requiring `dejavu` selectively, using an AMD approach:
 

@@ -2308,6 +2308,10 @@ define('Class',[
                     }
                 }
 
+                if (current.$static[$class].isVanilla) {
+                    constructor[$class].forceUnlocked = true;
+                }
+
                 // Merge the binds
                 combine(constructor[$class].binds, current.$static[$class].binds);
             }
@@ -3176,8 +3180,7 @@ define('Class',[
             tmp,
             key,
             x,
-            found,
-            extendsVanilla;
+            found;
 
         // Validate class name
         if (hasOwn(params, '$name')) {
@@ -3227,9 +3230,7 @@ define('Class',[
             if (isFunction(parent) && !parent[$interface]) {
                 // If its a vanilla class create a dejavu class based on it
                 if (!parent[$class]) {
-                    tmp = parent;
-                    parent = createClass(parent.prototype, function () { return tmp.apply(this, arguments); }, { isVanilla: true });
-                    extendsVanilla = true;
+                    parent = createClass(parent.prototype, parent, { isVanilla: true });
                 }
 
                 // Verify if we are inheriting a final class
