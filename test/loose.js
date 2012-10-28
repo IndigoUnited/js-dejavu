@@ -9,7 +9,8 @@ global.modules = [
     path + '/AbstractClass',
     path + '/Interface',
     path + '/FinalClass',
-    path + '/instanceOf'
+    path + '/instanceOf',
+    path + '/options'
 ];
 global.build = 'amd/loose';
 
