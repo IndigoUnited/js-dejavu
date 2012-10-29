@@ -327,9 +327,7 @@ define([
 
         // Force public if told so
         if (forcePublic) {
-            delete metadata.isProtected;
-            delete metadata.isPrivate;
-            metadata.isPublic = true;
+            forcePublicMetadata(metadata);
         }
 
         // Take care of $prefix if the method is initialize
@@ -343,7 +341,7 @@ define([
             delete method.$prefix;
         }
 
-        // Check if we got a private method classified as final
+        // Check if it's a private method classified as final
         if (metadata.isPrivate && isFinal) {
             throw new Error('Private method "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
         }
@@ -358,10 +356,15 @@ define([
 
         // Check if the method already exists
         if (isObject(target[name])) {
-            // Are we overriding a private method?
-            if (target[name].isPrivate && name !== 'initialize') {
-                throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' method "' + name + '" in class "' + constructor.prototype.$name + '".');
+            if (target[name].forcedPublic) {
+                forcePublicMetadata(metadata);
+            } else {
+                // Are we overriding a private method?
+                if (target[name].isPrivate && name !== 'initialize') {
+                    throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' method "' + name + '" in class "' + constructor.prototype.$name + '".');
+                }
             }
+
             // Are we overriding a final method?
             if (target[name].isFinal) {
                 throw new Error('Cannot override final method "' + name + '" in class "' + constructor.prototype.$name + '".');
@@ -468,9 +471,7 @@ define([
 
         // Force public if told so
         if (forcePublic) {
-            delete metadata.isProtected;
-            delete metadata.isPrivate;
-            metadata.isPublic = true;
+            forcePublicMetadata(metadata);
         }
 
         // If the property is protected/private we delete it from the target because they will be protected later
@@ -498,7 +499,7 @@ define([
         if (!metadata) {
             throw new Error('Value of ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + '" defined in class "' + constructor.prototype.$name + '" can\'t be undefined (use null instead).');
         }
-        // Check if we we got a private property classified as final
+        // Check if it's a private property classified as final
         if (metadata.isPrivate && isFinal) {
             throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
         }
@@ -513,9 +514,14 @@ define([
         target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
 
         if (isObject(target[name])) {
-            // Are we overriding a private property?
-            if (target[name].isPrivate) {
-                throw new Error('Cannot override private ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + ' in class "' + constructor.prototype.$name + '".');
+            // Force public if told so
+            if (target[name].forcePublic) {
+                forcePublicMetadata(metadata);
+            } else {
+                // Are we overriding a private property?
+                if (target[name].isPrivate) {
+                    throw new Error('Cannot override private ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + ' in class "' + constructor.prototype.$name + '".');
+                }
             }
             // Are we overriding a constant?
             if (target[name].isConst) {
@@ -544,6 +550,12 @@ define([
         } else if (metadata.isPrivate) {
             metadata.allowed = constructor[$class].id;
         }
+    }
+
+    function forcePublicMetadata(metadata) {
+        delete metadata.isProtected;
+        delete metadata.isPrivate;
+        metadata.isPublic = metadata.forcedPublic = true;
     }
 
     /**

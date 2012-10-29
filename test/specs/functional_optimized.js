@@ -337,7 +337,8 @@ define(global.modules, function (
                 Andre,
                 SuperAndre,
                 Mario,
-                Helena;
+                Helena,
+                Marco;
 
             Person.prototype.getName = function () {
                 return this._name;
@@ -391,7 +392,25 @@ define(global.modules, function (
                         return 'Helena ' + $super.getName.call(this);
                     },
                     _walk: function () {},
-                    __run: function () {}
+                    __run: function () {},
+
+                    _what: function () { return 'what'; },
+                    __hmm: function () { return 'hmm'; }
+                };
+            }, true);
+
+            Marco = Class.declare(Person2, function ($super) {
+                return {
+                    initialize: function () {
+                        $super.initialize.call(this);
+                        this._name = 'Oliveira';
+                    },
+                    getName: function () {
+                        return 'Marco ' + $super.getName.call(this);
+                    },
+
+                    _what: function () { return 'what'; },
+                    __hmm: function () { return 'hmm'; }
                 };
             }, true);
 
@@ -441,7 +460,8 @@ define(global.modules, function (
 
                 it('should not protect the vanilla class methods', function () {
 
-                    var helena = new Helena();
+                    var helena = new Helena(),
+                        marco = new Marco();
 
                     expect(function () {
                         return helena._what();
@@ -459,7 +479,14 @@ define(global.modules, function (
                         return helena.__run();
                     }).to.throwException(/access private/);
 
-                    // TODO: test with inheritance afterwards
+                    expect(function () {
+                        return marco._what();
+                    }).to.not.throwException();
+
+                    expect(function () {
+                        return marco.__hmm();
+                    }).to.not.throwException();
+
                 });
 
             }
@@ -1549,7 +1576,9 @@ define(global.modules, function (
                         __bleh: 'bar'
                     },
                     SomeClass,
-                    someClass;
+                    OtherClass,
+                    someClass,
+                    otherClass;
 
                 SomeVanillaClass.prototype = Def;
 
@@ -1562,6 +1591,17 @@ define(global.modules, function (
                 }, true);
 
                 someClass = new SomeClass();
+
+                OtherClass = Class.declare(SomeClass, function ($super) {
+                    return {
+                        _method1: function () {},
+                        __method2: function () {},
+                        _grr: 'bar',
+                        __bleh: 'foo'
+                    };
+                }, true);
+
+                otherClass = new OtherClass();
 
                 if (/strict/.test(global.build) && hasDefineProperty) {
                     expect(function () {
@@ -1584,7 +1624,16 @@ define(global.modules, function (
                 expect(someClass._grr).to.equal('foo');
                 expect(someClass.__bleh).to.equal('bar');
 
-                // TODO: test with inheritance afterwards
+                expect(function () {
+                    otherClass._method1();
+                }).to.not.throwException();
+
+                expect(function () {
+                    otherClass.__method2();
+                }).to.not.throwException();
+
+                expect(otherClass._grr).to.equal('bar');
+                expect(otherClass.__bleh).to.equal('foo');
 
             });
 
