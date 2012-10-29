@@ -487,6 +487,9 @@ define(global.modules, function (
                         return marco.__hmm();
                     }).to.not.throwException();
 
+                    expect(marco._what()).to.equal('what');
+                    expect(marco.__hmm()).to.equal('hmm');
+
                 });
 
             }
@@ -1594,10 +1597,14 @@ define(global.modules, function (
 
                 OtherClass = Class.declare(SomeClass, function ($super) {
                     return {
-                        _method1: function () {},
-                        __method2: function () {},
-                        _grr: 'bar',
-                        __bleh: 'foo'
+                        _method1: function () {
+                            return 'foo';
+                        },
+                        __method2: function () {
+                            return 'bar';
+                        },
+                        _grr: 'what',
+                        __bleh: 'whatt'
                     };
                 }, true);
 
@@ -1632,8 +1639,10 @@ define(global.modules, function (
                     otherClass.__method2();
                 }).to.not.throwException();
 
-                expect(otherClass._grr).to.equal('bar');
-                expect(otherClass.__bleh).to.equal('foo');
+                expect(otherClass._method1()).to.equal('foo');
+                expect(otherClass.__method2()).to.equal('bar');
+                expect(otherClass._grr).to.equal('what');
+                expect(otherClass.__bleh).to.equal('whatt');
 
             });
 

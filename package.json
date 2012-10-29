@@ -2,7 +2,7 @@
     "name": "dejavu",
     "description": "A set of object-oriented tools for JavaScript",
     "keywords": ["oop", "interface", "class", "abstract", "final", "inheritance"],
-    "version": "0.1.2",
+    "version": "0.1.3",
     "author": "IndigoUnited <hello@indigounited.com> (http://indigounited.com)",
     "main": "dist/node/node.js",
     "dependencies": {

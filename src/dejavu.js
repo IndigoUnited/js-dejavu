@@ -38,6 +38,6 @@ define([
     dejavu.mode = 'loose';
 //>>excludeEnd('strict');
 //>>includeStart('regular', pragmas.regular);
-    target = dejavu;
+    target.dejavu = dejavu;
 //>>includeEnd('regular');
 });
