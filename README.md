@@ -327,7 +327,7 @@ define(['path/to/EventsInterface', 'path/to/dejavu/Interface'], function (Events
 
     'use strict';
 
-    var SomeEventsInterface = EventsInterface.extend(
+    var SomeEventsInterface = EventsInterface.extend({
 
         $statics: {                  // This is how we define statics
             getTotalListeners: function () {}
@@ -633,7 +633,7 @@ function (Class) {
         /**
          * Handles some click event.
          */
-        handleClick: function () {
+        _handleClick: function () {
             // Handle click here
         }.$bound(),
 
