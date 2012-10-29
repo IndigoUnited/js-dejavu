@@ -1062,6 +1062,7 @@ define(global.modules, function (
                 someObj.callback = replicaClass.retMethod.$bind(replicaClass);
 
                 expect(someObj.callback.call({})).to.be.equal(replicaClass);
+                expect(someObj.callback.call(null)).to.be.equal(replicaClass);
             });
 
             it('should work if double bound', function () {

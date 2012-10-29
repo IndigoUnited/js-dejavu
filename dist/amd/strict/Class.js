@@ -1391,42 +1391,58 @@ define([
     }
 
     /**
-     * Anonymous bind.
+     * Bind.
+     * Works for anonymous functions also.
      *
      * @param {Function} func   The function to be bound
      * @param {...mixed} [args] The arguments to also be bound
+     *
+     * @return {Function} The bound function
      */
-    function anonymousBind(func) {
+    function doBind(func) {
         /*jshint validthis:true*/
         var args = toArray(arguments),
-            bound;
+            bound,
+            isAnonymous;
+
+        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+            func = wrapMethod(func, this.$self || this.$static, callerClassId);
+            isAnonymous = true;
+        }
 
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
-        if (this.$static && this.$static[$class]) {
+        if (isAnonymous) {
             bound[$anonymous] = func[$anonymous] = true;
-            bound = wrapMethod(bound, this.$self || this.$static, callerClassId);
         }
 
         return bound;
     }
 
     /**
-     * Anonymous bind for static methods.
+     * Static bind.
+     * Works for anonymous functions also.
      *
      * @param {Function} func   The function to be bound
      * @param {...mixed} [args] The arguments to also be bound
+     *
+     * @return {Function} The bound function
      */
-    function anonymousBindStatic(func) {
+    function doBindStatic(func) {
         /*jshint validthis:true*/
         var args = toArray(arguments),
-            bound;
+            bound,
+            isAnonymous;
+
+        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+            func = wrapStaticMethod(func, this.$self || this.$static, callerClassId);
+            isAnonymous = true;
+        }
 
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
-        if (this.$static && this.$static[$class]) {
+        if (isAnonymous) {
             bound[$anonymous] = func[$anonymous] = true;
-            bound = wrapStaticMethod(bound, this.$self, callerClassId);
         }
 
         return bound;
@@ -1673,9 +1689,9 @@ define([
         obfuscateProperty(dejavu, '$static', dejavu);
         obfuscateProperty(dejavu, '$self', null, true);
         obfuscateProperty(dejavu, '$super', null, true);
-        obfuscateProperty(dejavu, '$bind', anonymousBindStatic);
+        obfuscateProperty(dejavu, '$bind', doBindStatic);
         if (!dejavu.$parent) {
-            obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
+            obfuscateProperty(dejavu.prototype, '$bind', doBind);
         }
 
         // Add toString() if not defined yet
@@ -1819,10 +1835,10 @@ define([
         args.splice(0, 1, this);
 
         if (isFunction(context)) {
-            return anonymousBindStatic.apply(context, args);
+            return doBindStatic.apply(context, args);
         }
 
-        return anonymousBind.apply(context, args);
+        return doBind.apply(context, args);
     });
 
     return Class;
