@@ -10,7 +10,8 @@ define([
     AbstractClass,
     Interface,
     FinalClass,
-    instanceOf
+    instanceOf,
+    options
 ) {
 
     'use strict';
