@@ -1790,6 +1790,10 @@ define('Class',[
         }
 
         wrapper = function () {
+            if (this == null) {
+                throw new Error('Method "' + (wrapper[$name] || 'anonymous') + '" was called with a null context (did you forget to bind?).');
+            }
+
             var _super = this.$super,
                 _self = this.$self,
                 prevCaller = caller,
@@ -1844,6 +1848,10 @@ define('Class',[
             wrapper;
 
         wrapper = function () {
+            if (this == null) {
+                throw new Error('Static method "' + (wrapper[$name] || 'anonymous') + '" was called with a null context (did you forget to bind?).');
+            }
+
             var _super = this.$super,
                 _self = this.$self,
                 prevCaller = caller,

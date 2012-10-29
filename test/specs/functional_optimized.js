@@ -195,6 +195,7 @@ define(global.modules, function (
                 expect(example2.some).to.be.equal('test5');
 
             });
+
         });
 
         describe('Instantiation of a simple inheritance setup', function () {
