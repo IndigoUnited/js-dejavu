@@ -16,13 +16,7 @@ define([
 
     'use strict';
 
-//>>includeStart('regular', pragmas.regular);
-    var dejavu = {},
-        target = window;
-//>>includeEnd('regular');
-//>>excludeStart('regular', pragmas.regular);
     var dejavu = {};
-//>>excludeEnd('regular');
 
     dejavu.Class = Class;
     dejavu.AbstractClass = AbstractClass;
@@ -38,6 +32,6 @@ define([
     dejavu.mode = 'loose';
 //>>excludeEnd('strict');
 //>>includeStart('regular', pragmas.regular);
-    target.dejavu = dejavu;
+    window.dejavu = dejavu;
 //>>includeEnd('regular');
 });
