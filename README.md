@@ -851,7 +851,7 @@ var MyUnlockedClass = Class.declare({
 
 MyUnlockedClass.prototype.run = function () {   // Methods can be replaced in the prototype
     console.log('im running!');
-}
+};
 
 var myUnlockedInstance = new MyUnlockedClass();
 myUnlockedInstance.undeclaredProperty = 'foo'   // Properties can be added to the instance
