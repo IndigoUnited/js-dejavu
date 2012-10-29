@@ -426,18 +426,6 @@ define('amd-utils/lang/isKind',['./kindOf'], function (kindOf) {
 
 
 
-define('amd-utils/lang/isFunction',['./isKind'], function (isKind) {
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isFunction(val) {
-        return isKind(val, 'Function');
-    }
-    return isFunction;
-});
-
-
-
 define('amd-utils/lang/isString',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
@@ -1029,6 +1017,18 @@ define('common/testKeywords',[
     }
 
     return testKeywords;
+});
+
+
+
+define('amd-utils/lang/isFunction',['./isKind'], function (isKind) {
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isFunction(val) {
+        return isKind(val, 'Function');
+    }
+    return isFunction;
 });
 
 define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFunction) {
@@ -4388,50 +4388,36 @@ define('instanceOf',[
 
     return instanceOf;
 });
-/*global global,module*/
-
 define('dejavu',[
-    'amd-utils/lang/isFunction',
     './Class',
     './AbstractClass',
     './Interface',
     './FinalClass',
-    './instanceOf'
+    './instanceOf',
+    './options'
 ], function (
-    isFunction,
     Class,
     AbstractClass,
     Interface,
     FinalClass,
-    instanceOf
+    instanceOf,
+    options
 ) {
 
     'use strict';
 
     var dejavu = {},
-        target;
+        target = window;
 
     dejavu.Class = Class;
     dejavu.AbstractClass = AbstractClass;
     dejavu.Interface = Interface;
     dejavu.FinalClass = FinalClass;
     dejavu.instanceOf = instanceOf;
-
-    if (typeof module !== 'undefined' && typeof exports !== 'undefined' && module.exports) {
-        module.exports = dejavu;
-    } else {
-        target = (typeof window !== 'undefined' && window.navigator && window.document) ? window : global;
-        if (!target) {
-            throw new Error('Could not grab global object.');
-        }
-        target.dejavu = dejavu;
-    }
+    dejavu.options = options;
 
     dejavu.mode = 'strict';
-
-    if (isFunction(Object.freeze)) {
-        Object.freeze(dejavu);
-    }
+    target = dejavu;
 });
 
 require('dejavu', null, null, true);
