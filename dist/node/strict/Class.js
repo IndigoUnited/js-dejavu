@@ -478,6 +478,46 @@ define([
             forcePublicMetadata(metadata);
         }
 
+        // Check if the metadata was fine (if not then the property is undefined)
+        if (!metadata) {
+            throw new Error('Value of ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + '" defined in class "' + constructor.prototype.$name + '" can\'t be undefined (use null instead).');
+        }
+        // Check if it's a private property classified as final
+        if (metadata.isPrivate && isFinal) {
+            throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
+        }
+
+        target = isStatic ? constructor[$class].staticMethods : constructor[$class].methods;
+
+        // Check if a method with the same name exists
+        if (isObject(target[name])) {
+            throw new Error((isConst ? 'Constant property' : (isStatic ? 'Static property' : 'Property')) + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.$name + '".');
+        }
+
+        target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
+
+        if (isObject(target[name])) {
+            // Force public if told so
+            if (target[name].forcedPublic) {
+                forcePublicMetadata(metadata);
+            } else {
+                // Are we overriding a private property?
+                if (target[name].isPrivate) {
+                    throw new Error('Cannot override private ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + ' in class "' + constructor.prototype.$name + '".');
+                }
+            }
+            // Are we overriding a constant?
+            if (target[name].isConst) {
+                throw new Error('Cannot override constant property "' + name + '" in class "' + constructor.prototype.$name + '".');
+            }
+            // Are we overriding a final property?
+            if (target[name].isFinal) {
+                throw new Error('Cannot override final property "' + name + '" in class "' + constructor.prototype.$name + '".');
+            }
+        }
+
+        target[name] = metadata;
+
         // If the property is protected/private we delete it from the target because they will be protected later
         if (!metadata.isPublic && hasDefineProperty) {
             if (!isStatic) {
@@ -499,46 +539,6 @@ define([
             metadata.isImmutable = isImmutable(value);
         }
 
-        // Check if the metadata was fine (if not then the property is undefined)
-        if (!metadata) {
-            throw new Error('Value of ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + '" defined in class "' + constructor.prototype.$name + '" can\'t be undefined (use null instead).');
-        }
-        // Check if it's a private property classified as final
-        if (metadata.isPrivate && isFinal) {
-            throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
-        }
-
-        target = isStatic ? constructor[$class].staticMethods : constructor[$class].methods;
-
-        // Check if a method with the same name exists
-        if (isObject(target[name])) {
-            throw new Error((isConst ? 'Constant property' : (isStatic ? 'Static property' : 'Property')) + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.$name + '".');
-        }
-
-        target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
-
-        if (isObject(target[name])) {
-            // Force public if told so
-            if (target[name].forcePublic) {
-                forcePublicMetadata(metadata);
-            } else {
-                // Are we overriding a private property?
-                if (target[name].isPrivate) {
-                    throw new Error('Cannot override private ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + ' in class "' + constructor.prototype.$name + '".');
-                }
-            }
-            // Are we overriding a constant?
-            if (target[name].isConst) {
-                throw new Error('Cannot override constant property "' + name + '" in class "' + constructor.prototype.$name + '".');
-            }
-            // Are we overriding a final property?
-            if (target[name].isFinal) {
-                throw new Error('Cannot override final property "' + name + '" in class "' + constructor.prototype.$name + '".');
-            }
-        }
-
-        target[name] = metadata;
-
         if (isFinal) {
             metadata.isFinal = isFinal;
         } else if (isConst) {
@@ -556,6 +556,11 @@ define([
         }
     }
 
+    /**
+     * Forces the property/function visibility to public
+     *
+     * @param  {Object} metadata The member metadata object
+     */
     function forcePublicMetadata(metadata) {
         delete metadata.isProtected;
         delete metadata.isPrivate;
