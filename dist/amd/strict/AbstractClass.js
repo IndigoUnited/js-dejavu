@@ -275,7 +275,7 @@ define([
      */
     function createAbstractClass(params, constructor) {
         if (!isObject(params)) {
-            throw new Error('Argument "params" must be an object while defining an abstract class.');
+            throw new Error('Expect abstract class definition to be an object with the abstract class members.');
         }
         // Validate class name
         if (hasOwn(params, '$name')) {

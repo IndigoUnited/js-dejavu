@@ -659,7 +659,7 @@ define([
 
         // Validate params as an object
         if (!isObject(params)) {
-            throw new Error('Expected second argument to be an object with the class members.');
+            throw new Error('Expected class definition to be an object with the class members.');
         }
 
         return callable(params, constructor);

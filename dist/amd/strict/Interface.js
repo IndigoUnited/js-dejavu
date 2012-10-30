@@ -222,7 +222,7 @@ define([
     function createInterface(params) {
         // Validate params as an object
         if (!isObject(params)) {
-            throw new Error('Expected "params" to be an object with the interface members.');
+            throw new Error('Expected interface definition to be an object with the interface members.');
         }
         // Validate class name
         if (hasOwn(params, '$name')) {
