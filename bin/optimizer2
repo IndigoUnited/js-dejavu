@@ -38,7 +38,8 @@ var parser = {
                 if (curr.type === Syntax.CallExpression &&
                     curr.callee.type === Syntax.MemberExpression &&
                     curr.callee.object.type === Syntax.Identifier &&
-                    curr.callee.property.type === Syntax.Identifier) {
+                    curr.callee.property.type === Syntax.Identifier &&
+                    curr['arguments'].length && curr['arguments'][0].type === Syntax.ObjectExpression) {
 
                     objectName = curr.callee.object.name;
 
@@ -46,29 +47,19 @@ var parser = {
                     if (curr.callee.property.name === 'declare') {
                         if (objectName === 'Interface') {
                             callback({ type: 'interface', ast: curr });
-                            continue;
-                        }
-                        if (objectName === 'AbstractClass') {
+                        } else if (objectName === 'AbstractClass') {
                             callback({ type: 'abstract', ast: curr });
-                            continue;
-                        }
-                        if (objectName === 'Class' || objectName === 'FinalClass') {
+                        } else if (objectName === 'Class' || objectName === 'FinalClass') {
                             callback({ type: 'concrete', ast: curr });
-                            continue;
                         }
-                    }
-
                     // Usage with extend
-                    if (curr.callee.property.name === 'extend') {
-                        if (parser._isInterface(curr['arguments'])) {
+                    } else if (curr.callee.property.name === 'extend') {
+                        if (parser._isInterface(curr['arguments'][0])) {
                             callback({ type: 'interface', ast: curr });
-                            continue;
-                        } else if (parser._isAbstractClass(curr['arguments'])) {
+                        } else if (parser._isAbstractClass(curr['arguments'][0])) {
                             callback({ type: 'abstract', ast: curr });
-                            continue;
-                        } else if (parser._isClass(curr['arguments'])) {
+                        } else if (parser._isClass(curr['arguments'][0])) {
                             callback({ type: 'concrete', ast: curr });
-                            continue;
                         }
                     }
                 }
@@ -88,13 +79,6 @@ var parser = {
         }
     },
 
-    /**
-     *
-     */
-    optimizeAbstactClass: function (ast) {
-        // Step 1
-        // Remove abstracts
-    },
 
     /**
      *
@@ -102,6 +86,34 @@ var parser = {
     optimizeInterface: function (ast) {
         // Step 1
         // Remove all the functions
+        var asts = ast['arguments'][0].properties,
+            x,
+            curr;
+
+        for (x = asts.length - 1; x >= 0; x -= 1) {
+            curr = asts[x];
+
+            if (curr.key.name === '$statics' || curr.type === Syntax.FunctionExpression) {
+                asts.splice(x, 1);
+            }
+        }
+    },
+
+    /**
+     *
+     */
+    optimizeAbstactClass: function (ast) {
+        // Step 1
+        // Remove abstracts
+        var asts = ast['arguments'][0].properties,
+            x;
+
+        for (x = asts.length - 1; x >= 0; x -= 1) {
+            if (asts[x].key.name === '$abstracts') {
+                asts.splice(x, 1);
+                break;
+            }
+        }
     },
 
     /**
@@ -179,54 +191,91 @@ var parser = {
     /**
      *
      */
-    optimize: function (ast) {
-        var identifier = ast.callee.object.name,
-            method = ast.callee.property.name;
+    optimize: function (obj) {
+        var type = obj.type,
+            ast = obj.ast;
 
         // Detect and make the optimizations according to the type
-        if (identifier === 'Class' || identifier === 'FinalClass') {
+        if (type === 'concrete') {
             parser.optimizeClass(ast);
-        } else if (identifier === 'AbstractClass') {
-            parser.optimizeClass(ast);
+        } else if (type === 'abstract') {
             parser.optimizeAbstactClass(ast);
-        } else if (identifier === 'Interface') {
+            parser.optimizeClass(ast);
+        } else if (type === 'interface') {
             parser.optimizeInterface(ast);
         }
     },
 
-    _isClass: function (ast) {
-        // Check if it has a $name, $statics, $finals, $abstracts or $constants
+    _isClass: function (asts) {
+        // Check if it has a $name, $statics, $finals, $constants
+        var x,
+            curr,
+            known = ['$name', '$statics', '$finals', '$constants'];
+
+        for (x = asts.length - 1; x >= 0; x -= 1) {
+            curr = asts[x];
+
+            if (known.indexOf(curr.key.name) !== -1) {
+                return true;
+            }
+        }
+
+        return false;
     },
 
-    _isAbstractClass: function (ast) {
+    _isAbstractClass: function (asts) {
         // Check if it has an $abstracts
-    },
-
-    _isInterface: function (asts) {
         var x,
             curr;
 
         for (x = asts.length - 1; x >= 0; x -= 1) {
             curr = asts[x];
 
-            if (curr.type !== Syntax.Property) {
+            if (curr.key.name === '$abstracts') {
+                return true;
+            }
+        }
+
+        return false;
+    },
+
+    _isInterface: function (asts) {
+        var x,
+            curr;
+
+        // Every single function must be empty
+        // Also all the properties must be functions except a few ones ($extends, $name, $static)
+        for (x = asts.length - 1; x >= 0; x -= 1) {
+            curr = asts[x];
+
+            if (curr.key.name === '$name' || curr.key.name === '$extends') {
                 continue;
             }
 
             if (curr.key.name === '$statics') {
-                if (!this._isInterface(curr.value)) {
+                if (!parser._isInterface(curr.value)) {
                     return false;
                 }
             } else if (curr.type === Syntax.FunctionExpression) {
-                // Ensure that functions are empty
+                if (curr.body.body.length) {
+                    return false;
+                }
+            } else {
+                return false;
             }
         }
+
+        return true;
     },
 
     /**
      *
      */
     _findAndParseFunctions: function (asts, isStatic) {
+        if (Object.prototype.toString.call(asts) !== '[object Array]') {
+            return false;
+        }
+
         var x,
             curr,
             currFuncName,
@@ -236,14 +285,10 @@ var parser = {
         for (x = asts.length - 1; x >= 0; x -= 1) {
             curr = asts[x];
 
-            if (curr.type !== Syntax.Property) {
-                continue;
-            }
-
             if (curr.key.name === '$statics') {
-                parser._findAndParseFunctions(curr.value, true);
+                parser._findAndParseFunctions(curr.value.properties, true);
             } else if (curr.key.name === '$finals') {
-                parser._findAndParseFunctions(curr.value);
+                parser._findAndParseFunctions(curr.value.properties);
             } else if (curr.value.type === Syntax.FunctionExpression) {
                 currFuncName = curr.key.name;
                 ret = parser._replaceSpecial(currFuncName, curr, isStatic);
@@ -332,8 +377,8 @@ var len = fs.fstatSync(process.stdin.fd).size,
 // Read and get an ast
 ast = esprima.parse(contents);
 
-parser.forEachUsage(ast, function (usageAst) {
-    parser.optimize(usageAst);
+parser.forEachUsage(ast, function (obj) {
+    parser.optimize(obj);
 });
 
 // Generate the source
