@@ -245,6 +245,7 @@ define(global.modules, function (
                     $extends: PrivatePerson
                 }),
                 ComplexProtectedPerson = ProtectedPerson.extend({
+                    $name: 'ComplexProtectedPerson',
                     initialize: function () {
                         this.$super();
                     }
@@ -2386,7 +2387,7 @@ define(global.modules, function (
                     Interface3 = Interface.declare({}),
                     Interface4 = Interface.declare({ $extends: Interface3 }),
                     Interface5 = Interface.declare({ $extends: [Interface4, Interface1] }),
-                    Interface6 = Interface5.extend({}),
+                    Interface6 = Interface5.extend({ $name: 'Interface6' }),
 
                     Class1 = Class.declare({ $implements: Interface1 }),
                     Class2 = AbstractClass.declare({ $implements: [Interface1, Interface2] }),
