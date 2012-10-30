@@ -327,7 +327,7 @@ define(['path/to/EventsInterface', 'path/to/dejavu/Interface'], function (Events
 
     'use strict';
 
-    var SomeEventsInterface = EventsInterface.extend(
+    var SomeEventsInterface = EventsInterface.extend({
 
         $statics: {                  // This is how we define statics
             getTotalListeners: function () {}
@@ -633,7 +633,7 @@ function (Class) {
         /**
          * Handles some click event.
          */
-        handleClick: function () {
+        _handleClick: function () {
             // Handle click here
         }.$bound(),
 
@@ -830,7 +830,7 @@ The instanceOf function works exactly the same way as the native instanceof exce
 
 ###  Classes and instances are locked ###
 
-By default, constructors and instances are locked. This means that no one can monkey match your code.
+By default, constructors and instances are locked. This means that no one can monkey patch your code.
 This behaviour can be changed in two ways:
 
 #### With the $locked flag:
@@ -851,7 +851,7 @@ var MyUnlockedClass = Class.declare({
 
 MyUnlockedClass.prototype.run = function () {   // Methods can be replaced in the prototype
     console.log('im running!');
-}
+};
 
 var myUnlockedInstance = new MyUnlockedClass();
 myUnlockedInstance.undeclaredProperty = 'foo'   // Properties can be added to the instance

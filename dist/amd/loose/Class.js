@@ -88,6 +88,7 @@ define([
     function wrapMethod(method, constructor, parent) {
         // Return the method if the class was created efficiently
         if (constructor[$class].efficient) {
+            method[$wrapped] = true;
             return method;
         }
 
@@ -434,21 +435,25 @@ define([
     }
 
     /**
-     * Anonymous bind.
+     * Bind.
+     * Works for anonymous functions also.
      *
      * @param {Function} func   The function to be bound
      * @param {...mixed} [args] The arguments to also be bound
+     *
+     * @return {Function} The bound function
      */
-    function anonymousBind(func) {
+    function doBind(func) {
         /*jshint validthis:true*/
         var args = toArray(arguments),
             bound;
 
+        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+            func = wrapMethod(func, this.$self || this.$static);
+        }
+
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
-        if (this.$static && this.$static[$class]) {
-            bound = wrapMethod(bound, this.$self || this.$static);
-        }
 
         return bound;
     }
@@ -599,9 +604,9 @@ define([
         obfuscateProperty(dejavu, '$static', dejavu);
         obfuscateProperty(dejavu, '$self', null, true);
         obfuscateProperty(dejavu, '$super', null, true);
-        obfuscateProperty(dejavu, '$bind', anonymousBind);
+        obfuscateProperty(dejavu, '$bind', doBind);
         if (!dejavu.$parent) {
-            obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
+            obfuscateProperty(dejavu.prototype, '$bind', doBind);
         }
 
         // Handle interfaces
@@ -706,7 +711,7 @@ define([
         var args = toArray(arguments);
         args.splice(0, 1, this);
 
-        return anonymousBind.apply(context, args);
+        return doBind.apply(context, args);
     });
 
     return Class;

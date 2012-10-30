@@ -147,6 +147,10 @@ define([
         }
 
         wrapper = function () {
+            if (this == null) {
+                throw new Error('Method "' + (wrapper[$name] || 'anonymous') + '" was called with a null context (did you forget to bind?).');
+            }
+
             var _super = this.$super,
                 _self = this.$self,
                 prevCaller = caller,
@@ -201,6 +205,10 @@ define([
             wrapper;
 
         wrapper = function () {
+            if (this == null) {
+                throw new Error('Static method "' + (wrapper[$name] || 'anonymous') + '" was called with a null context (did you forget to bind?).');
+            }
+
             var _super = this.$super,
                 _self = this.$self,
                 prevCaller = caller,
@@ -319,9 +327,7 @@ define([
 
         // Force public if told so
         if (forcePublic) {
-            delete metadata.isProtected;
-            delete metadata.isPrivate;
-            metadata.isPublic = true;
+            forcePublicMetadata(metadata);
         }
 
         // Take care of $prefix if the method is initialize
@@ -335,7 +341,7 @@ define([
             delete method.$prefix;
         }
 
-        // Check if we got a private method classified as final
+        // Check if it's a private method classified as final
         if (metadata.isPrivate && isFinal) {
             throw new Error('Private method "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
         }
@@ -350,10 +356,15 @@ define([
 
         // Check if the method already exists
         if (isObject(target[name])) {
-            // Are we overriding a private method?
-            if (target[name].isPrivate && name !== 'initialize') {
-                throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' method "' + name + '" in class "' + constructor.prototype.$name + '".');
+            if (target[name].forcedPublic) {
+                forcePublicMetadata(metadata);
+            } else {
+                // Are we overriding a private method?
+                if (target[name].isPrivate && name !== 'initialize') {
+                    throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' method "' + name + '" in class "' + constructor.prototype.$name + '".');
+                }
             }
+
             // Are we overriding a final method?
             if (target[name].isFinal) {
                 throw new Error('Cannot override final method "' + name + '" in class "' + constructor.prototype.$name + '".');
@@ -460,10 +471,48 @@ define([
 
         // Force public if told so
         if (forcePublic) {
-            delete metadata.isProtected;
-            delete metadata.isPrivate;
-            metadata.isPublic = true;
+            forcePublicMetadata(metadata);
         }
+
+        // Check if the metadata was fine (if not then the property is undefined)
+        if (!metadata) {
+            throw new Error('Value of ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + '" defined in class "' + constructor.prototype.$name + '" can\'t be undefined (use null instead).');
+        }
+        // Check if it's a private property classified as final
+        if (metadata.isPrivate && isFinal) {
+            throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
+        }
+
+        target = isStatic ? constructor[$class].staticMethods : constructor[$class].methods;
+
+        // Check if a method with the same name exists
+        if (isObject(target[name])) {
+            throw new Error((isConst ? 'Constant property' : (isStatic ? 'Static property' : 'Property')) + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.$name + '".');
+        }
+
+        target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
+
+        if (isObject(target[name])) {
+            // Force public if told so
+            if (target[name].forcedPublic) {
+                forcePublicMetadata(metadata);
+            } else {
+                // Are we overriding a private property?
+                if (target[name].isPrivate) {
+                    throw new Error('Cannot override private ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + ' in class "' + constructor.prototype.$name + '".');
+                }
+            }
+            // Are we overriding a constant?
+            if (target[name].isConst) {
+                throw new Error('Cannot override constant property "' + name + '" in class "' + constructor.prototype.$name + '".');
+            }
+            // Are we overriding a final property?
+            if (target[name].isFinal) {
+                throw new Error('Cannot override final property "' + name + '" in class "' + constructor.prototype.$name + '".');
+            }
+        }
+
+        target[name] = metadata;
 
         // If the property is protected/private we delete it from the target because they will be protected later
         if (!metadata.isPublic && hasDefineProperty) {
@@ -486,41 +535,6 @@ define([
             metadata.isImmutable = isImmutable(value);
         }
 
-        // Check if the metadata was fine (if not then the property is undefined)
-        if (!metadata) {
-            throw new Error('Value of ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + '" defined in class "' + constructor.prototype.$name + '" can\'t be undefined (use null instead).');
-        }
-        // Check if we we got a private property classified as final
-        if (metadata.isPrivate && isFinal) {
-            throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
-        }
-
-        target = isStatic ? constructor[$class].staticMethods : constructor[$class].methods;
-
-        // Check if a method with the same name exists
-        if (isObject(target[name])) {
-            throw new Error((isConst ? 'Constant property' : (isStatic ? 'Static property' : 'Property')) + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.$name + '".');
-        }
-
-        target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
-
-        if (isObject(target[name])) {
-            // Are we overriding a private property?
-            if (target[name].isPrivate) {
-                throw new Error('Cannot override private ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + ' in class "' + constructor.prototype.$name + '".');
-            }
-            // Are we overriding a constant?
-            if (target[name].isConst) {
-                throw new Error('Cannot override constant property "' + name + '" in class "' + constructor.prototype.$name + '".');
-            }
-            // Are we overriding a final property?
-            if (target[name].isFinal) {
-                throw new Error('Cannot override final property "' + name + '" in class "' + constructor.prototype.$name + '".');
-            }
-        }
-
-        target[name] = metadata;
-
         if (isFinal) {
             metadata.isFinal = isFinal;
         } else if (isConst) {
@@ -536,6 +550,17 @@ define([
         } else if (metadata.isPrivate) {
             metadata.allowed = constructor[$class].id;
         }
+    }
+
+    /**
+     * Forces the property/function visibility to public
+     *
+     * @param  {Object} metadata The member metadata object
+     */
+    function forcePublicMetadata(metadata) {
+        delete metadata.isProtected;
+        delete metadata.isPrivate;
+        metadata.isPublic = metadata.forcedPublic = true;
     }
 
     /**
@@ -1366,42 +1391,58 @@ define([
     }
 
     /**
-     * Anonymous bind.
+     * Bind.
+     * Works for anonymous functions also.
      *
      * @param {Function} func   The function to be bound
      * @param {...mixed} [args] The arguments to also be bound
+     *
+     * @return {Function} The bound function
      */
-    function anonymousBind(func) {
+    function doBind(func) {
         /*jshint validthis:true*/
         var args = toArray(arguments),
-            bound;
+            bound,
+            isAnonymous;
+
+        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+            func = wrapMethod(func, this.$self || this.$static, callerClassId);
+            isAnonymous = true;
+        }
 
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
-        if (this.$static && this.$static[$class]) {
+        if (isAnonymous) {
             bound[$anonymous] = func[$anonymous] = true;
-            bound = wrapMethod(bound, this.$self || this.$static, callerClassId);
         }
 
         return bound;
     }
 
     /**
-     * Anonymous bind for static methods.
+     * Static bind.
+     * Works for anonymous functions also.
      *
      * @param {Function} func   The function to be bound
      * @param {...mixed} [args] The arguments to also be bound
+     *
+     * @return {Function} The bound function
      */
-    function anonymousBindStatic(func) {
+    function doBindStatic(func) {
         /*jshint validthis:true*/
         var args = toArray(arguments),
-            bound;
+            bound,
+            isAnonymous;
+
+        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+            func = wrapStaticMethod(func, this.$self || this.$static, callerClassId);
+            isAnonymous = true;
+        }
 
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
-        if (this.$static && this.$static[$class]) {
+        if (isAnonymous) {
             bound[$anonymous] = func[$anonymous] = true;
-            bound = wrapStaticMethod(bound, this.$self, callerClassId);
         }
 
         return bound;
@@ -1648,9 +1689,9 @@ define([
         obfuscateProperty(dejavu, '$static', dejavu);
         obfuscateProperty(dejavu, '$self', null, true);
         obfuscateProperty(dejavu, '$super', null, true);
-        obfuscateProperty(dejavu, '$bind', anonymousBindStatic);
+        obfuscateProperty(dejavu, '$bind', doBindStatic);
         if (!dejavu.$parent) {
-            obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
+            obfuscateProperty(dejavu.prototype, '$bind', doBind);
         }
 
         // Add toString() if not defined yet
@@ -1794,10 +1835,10 @@ define([
         args.splice(0, 1, this);
 
         if (isFunction(context)) {
-            return anonymousBindStatic.apply(context, args);
+            return doBindStatic.apply(context, args);
         }
 
-        return anonymousBind.apply(context, args);
+        return doBind.apply(context, args);
     });
 
     return Class;

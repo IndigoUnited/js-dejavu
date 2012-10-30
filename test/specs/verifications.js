@@ -3938,6 +3938,34 @@ define(global.modules, function (
                 });
             }
 
+            it('should throw an error if calling a function with a null context', function () {
+
+                var Example = Class.declare({
+                    method: function () {},
+                    $statics: {
+                        staticMethod: function () {}
+                    }
+                }),
+                    example = new Example();
+
+                expect(function () {
+                    return example.method.call(null);
+                }).to.throwException(/with a null context/);
+
+                expect(function () {
+                    return example.method.call(undefined);
+                }).to.throwException(/with a null context/);
+
+                expect(function () {
+                    return Example.staticMethod.call(null);
+                }).to.throwException(/with a null context/);
+
+                expect(function () {
+                    return Example.staticMethod.call(undefined);
+                }).to.throwException(/with a null context/);
+
+            });
+
             it('should not throw an error while invoking the the parent abstract class constructor', function () {
 
                 expect(function () {
