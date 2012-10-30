@@ -3389,7 +3389,7 @@ define('Class',[
 
         // Validate params as an object
         if (!isObject(params)) {
-            throw new Error('Expected second argument to be an object with the class members.');
+            throw new Error('Expected class definition to be an object with the class members.');
         }
 
         return callable(params, constructor);
@@ -3742,7 +3742,7 @@ define('AbstractClass',[
      */
     function createAbstractClass(params, constructor) {
         if (!isObject(params)) {
-            throw new Error('Argument "params" must be an object while defining an abstract class.');
+            throw new Error('Expect abstract class definition to be an object with the abstract class members.');
         }
         // Validate class name
         if (hasOwn(params, '$name')) {
@@ -4059,7 +4059,7 @@ define('Interface',[
     function createInterface(params) {
         // Validate params as an object
         if (!isObject(params)) {
-            throw new Error('Expected "params" to be an object with the interface members.');
+            throw new Error('Expected interface definition to be an object with the interface members.');
         }
         // Validate class name
         if (hasOwn(params, '$name')) {
