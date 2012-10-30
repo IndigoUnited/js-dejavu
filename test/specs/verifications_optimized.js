@@ -65,6 +65,7 @@ define(global.modules, function (
                 expect(function () {
                     var SomeInterface = Interface.declare({}),
                         OtherInterface = SomeInterface.extend({
+                            $name: 'OtherInterface',
                             $extends: SomeInterface
                         });
                 }).to.throwException(/cannot contain an .extends property/);
@@ -74,7 +75,7 @@ define(global.modules, function (
             it('should work with .extend()', function () {
 
                 var SomeInterface = Interface.declare({}),
-                    OtherInterface = SomeInterface.extend({}),
+                    OtherInterface = SomeInterface.extend({ $name: 'OtherInterface' }),
                     SomeClass = Class.declare(function () {
                         return {
                             $implements: OtherInterface
@@ -983,6 +984,7 @@ define(global.modules, function (
                 expect(function () {
                     var SomeClass = Class.declare(function () { return {}; }, true),
                         OtherClass = SomeClass.extend({
+                            $name: 'OtherClass',
                             $extends: SomeClass
                         });
                 }).to.throwException(/cannot contain an .extends property/);

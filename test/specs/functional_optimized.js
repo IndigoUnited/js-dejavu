@@ -260,6 +260,7 @@ define(global.modules, function (
                 }, true),
                 ComplexProtectedPerson = ProtectedPerson.extend(function ($super) {
                     return {
+                        $name: 'ComplexProtectedPerson',
                         initialize: function () {
                             $super.initialize.call(this);
                         }
@@ -2586,7 +2587,7 @@ define(global.modules, function (
                     Interface3 = Interface.declare({}),
                     Interface4 = Interface.declare({ $extends: Interface3 }),
                     Interface5 = Interface.declare({ $extends: [Interface4, Interface1] }),
-                    Interface6 = Interface5.extend({}),
+                    Interface6 = Interface5.extend({ $name: 'Interface6' }),
 
                     Class1 = Class.declare(function () { return { $implements: Interface1 }; }, true),
                     Class2 = AbstractClass.declare(function () { return { $implements: [Interface1, Interface2] }; }, true),
