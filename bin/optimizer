@@ -411,7 +411,7 @@ var parser = {
         code = code.replace(/(this|that)(?:\.|(?:[\'])?)\$super(?:'\])?\(/g, '$super.' + funcName + '.call($1, ')
                    .replace(/(this|that), \)/g, '$1)');
 
-        // If on static replace, $super is actually $parent
+        // If on static context, $super is actually $parent
         if (isStatic) {
             code = code.replace(/\$super/g, superStaticReplacer);
         }
