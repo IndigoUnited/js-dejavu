@@ -4319,6 +4319,7 @@ define('FinalClass',[
     var random = randomAccessor('FinalClassWrapper'),
         $class = '$class_' + random,
         FinalClass = {};
+
     /**
      * Create a final class definition.
      *
