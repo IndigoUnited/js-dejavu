@@ -7,6 +7,7 @@ define([
     'use strict';
 
     var FinalClass = {};
+
     /**
      * Create a final class definition.
      *
