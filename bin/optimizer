@@ -82,7 +82,6 @@ var parser = {
         }
     },
 
-
     /**
      * Optimizes an interface.
      * The ast will be directly modified.
@@ -240,7 +239,6 @@ var parser = {
             parser.optimizeInterface(ast);
         }
     },
-
 
     /**
      * Checks if the passed asts (members) are part of an interface.
