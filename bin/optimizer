@@ -349,8 +349,8 @@ var parser = {
      * Finds and parses a concrete class functions in order to optimize them.
      * All super and self calls will be replaced with their efficient counterpart.
      *
-     * @param {Array}   The functions asts
-     * @param {Boolean} True if in static context, false otherwise
+     * @param {Array}   asts     The functions asts
+     * @param {Boolean} isStatic True if in static context, false otherwise
      *
      * @return {Boolean} True if the constructor can be optimized, false otherwise
      */
@@ -391,7 +391,11 @@ var parser = {
      * Replaces a function usage of keywords for their effiecient counterparts.
      * Basically the this.$super and this.$self will be optimized.
      *
-     * @return {Boolean} True if the constructor can be optimized, false otherwise
+     * @param {String} funcName The function name
+     * @param {Object} ast      The function ast
+     * @param {Boolean} isStatic True if in static context, false otherwise
+     *
+     * @return {Boolean} False if this functions causes the constructor to not be optimized, false otherwise
      */
     _replaceSpecial: function (funcName, ast, isStatic) {
         var code = escodegen.generate(ast.value, { comment: true }),
@@ -430,7 +434,7 @@ var parser = {
     /**
      * Grabs and returns the $extends of an ast.
      *
-     * @param {Function} The ast
+     * @param {Function} ast The ast
      *
      * @return {String} The $extends
      */
@@ -448,7 +452,7 @@ var parser = {
     /**
      * Removes $extends of an ast.
      *
-     * @param {Function} The ast
+     * @param {Function} ast The ast
      */
     _removeExtends: function (ast) {
         var x,
