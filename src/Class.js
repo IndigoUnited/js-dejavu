@@ -1724,7 +1724,9 @@ define([
             isAnonymous;
 
         if (!func[$wrapped] && this.$static && this.$static[$class]) {
+            func[$anonymous] = true;
             func = wrapMethod(func, this.$self || this.$static, callerClassId);
+            args[0] = func;
             isAnonymous = true;
         }
 
@@ -1753,7 +1755,9 @@ define([
             isAnonymous;
 
         if (!func[$wrapped] && this.$static && this.$static[$class]) {
+            func[$anonymous] = true;
             func = wrapStaticMethod(func, this.$self || this.$static, callerClassId);
+            args[0] = func;
             isAnonymous = true;
         }
 
