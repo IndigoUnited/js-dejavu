@@ -169,7 +169,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                 fs.rmdirSync(currentDistDir);
 
                 // Generate optimized test files
-                tests = cp.exec('node "' + __dirname + '/../bin/optimizer" -r < "' + testDir + 'specs/functional.js" > "' + testDir + 'specs/functional_optimized.js"', function (error, stdout, stderr) {
+                tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/functional.js" > "' + testDir + 'specs/functional_optimized.js"', function (error, stdout, stderr) {
                     if (error !== null) {
                         if (stderr) {
                             throw new Error(stderr.toString());
@@ -177,7 +177,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                         throw error;
                     }
 
-                    tests = cp.exec('node "' + __dirname + '/../bin/optimizer" -r < "' + testDir + 'specs/verifications.js" > "' + testDir + 'specs/verifications_optimized.js"', function (error, stdout, stderr) {
+                    tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/verifications.js" > "' + testDir + 'specs/verifications_optimized.js"', function (error, stdout, stderr) {
                         if (error !== null) {
                             if (stderr) {
                                 throw new Error(stderr.toString());
