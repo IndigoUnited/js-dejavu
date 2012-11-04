@@ -619,6 +619,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 });
                             return func.call(context);
                         },
+                        otherSimpleMethod: function () {
+                            var func = this.$bind(function () {
+                                    return this._protectedProperty;
+                                });
+                            return func;
+                        },
                         boundTwice: function () {
                             var func = function () {
                                     return this;
@@ -660,6 +666,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                         return this;
                                     });
                                 return func.call(context);
+                            },
+                            otherSimpleMethodStatic: function () {
+                                var func = this.$bind(function () {
+                                        return this._protectedPropertyStatic;
+                                    });
+                                return func;
                             },
                             someMethodStatic: function () {
                                 var func = this.$bind(function () {
@@ -808,10 +820,16 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(function () {
                     someClass.someMethod();
                 }).to.not.throwException();
+                expect(function () {
+                    someClass.otherSimpleMethod()();
+                }).to.not.throwException();
                 expect(someClass.getProtectedProperty()).to.equal('dummy');
                 expect(someClass.getPrivateProperty()).to.equal('dummy');
                 expect(function () {
                     SomeClass.someMethodStatic();
+                }).to.not.throwException();
+                expect(function () {
+                    SomeClass.otherSimpleMethodStatic();
                 }).to.not.throwException();
                 expect(SomeClass.getProtectedPropertyStatic()).to.equal('dummy');
                 expect(SomeClass.getPrivatePropertyStatic()).to.equal('dummy');
