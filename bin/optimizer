@@ -13,8 +13,8 @@ var fs = require('fs'),
 ////////////////////////////////////////////////////
 
 program
-    .version('0.0.1')
-    .option('-r, --remove-strict', 'Remove "use strict" code.')
+    .usage('< file.js > optimized_file.js')
+    .version('0.1.1')
     .parse(process.argv);
 
 ////////////////////////////////////////////////////
