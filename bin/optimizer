@@ -5,278 +5,483 @@
 'use strict';
 
 var fs = require('fs'),
-    program = require('commander');
+    program = require('commander'),
+    esprima = require('esprima'),
+    escodegen = require('escodegen'),
+    Syntax = esprima.Syntax;
 
 ////////////////////////////////////////////////////
 
 program
-    .version('0.0.1')
-    .option('-r, --remove-strict', 'Remove "use strict" code.')
+    .usage('< file.js > optimized_file.js')
+    .version('0.1.1')
     .parse(process.argv);
 
 ////////////////////////////////////////////////////
 
-var len = fs.fstatSync(process.stdin.fd).size,
-    contents = len > 0 ? fs.readSync(process.stdin.fd, len)[0] : '',
-    nrIndent,
-    indentChar,
-    indent;
+var parser = {
+    /**
+     * Run the callback foreach dejavu usage.
+     * The callback will receive an object containing a type and the ast.
+     * The type is either interface, abstract or concrete.
+     *
+     * @param {Object}   ast      The ast
+     * @param {Function} callback The callback
+     */
+    forEachUsage: function (ast, callback) {
+        var queue = [ast],
+            curr,
+            objectName,
+            x,
+            keys;
 
-////////////////////////////////////////////////////
+        while (queue.length) {
+            curr = queue.pop();
 
-// Guess the indentation used
-function guessIndentation(str) {
-    var matches,
-        x;
+            if (curr) {
+                if (curr.type === Syntax.CallExpression &&
+                    curr.callee.type === Syntax.MemberExpression &&
+                    curr.callee.property.type === Syntax.Identifier &&
+                    curr['arguments'].length && curr['arguments'][0].type === Syntax.ObjectExpression) {
 
-    if ((matches = str.match(/\{[^\n]*\n*((:? |\t)+)(:?[\w\/'"])/))) {
-        indentChar = matches[1].charAt(0);
-        nrIndent = matches[1].length;
-    } else {
-        console.warn('Could not guess indentation, assuming 4 spaces.');
-        nrIndent = '4';
-        indentChar = ' ';
-    }
+                    objectName = curr.callee.object.type === 'MemberExpression' ? curr.callee.object.property.name : curr.callee.object.name;
 
-    indent = '';
+                    // Obvious usage
+                    if (curr.callee.property.name === 'declare') {
+                        if (objectName === 'Interface') {
+                            callback({ type: 'interface', ast: curr });
+                        } else if (objectName === 'AbstractClass') {
+                            callback({ type: 'abstract', ast: curr });
+                        } else if (objectName === 'Class' || objectName === 'FinalClass') {
+                            callback({ type: 'concrete', ast: curr });
+                        }
+                    // Usage with extend
+                    } else if (curr.callee.property.name === 'extend') {
+                        if (parser._isInterface(curr['arguments'][0])) {
+                            callback({ type: 'interface', ast: curr });
+                        } else if (parser._isAbstractClass(curr['arguments'][0])) {
+                            callback({ type: 'abstract', ast: curr });
+                        } else if (parser._isClass(curr['arguments'][0])) {
+                            callback({ type: 'concrete', ast: curr });
+                        }
+                    }
+                }
 
-    for (x = nrIndent - 1; x >= 0; x -= 1) {
-        indent += indentChar;
-    }
-}
+                if (Object.prototype.toString.call(curr) === '[object Array]') {
+                    for (x = curr.length - 1; x >= 0; x -= 1) {
+                        queue.push(curr[x]);
+                    }
+                } else if (curr.type) {
+                    keys = Object.keys(curr);
 
-// Returns the string with the first { ... }, brackets included
-function embraced(str, pos) {
-    var len = str.length,
-        x,
-        braces = 0,
-        initialPos = pos || 0,
-        currentChar;
+                    for (x = keys.length - 1; x >= 0; x -= 1) {
+                        queue.push(curr[keys[x]]);
+                    }
+                }
+            }
+        }
+    },
 
-    for (x = pos; x < len; x += 1) {
-        currentChar = str.charAt(x);
-        if (currentChar === '{') {
-            braces += 1;
-        } else if (currentChar === '}') {
-            braces -= 1;
-            if (!braces) {
-                return str.substring(initialPos, x + 1);
-            } else if (braces < 0) {
+    /**
+     * Optimizes an interface.
+     * The ast will be directly modified.
+     *
+     * @param {Object} ast The interface ast
+     */
+    optimizeInterface: function (ast) {
+        // Step 1
+        // Remove all the functions
+        var asts = ast['arguments'][0].properties,
+            x,
+            curr;
+
+        for (x = asts.length - 1; x >= 0; x -= 1) {
+            curr = asts[x];
+
+            if (curr.key.name === '$statics' || curr.value.type === Syntax.FunctionExpression) {
+                asts.splice(x, 1);
+            }
+        }
+    },
+
+    /**
+     * Optimizes an abstract classs.
+     * The ast will be directly modified.
+     *
+     * @param {Object} ast The abstract class ast
+     */
+    optimizeAbstactClass: function (ast) {
+        // Step 1
+        // Remove abstracts
+        // Beware that we need to preserve functions that have .$bound()
+        var asts = ast['arguments'][0].properties,
+            curr,
+            x;
+
+        for (x = asts.length - 1; x >= 0; x -= 1) {
+            curr = asts[x];
+
+            if (curr.key.name === '$abstracts' && curr.value.type === Syntax.ObjectExpression) {
+                parser._removeAbstractFunctions(curr.value.properties);
+                if (!curr.value.properties.length) {
+                    asts.splice(x, 1);
+                }
+
+                break;
+            }
+        }
+    },
+
+    /**
+     * Optimizes a concrete class.
+     * The ast will be directly modified.
+     *
+     * @param {Object} ast The class ast
+     */
+    optimizeClass: function (ast) {
+        var args = ast['arguments'],
+            type = ast.callee.property.name,
+            extend,
+            funcExpression,
+            canBeOptimized;
+
+        // Step 1
+        // Convert the object to a return function with the magical $ params
+        funcExpression = {
+            type: Syntax.FunctionExpression,
+            id: null,
+            params: [],
+            body: {
+                type: Syntax.BlockStatement,
+                body: [
+                    {
+                        type: Syntax.ReturnStatement
+                        // Return object will be here as the argument key
+                    }
+                ]
+            }
+        };
+
+        if (type === 'extend' || (extend = parser._getExtends(args[0]))) {
+            funcExpression.params.push(
+                {
+                    type: Syntax.Identifier,
+                    name: '$super'
+                },
+                {
+                    type: Syntax.Identifier,
+                    name: '$self'
+                },
+                {
+                    type: Syntax.Identifier,
+                    name: '$parent'
+                }
+            );
+
+            if (type !== 'extend') {
+                parser._removeExtends(args[0]);
+                ast['arguments'] = [
+                    {
+                        type: 'Identifier',
+                        name: extend
+                    },
+                    funcExpression
+                ];
+            } else {
+                ast['arguments'] = [funcExpression];
+            }
+        } else {
+            funcExpression.params.push(
+                {
+                    type: Syntax.Identifier,
+                    name: '$self'
+                }
+            );
+            ast['arguments'] = [funcExpression];
+        }
+
+        funcExpression.body.body[0].argument = args[0];
+
+        // Step 2
+        // Replace all the this.$super / this.$static / this.$self accordingly
+        // Be aware that depending on the context (normal or static, things must be adapted)
+        canBeOptimized = parser._findAndParseFunctions(args[0].properties);
+
+        // Step 3
+        // Add a true flag if the constructor can be optimized
+        // and remove the $super and $parent that was previously added
+        if (canBeOptimized) {
+            ast['arguments'].push({
+                type: 'Literal',
+                value: true
+            });
+            funcExpression.params.splice(1, 2);
+        }
+    },
+
+    /**
+     * Optimizes the ast passed in the object according to the type.
+     * Used as the callback for forEachUsage.
+     *
+     * @param {Object} obj The object containing the type and the ast
+     */
+    optimize: function (obj) {
+        var type = obj.type,
+            ast = obj.ast;
+
+        // Detect and make the optimizations according to the type
+        if (type === 'concrete') {
+            parser.optimizeClass(ast);
+        } else if (type === 'abstract') {
+            parser.optimizeAbstactClass(ast);
+            parser.optimizeClass(ast);
+        } else if (type === 'interface') {
+            parser.optimizeInterface(ast);
+        }
+    },
+
+    /**
+     * Checks if the passed asts (members) are part of an interface.
+     *
+     * @param  {Array} asts The asts
+     *
+     * @return {Boolean} True if it is, false otherwise
+     */
+    _isInterface: function (asts) {
+        var x,
+            curr;
+
+        // Every single function must be empty
+        // Also all the properties must be functions except a few ones ($extends, $name, $static)
+        for (x = asts.length - 1; x >= 0; x -= 1) {
+            curr = asts[x];
+
+            if (curr.key.name === '$name' || curr.key.name === '$extends') {
+                continue;
+            }
+
+            if (curr.key.name === '$statics') {
+                if (!parser._isInterface(curr.value)) {
+                    return false;
+                }
+            } else if (curr.type === Syntax.FunctionExpression) {
+                if (curr.body.body.length) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        return true;
+    },
+
+    /**
+     * Checks if the passed asts (members) are part of an abstract class.
+     *
+     * @param  {Array} asts The asts
+     *
+     * @return {Boolean} True if it is, false otherwise
+     */
+    _isAbstractClass: function (asts) {
+        // Check if it has an $abstracts
+        var x,
+            curr;
+
+        for (x = asts.length - 1; x >= 0; x -= 1) {
+            curr = asts[x];
+
+            if (curr.key.name === '$abstracts') {
+                return true;
+            }
+        }
+
+        return false;
+    },
+
+    /**
+     * Checks if the passed asts (members) are part of a concrete class.
+     *
+     * @param  {Array} asts The asts
+     *
+     * @return {Boolean} True if it is, false otherwise
+     */
+    _isClass: function (asts) {
+        // Check if it has a $name, $statics, $finals, $constants
+        var x,
+            curr,
+            known = ['$name', '$statics', '$finals', '$constants'];
+
+        for (x = asts.length - 1; x >= 0; x -= 1) {
+            curr = asts[x];
+
+            if (known.indexOf(curr.key.name) !== -1) {
+                return true;
+            }
+        }
+
+        return false;
+    },
+
+    /**
+     * Removes all abstract functions of an abstract class.
+     * All $bound functions will be kept.
+     * The original asts array will be modified.
+     *
+     * @param {Array} asts The asts
+     */
+    _removeAbstractFunctions: function (asts) {
+        var x,
+            curr;
+
+        for (x = asts.length - 1; x >= 0; x -= 1) {
+            curr = asts[x];
+
+            if (curr.value.type === Syntax.FunctionExpression) {
+                asts.splice(x, 1);
+            }
+        }
+
+        return asts;
+    },
+
+    /**
+     * Finds and parses a concrete class functions in order to optimize them.
+     * All super and self calls will be replaced with their efficient counterpart.
+     *
+     * @param {Array}   asts     The functions asts
+     * @param {Boolean} isStatic True if in static context, false otherwise
+     *
+     * @return {Boolean} True if the constructor can be optimized, false otherwise
+     */
+    _findAndParseFunctions: function (asts, isStatic) {
+        if (Object.prototype.toString.call(asts) !== '[object Array]') {
+            return false;
+        }
+
+        var x,
+            curr,
+            currFuncName,
+            canBeOptimized = true,
+            ret;
+
+        for (x = asts.length - 1; x >= 0; x -= 1) {
+            curr = asts[x];
+            ret = null;
+
+            if (curr.key.name === '$statics') {
+                ret = parser._findAndParseFunctions(curr.value.properties, true);
+            } else if (curr.key.name === '$finals') {
+                ret = parser._findAndParseFunctions(curr.value.properties);
+            } else if (curr.value.type === Syntax.FunctionExpression) {
+                currFuncName = curr.key.name;
+                ret = parser._replaceSpecial(currFuncName, curr, isStatic);
+
+            }
+
+            if (ret === false) {
+                canBeOptimized = false;
+            }
+        }
+
+        return canBeOptimized;
+    },
+
+    /**
+     * Replaces a function usage of keywords for their effiecient counterparts.
+     * Basically the this.$super and this.$self will be optimized.
+     *
+     * @param {String} funcName The function name
+     * @param {Object} ast      The function ast
+     * @param {Boolean} isStatic True if in static context, false otherwise
+     *
+     * @return {Boolean} False if this functions causes the constructor to not be optimized, false otherwise
+     */
+    _replaceSpecial: function (funcName, ast, isStatic) {
+        var code = escodegen.generate(ast.value, { comment: true }),
+            canBeOptimized = true;
+
+        function superStaticReplacer() {
+            canBeOptimized = false;
+            return '$parent';
+        }
+
+        function selfReplacer() {
+            canBeOptimized = false;
+            return '$self';
+        }
+
+        // Super replacement
+        code = code.replace(/(this|that)(?:\.|(?:[\'])?)\$super(?:'\])?\(/g, '$super.' + funcName + '.call($1, ')
+                   .replace(/(this|that), \)/g, '$1)');
+
+        // If on static context, $super is actually $parent
+        if (isStatic) {
+            code = code.replace(/\$super/g, superStaticReplacer);
+        }
+
+        // Self replacement
+        code = code.replace(/(this|that)(?:\.|(?:[\'])?)\$self(?:'\])?/g, selfReplacer);
+
+        code = code.replace(/function\s*\(/, 'function x(');
+        ast.value = esprima.parse(code).body[0];
+        ast.value.id = null;
+        ast.value.type = Syntax.FunctionExpression;
+
+        return canBeOptimized;
+    },
+
+    /**
+     * Grabs and returns the $extends of an ast.
+     *
+     * @param {Function} ast The ast
+     *
+     * @return {String} The $extends
+     */
+    _getExtends: function (ast) {
+        var x,
+            length = ast.properties.length;
+
+        for (x = 0; x < length; x += 1) {
+            if (ast.properties[x].key.name === '$extends') {
+                return ast.properties[x].value.name;
+            }
+        }
+    },
+
+    /**
+     * Removes $extends of an ast.
+     *
+     * @param {Function} ast The ast
+     */
+    _removeExtends: function (ast) {
+        var x,
+            length = ast.properties.length;
+
+        for (x = 0; x < length; x += 1) {
+            if (ast.properties[x].key.name === '$extends') {
+                ast.properties.splice(x, 1);
                 break;
             }
         }
     }
+};
 
-    return null;
-}
+var len = fs.fstatSync(process.stdin.fd).size,
+    contents = len > 0 ? fs.readSync(process.stdin.fd, len)[0] : '',
+    ast,
+    output;
 
-// Optimizes a given object in the string form
-function optimize(objStr, directive, parent) {
+// Read and get an ast
+ast = esprima.parse(contents, { comment: true });
 
-    // If the file is set to be ignored
-    if (/\s*\$optimizer:\s*ignore/.test(objStr)) {
-        process.stdout.write(parent + '.declare(' + objStr);
-        return;
-    }
+parser.forEachUsage(ast, function (obj) {
+    parser.optimize(obj);
+});
 
-    var len,
-        x = 0,
-        name = '',
-        value,
-        currentChar,
-        isStatic = false,
-        inner,
-        staticEndPos,
-        matches,
-        currentNrIndent,
-        buffer = '',
-        efficient = true,
-        extendsSomething = false;
+// Generate the source
+output = escodegen.generate(ast, { comment: true });
 
-    if (directive === 'extend') {
-        // Try to guess if this is an interface or not
-        if (!/function\s*\([^\(]*\)\s*\{\s*(["']use strict["'];)?.*\w.*\s*\}$/m.test(objStr)) {
-            process.stdout.write(parent + '.extend(' + objStr);
-            return;
-        }
-
-        extendsSomething = true;
-        buffer += parent + '.extend(function ($super, $self, $parent) {';
-    } else if ((matches = objStr.match(/\$extends\s*:\s*(\w+)\s*(\}?),/m))) {
-        extendsSomething = true;
-        buffer += parent + '.declare(' + matches[1] + ', function ($super, $self, $parent) {';
-
-        // If a } is not next to an $extends, remove the empty lines also after
-        if (!matches[2]) {
-            objStr = objStr.replace(/\$extends\s*:\s*(\w+),?\s*/, '');
-        // Otherwise just leave it blank
-        } else {
-            objStr = objStr.replace(/( |\t)*\$extends\s*:\s*(\w+),?/, '');
-            objStr = objStr.replace(/,(\s*)\}/, '$1}');     // Be sure to also clean up trailing commas
-        }
-
-        // Trim empty objects
-        objStr = objStr.replace(/\{\s+\}/g, '{}');
-    } else {
-        // If is an interface, we do not need to optimize
-        if (parent === 'Interface') {
-            process.stdout.write(parent + '.declare(' + objStr);
-            return;
-        }
-
-        buffer += parent + '.declare(function ($self) {';
-    }
-
-    // Calculate alignment
-    matches = objStr.match(/^\{[^\n]*(\n+)((:? |\t)+)/m);
-    currentNrIndent = matches ? matches[2].length : 0;
-
-    if (matches) {
-        if (matches[2].charAt(0) !== indentChar) {
-            throw new Error('Different indent found at:\n\n' + objStr.substr(100));
-        }
-
-        currentNrIndent = matches[2].length;
-
-        buffer += matches[1] + matches[2];
-        objStr = objStr.replace(new RegExp(matches[2], 'g'), matches[2] + indent);
-    } else {
-        currentNrIndent = 0;
-        buffer += ' ';
-    }
-
-    buffer += 'return ';
-
-    // Process object
-    len = objStr.length - 1;
-
-    function superStaticReplacer() {
-        efficient = false;
-        return '$parent';
-    }
-
-    function selfReplacer() {
-        efficient = false;
-        return '$self';
-    }
-
-    for (x = 0; x < len; x += 1) {
-        currentChar = objStr.charAt(x);
-
-        // Check if the end of static was reached
-        if (x === staticEndPos) {
-            isStatic = false;
-        }
-
-        buffer += currentChar;
-
-        if (currentChar === ':') {
-            value = embraced(objStr, x + 1);
-            if (value && /^\s*function\s*/.test(value)) {
-                x += value.length;
-
-                // Super replacement
-                value = value.replace(/(this|that)(?:\.|(?:[\'])?)\$super(?:'\])?\(/g, '$super.' + name + '.call($1, ')
-                             .replace(/(this|that), \)/g, '$1)');
-
-                // If in static context, $super is actually $parent
-                if (isStatic) {
-                    value = value.replace(/\$super/g, superStaticReplacer);
-                }
-
-                // Self replacement
-                value = value.replace(/(this|that)(?:\.|(?:[\'])?)\$self(?:'\])?/g, selfReplacer);
-
-                buffer += value;
-            }
-        } else {
-            // Save the current property name
-            if (/[a-zA-Z0-9_$]/.test(currentChar)) {
-                name += currentChar;
-            } else {
-                // If the property name is $statics, hold a flag telling we are at a $static context
-                if (name === '$statics') {
-                    inner = embraced(objStr, x);
-                    if (inner) {
-                        name = '$statics';
-                        isStatic = true;
-                        staticEndPos = x + inner.length;
-                    }
-                }
-
-                if (name) {
-                    name = '';
-                }
-            }
-        }
-    }
-
-    // Finalize
-    if (currentNrIndent) {
-        buffer += (objStr === '{}' ? '' : indent) + '};\n';
-
-        for (x = 0; x < currentNrIndent - nrIndent; x += 1) {
-            buffer += indentChar;
-        }
-    } else {
-        buffer += '}; ';
-    }
-
-
-    // Final optimization
-    if (efficient) {
-        if (extendsSomething) {
-            buffer = buffer.replace('function ($super, $self, $parent) {', 'function ($super) {');
-        } else {
-            buffer = buffer.replace('function ($self) {', 'function () {');
-        }
-
-        buffer += '}, true';
-    } else {
-        buffer += '}';
-    }
-
-    process.stdout.write(buffer);
-}
-
-// Find all usages within the contents of the file
-function parse(contents) {
-    var pos = 0,
-        tmp = pos,
-        objStr,
-        matches,
-        regExp = /(\w+)\.(declare|extend)\(\{/g;
-
-    // While find usage matches..
-    while ((matches = regExp.exec(contents))) {
-        pos = matches.index;
-
-        // Add the string before the match
-        process.stdout.write(contents.substring(tmp, pos));
-
-        pos += matches[0].length - 1;
-
-        // Optimize the object after it
-        objStr = embraced(contents, pos);
-        optimize(objStr, matches[2], matches[1]);
-
-        tmp = pos + objStr.length;
-
-        regExp.lastIndex = tmp;
-    }
-
-    //  Add the rest
-    process.stdout.write(contents.substr(tmp ? tmp : 0));
-}
-
-////////////////////////////////////////////////////
-
-// Guess file indentation
-guessIndentation(contents);
-
-// Remove use strict
-if (program.removeStrict) {
-    contents = contents.replace(/\s*['"]use strict['"];?/, '');
-}
-
-parse(contents);
+// Output contents
+process.stdout.write(output);
+//process.stdout.write(JSON.stringify(ast, null, '    '));

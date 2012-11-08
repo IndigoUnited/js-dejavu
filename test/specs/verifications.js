@@ -6,6 +6,7 @@ define(global.modules, function (
     Interface,
     FinalClass,
     instanceOf,
+    options,
     hasDefineProperty,
     Emitter
 ) {
@@ -66,6 +67,7 @@ define(global.modules, function (
                 expect(function () {
                     var SomeInterface = Interface.declare({}),
                         OtherInterface = SomeInterface.extend({
+                            $name: 'OtherInterface',
                             $extends: SomeInterface
                         });
                 }).to.throwException(/cannot contain an .extends property/);
@@ -75,7 +77,7 @@ define(global.modules, function (
             it('should work with .extend()', function () {
 
                 var SomeInterface = Interface.declare({}),
-                    OtherInterface = SomeInterface.extend({}),
+                    OtherInterface = SomeInterface.extend({ $name: 'OtherInterface' }),
                     SomeClass = Class.declare({
                         $implements: OtherInterface
                     }),
@@ -967,6 +969,7 @@ define(global.modules, function (
                 expect(function () {
                     var SomeClass = Class.declare({}),
                         OtherClass = SomeClass.extend({
+                            $name: 'OtherClass',
                             $extends: SomeClass
                         });
                 }).to.throwException(/cannot contain an .extends property/);
@@ -998,36 +1001,20 @@ define(global.modules, function (
 
             });
 
-            it('should throw an error when using the same function for different members', function () {
+            it('should work well when using the same function for different members', function () {
 
-                var a = function () {};
-
-                expect(function () {
-                    Class.declare({
+                var a = function () { return 'ola'; },
+                    SomeClass = Class.declare({
                         test: a,
                         test2: a
-                    });
-                }).to.throwException(/by the same/);
+                    }),
+                    someClass = new SomeClass(),
+                    otherClass = new SomeClass();
 
-                expect(function () {
-                    Class.declare({
-                        test: a,
-                        $finals: {
-                            test2: a
-                        }
-                    });
-                }).to.throwException(/by the same/);
-
-                expect(function () {
-                    Class.declare({
-                        $statics: {
-                            test: 1
-                        },
-                        $finals: {
-                            test2: a
-                        }
-                    });
-                }).to.throwException(/by the same/);
+                expect(someClass.test()).to.equal('ola');
+                expect(someClass.test2()).to.equal('ola');
+                expect(otherClass.test()).to.equal('ola');
+                expect(otherClass.test2()).to.equal('ola');
 
             });
 
@@ -1360,11 +1347,6 @@ define(global.modules, function (
                     });
                 }).to.throwException(/is not a valid class/);
 
-                expect(function () {
-                    return Class.declare({
-                        $extends: function () {}
-                    });
-                }).to.throwException(/is not a valid class/);
 
                 expect(function () {
                     var tmp = Interface.declare({});
@@ -1751,12 +1733,6 @@ define(global.modules, function (
 
                 expect(function () {
                     return Class.declare({
-                        $borrows: function () {}
-                    });
-                }).to.throwException(/not a valid class\/object/);
-
-                expect(function () {
-                    return Class.declare({
                         $borrows: undefined
                     });
                 }).to.throwException(/a class\/object or an array of classes\/objects/);
@@ -1803,11 +1779,6 @@ define(global.modules, function (
                     });
                 }).to.throwException(/not a valid class\/object/);
 
-                expect(function () {
-                    return Class.declare({
-                        $borrows: [function () {}]
-                    });
-                }).to.throwException(/not a valid class\/object/);
 
                 expect(function () {
                     return Class.declare({
@@ -1828,13 +1799,6 @@ define(global.modules, function (
                         })]
                     });
                 }).to.throwException(/abstract class with abstract members/);
-
-                // TODO: enable this test if we ever support classes with inherited in the $borrows
-                /*expect(function () {
-                    return Class.declare({
-                        $borrows: Emitter.EventsEmitter
-                    });
-                }).to.not.throwException();*/
 
                 expect(function () {
                     return Class.declare({
@@ -1874,6 +1838,12 @@ define(global.modules, function (
                 }).to.not.throwException();
 
                 expect(function () {
+                    return AbstractClass.declare({
+                        $borrows: function () {}
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
                     return Class.declare({
                         $borrows: [{}]
                     });
@@ -1896,6 +1866,12 @@ define(global.modules, function (
                 expect(function () {
                     return AbstractClass.declare({
                         $borrows: [AbstractClass.declare({})]
+                    });
+                }).to.not.throwException();
+
+                expect(function () {
+                    return AbstractClass.declare({
+                        $borrows: [function () {}]
                     });
                 }).to.not.throwException();
 
@@ -3860,27 +3836,13 @@ define(global.modules, function (
                     $statics: {
                         staticMethod: function () {}
                     }
-                }),
-                    Mixin2 = {
-                        someMethod: function () {},
-                        $statics: {
-                            staticMethod: function () {}
-                        }
-                    };
+                });
 
                 expect(function () {
                     createSomeInterface();
                     return Class.declare({
                         $implements: [SomeInterface],
                         $borrows: [Mixin1]
-                    });
-                }).to.not.throwException();
-
-                expect(function () {
-                    createSomeInterface();
-                    return Class.declare({
-                        $implements: [SomeInterface],
-                        $borrows: [Mixin2]
                     });
                 }).to.not.throwException();
 
@@ -3975,6 +3937,34 @@ define(global.modules, function (
 
                 });
             }
+
+            it('should throw an error if calling a function with a null context', function () {
+
+                var Example = Class.declare({
+                    method: function () {},
+                    $statics: {
+                        staticMethod: function () {}
+                    }
+                }),
+                    example = new Example();
+
+                expect(function () {
+                    return example.method.call(null);
+                }).to.throwException(/with a null context/);
+
+                expect(function () {
+                    return example.method.call(undefined);
+                }).to.throwException(/with a null context/);
+
+                expect(function () {
+                    return Example.staticMethod.call(null);
+                }).to.throwException(/with a null context/);
+
+                expect(function () {
+                    return Example.staticMethod.call(undefined);
+                }).to.throwException(/with a null context/);
+
+            });
 
             it('should not throw an error while invoking the the parent abstract class constructor', function () {
 

@@ -23,6 +23,7 @@ define([
     './common/checkObjectPrototype',
     './common/randomAccessor',
     './common/hasFreezeBug',
+    './options',
 //>>includeEnd('strict');
     './common/printWarning',
     './common/obfuscateProperty',
@@ -63,6 +64,7 @@ define([
     checkObjectPrototype,
     randomAccessor,
     hasFreezeBug,
+    options,
 //>>includeEnd('strict');
     printWarning,
     obfuscateProperty,
@@ -87,10 +89,8 @@ define([
     insert
 ) {
 
-//>>excludeStart('strict', pragmas.strict);
     'use strict';
 
-//>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
     checkObjectPrototype();
 
@@ -161,6 +161,7 @@ define([
     function wrapMethod(method, constructor, parent) {
         // Return the method if the class was created efficiently
         if (constructor[$class].efficient) {
+            method[$wrapped] = true;
             return method;
         }
 
@@ -238,6 +239,10 @@ define([
         }
 
         wrapper = function () {
+            if (this == null) {
+                throw new Error('Method "' + (wrapper[$name] || 'anonymous') + '" was called with a null context (did you forget to bind?).');
+            }
+
             var _super = this.$super,
                 _self = this.$self,
                 prevCaller = caller,
@@ -292,6 +297,10 @@ define([
             wrapper;
 
         wrapper = function () {
+            if (this == null) {
+                throw new Error('Static method "' + (wrapper[$name] || 'anonymous') + '" was called with a null context (did you forget to bind?).');
+            }
+
             var _super = this.$super,
                 _self = this.$self,
                 prevCaller = caller,
@@ -331,7 +340,7 @@ define([
      */
     function callingPrivateConstructor() {
         /*jshint validthis:true*/
-        throw new Error('Cannot call parent constructor in class "' + this.$name + '" because its declared as private.');
+        throw new Error('Cannot call parent constructor in class "' + this.$name + '" because it\'s declared as private.');
     }
 
     /**
@@ -352,15 +361,26 @@ define([
 
         var metadata,
             isStatic = !!opts.isStatic,
+            forcePublic = !!(opts.forcePublic || constructor[$class].isVanilla),
             isFinal,
             target,
+            tmp,
             originalMethod,
             inherited;
+
+        // Unwrap method if already wrapped
+        if (method[$wrapped]) {
+            method = method[$wrapped];
+        }
 
         // Check if function is already being used by another class or within the same class
         if (method[$name]) {
             if (method[$name] !== name) {
-                throw new Error('Method "' + name + '" of class "' + constructor.prototype.$name + '" seems to be used several times by the same or another class.');
+                tmp = method;
+                method = function () {
+                    return tmp.apply(this, arguments);
+                };
+                obfuscateProperty(method, $name, name);
             }
         } else {
             obfuscateProperty(method, $name, name);
@@ -372,7 +392,7 @@ define([
             inherited = true;
             delete method.$inherited;
         } else if (!opts.metadata) {
-            // Grab function metadata and throw error if is not valid (its invalid if the arguments are invalid)
+            // Grab function metadata and throw error if is not valid (it's invalid if the arguments are invalid)
             if (method[$wrapped]) {
                 throw new Error('Cannot grab metadata from wrapped method.');
             }
@@ -397,6 +417,11 @@ define([
             opts.isFinal = metadata.isFinal;
         }
 
+        // Force public if told so
+        if (forcePublic) {
+            forcePublicMetadata(metadata);
+        }
+
         // Take care of $prefix if the method is initialize
         if (name === 'initialize' && method.$prefix) {
             if (method.$prefix === '_') {
@@ -408,7 +433,7 @@ define([
             delete method.$prefix;
         }
 
-        // Check if we got a private method classified as final
+        // Check if it's a private method classified as final
         if (metadata.isPrivate && isFinal) {
             throw new Error('Private method "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
         }
@@ -423,10 +448,15 @@ define([
 
         // Check if the method already exists
         if (isObject(target[name])) {
-            // Are we overriding a private method?
-            if (target[name].isPrivate && name !== 'initialize') {
-                throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' method "' + name + '" in class "' + constructor.prototype.$name + '".');
+            if (target[name].forcedPublic) {
+                forcePublicMetadata(metadata);
+            } else {
+                // Are we overriding a private method?
+                if (target[name].isPrivate && name !== 'initialize') {
+                    throw new Error('Cannot override private ' + (isStatic ? 'static ' : '') + ' method "' + name + '" in class "' + constructor.prototype.$name + '".');
+                }
             }
+
             // Are we overriding a final method?
             if (target[name].isFinal) {
                 throw new Error('Cannot override final method "' + name + '" in class "' + constructor.prototype.$name + '".');
@@ -439,15 +469,10 @@ define([
 
         target[name] = metadata;
 
-        // Unwrap method if already wrapped
-        if (method[$wrapped]) {
-            method = method[$wrapped];
-        }
-
         originalMethod = method;
         method = !isStatic ?
-                  wrapMethod(method, constructor, constructor.$parent && constructor.$parent[$class].methods[name] ? constructor.$parent[$class].methods[name] : null) :
-                  wrapStaticMethod(method, constructor, constructor.$parent && constructor.$parent[$class].staticMethods[name] ? constructor.$parent[$class].staticMethods[name] : null);
+                  wrapMethod(method, constructor, constructor.$parent ? constructor.$parent[$class].methods[name] : null) :
+                  wrapStaticMethod(method, constructor, constructor.$parent ? constructor.$parent[$class].staticMethods[name] : null);
 
         obfuscateProperty(method, $name, name);
 
@@ -508,6 +533,7 @@ define([
             isStatic,
             isFinal,
             isConst,
+            forcePublic = !!(opts.forcePublic || constructor[$class].isVanilla),
             target;
 
         if (opts.metadata) {
@@ -535,6 +561,51 @@ define([
             }
         }
 
+        // Force public if told so
+        if (forcePublic) {
+            forcePublicMetadata(metadata);
+        }
+
+        // Check if the metadata was fine (if not then the property is undefined)
+        if (!metadata) {
+            throw new Error('Value of ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + '" defined in class "' + constructor.prototype.$name + '" can\'t be undefined (use null instead).');
+        }
+        // Check if it's a private property classified as final
+        if (metadata.isPrivate && isFinal) {
+            throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
+        }
+
+        target = isStatic ? constructor[$class].staticMethods : constructor[$class].methods;
+
+        // Check if a method with the same name exists
+        if (isObject(target[name])) {
+            throw new Error((isConst ? 'Constant property' : (isStatic ? 'Static property' : 'Property')) + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.$name + '".');
+        }
+
+        target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
+
+        if (isObject(target[name])) {
+            // Force public if told so
+            if (target[name].forcedPublic) {
+                forcePublicMetadata(metadata);
+            } else {
+                // Are we overriding a private property?
+                if (target[name].isPrivate) {
+                    throw new Error('Cannot override private ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + ' in class "' + constructor.prototype.$name + '".');
+                }
+            }
+            // Are we overriding a constant?
+            if (target[name].isConst) {
+                throw new Error('Cannot override constant property "' + name + '" in class "' + constructor.prototype.$name + '".');
+            }
+            // Are we overriding a final property?
+            if (target[name].isFinal) {
+                throw new Error('Cannot override final property "' + name + '" in class "' + constructor.prototype.$name + '".');
+            }
+        }
+
+        target[name] = metadata;
+
         // If the property is protected/private we delete it from the target because they will be protected later
         if (!metadata.isPublic && hasDefineProperty) {
             if (!isStatic) {
@@ -556,41 +627,6 @@ define([
             metadata.isImmutable = isImmutable(value);
         }
 
-        // Check if the metadata was fine (if not then the property is undefined)
-        if (!metadata) {
-            throw new Error('Value of ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + '" defined in class "' + constructor.prototype.$name + '" can\'t be undefined (use null instead).');
-        }
-        // Check if we we got a private property classified as final
-        if (metadata.isPrivate && isFinal) {
-            throw new Error((isStatic ? 'Static property' : 'Property') + ' "' + name + '" cannot be classified as final in class "' + constructor.prototype.$name + '".');
-        }
-
-        target = isStatic ? constructor[$class].staticMethods : constructor[$class].methods;
-
-        // Check if a method with the same name exists
-        if (isObject(target[name])) {
-            throw new Error((isConst ? 'Constant property' : (isStatic ? 'Static property' : 'Property')) + ' "' + name + '" is overwriting a ' + (isStatic ? 'static ' : '') + 'method with the same name in class "' + constructor.prototype.$name + '".');
-        }
-
-        target = isStatic ? constructor[$class].staticProperties : constructor[$class].properties;
-
-        if (isObject(target[name])) {
-            // Are we overriding a private property?
-            if (target[name].isPrivate) {
-                throw new Error('Cannot override private ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + ' in class "' + constructor.prototype.$name + '".');
-            }
-            // Are we overriding a constant?
-            if (target[name].isConst) {
-                throw new Error('Cannot override constant property "' + name + '" in class "' + constructor.prototype.$name + '".');
-            }
-            // Are we overriding a final property?
-            if (target[name].isFinal) {
-                throw new Error('Cannot override final property "' + name + '" in class "' + constructor.prototype.$name + '".');
-            }
-        }
-
-        target[name] = metadata;
-
         if (isFinal) {
             metadata.isFinal = isFinal;
         } else if (isConst) {
@@ -607,7 +643,75 @@ define([
             metadata.allowed = constructor[$class].id;
         }
     }
+
+    /**
+     * Forces the property/function visibility to public
+     *
+     * @param  {Object} metadata The member metadata object
+     */
+    function forcePublicMetadata(metadata) {
+        delete metadata.isProtected;
+        delete metadata.isPrivate;
+        metadata.isPublic = metadata.forcedPublic = true;
+    }
 //>>includeEnd('strict');
+
+    /**
+     * Borrows members from a vanilla object definition.
+     *
+     * @param {Object}   params      The parameters
+     * @param {Function} constructor The constructor
+     */
+    function borrowFromVanilla(params, constructor) {
+//>>includeStart('strict', pragmas.strict);
+        // The members borrowed must be interpreted as public
+        // This is because they do not use the $binds and maybe calling protected/private members
+        // from anonymous functions
+
+        var key,
+            value,
+            opts = { forcePublic: true };
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+        var key,
+            value;
+//>>excludeEnd('strict');
+
+        // Grab mixin members
+        for (key in params) {
+            value = params[key];
+
+            if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
+                if (isFunction(value) && !value[$class] && !value[$interface]) {
+//>>includeStart('strict', pragmas.strict);
+                    addMethod(key, value, constructor, opts);
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+                    constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
+
+                    // If the function is specified to be bound, add it to the binds
+                    if (value[$bound]) {
+                        insert(constructor[$class].binds, key);
+                    }
+//>>excludeEnd('strict');
+                } else {
+//>>includeStart('strict', pragmas.strict);
+                    addProperty(key, value, constructor, opts);
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+                    constructor.prototype[key] = value;
+                    if (!isImmutable(value)) {
+                        insert(constructor[$class].properties, key);
+                    }
+//>>excludeEnd('strict');
+                }
+            }
+        }
+
+//>>includeStart('strict', pragmas.strict);
+        constructor[$class].forceUnlocked = true;
+//>>includeEnd('strict');
+    }
 
     /**
      * Parse borrows (mixins).
@@ -645,27 +749,28 @@ define([
 
 //>>includeEnd('strict');
             for (i -= 1; i >= 0; i -= 1) {
+                current = mixins[i];
 //>>includeStart('strict', pragmas.strict);
-                // Verify each mixin
-                if ((!isFunction(mixins[i]) || !mixins[i][$class]) && (!isObject(mixins[i]) || mixins[i].$static)) {
-                    throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is not a valid class/object (abstract classes and instances of classes are not supported).');
+
+                // If is a vanilla object
+                if (isObject(current)) {
+                    if (current.$static) {
+                        throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is not a valid class/object.');
+                    }
+                    borrowFromVanilla(current, constructor);
+                    continue;
                 }
-
-                // TODO: ther are several gotchas at the moment regarding borrows:
-                // - should we inherit interfaces of the borrowed class?!
-                // - allow subclass classes
-                // - allow abstract members fully
-
-                if (isObject(mixins[i])) {
-                    try {
-                        current = createClass(mixIn({}, mixins[i])).prototype;
-                    } catch (e) {
-                        // When an object is being used, throw a more friend message if an error occurs
-                        throw new Error('Unable to define object as class at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" (' + e.message + ').');
+                // If is a vanilla class
+                if (isFunction(current) && !current[$interface]) {
+                    if (!current[$class]) {
+                        borrowFromVanilla(current.prototype, constructor);
+                        continue;
                     }
                 } else {
-                    current = mixins[i].prototype;
+                    throw new Error('Entry at index ' + i + ' in $borrows of class "' + constructor.prototype.$name + '" is not a valid class/object.');
                 }
+
+                current = current.prototype;
 
                 // Verify if is an abstract class with unimplemented members
                 if (current.$static[$abstract] && current.$static[$abstract].unimplemented) {
@@ -679,28 +784,21 @@ define([
 
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-                current = isObject(mixins[i]) ? createClass(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
+                // If it's a vanilla object
+                if (isObject(current)) {
+                    borrowFromVanilla(current, constructor);
+                    continue;
+                }
+                // If it's a vanilla class
+                if (isFunction(current) && !current[$class]) {
+                    borrowFromVanilla(current.prototype, constructor);
+                    continue;
+                }
+
+                current = current.prototype;
 
                 // Grab mixin members
-                for (key in current) {
-                    value = current[key];
-
-                    if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
-                        if (isFunction(value) && !value[$class] && !value[$interface]) {
-                            constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
-
-                            // If the function is specified to be bound, add it to the binds
-                            if (value[$bound]) {
-                                insert(constructor[$class].binds, key);
-                            }
-                        } else {
-                            constructor.prototype[key] = value;
-                            if (!isImmutable(value)) {
-                                insert(constructor[$class].properties, key);
-                            }
-                        }
-                    }
-                }
+                borrowFromVanilla(current, constructor);
 
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
@@ -742,6 +840,10 @@ define([
                         delete opts.metadata.allowed;
                         addProperty(key, opts.metadata.value || current.$static[key], constructor, opts);
                     }
+                }
+
+                if (current.$static[$class].isVanilla) {
+                    constructor[$class].forceUnlocked = true;
                 }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
@@ -945,7 +1047,7 @@ define([
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
             if (isFunction(value) && !value[$class] && !value[$interface]) {
-                constructor.prototype[key] = !value.$inherited ? wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null) : value;
+                constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
 
                 // If the function is specified to be bound, add it to the binds
                 if (value[$bound]) {
@@ -1143,12 +1245,6 @@ define([
                         currCaller = caller,
                         isConstructor = name === 'initialize';
 
-                    /*if (!isConstructor && !this.$underStrict && !this.$static[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
-                    } else {
-                        currCaller = caller;
-                    }*/
-
                     if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
                         return method;
                     }
@@ -1177,12 +1273,6 @@ define([
                     var method = this[cacheKeyword].methods[name],
                         currCaller = caller,
                         isConstructor = name === 'initialize';
-
-                    /*if (!isConstructor && !this.$underStrict && !this.$static[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
-                    } else {
-                        currCaller = caller;
-                    }*/
 
                     if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this instanceof callerClass))) {
                         return method;
@@ -1241,11 +1331,6 @@ define([
                     var method = this[cacheKeyword].methods[name],
                         currCaller = caller;
 
-                    /*if (!this[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
-                    } else {
-                        currCaller = caller;
-                    }*/
 
                     if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
                         return method;
@@ -1265,12 +1350,6 @@ define([
 
                     var method = this[cacheKeyword].methods[name],
                         currCaller = caller;
-
-                    /*if (!this[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
-                    } else {
-                        currCaller = caller;
-                    }*/
 
                     if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this.prototype instanceof callerClass))) {
                         return method;
@@ -1314,12 +1393,6 @@ define([
 
                     var currCaller = caller;
 
-                    /*if (!this.$underStrict && !this.$static[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
-                    } else {
-                        currCaller = caller;
-                    }*/
-
                     if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
                         return this[cacheKeyword].properties[name];
                     }
@@ -1329,12 +1402,6 @@ define([
                 set: function set(newValue) {
 
                     var currCaller = caller;
-
-                    /*if (!this.$underStrict && !this.$static[$class].$underStrict) {
-                        currCaller = set.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
-                    } else {
-                        currCaller = caller;
-                    }*/
 
                     if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
                         this[cacheKeyword].properties[name] = newValue;
@@ -1353,12 +1420,6 @@ define([
 
                     var currCaller = caller;
 
-                    /*if (!this.$underStrict && !this.$static[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
-                    } else {
-                        currCaller = caller;
-                    }*/
-
                     if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this instanceof callerClass))) {
                         return this[cacheKeyword].properties[name];
                     }
@@ -1368,12 +1429,6 @@ define([
                 set: function set(newValue) {
 
                     var currCaller = caller;
-
-                    /*if (!this.$underStrict && !this.$static[$class].$underStrict) {
-                        currCaller = set.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
-                    } else {
-                        currCaller = caller;
-                    }*/
 
                     if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this instanceof callerClass))) {
                         this[cacheKeyword].properties[name] = newValue;
@@ -1407,12 +1462,6 @@ define([
 
                     var currCaller = caller;
 
-                    /*if (!this[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
-                    } else {
-                        currCaller = caller;
-                    }*/
-
                     if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
                         return this[cacheKeyword].properties[name];
                     }
@@ -1426,12 +1475,6 @@ define([
                         function set(newValue) {
 
                             var currCaller = caller;
-
-                            /*if (!this[$class].$underStrict) {
-                                currCaller = set.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
-                            } else {
-                                currCaller = caller;
-                            }*/
 
                             if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId) {
                                 this[cacheKeyword].properties[name] = newValue;
@@ -1450,12 +1493,6 @@ define([
 
                     var currCaller = caller;
 
-                    /*if (!this[$class].$underStrict) {
-                        currCaller = get.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
-                    } else {
-                        currCaller = caller;
-                    }*/
-
                     if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this.prototype instanceof callerClass))) {
                         return constructor[cacheKeyword].properties[name];
                     }
@@ -1469,12 +1506,6 @@ define([
                         function set(newValue) {
 
                             var currCaller = caller;
-
-                            /*if (!this[$class].$underStrict) {
-                                currCaller = set.caller || arguments.callee.caller || arguments.caller || caller;  // Ignore JSLint error regarding .caller and .callee
-                            } else {
-                                currCaller = caller;
-                            }*/
 
                             if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this.prototype instanceof callerClass)) {
                                 this[cacheKeyword].properties[name] = newValue;
@@ -1543,15 +1574,17 @@ define([
         }
 
         // Prevent any properties/methods to be added and deleted to the constructor
-        if (isFunction(Object.seal)) {
-            Object.seal(constructor);
-        }
+        if (constructor[$class].locked && !constructor[$class].forceUnlocked) {
+            if (isFunction(Object.seal)) {
+                Object.seal(constructor);
+            }
 
-        // Prevent any properties/methods to modified in the prototype
-        if (isFunction(Object.freeze) && !hasFreezeBug) {
-            Object.freeze(constructor.prototype);
-        } else if (isFunction(Object.seal)) {
-            Object.seal(constructor.prototype);
+            // Prevent any properties/methods to modified in the prototype
+            if (isFunction(Object.freeze) && !hasFreezeBug) {
+                Object.freeze(constructor.prototype);
+            } else if (isFunction(Object.seal)) {
+                Object.seal(constructor.prototype);
+            }
         }
     }
 //>>includeEnd('strict');
@@ -1560,13 +1593,13 @@ define([
      * Builds the constructor function that calls the initialize and do
      * more things internally.
      *
-     * @param {Boolean} isAbstract Treat this class as abstract
+     * @param {Function} constructor The constructor function to assume and fill
+     * @param {Boolean}  isAbstract  Treat this class as abstract
      *
      * @return {Function} The constructor function
      */
-    function createConstructor(isAbstract) {
-
-        var Instance = function Instance() {
+    function createConstructor(constructor, isAbstract) {
+        var Instance = constructor || function Instance() {
             var x,
                 tmp;
 
@@ -1580,14 +1613,6 @@ define([
             if (isAbstract) {
                 throw new Error('An abstract class cannot be instantiated.');
             }
-
-            // Check if we are under strict mode
-            /*try {
-                Instance.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
-                obfuscateProperty(this, '$underStrict', false);
-            } catch (e) {
-                obfuscateProperty(this, '$underStrict', true);
-            }*/
 
             obfuscateProperty(this, '$initializing', true, true, true);  // Mark it in order to let abstract classes run their initialize
             obfuscateProperty(this, '$super', null, true);               // Add the super to the instance object to speed lookup of the wrapper function
@@ -1629,7 +1654,7 @@ define([
             delete this.$initializing;
 
             // Prevent any properties/methods to be added and deleted
-            if (isFunction(Object.seal)) {
+            if (!tmp.forceUnlocked && tmp.locked && isFunction(Object.seal)) {
                 Object.seal(this);
             }
 
@@ -1638,33 +1663,39 @@ define([
             this.initialize.apply(this, arguments);
         };
 
+        if (!Instance[$class]) {
 //>>includeStart('strict', pragmas.strict);
-        obfuscateProperty(Instance, $class, { methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, interfaces: [], binds: [] });
+            obfuscateProperty(Instance, $class, { methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, interfaces: [], binds: [] });
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-        obfuscateProperty(Instance, $class, { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] });
+            obfuscateProperty(Instance, $class, { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] });
 //>>excludeEnd('strict');
+        }
 
         return Instance;
     }
 
 //>>excludeStart('strict', pragmas.strict);
     /**
-     * Anonymous bind.
+     * Bind.
+     * Works for anonymous functions also.
      *
      * @param {Function} func   The function to be bound
      * @param {...mixed} [args] The arguments to also be bound
+     *
+     * @return {Function} The bound function
      */
-    function anonymousBind(func) {
+    function doBind(func) {
         /*jshint validthis:true*/
         var args = toArray(arguments),
             bound;
 
+        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+            func = wrapMethod(func, this.$self || this.$static);
+        }
+
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
-        if (this.$static && this.$static[$class]) {
-            bound = wrapMethod(bound, this.$self || this.$static);
-        }
 
         return bound;
     }
@@ -1678,42 +1709,62 @@ define([
     }
 
     /**
-     * Anonymous bind.
+     * Bind.
+     * Works for anonymous functions also.
      *
      * @param {Function} func   The function to be bound
      * @param {...mixed} [args] The arguments to also be bound
+     *
+     * @return {Function} The bound function
      */
-    function anonymousBind(func) {
+    function doBind(func) {
         /*jshint validthis:true*/
         var args = toArray(arguments),
-            bound;
+            bound,
+            isAnonymous;
+
+        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+            func[$anonymous] = true;
+            func = wrapMethod(func, this.$self || this.$static, callerClassId);
+            args[0] = func;
+            isAnonymous = true;
+        }
 
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
-        if (this.$static && this.$static[$class]) {
+        if (isAnonymous) {
             bound[$anonymous] = func[$anonymous] = true;
-            bound = wrapMethod(bound, this.$self || this.$static, callerClassId);
         }
 
         return bound;
     }
 
     /**
-     * Anonymous bind for static methods.
+     * Static bind.
+     * Works for anonymous functions also.
      *
      * @param {Function} func   The function to be bound
      * @param {...mixed} [args] The arguments to also be bound
+     *
+     * @return {Function} The bound function
      */
-    function anonymousBindStatic(func) {
+    function doBindStatic(func) {
         /*jshint validthis:true*/
         var args = toArray(arguments),
-            bound;
+            bound,
+            isAnonymous;
+
+        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+            func[$anonymous] = true;
+            func = wrapStaticMethod(func, this.$self || this.$static, callerClassId);
+            args[0] = func;
+            isAnonymous = true;
+        }
 
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
-        if (this.$static && this.$static[$class]) {
+        if (isAnonymous) {
             bound[$anonymous] = func[$anonymous] = true;
-            bound = wrapStaticMethod(bound, this.$self, callerClassId);
         }
 
         return bound;
@@ -1821,6 +1872,14 @@ define([
         }
 
         inheriting = false;
+
+        // Inherit locked and forceUnlocked
+        if (hasOwn(parent[$class], 'locked')) {
+            constructor[$class].locked = parent[$class].locked;
+        }
+        if (hasOwn(parent[$class], 'forceUnlocked')) {
+            constructor[$class].forceUnlocked = parent[$class].forceUnlocked;
+        }
 //>>includeEnd('strict');
 
         // Inherit implemented interfaces
@@ -1896,11 +1955,13 @@ define([
      *
      * @param {Object}      params        An object containing methods and properties
      * @param {Constructor} [constructor] Assume the passed constructor
-     * @param {Boolean}     [isAbstract]  Treat this class as abstract
+     * @param {Object}      [opts]        Options
      *
      * @return {Function} The constructor
      */
-    createClass = function (params, constructor, isAbstract) {
+    createClass = function (params, constructor, opts) {
+        opts = opts || {};
+
 //>>excludeStart('strict', pragmas.strict);
         var dejavu,
             parent,
@@ -1926,26 +1987,28 @@ define([
         }
 
         // Verify if the class has abstract methods but is not defined as abstract
-        if (hasOwn(params, '$abstracts') && !isAbstract) {
+        if (hasOwn(params, '$abstracts') && !opts.isAbstract) {
             throw new Error('Class "' + params.$name + '" has abstract methods, therefore it must be defined as abstract.');
         }
 
-        // Verify if initialize is a method
-        tmp = ['__', '_', ''];
-        found = false;
-        for (x = tmp.length - 1; x >= 0; x -= 1) {
-            key = tmp[x] + 'initialize';
-            if (hasOwn(params, key)) {
-                if (!isFunction(params[key])) {
-                    throw new Error('The "' + key + '" member of class "' + params.$name + '" must be a function.');
-                }
-                if (found) {
-                    throw new Error('Several constructors with different visibility where found in class "' + params.$name + '".');
-                }
-                found = true;
+        // Verify if initialize is a method (only for non vanilla classes)
+        if (!opts.isVanilla) {
+            tmp = ['__', '_', ''];
+            found = false;
+            for (x = tmp.length - 1; x >= 0; x -= 1) {
+                key = tmp[x] + 'initialize';
+                if (hasOwn(params, key)) {
+                    if (!isFunction(params[key])) {
+                        throw new Error('The "' + key + '" member of class "' + params.$name + '" must be a function.');
+                    }
+                    if (found) {
+                        throw new Error('Several constructors with different visibility where found in class "' + params.$name + '".');
+                    }
+                    found = true;
 
-                // Mark the initialize method with its real prefix to be used later to protect the method
-                params[key].$prefix = tmp[x];
+                    // Mark the initialize method with its real prefix to be used later to protect the method
+                    params[key].$prefix = tmp[x];
+                }
             }
         }
 
@@ -1954,72 +2017,87 @@ define([
 //>>includeEnd('strict');
 
         if (hasOwn(params, '$extends')) {
-//>>includeStart('strict', pragmas.strict);
-            // Verify if parent is a valid class
-            if (!isFunction(params.$extends) || !params.$extends[$class]) {
-                throw new Error('Specified parent class in $extends of "' + params.$name + '" is not a valid class.');
-            }
-            // Verify if we are inheriting a final class
-            if (params.$extends[$class].finalClass) {
-                throw new Error('Class "' + params.$name + '" cannot inherit from final class "' + params.$extends.prototype.$name + '".');
-            }
-
-//>>includeEnd('strict');
             parent = params.$extends;
             delete params.$extends;
 
 //>>includeStart('strict', pragmas.strict);
-            if (!params.initialize && !params._initialize && !params.__initialize) {
+            // Verify if parent is a valid class
+            if (isFunction(parent) && !parent[$interface]) {
+                // If its a vanilla class create a dejavu class based on it
+                if (!parent[$class]) {
+                    parent = createClass(parent.prototype, parent, { isVanilla: true });
+                }
+
+                // Verify if we are inheriting a final class
+                if (parent[$class].finalClass) {
+                    throw new Error('Class "' + params.$name + '" cannot inherit from final class "' + parent.prototype.$name + '".');
+                }
+            } else {
+                throw new Error('Specified parent class in $extends of "' + params.$name + '" is not a valid class.');
+            }
+
+            dejavu = createConstructor(constructor, opts.isAbstract);
+            dejavu[$class].id = nextId += 1;
+
+            if (opts.isVanilla) {
+                params.initialize = function () { dejavu.apply(this, arguments); };
+                dejavu[$class].forceUnlocked = true;
+                dejavu[$class].isVanilla = true;
+            } else if (!params.initialize && !params._initialize && !params.__initialize) {
                 params.initialize = function () { parent.prototype.initialize.apply(this, arguments); };
                 params.initialize.$inherited = true;
             } else {
                 params.initialize = params.initialize || params._initialize || params.__initialize;
             }
-
-            dejavu = constructor || createConstructor(isAbstract);
-            dejavu[$class].id = nextId += 1;
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-            params.initialize = params.initialize || params._initialize || params.__initialize;
+            // If its a vanilla class create a dejavu class based on it
+            if (!parent[$class])  {
+                parent = createClass(parent.prototype, parent, { isVanilla: true });
+            }
+
+            params.initialize = opts.isVanilla ? dejavu : params.initialize || params._initialize || params.__initialize;
             if (!params.initialize) {
                 delete params.initialize;
             }
 
-            dejavu = constructor || createConstructor();
+            dejavu = createConstructor(constructor);
 //>>excludeEnd('strict');
             obfuscateProperty(dejavu, '$parent', parent);
             dejavu.prototype = createObject(parent.prototype);
 
             inheritParent(dejavu, parent);
         } else {
-            params.initialize = params.initialize || params._initialize || params.__initialize || function () {};
 //>>includeStart('strict', pragmas.strict);
-            dejavu = constructor || createConstructor(isAbstract);
+            dejavu = createConstructor(constructor, opts.isAbstract);
             dejavu[$class].id = nextId += 1;
+
+            if (opts.isVanilla) {
+                params.initialize = function () { dejavu.apply(this, arguments); };
+                dejavu[$class].forceUnlocked = true;
+                dejavu[$class].isVanilla = true;
+            } else {
+                params.initialize = params.initialize || params._initialize || params.__initialize || function () {};
+            }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-            dejavu = constructor || createConstructor();
+            dejavu = createConstructor(constructor);
+            params.initialize = opts.isVanilla ? dejavu : params.initialize || params._initialize || params.__initialize || function () {};
 //>>excludeEnd('strict');
         }
 
 //>>excludeStart('strict', pragmas.strict);
         dejavu[$class].efficient = isEfficient;
 //>>excludeEnd('strict');
-        delete params._initialize;
-        delete params.__initialize;
-
-//>>includeStart('strict', pragmas.strict);
-        if (isAbstract) {
-            obfuscateProperty(dejavu, $abstract, true, true); // Signal it has abstract
+        if (!opts.isVanilla) {
+            delete params._initialize;
+            delete params.__initialize;
         }
 
-        // Check if we are under strict mode
-        /*try {
-            Class.caller || arguments.callee.caller || arguments.caller;  // Ignore JSLint error regarding .caller and .callee
-            dejavu[$class].$underStrict = false;
-        } catch (e) {
-            dejavu[$class].$underStrict = true;
-        }*/
+//>>includeStart('strict', pragmas.strict);
+        if (opts.isAbstract) {
+            obfuscateProperty(dejavu, $abstract, true, true); // Signal it has abstract
+        }
 
 //>>includeEnd('strict');
         // Parse class members
@@ -2039,15 +2117,15 @@ define([
         obfuscateProperty(dejavu, '$self', null, true);
         obfuscateProperty(dejavu, '$super', null, true);
 //>>includeStart('strict', pragmas.strict);
-        obfuscateProperty(dejavu, '$bind', anonymousBindStatic);
+        obfuscateProperty(dejavu, '$bind', doBindStatic);
         if (!dejavu.$parent) {
-            obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
+            obfuscateProperty(dejavu.prototype, '$bind', doBind);
         }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-        obfuscateProperty(dejavu, '$bind', anonymousBind);
+        obfuscateProperty(dejavu, '$bind', doBind);
         if (!dejavu.$parent) {
-            obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
+            obfuscateProperty(dejavu.prototype, '$bind', doBind);
         }
 //>>excludeEnd('strict');
 
@@ -2060,8 +2138,8 @@ define([
             obfuscateProperty(dejavu, 'toString', toStringConstructor, true);
         }
 
-        // If we are a concrete class that extends an abstract class, we need to verify the methods existence
-        if (parent && parent[$abstract] && !isAbstract) {
+        // If we are a concrete class tha3t extends an abstract class, we need to verify the methods existence
+        if (parent && parent[$abstract] && !opts.isAbstract) {
             parent[$abstract].check(dejavu);
         }
 
@@ -2080,6 +2158,20 @@ define([
         // Supply .extend() to easily extend a class
         dejavu.extend = extend;
 //>>includeStart('strict', pragmas.strict);
+
+        // Take care of $locked flag
+        if (hasOwn(params, '$locked')) {
+            if (dejavu[$class].forceUnlocked && params.$locked) {
+                throw new Error('Class "' + params.$name + '" cannot be locked because it borrows or extends from a vanilla class.');
+            }
+            if (dejavu[$class].locked === false && params.$locked) {
+                throw new Error('Class "' + params.$name + '" inherits from an unlocked class, therefore its subclasses cannot be locked.');
+            }
+            dejavu[$class].locked = !!params.$locked;
+            delete params.$locked;
+        } else if (!hasOwn(dejavu[$class], 'locked')) {
+            dejavu[$class].locked = !!options.locked;
+        }
 
         // Prevent any properties/methods to be added and deleted
         if (hasDefineProperty) {
@@ -2144,7 +2236,7 @@ define([
 
         // Validate params as an object
         if (!isObject(params)) {
-            throw new Error('Expected second argument to be an object with the class members.');
+            throw new Error('Expected class definition to be an object with the class members.');
         }
 
         return callable(params, constructor);
@@ -2193,11 +2285,11 @@ define([
 
 //>>includeStart('strict', pragmas.strict);
         if (isFunction(context)) {
-            return anonymousBindStatic.apply(context, args);
+            return doBindStatic.apply(context, args);
         }
 
 //>>includeEnd('strict');
-        return anonymousBind.apply(context, args);
+        return doBind.apply(context, args);
     });
 
     return Class;

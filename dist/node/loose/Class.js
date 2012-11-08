@@ -92,6 +92,7 @@ define([
     function wrapMethod(method, constructor, parent) {
         // Return the method if the class was created efficiently
         if (constructor[$class].efficient) {
+            method[$wrapped] = true;
             return method;
         }
 
@@ -143,6 +144,39 @@ define([
     }
 
     /**
+     * Borrows members from a vanilla object definition.
+     *
+     * @param {Object}   params      The parameters
+     * @param {Function} constructor The constructor
+     */
+    function borrowFromVanilla(params, constructor) {
+        var key,
+            value;
+
+        // Grab mixin members
+        for (key in params) {
+            value = params[key];
+
+            if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
+                if (isFunction(value) && !value[$class] && !value[$interface]) {
+                    constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
+
+                    // If the function is specified to be bound, add it to the binds
+                    if (value[$bound]) {
+                        insert(constructor[$class].binds, key);
+                    }
+                } else {
+                    constructor.prototype[key] = value;
+                    if (!isImmutable(value)) {
+                        insert(constructor[$class].properties, key);
+                    }
+                }
+            }
+        }
+
+    }
+
+    /**
      * Parse borrows (mixins).
      *
      * @param {Object}   params      The parameters
@@ -158,28 +192,22 @@ define([
                 i = mixins.length;
 
             for (i -= 1; i >= 0; i -= 1) {
-                current = isObject(mixins[i]) ? createClass(mixIn({}, mixins[i])).prototype : mixins[i].prototype;
+                current = mixins[i];
+                // If it's a vanilla object
+                if (isObject(current)) {
+                    borrowFromVanilla(current, constructor);
+                    continue;
+                }
+                // If it's a vanilla class
+                if (isFunction(current) && !current[$class]) {
+                    borrowFromVanilla(current.prototype, constructor);
+                    continue;
+                }
+
+                current = current.prototype;
 
                 // Grab mixin members
-                for (key in current) {
-                    value = current[key];
-
-                    if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
-                        if (isFunction(value) && !value[$class] && !value[$interface]) {
-                            constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
-
-                            // If the function is specified to be bound, add it to the binds
-                            if (value[$bound]) {
-                                insert(constructor[$class].binds, key);
-                            }
-                        } else {
-                            constructor.prototype[key] = value;
-                            if (!isImmutable(value)) {
-                                insert(constructor[$class].properties, key);
-                            }
-                        }
-                    }
-                }
+                borrowFromVanilla(current, constructor);
 
                 // Grab mixin static methods
                 for (k = current.$static[$class].staticMethods.length - 1; k >= 0; k -= 1) {
@@ -284,7 +312,7 @@ define([
             value = params[key];
 
             if (isFunction(value) && !value[$class] && !value[$interface]) {
-                constructor.prototype[key] = !value.$inherited ? wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null) : value;
+                constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
 
                 // If the function is specified to be bound, add it to the binds
                 if (value[$bound]) {
@@ -373,13 +401,13 @@ define([
      * Builds the constructor function that calls the initialize and do
      * more things internally.
      *
-     * @param {Boolean} isAbstract Treat this class as abstract
+     * @param {Function} constructor The constructor function to assume and fill
+     * @param {Boolean}  isAbstract  Treat this class as abstract
      *
      * @return {Function} The constructor function
      */
-    function createConstructor(isAbstract) {
-
-        var Instance = function Instance() {
+    function createConstructor(constructor, isAbstract) {
+        var Instance = constructor || function Instance() {
             var x,
                 tmp;
 
@@ -403,27 +431,33 @@ define([
             this.initialize.apply(this, arguments);
         };
 
-        obfuscateProperty(Instance, $class, { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] });
+        if (!Instance[$class]) {
+            obfuscateProperty(Instance, $class, { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] });
+        }
 
         return Instance;
     }
 
     /**
-     * Anonymous bind.
+     * Bind.
+     * Works for anonymous functions also.
      *
      * @param {Function} func   The function to be bound
      * @param {...mixed} [args] The arguments to also be bound
+     *
+     * @return {Function} The bound function
      */
-    function anonymousBind(func) {
+    function doBind(func) {
         /*jshint validthis:true*/
         var args = toArray(arguments),
             bound;
 
+        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+            func = wrapMethod(func, this.$self || this.$static);
+        }
+
         args.splice(1, 0, this);
         bound = bind.apply(func, args);
-        if (this.$static && this.$static[$class]) {
-            bound = wrapMethod(bound, this.$self || this.$static);
-        }
 
         return bound;
     }
@@ -519,11 +553,13 @@ define([
      *
      * @param {Object}      params        An object containing methods and properties
      * @param {Constructor} [constructor] Assume the passed constructor
-     * @param {Boolean}     [isAbstract]  Treat this class as abstract
+     * @param {Object}      [opts]        Options
      *
      * @return {Function} The constructor
      */
-    createClass = function (params, constructor, isAbstract) {
+    createClass = function (params, constructor, opts) {
+        opts = opts || {};
+
         var dejavu,
             parent,
             isEfficient = !!constructor;
@@ -532,24 +568,31 @@ define([
             parent = params.$extends;
             delete params.$extends;
 
-            params.initialize = params.initialize || params._initialize || params.__initialize;
+            // If its a vanilla class create a dejavu class based on it
+            if (!parent[$class])  {
+                parent = createClass(parent.prototype, parent, { isVanilla: true });
+            }
+
+            params.initialize = opts.isVanilla ? dejavu : params.initialize || params._initialize || params.__initialize;
             if (!params.initialize) {
                 delete params.initialize;
             }
 
-            dejavu = constructor || createConstructor();
+            dejavu = createConstructor(constructor);
             obfuscateProperty(dejavu, '$parent', parent);
             dejavu.prototype = createObject(parent.prototype);
 
             inheritParent(dejavu, parent);
         } else {
-            params.initialize = params.initialize || params._initialize || params.__initialize || function () {};
-            dejavu = constructor || createConstructor();
+            dejavu = createConstructor(constructor);
+            params.initialize = opts.isVanilla ? dejavu : params.initialize || params._initialize || params.__initialize || function () {};
         }
 
         dejavu[$class].efficient = isEfficient;
-        delete params._initialize;
-        delete params.__initialize;
+        if (!opts.isVanilla) {
+            delete params._initialize;
+            delete params.__initialize;
+        }
 
         // Parse class members
         parseClass(params, dejavu);
@@ -565,9 +608,9 @@ define([
         obfuscateProperty(dejavu, '$static', dejavu);
         obfuscateProperty(dejavu, '$self', null, true);
         obfuscateProperty(dejavu, '$super', null, true);
-        obfuscateProperty(dejavu, '$bind', anonymousBind);
+        obfuscateProperty(dejavu, '$bind', doBind);
         if (!dejavu.$parent) {
-            obfuscateProperty(dejavu.prototype, '$bind', anonymousBind);
+            obfuscateProperty(dejavu.prototype, '$bind', doBind);
         }
 
         // Handle interfaces
@@ -625,7 +668,7 @@ define([
 
         // Validate params as an object
         if (!isObject(params)) {
-            throw new Error('Expected second argument to be an object with the class members.');
+            throw new Error('Expected class definition to be an object with the class members.');
         }
 
         return callable(params, constructor);
@@ -672,7 +715,7 @@ define([
         var args = toArray(arguments);
         args.splice(0, 1, this);
 
-        return anonymousBind.apply(context, args);
+        return doBind.apply(context, args);
     });
 
     return Class;

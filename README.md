@@ -45,13 +45,13 @@ performances, rivaling with vanilla JS in production.
   callbacks/handlers)
 * Method signature checks
 * Custom instanceOf with support for Interfaces
-* Classes and instances are locked (only when Object.defineProperty is available)
+* Classes and instances are locked by default
     * Functions cannot be added, replaced or deleted
     * Properties can only be modified
 * Two builds, `regular` and `AMD` based
     * `AMD` optimized for speeding up developer workflow, allowing testing
       without the need to re-compile everything into a single file
-    * `regular` ideal if you want to deploy, with less files
+    * `regular` if you are not using `AMD` in your projects
 * Two modes for each build, `strict` and `loose`
     * `strict` best in development, enforcing a lot of checks, making sure you
       don't make many typical mistakes
@@ -226,6 +226,7 @@ are the modules you can include:
 * Class
 * FinalClass
 * instanceOf
+* options
 
 Here's an example requiring `dejavu` selectively, using an AMD approach:
 

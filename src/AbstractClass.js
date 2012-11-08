@@ -289,7 +289,7 @@ define([
     function createAbstractClass(params, constructor) {
 //>>includeStart('strict', pragmas.strict);
         if (!isObject(params)) {
-            throw new Error('Argument "params" must be an object while defining an abstract class.');
+            throw new Error('Expected abstract class definition to be an object with the abstract class members.');
         }
         // Validate class name
         if (hasOwn(params, '$name')) {
@@ -342,7 +342,7 @@ define([
         }
 
         // Create the class definition
-        def = Class.$create(params, constructor, true);
+        def = Class.$create(params, constructor, { isAbstract: true });
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
         // Create the class definition

@@ -3,19 +3,19 @@ if (typeof define !== 'function') {
 }
 
 define([
-    'amd-utils/lang/isFunction',
     './Class',
     './AbstractClass',
     './Interface',
     './FinalClass',
-    './instanceOf'
+    './instanceOf',
+    './options'
 ], function (
-    isFunction,
     Class,
     AbstractClass,
     Interface,
     FinalClass,
-    instanceOf
+    instanceOf,
+    options
 ) {
 
     'use strict';
@@ -27,12 +27,9 @@ define([
     dejavu.Interface = Interface;
     dejavu.FinalClass = FinalClass;
     dejavu.instanceOf = instanceOf;
+    dejavu.options = options;
 
     dejavu.mode = 'strict';
-
-    if (isFunction(Object.freeze)) {
-        Object.freeze(dejavu);
-    }
 
     return dejavu;
 });

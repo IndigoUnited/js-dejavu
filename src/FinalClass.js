@@ -28,6 +28,7 @@ define([
 //>>excludeStart('strict', pragmas.strict);
     var FinalClass = {};
 //>>excludeEnd('strict');
+
     /**
      * Create a final class definition.
      *
