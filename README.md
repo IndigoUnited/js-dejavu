@@ -56,6 +56,7 @@ performances, rivaling with vanilla JS in production.
     * `strict` best in development, enforcing a lot of checks, making sure you
       don't make many typical mistakes
     * `loose` best for production, without checks, improving performance
+* Possible to extend or borrow vanilla classes
 
 Users are encouraged to declare
 ['use strict'](https://developer.mozilla.org/en/JavaScript/Strict_mode) while
@@ -92,7 +93,7 @@ The quickest way to start using `dejavu` in your project, is by simply including
 If you're developing a __client-side__ app, simply put the file in some folder,
 and include it in the HTML:
 
-```HTML
+```
 <!DOCTYPE html>
 <html>
     <head>
@@ -133,7 +134,7 @@ and include it in the HTML:
 This will make a `dejavu` global available for you.
 If you're developing in __Node.js__, install it with `npm install dejavu` and use it like so:
 
-```js
+```
 // in this case, dejavu.js is in the root folder of the project
 var dejavu = require('dejavu');
 
@@ -164,7 +165,7 @@ console.log("A new indigo was born,", indigo.getName());
 The default mode running will be the strict mode unless the STRICT environment variable is set to false.
 Environment variables can be changed system wide or per process like so:
 
-```js
+```
 process.env.STRICT = false;
 ```
 
@@ -228,7 +229,7 @@ are the modules you can include:
 
 Here's an example requiring `dejavu` selectively, using an AMD approach:
 
-```js
+```
 define([
     'path/to/Human',
     'path/to/TalkInterface',
@@ -271,288 +272,194 @@ You can find these modules in `dist/amd/strict`, for strict mode, and
 
 ## Syntax
 
-### Interface definition ###
+### Class ###
 
-Object interfaces allow you to create code which specifies which methods a class must implement, without having to define how these methods are handled.
-Below there's an example of an _EventsInterface_ that has the role of adding event listeners and fire events:
+Classes are simply defined as we can see below:
 
-```js
-define(['path/to/dejavu/Interface'], function (Interface) {
-
-    var EventsInterface = Interface.declare({
-
-        addListener: function (name, fn, context) {},
-
-        removeListener: function (name, fn) {},
-
-        fireEvent: function (name, args) {}
-    });
-
-    return EventsInterface;
-});
 ```
+var Person = Class.declare({
+    
+    // public property
+    isIndigo: null,
+    
+    // protected properties (starts with _)
+    _name: null,
+    
+    // private properties (starts with __)
+    __textBiography: null
+    
+    /**
+     * Class constructor.
+     */
+    initialize: function () {
+        
+        // Call super
+        this.$super();
+        
+        // Do other stuff
+    },
 
-Interfaces can extend multiple interfaces. They can also define static functions signature.
-Be aware that all functions must obey its base signature (see explanation later in this document).
-
-```js
-define(['path/to/EventsInterface', 'path/to/dejavu/Interface'], function (EventsInterface, Interface) {
-
-    var SomeEventsInterface = Interface.declare({
-        $extends: EventsInterface,   // This interface extends EventsInterface
-                                     // Interfaces can extend multiple ones, just reference them in an array
-
-        $statics: {                  // This is how we define statics
-            getTotalListeners: function () {}
-        }
-
-    });
-
-    return SomeEventsInterface;
+    // public methods
+    setName: function (name) {
+        this._name = name;
+    },
+    
+    getName: function () {
+        return this._name; 
+    },
+    
+    // protected method (starts with _)
+    _getBiography: function (text) {
+        return this.__composeBiography(this.__textBiography);
+    },
+    
+    // private method (starts with __)
+    __composeBiography (text) {
+        return text + ' :: under the IndigoUnited License';
+    }
 });
+
 ```
-Alternatively, one can extend an interface with the extend() function. The equivalent code of the shown above is:
+Classes can extend other classes or abstract classes, as well as implement several interfaces.
+They differ from abstract classes in the way that they can't have abstract methods.
 
-```js
-define(['path/to/EventsInterface', 'path/to/dejavu/Interface'], function (EventsInterface, Interface) {
+```
+var Person = Class.declare({
 
-    var SomeEventsInterface = EventsInterface.extend(
+    // extends classes 
+    $extends: SomeClass,
+    
+    // implements interfaces - multiple interfaces should be specified as array
+    // $implements: [PersonInterface, IndigoInterface]
+    
+    $implements: PersonInterface
+    
+    // use mixins - multiple mixins should be specified as array
+    $borrows: Indigo, 
 
-        $statics: {                  // This is how we define statics
-            getTotalListeners: function () {}
-        }
-
-    });
-
-    return SomeEventsInterface;
+    // define static properties and methos
+    $statics: {
+        // Some class static members
+    },
+    
+    // define constants
+    $constants: {
+        FOO: 'bar'
+        BAR: 'foo'
+    },
 });
+
 ```
-
-
-
-### Interface usage example ###
-
-A class that implements an interface must define all the interface methods and be compatible with their signature.
-You define that a class implements an interface by specifying it in the $implements keyword.
-The $implements keyword can be an interface or an array of interfaces.
-Following the previous example we can define a concrete class - _EventsEmitter_ - that implements the _EventsInterface_ interface.
-
-```js
-define([
-    'path/to/EventsInterface',
-    'path/to/dejavu/Class'
-], function (EventsInterface, Class) {
-
-    var EventsEmitter = Class.declare({
-        $implements: EventsInterface,   // The class implements the EventsInterface interface
-                                        // You can specify multiple interfaces in an array
-
-        addListener: function (name, fn, context) {
-            // Implementation goes here
-        },
-
-        removeListener: function (name, fn) {
-            // Implementation goes here
-        },
-
-        fireEvent: function (name, args) {
-            // Implementation goes here
-        }
-    });
-
-    return EventsEmitter;
-});
-```
-
-
 
 ### Abstract classes ###
 
 Classes defined as abstract may not be instantiated, and any class that contains at least one abstract method must also be abstract.
+
 Methods defined as abstract simply declare the method's signature.
 When an abstract class implements an interface and doesn't implement some of its methods, those will be automatically declared as abstract.
-Below there is an example of an abstract class - _AbstractEmitter_ - that implements all of the _EventsInterface_ interface methods, except the _fireEvent()_ method.
 
-```js
-define([
-    'path/to/EventsInterface',
-    'path/to/dejavu/AbstractClass'
-],
-function (EventsInterface, AbstractClass) {
+Below there is an example of an abstract class.
 
-    var AbstractEventsEmitter = AbstractClass.declare({
-        $implements: EventsInterface,   // The class must implement the EventsInterface
+```
+var AbstractPerson = AbstractClass.declare({
+    
+    initialize: function (argument1) {
+        // this is the constructor
+        // calling new on an abstract class will throw an error
+        // though a class that extends this abstract class will run this constructor if called
+    },
 
-        initialize: function (argument1) {
-            // This is the constructor
-            // Calling new on an abstract class will throw an error
-            // Though a class that extends this abstract class will run this constructor if called
-        },
+    
+    getName: function (name) {
+        // Implementation goes here
+    },
 
-        addListener: function (name, fn, context) {
-            // Implementation goes here
-        },
+    // here you can define abstract methods
+    $abstracts: {
 
-        removeListener: function (name, fn) {
-            // Implementation goes here
-        },
-
-        // fireEvent() is not implemented, therefore is automatically declared as abstract
-
-        $abstracts: {                   // This how we defined abstract methods
-
-            removeAll: function () {},
-
-            $statics: {                 // We can also define abstract static methods
-                getTotalListeners: function () {}
-            }
+        // you can define abstract methods
+            
+        $statics: {
+            // you can also define abstract static methods
         }
-    });
-
-    return AbstractEventsEmitter;
+    }
 });
 ```
 
 Abstract classes can extend other abstract classes or concrete classes while implementing other interfaces.
 
-```js
-define([
-    'path/to/some/class',
-    'path/to/some/interface',
-    'path/to/other/interface',
-    'path/to/dejavu/AbstractClass'
-],
-function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
+A(n) (abstract) class can extend a another one with extend function, as shown above:
 
-    var ComplexAbstractClass = AbstractClass.declare({
-        $extends: SomeClass,
-        $implements: [SomeInterface, OtherInterface],
+```
+var Person = AbstractPerson.extend({
 
-        /**
-         * Class constructor.
-         */
-        initialize: function (argument1) {
-            // Call super
-            this.$super(argument1);
-
-            // Do other things here
-        },
-
-        $statics: {
-            // Some class static members
-        },
-
-        $abstracts: {
-
-            // Some abstract functions
-
-            $statics: {
-                // Some abstract static functions
-            }
-        }
-    });
-
-    return ComplexAbstractClass;
+    // class definition
 });
 ```
 
-Alternatively, one can extend a concrete or abstract class with the extend() function. The equivalent code of the shown above is:
+### Interface definition ###
 
-```js
-define([
-    'path/to/some/class',
-    'path/to/some/interface',
-    'path/to/other/interface',
-    'path/to/dejavu/AbstractClass'
-],
-function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
+Object interfaces allow you to create code which specifies which methods a class must implement, without having to define how these methods are handled.
 
-    var ComplexAbstractClass = SomeClass.extend({
-        $implements: [SomeInterface, OtherInterface],
+Below there's an example:
 
-        /**
-         * Class constructor.
-         */
-        initialize: function (argument1) {
-            // Call super
-            this.$super(argument1);
+```
+var PersonInterface = Interface.declare({
 
-            // Do other things here
-        },
+    // public methods
+    setName: function (name) {},
 
-        $statics: {
-            // Some class static members
-        },
+    // protected method
+    _setAge: function (age) {},
+        
+    // private method
+    __composeBiography: function (text) {}
 
-        $abstracts: {
+});
+```
 
-            // Some abstract functions
+Interfaces can extend multiple interfaces. 
 
-            $statics: {
-                // Some abstract static functions
-            }
-        }
-    });
+They can also define static functions signature.
+Be aware that all functions must obey its base signature (see explanation later in this document).
 
-    return ComplexAbstractClass;
+```
+var ExtendedInterface = Interface.declare({
+    $extends: PersonInterface,   
+    // Interfaces can extend multiple ones, just reference them in an array
+
+    $statics: {
+        // this is how you can define statics
+        getBiography: function () {}
+    }
+
+});
+```
+Alternatively, one can extend an interface with the extend() function. The equivalent code of the shown above is:
+
+```
+var SomeEventsInterface = EventsInterface.extend(
+
+    $statics: { 
+        // this is how you can define statics
+        getTotalListeners: function () {}
+    }
+
 });
 ```
 
 
+A class that implements an interface must define all the interface methods and be compatible with their signature.
 
-### Concrete classes ###
-
-Concrete classes can extend other concrete classes or abstract classes as well as implement several interfaces.
-They differ from abstract classes in the way that they can't have abstract methods.
-Below is described the full syntax that can be used in concrete and abstract classes.
-
-```js
-define([
-    'path/to/some/class',
-    'path/to/other/class',
-    'path/to/some/interface',
-    'path/to/other/interface',
-    'path/to/dejavu/Class'
-],
-function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
-
-    var ConcreteClass = Class.declare({
-        $extends: SomeClass,
-        $implements: [SomeInterface, OtherInterface],
-        $borrows: OtherClass,                           // We can add mixins by specifying them in here
-                                                        // You can specify multiple mixins in an array
-
-        /**
-         * Class constructor.
-         */
-        initialize: function () {
-            // Call super
-            this.$super();
-
-            // Do other things here
-        },
-
-        /**
-         * Handles some click event.
-         */
-        handleClick: function () {
-            // Handle click here
-        }.$bound(),                                     // $bound() let you automatically bind the function to the instance
-                                                        // Useful for handlers/callbacks
-
-        $statics: {
-            // Some class static members
-        }
-    });
-});
-```
+You define that a class implements an interface by specifying it in the $implements keyword.
+The $implements keyword can be an interface or an array of interfaces.
 
 
 
 ### Mixins ###
 
 A mixin is a class or object that provides a certain functionality to be reused by other classes, since all their members will be copied (expect for the initialize method).
-Mixins can be used like specified in the example above.
+
 If clashes occur with multiple mixins, that last one takes precedence.
 
 
@@ -563,65 +470,57 @@ The $bound() function allows you to bind a function to the instance.
 This is useful if certain functions are meant to be used as callbacks or handlers.
 You don't need to bind the function manually, it will be bound for you automatically.
 
-```js
-define([
-    'path/to/dejavu/Class'
-],
-function (Class) {
+```
+var Person = Class.declare({
 
-    var ConcreteClass = Class.declare({
+    /**
+     * Constructor.
+     */
+     initialize: function (element) {
+         element.addEventListener('click', this._handleClick);
+     },
 
-        /**
-         * Constructor.
-         */
-        initialize: function (element) {
-            element.addEventListener('click', this._handleClick);
-        },
-
-        /**
-         * Handles some click event.
-         */
-        handleClick: function () {
-            // Handle click here
-        }.$bound(),
-
-    });
+    /**
+     * Handles some click event.
+     */
+     handleClick: function () {
+         console.log('is indigo');
+     }.$bound()
 });
 ```
 
-Alternatively, one can use anonymous functions and bind them to the instance to preserve the context as well as allowing private/protected methods invocations.
+Alternatively, one can use anonymous functions and bind them to the instanjsce to preserve the context as well as allowing private/protected methods invocations.
 
-```js
-define([
-    'path/to/dejavu/Class'
-],
-function (Class) {
+```
+var PersonClass = Class.declare({
 
-    var ConcreteClass = Class.declare({
+    /**
+     * Constructor.
+     */
+    initialize: function (element) {
+        
+        // you can use the $bind
+        element.addEventListener('click', function () {
+        
+            console.log('is indigo');
+            this._doSomething();
+            
+        }.$bind(this)); 
 
-        /**
-         * Constructor.
-         */
-        initialize: function (element) {
-            element.addEventListener('click', function () {
-                console.log('caught click');
-                this._doSomething();
-            }.$bind(this));                                                    // Use the $bind
+        // or use the this.$bind (same behavior as above)
+        element.addEventListener('keyup', this.$bind(function () {
+        
+                console.log('indigo key was pressed');
+                this._doSomething(); 
+        });
+    },
 
-            element.addEventListener('keydown', this.$bind(function () {
-                console.log('caught keydown');
-                this._doSomething();                                           // Use the this.$bind (same behavior as above)
-            });
-        },
-
-        /**
-         * Some protected method
-         */
-        _doSomething: function () {
-            // ..
-        },
-
-    });
+    /**
+     * Some protected method
+     */
+     _doSomething: function () {
+         // ..
+     }
 });
 ```
 
@@ -629,83 +528,69 @@ function (Class) {
 ### Constants ###
 
 The $constants keyword allows you to defined constants.
-If Object.defineProperty is available, any attempt to modify the constant value will throw an error (only in the strict mode).
+If Object.defineProperty is available, any attempt to modify the constant value will throw an error (only in thjse strict mode).
 Constants can be defined in classes, abstract classes and interfaces.
 
-```js
-define(['path/to/dejavu/Class', function (Class) {
+```
+var Person = Class.declare({
 
-    var SomeClass = Class.declare({
-        $constants: {
-            FOO: 'bar'
-            BAR: 'foo'
-        },
+    $constants: {
+        INDIGOS: 'nice dudes'
+    },
 
-        /**
-         * Class constructor.
-         */
-        initialize: function () {
-            this.$self.FOO;    // 'bar'
-            SomeClass.FOO;     // 'bar' (is the same as above)
-        }
-    });
-
-    SomeClass.FOO; // 'bar'
-    SomeClass.BAR; // 'foo'
-
-    return SomeClass;
+    /**
+     * Class constructor.
+     */
+    initialize: function () {
+        
+        this.$self.INDIGOS;
+        
+        // same behaviour as above
+        Person.INDIGOS;     
+    }
 });
+
+Person.INDIGOS; // 'nice dudes' :)
 ```
 
 
 ### Final members/classes ###
 
-Members that are declared as final cannot be overriden by a child class.
-If the class itself is being defined final then it cannot be extended.
+Final classes cannot be extended.
 
-```js
-define(['path/to/dejavu/FinalClass', function (FinalClass) {
+```
+// This class cannot be extended
+var Indigo = FinalClass.declare({    
 
-    var SomeClass = FinalClass.declare({    // This class cannot be extended
-
-        /**
-         * Class constructor.
-         */
-        initialize: function () {
-            // ...
-        }
-    });
-
-    return SomeClass;
+    initialize: function () {
+        // ...
+    }
 });
+```
+Members that are declared as final cannot be overriden by js child class.
 
-define(['path/to/dejavu/Class', function (Class) {
+```
+var Indigo = Class.declare({
 
-    var SomeClass = Class.declare({
+    initialize: function () {
+        // ...
+    },
 
-        /**
-         * Class constructor.
-         */
-        initialize: function () {
+    // classes that extend this one are not allowed to override the members below
+    $finals: {
+
+        getName: function () {
             // ...
         },
+        description: 'dreamers',
 
-        $finals: {                  // Classes that extend this one are not allowed to override the members below
-
-            someMethod: function () {
+        // you can also define static methods as final
+        $statics: {             
+            getBiography: function () {
                 // ...
             },
-            someProperty: 'foo',
-
-            $statics: {             // We can also define static methods as final
-                staticMethod: function () {
-                    // ...
-                },
-                staticProperty: 'bar'
-            }
-    });
-
-    return SomeClass;
+        license: 'IndigoUnited License'
+    }
 });
 
 ```
@@ -721,36 +606,50 @@ If Object.defineProperty is available, it will be used to manage their access (o
 
 All functions are virtual functions, therefore they can be overriden except if it's classified as final.
 additionally, if a method is abstract, a subclass can only implement/override it if they obey their signature (must be equal or augmented with additional optional arguments).
-Arguments prefixed with a $ are evaluated as optional. The signature check is done for all abstract functions (interface functions are also considered abstract).
 
-```js
-var SomeAbstractClass = AbstractClass.declare({
+Arguments prefixed with a $ are evaluated as optional. The signature check done for all abstract functions (interface functions are also considered abstract).
+
+```
+var AbstractPerson = AbstractClass.declare({
     $abstracts: {
-        foo: function (param1) {}
+        setName: function (name) {}
+    }
+});
+```
+
+Signature is equal, so it's valid.
+
+```
+var Indigo = Class.declare({
+    $extends: AbstractPerson,
+
+    setName: function (name) {             
+        // ...
+    }
+});
+```
+
+Although it's signature is not equal, was augmented with an additional optional argument, so it's valid too.
+
+```
+var Indigo = Class.declare({
+    $extends: AbstractPerson,
+
+    setName: function (name, $last_name) {
+        // ...
     }
 });
 
-var SomeClass = Class.declare({
-    $extends: SomeAbstractClass,
+```
+Next example, will thrown an error because they have different signatures.
+```
 
-    foo: function (param1) {             // Signature is equal, it's valid
-        // Do something here
-    }
-});
+var Indigo = Class.declare({
+    $extends: AbstractPerson,
 
-var ComplexClass = Class.declare({
-    $extends: SomeClass,
-
-    foo: function (param1, $param2) {    // Although it's signature is not equal, was augmented with an additional optional argument, so it's valid
-        // Do something here
-    }
-});
-
-var OtherComplexClass = Class.declare({
-    $extends: SomeClass,
-
-    foo: function (param1, param2) {     // Will throw an error because foo(param1) is not compatible with foo(param1, param2)
-        // Do something here
+    // setName(name) is not compatible with setName(name, last_name)
+    setName: function (name, last_name) {
+        // ...
     }
 });
 ```
@@ -759,44 +658,61 @@ var OtherComplexClass = Class.declare({
 ### Calling static methods within an instance ###
 
 To call static methods inside an instance you can use $self and $static.
-$self gives access to the class itself and $static gives access to the called class in a context of static inheritance.
+
+$self gives access to the class itself and $static gives access to the called class in ajs context of static inheritance.
+
 $self is the same as using the class variable itself.
 
-```js
-var Example1 = Class.declare({
-    foo: function (param1) {
-        return this.$self.bar;    // same as Example1.bar;
+```
+var Indigo1 = Class.declare({
+    
+    getName: function () {
+        
+        // same as Filipe.name;
+        return this.$self.name;
     },
     $statics: {
-        bar: 'hello'
+        name: 'Marco'
     }
 });
 
-var Example2 = Class.declare({
-    foo: function (param1) {
-        return this.$static.bar;
+```
+
+```
+var Indigo2 = Class.declare({
+    getName: function () {
+        return this.$static.name;
     },
     $statics: {
-        bar: 'hello'
+        name: 'Andre'
     }
 });
 
-var Example3 = Class.declare({
-    $extends: Example1
+```
+
+```
+var Indigo3 = Class.declare({
+    $extends: Indigo1
     $statics: {
-        bar: 'bye'
+        bar: 'Filipe'
     }
 });
 
-var Example4 = Class.declare({
-    $extends: Example2
+```
+
+```
+var Indigo4 = Class.declare({
+    $extends: Indigo2
     $statics: {
-        bar: 'bye'
+        bar: 'Filipe'
     }
 });
 
-Example3.foo(); // hello
-Example4.foo(); // bye
+```
+
+```
+Indigo3.getName(); // Marco
+Indigo4.getName(); // Filipe
 ```
 
 
@@ -807,37 +723,137 @@ The instanceOf function works exactly the same way as the native instanceof exce
 
 
 
+### Notes ##
+
+Please avoid using object constructors for strings, objects, booleans and numbers:
+
+```
+var Person = Class.declare({
+
+    // don't use this
+    Indigo: new String('Filipe'),
+    
+    // ok
+    Indigo: 'Filipe'
+});
+```
+
+###  Classes and instances are locked ###
+
+By default, constructors and instances are locked. This means that no one can monkey patch your code.
+
+This behaviour can be changed in two ways:
+
+#### With the $locked flag:
+
+```
+var UnlockedIndigo = Class.declare({
+    $locked: false
+
+    initialize: function () {
+        
+        // Altough the foo property is not declared,
+        // it will not throw an error
+        
+        this.name = 'Filipe';           
+                                    
+    },
+
+    talk: function () {
+        console.log('An indigo is talking!');
+    }
+});
+```
+
+Methods can be replaced in the prototype
+
+```
+UnlockedIndigo.prototype.talk = function () {
+
+    console.log('... now is running');
+};
+```
+
+Properties can be added to the instance and methods can be replace in the instance.
+
+```
+var Filipe = new UnlockedIndigo();
+
+Filipe.friends = ['Marco','Andre'];
+
+Filipe.talk = function () { 
+    console.log('I'm talking about DejaVu!');
+};
+```
+
+#### By setting the global option:
+
+This will change the default behaviour, but classes can still override it with the $locked flag.
+
+```
+dejavu.options.locked = false;
+```
+
+Note that once a class is unlocked, its subclasses cannot be locked.
+Also, although undeclared members are allowed, they will not have their access controlled (they are interpreted as public).
 ### Notes ###
 
 Please avoid using object constructors for strings, objects, booleans and numbers:
 
-```js
+```
 var MyClass = Class.declare({
     foo: new String('bar'),  // Don't use this
     foz: 'bar'               // Ok
 });
 ```
 
+## Vanilla classes ##
+
+DejaVu allows you to extend or borrow vanilla classes. In this case, constructors and instances are UNLOCKED by default.
+
+```
+function Person(name) {
+
+    this.name = name;
+};
+
+var filipe = new Person('Filipe');
+
+
+filipe.name  // Filipe
+
+```
+
+Now you can add a new function to Person.
+
+```
+Person.prototype.monkey = function () {
+    console.log(this.name + ' can monkey patching the code!');
+}
+
+
+filipe.monkey()  // Filipe can monkey patching the code!
+```
 
 
 ## Dependencies ##
 
 dejavu depends on [amd-utils](https://github.com/millermedeiros/amd-utils).
 If you use the regular build, you don't need to worry because all functions used from amd-utils are bundled for you.
-If you use the AMD build, you must specify the path to amd-utils.
+If you use the AMD build, you must specijsfy the path to amd-utils.
 For example, if you use [RequireJS](http://requirejs.org/):
 
-```js
-    paths : {
-        'amd-utils': '../vendor/amd-utils/src'
-    },
+```
+paths : {
+    'amd-utils': '../vendor/amd-utils/src'
+},
 
-    packages: [
-        {
-            name: 'dejavu'
-            location: '../../dist/amd/strict',
-        }
-    ]
+packages: [
+    {
+        name: 'dejavu'
+        location: '../../dist/amd/strict',
+    }
+]
 ```
 
 
