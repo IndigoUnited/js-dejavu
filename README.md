@@ -732,10 +732,10 @@ Please avoid using object constructors for strings, objects, booleans and number
 var Person = Class.declare({
 
     // don't use this
-    Indigo: new String('Filipe'),
+    indigo: new String('Filipe'),
     
     // ok
-    Indigo: 'Filipe'
+    indigo: 'Filipe'
 });
 ```
 
