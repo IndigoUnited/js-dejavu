@@ -33,7 +33,8 @@ var parser = {
             curr,
             objectName,
             x,
-            keys;
+            keys,
+            props;
 
         while (queue.length) {
             curr = queue.pop();
@@ -57,11 +58,14 @@ var parser = {
                         }
                     // Usage with extend
                     } else if (curr.callee.property.name === 'extend') {
-                        if (parser._isInterface(curr['arguments'][0])) {
+                        props = curr['arguments'][0].properties;
+
+                        if (parser._isInterface(props)) {
                             callback({ type: 'interface', ast: curr });
-                        } else if (parser._isAbstractClass(curr['arguments'][0])) {
+                        } else if (parser._isAbstractClass(props)) {
                             callback({ type: 'abstract', ast: curr });
-                        } else if (parser._isClass(curr['arguments'][0])) {
+                        } else if (parser._isClass(props)) {
+
                             callback({ type: 'concrete', ast: curr });
                         } else {
                             process.stderr.write('Did not optimized usage because it was ambiguous (add a $name property?)\n');
