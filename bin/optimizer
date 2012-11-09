@@ -417,6 +417,10 @@ var parser = {
             return '$self';
         }
 
+        if (!isStatic && funcName === ('_initialize' || funcName === '__initialize')) {
+            funcName = 'initialize';
+        }
+
         // Super replacement
         code = code.replace(/(this|that)(?:\.|(?:[\'])?)\$super(?:'\])?\(/g, '$super.' + funcName + '.call($1, ')
                    .replace(/(this|that), \)/g, '$1)');
