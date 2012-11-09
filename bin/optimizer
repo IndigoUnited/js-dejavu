@@ -63,6 +63,8 @@ var parser = {
                             callback({ type: 'abstract', ast: curr });
                         } else if (parser._isClass(curr['arguments'][0])) {
                             callback({ type: 'concrete', ast: curr });
+                        } else {
+                            process.stderr.write('Did not optimized usage because it was ambiguous (add a $name property?)\n');
                         }
                     }
                 }
