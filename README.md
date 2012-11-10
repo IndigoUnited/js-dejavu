@@ -55,7 +55,6 @@ Also, even though being one of the most feature rich OOP libraries out there, it
 Users are encouraged to declare
 ['use strict'](https://developer.mozilla.org/en/JavaScript/Strict_mode) while
 using the `dejavu` in strict mode, otherwise some code might fail silently.
-
 This can happen because `dejavu` uses `Object.freeze` and `Object.seal` to lock
 classes and instances, guaranteeing that no one changes the behaviour of your
 classes by replacing methods, etc, and possibly breaking your code, making it
@@ -204,11 +203,11 @@ The easy way to set it up is to define a path for dejavu in your loader config l
        'dejavu': '/path/to/dejavu/dist/strict/main'     // You can switch to the loose mode anytime
    }
 }
+```
 
 Then require it and use it:
 
 ```js
-
 define(['dejavu'], function (dejavu) {
 
     // The dejavu variable is an object that contains:
