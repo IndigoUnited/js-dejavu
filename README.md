@@ -198,6 +198,7 @@ time it takes to test changes in your code. Thats why dejavu is built using AMD.
 The easy way to set it up is to define a path for dejavu in your loader config like so:
 
 ```js
+{
    // Your loader config
    paths: {
        'dejavu': '/path/to/dejavu/dist/strict/main'     // You can switch to the loose mode anytime
@@ -232,6 +233,7 @@ If you just want to require specific parts of `dejavu`, you can do so.
 In order to achieve this, you must configure your loader like so:
 
 ```js
+{
     // Your loader config
     packages: [
         {
