@@ -897,6 +897,7 @@ dejavu bundles an optimizer that makes your code fast and lighter.
 It specifically:
 
 * Improves $super and $self usage
+* Removes all $name's
 * Removes the need for wrappers, improving performance by a great margin
 * Removes abstract functions from abstract classes
 * Removes functions from interfaces
