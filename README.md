@@ -280,6 +280,7 @@ define(['dejavu/Interface'], function (Interface) {
     'use strict';
 
     var EventsInterface = Interface.declare({
+        $name: 'EventsInterface',                       // Will make easier to debug mistakes (optional)
 
         addListener: function (name, fn, context) {},
 
@@ -301,6 +302,7 @@ define(['path/to/EventsInterface', 'dejavu/Interface'], function (EventsInterfac
     'use strict';
 
     var SomeEventsInterface = Interface.declare({
+        $name: 'SomeEventsInterface',
         $extends: EventsInterface,   // This interface extends EventsInterface
                                      // Interfaces can extend multiple ones, just reference them in an array
 
@@ -321,6 +323,7 @@ define(['path/to/EventsInterface', 'dejavu/Interface'], function (EventsInterfac
     'use strict';
 
     var SomeEventsInterface = EventsInterface.extend({
+        $name: 'SomeEventsInterface',
 
         $statics: {                  // This is how we define statics
             getTotalListeners: function () {}
@@ -350,6 +353,7 @@ define([
     'use strict';
 
     var EventsEmitter = Class.declare({
+        $name: 'EventsEmitter',
         $implements: EventsInterface,   // The class implements the EventsInterface interface
                                         // You can specify multiple interfaces in an array
 
@@ -389,6 +393,7 @@ function (EventsInterface, AbstractClass) {
     'use strict';
 
     var AbstractEventsEmitter = AbstractClass.declare({
+        $name: 'AbstractEventsEmitter',
         $implements: EventsInterface,   // The class must implement the EventsInterface
 
         initialize: function (argument1) {
@@ -435,6 +440,7 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
     'use strict';
 
     var ComplexAbstractClass = AbstractClass.declare({
+        $name: 'ComplexAbstractClass',
         $extends: SomeClass,
         $implements: [SomeInterface, OtherInterface],
 
@@ -480,6 +486,7 @@ function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
     'use strict';
 
     var ComplexAbstractClass = SomeClass.extend({
+        $name: 'ComplexAbstractClass',
         $implements: [SomeInterface, OtherInterface],
 
         /**
@@ -531,6 +538,7 @@ function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
     'use strict';
 
     var ConcreteClass = Class.declare({
+        $name: 'ConcreteClass',
         $extends: SomeClass,
         $implements: [SomeInterface, OtherInterface],
         $borrows: OtherClass,                           // We can add mixins by specifying them in here
@@ -576,6 +584,7 @@ function (Class) {
     'use strict';
 
     var ConcreteClass = Class.declare({
+        $name: 'ConcreteClass',
 
         /**
          * Constructor.
@@ -615,6 +624,7 @@ function (Class) {
     'use strict';
 
     var ConcreteClass = Class.declare({
+        $name: 'ConcreteClass',
 
         /**
          * Constructor.
@@ -646,6 +656,8 @@ define(['dejavu/Class', function (Class) {
     'use strict';
 
     var SomeClass = Class.declare({
+        $name: 'SomeClass',
+
         $constants: {
             FOO: 'bar'
             BAR: 'foo'
@@ -679,6 +691,7 @@ define(['dejavu/FinalClass', function (FinalClass) {
     'use strict';
 
     var SomeClass = FinalClass.declare({    // This class cannot be extended
+        $name: 'SomeClass',
 
         /**
          * Class constructor.
@@ -696,6 +709,7 @@ define(['dejavu/Class', function (Class) {
     'use strict';
 
     var SomeClass = Class.declare({
+        $name: 'SomeClass',
 
         /**
          * Class constructor.
@@ -830,6 +844,7 @@ This behaviour can be changed in two ways:
 
 ```js
 var MyUnlockedClass = Class.declare({
+    $name: 'MyUnlockedClass',
     $locked: false
 
     initialize: function () {
