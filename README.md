@@ -275,7 +275,7 @@ Object interfaces allow you to create code which specifies which methods a class
 Below there's an example of an _EventsInterface_ that has the role of adding event listeners and fire events:
 
 ```js
-define(['path/to/dejavu/Interface'], function (Interface) {
+define(['dejavu/Interface'], function (Interface) {
 
     'use strict';
 
@@ -296,7 +296,7 @@ Interfaces can extend multiple interfaces. They can also define static functions
 Be aware that all functions must obey its base signature (see explanation later in this document).
 
 ```js
-define(['path/to/EventsInterface', 'path/to/dejavu/Interface'], function (EventsInterface, Interface) {
+define(['path/to/EventsInterface', 'dejavu/Interface'], function (EventsInterface, Interface) {
 
     'use strict';
 
@@ -316,7 +316,7 @@ define(['path/to/EventsInterface', 'path/to/dejavu/Interface'], function (Events
 Alternatively, one can extend an interface with the extend() function. The equivalent code of the shown above is:
 
 ```js
-define(['path/to/EventsInterface', 'path/to/dejavu/Interface'], function (EventsInterface, Interface) {
+define(['path/to/EventsInterface', 'dejavu/Interface'], function (EventsInterface, Interface) {
 
     'use strict';
 
@@ -344,7 +344,7 @@ Following the previous example we can define a concrete class - _EventsEmitter_ 
 ```js
 define([
     'path/to/EventsInterface',
-    'path/to/dejavu/Class'
+    'dejavu/Class'
 ], function (EventsInterface, Class) {
 
     'use strict';
@@ -382,7 +382,7 @@ Below there is an example of an abstract class - _AbstractEmitter_ - that implem
 ```js
 define([
     'path/to/EventsInterface',
-    'path/to/dejavu/AbstractClass'
+    'dejavu/AbstractClass'
 ],
 function (EventsInterface, AbstractClass) {
 
@@ -428,7 +428,7 @@ define([
     'path/to/some/class',
     'path/to/some/interface',
     'path/to/other/interface',
-    'path/to/dejavu/AbstractClass'
+    'dejavu/AbstractClass'
 ],
 function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
 
@@ -473,7 +473,7 @@ define([
     'path/to/some/class',
     'path/to/some/interface',
     'path/to/other/interface',
-    'path/to/dejavu/AbstractClass'
+    'dejavu/AbstractClass'
 ],
 function (SomeClass, SomeInterface, OtherInterface, AbstractClass) {
 
@@ -524,7 +524,7 @@ define([
     'path/to/other/class',
     'path/to/some/interface',
     'path/to/other/interface',
-    'path/to/dejavu/Class'
+    'dejavu/Class'
 ],
 function (SomeClass, OtherClass, SomeInterface, OtherInterface, Class) {
 
@@ -569,7 +569,7 @@ The $bind() function allows you to bind a anonymous functions to the instance to
 
 ```js
 define([
-    'path/to/dejavu/Class'
+    'dejavu/Class'
 ],
 function (Class) {
 
@@ -608,7 +608,7 @@ You don't need to bind the function manually, it will be bound for you automatic
 
 ```js
 define([
-    'path/to/dejavu/Class'
+    'dejavu/Class'
 ],
 function (Class) {
 
@@ -641,7 +641,7 @@ If Object.defineProperty is available, any attempt to modify the constant value 
 Constants can be defined in classes, abstract classes and interfaces.
 
 ```js
-define(['path/to/dejavu/Class', function (Class) {
+define(['dejavu/Class', function (Class) {
 
     'use strict';
 
@@ -674,7 +674,7 @@ Members that are declared as final cannot be overriden by a child class.
 If the class itself is being defined final then it cannot be extended.
 
 ```js
-define(['path/to/dejavu/FinalClass', function (FinalClass) {
+define(['dejavu/FinalClass', function (FinalClass) {
 
     'use strict';
 
@@ -691,7 +691,7 @@ define(['path/to/dejavu/FinalClass', function (FinalClass) {
     return SomeClass;
 });
 
-define(['path/to/dejavu/Class', function (Class) {
+define(['dejavu/Class', function (Class) {
 
     'use strict';
 
