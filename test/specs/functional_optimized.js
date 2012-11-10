@@ -180,7 +180,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     return {};
                 }, true), NerdPerson = Class.declare(PrivatePerson, function ($super) {
                     return {};
-                }, true), ComplexProtectedPerson = ProtectedPerson.extend({ $name: 'ComplexProtectedPerson' });
+                }, true), ComplexProtectedPerson = ProtectedPerson.extend(function ($super) {
+                    return {
+                        $name: 'ComplexProtectedPerson',
+                        initialize: function () {
+                            $super.initialize.call(this);
+                        }
+                    };
+                }, true);
             it('should invoke the parent constructor automatically if no constructor was defined', function () {
                 var andre = new Andre(), superAndre = new SuperAndre(), superAndre2 = new SuperAndre2();
                 expect(andre.status).to.be.equal('alive');
