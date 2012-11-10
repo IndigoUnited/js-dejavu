@@ -42,9 +42,13 @@ module.exports = function (grunt) {
         var queue = async.queue(function (task, next) {
             grunt.verbose.or.writeln('Optimizing file ' + task.src.cyan);
 
+            if (task.dest === task.src) {
+                grunt.fail.fatal('Source and destination files can\'t be equal.');
+            }
+
             cp.exec('node ./node_modules/dejavu/bin/optimizer < ' + task.src + ' > ' + task.dest, function (error, stdout, stderr) {
                 if (error) {
-                    grunt.log.error('Unable to optimize ' + task.src.cyan);
+                    grunt.fail.fatal('Unable to optimize ' + task.src.cyan);
                 }
                 if (stderr) {
                     grunt.log.error(task.src + ' > ' + stderr);
