@@ -95,6 +95,7 @@ define([
         cacheKeyword = '$cache_' + random,
         inheriting,
         descriptor,
+        tmp,
         nextId = 0,
         caller,
         callerClass,
@@ -1805,51 +1806,67 @@ define([
     obfuscateProperty(Class, '$create', createClass);
 
     // Add custom bound function to supply binds
-    if (Function.prototype.$bound && !Function.prototype.$bound.dejavu) {
-        printWarning('Function.prototype.$bound is already defined and will be overwritten.');
-        if (Object.getOwnPropertyDescriptor) {
-            descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bound');
-            if (!descriptor.writable || !descriptor.configurable) {
-                printWarning('Could not overwrite Function.prototype.$bound.');
+    tmp = true;
+    if (Function.prototype.$bound) {
+        if (!Function.prototype.$bound.dejavu) {
+            printWarning('Function.prototype.$bound is already defined and will be overwritten.');
+            if (Object.getOwnPropertyDescriptor) {
+                descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bound');
+                if (!descriptor.writable || !descriptor.configurable) {
+                    printWarning('Could not overwrite Function.prototype.$bound.');
+                    tmp = false;
+                }
             }
+        } else {
+            tmp = false;
         }
     }
 
-    obfuscateProperty(Function.prototype, '$bound', function () {
-        this[$bound] = true;
-
-        return this;
-    });
-    Function.prototype.$bound.dejavu = true;
-
-    // Add custom bind function to supply binds
-    if (Function.prototype.$bind && !Function.prototype.$bind.dejavu) {
-        printWarning('Function.prototype.$bind is already defined and will be overwritten.');
-        if (Object.getOwnPropertyDescriptor) {
-            descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bind');
-            if (!descriptor.writable || !descriptor.configurable) {
-                printWarning('Could not overwrite Function.prototype.$bind.');
-            }
-        }
-    }
-
-    obfuscateProperty(Function.prototype, '$bind', function (context) {
-        if (!arguments.length) {
+    if (tmp) {
+        obfuscateProperty(Function.prototype, '$bound', function () {
             this[$bound] = true;
 
             return this;
+        });
+        Function.prototype.$bound.dejavu = true;
+    }
+
+    // Add custom bind function to supply binds
+    tmp = true;
+    if (Function.prototype.$bind) {
+        if (!Function.prototype.$bind.dejavu) {
+            printWarning('Function.prototype.$bind is already defined and will be overwritten.');
+            if (Object.getOwnPropertyDescriptor) {
+                descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bind');
+                if (!descriptor.writable || !descriptor.configurable) {
+                    printWarning('Could not overwrite Function.prototype.$bind.');
+                    tmp = false;
+                }
+            }
+        } else {
+            tmp = false;
         }
+    }
 
-        var args = toArray(arguments);
-        args.splice(0, 1, this);
+    if (tmp) {
+        obfuscateProperty(Function.prototype, '$bind', function (context) {
+            if (!arguments.length) {
+                this[$bound] = true;
 
-        if (isFunction(context)) {
-            return doBindStatic.apply(context, args);
-        }
+                return this;
+            }
 
-        return doBind.apply(context, args);
-    });
-    Function.prototype.$bound.dejavu = true;
+            var args = toArray(arguments);
+            args.splice(0, 1, this);
+
+            if (isFunction(context)) {
+                return doBindStatic.apply(context, args);
+            }
+
+            return doBind.apply(context, args);
+        });
+        Function.prototype.$bind.dejavu = true;
+    }
 
     return Class;
 });
