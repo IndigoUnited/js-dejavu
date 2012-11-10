@@ -150,9 +150,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         }
                     };
                 }, true), Andre = Class.declare(Person, function ($super) {
-                    return { $name: 'Andr\xe9' };
+                    return {};
                 }, true), SuperAndre = Class.declare(Andre, function ($super) {
-                    return { $name: 'SuperAndre' };
+                    return {};
                 }, true), PersonAbstract = AbstractClass.declare(function ($self) {
                     return {
                         status: null,
@@ -161,9 +161,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         }
                     };
                 }, true), AndreAbstract = AbstractClass.declare(PersonAbstract, function ($super) {
-                    return { $name: 'Andr\xe9' };
+                    return {};
                 }, true), SuperAndre2 = Class.declare(AndreAbstract, function ($super) {
-                    return { $name: 'SuperAndre' };
+                    return {};
                 }, true), ProtectedPerson = Class.declare(function ($self) {
                     return {
                         status: null,
@@ -182,7 +182,6 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     return {};
                 }, true), ComplexProtectedPerson = ProtectedPerson.extend(function ($super) {
                     return {
-                        $name: 'ComplexProtectedPerson',
                         initialize: function () {
                             $super.initialize.call(this);
                         }
@@ -247,14 +246,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             };
             Andre = Class.declare(Person, function ($super) {
                 return {
-                    $name: 'Andr\xe9',
                     getName: function () {
                         return 'Andr\xe9 ' + $super.getName.call(this);
                     }
                 };
             }, true);
             SuperAndre = Class.declare(Andre, function ($super) {
-                return { $name: 'SuperAndre' };
+                return {};
             }, true), Mario = Class.declare(Person, function ($super) {
                 return {
                     initialize: function () {
@@ -407,7 +405,6 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         describe('$self', function () {
             var SomeClass = Class.declare(function ($self) {
                     return {
-                        $name: 'SomeClass',
                         initialize: function () {
                             $self._fruit = 'orange';
                         },
@@ -506,14 +503,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         if (/strict/.test(global.build) && (Object.seal || Object.freeze)) {
             describe('$locked', function () {
                 var SomeClass = Class.declare(function ($self) {
-                        return { $locked: false };
+                        return {};
                     }, true);
                 afterEach(function () {
                     options.locked = true;
                 });
                 it('should not lock classes if it\'s false', function () {
                     var SomeClass = Class.declare(function ($self) {
-                            return { $locked: false };
+                            return {};
                         }, true), someClass = new SomeClass();
                     SomeClass.foo = 'bar';
                     SomeClass.prototype.foo = 'bar';
@@ -524,7 +521,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 });
                 it('should lock classes if it\'s true', function () {
                     var SomeClass = Class.declare(function ($self) {
-                            return { $locked: true };
+                            return {};
                         }, true), someClass = new SomeClass();
                     expect(function () {
                         SomeClass.foo = 'bar';
@@ -556,40 +553,34 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     };
                     expect(function () {
                         return Class.declare(SomeClass, function ($super) {
-                            return { $locked: true };
+                            return {};
                         }, true);
                     }).to.throwException(/cannot be locked/);
                     expect(function () {
                         return Class.declare(SomeClass, function ($super) {
-                            return { $locked: true };
+                            return {};
                         }, true);
                     }).to.throwException(/cannot be locked/);
                     expect(function () {
                         return Class.declare(function ($self) {
-                            return {
-                                $borrows: SomeClass,
-                                $locked: true
-                            };
+                            return { $borrows: SomeClass };
                         }, true);
                     }).to.throwException(/cannot be locked/);
                     expect(function () {
                         return Class.declare(function ($self) {
-                            return {
-                                $borrows: SomeClass,
-                                $locked: true
-                            };
+                            return { $borrows: SomeClass };
                         }, true);
                     }).to.throwException(/cannot be locked/);
                     expect(function () {
                         return Class.declare(SomeClass, function ($super) {
-                            return { $locked: true };
+                            return {};
                         }, true);
                     }).to.throwException(/cannot be locked/);
                 });
                 it('should be inherited and once unlocked it can\'t be locked', function () {
                     var SomeClass = function () {
                         }, OtherClass = Class.declare(function ($self) {
-                            return { $locked: false };
+                            return {};
                         }, true), SomeSubClass, OtherSubClass, someSubClass, otherSubClass;
                     options.locked = true;
                     SomeSubClass = Class.declare(SomeClass, function ($super) {
@@ -614,12 +605,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     expect(someSubClass.__foo3).to.equal('bar');
                     expect(function () {
                         return Class.declare(SomeClass, function ($super) {
-                            return { $locked: true };
+                            return {};
                         }, true);
                     }).to.throwException(/cannot be locked/);
                     expect(function () {
                         return Class.declare(OtherClass, function ($super) {
-                            return { $locked: true };
+                            return {};
                         }, true);
                     }).to.throwException(/cannot be locked/);
                 });
@@ -863,7 +854,6 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         describe('Instantiation of inheritance Cat -> Pet', function () {
             var Pet = Class.declare(function ($self) {
                     return {
-                        $name: 'Pet',
                         name: 'Pet',
                         position: 0,
                         initialize: function () {
@@ -893,7 +883,6 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }), Cat, pet = new Pet(), cat;
             Cat = Class.declare(Pet, function ($super) {
                 return {
-                    $name: 'Cat',
                     initialize: function () {
                         this.name = 'Cat';
                         $super.initialize.call(this);
@@ -990,29 +979,17 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         }
         describe('Defining a Concrete/Abstract Classes that implements $interfaces', function () {
             var SomeInterface = Interface.declare({ $constants: { SOME: 'foo' } }), SomeClass = Class.declare(function ($self) {
-                    return {
-                        $name: 'SomeClass',
-                        $implements: SomeInterface
-                    };
+                    return { $implements: SomeInterface };
                 }, true), OtherClass = Class.declare(SomeClass, function ($super) {
-                    return { $name: 'OtherClass' };
+                    return {};
                 }, true), SomeOtherClass = Class.declare(SomeClass, function ($super) {
-                    return {
-                        $name: 'SomeOtherClass',
-                        $implements: SomeInterface
-                    };
+                    return { $implements: SomeInterface };
                 }, true), SomeAbstractClass = AbstractClass.declare(function ($self) {
-                    return {
-                        $name: 'SomeAbstractClass',
-                        $implements: SomeInterface
-                    };
+                    return { $implements: SomeInterface };
                 }, true), OtherAbstractClass = AbstractClass.declare(SomeAbstractClass, function ($super) {
-                    return { $name: 'OtherAbstractClass' };
+                    return {};
                 }, true), SomeOtherAbstractClass = Class.declare(SomeAbstractClass, function ($super) {
-                    return {
-                        $name: 'SomeOtherAbstractClass',
-                        $implements: SomeInterface
-                    };
+                    return { $implements: SomeInterface };
                 }, true);
             it('should inherit the interface constants', function () {
                 expect(SomeClass.SOME).to.be.equal('foo');
@@ -1890,7 +1867,6 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         describe('Protected members', function () {
             var SomeClass = Class.declare(function ($self) {
                     return {
-                        $name: 'SomeClass',
                         _protectedMethod: function () {
                             this._protectedProperty = 'test';
                         }.$bound(),
@@ -2237,7 +2213,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             Interface4,
                             Interface1
                         ]
-                    }), Interface6 = Interface5.extend({ $name: 'Interface6' }), Class1 = Class.declare(function ($self) {
+                    }), Interface6 = Interface5.extend({}), Class1 = Class.declare(function ($self) {
                         return { $implements: Interface1 };
                     }, true), Class2 = AbstractClass.declare(function ($self) {
                         return {
