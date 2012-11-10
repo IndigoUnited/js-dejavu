@@ -243,6 +243,7 @@ In order to achieve this, you must configure your loader like so:
             location: '/path/to/dejavu/dist/strict'     // You can switch to the loose mode anytime
         }
     ]
+}
 ```
 
 With this setup, you can still require the dejavu object like shown above or require specific parts of it:
