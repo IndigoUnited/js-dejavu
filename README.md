@@ -193,8 +193,9 @@ and optimized versions are tested.
 
 ## Taking it to another level
 
-Among other things, [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD) decreases the
-time it takes to test changes in your code. Thats why dejavu is built using AMD.
+
+Front-end devs are encouraged to program using the AMD paradigm because of its obvious benefits.
+Since dejavu is built upon it, it will integrate seamlessly with your AMD loader.
 The easy way to set it up is to define a path for dejavu in your loader config like so:
 
 ```js
@@ -228,6 +229,7 @@ define(['dejavu'], function (dejavu) {
 
     return MyClass;
 });
+```
 
 If you just want to require specific parts of `dejavu`, you can do so.
 In order to achieve this, you must configure your loader like so:
