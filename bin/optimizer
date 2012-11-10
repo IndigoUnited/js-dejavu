@@ -68,7 +68,7 @@ var parser = {
 
                             callback({ type: 'concrete', ast: curr });
                         } else {
-                            process.stderr.write('Did not optimized usage because it was ambiguous (add a $name property?)\n');
+                            process.stderr.write('Could not guess if it is a dejavu usage (add a $name property?)\n');
                         }
                     }
                 }
