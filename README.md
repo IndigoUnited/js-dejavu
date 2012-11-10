@@ -896,7 +896,7 @@ Bellow is a sample usage copied from a grunt file:
 
 ```js
 dejavu: {
-    tmp: {
+    optimize: {
         options: {
             exclude: [/bootstrap(\.min)?\.js$/]
         },
