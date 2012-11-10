@@ -678,7 +678,7 @@ define([
     obfuscateProperty(Class, '$create', createClass);
 
     // Add custom bound function to supply binds
-    if (Function.prototype.$bound) {
+    if (Function.prototype.$bound && !Function.prototype.$bound.dejavu) {
         printWarning('Function.prototype.$bound is already defined and will be overwritten.');
         if (Object.getOwnPropertyDescriptor) {
             descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bound');
@@ -693,9 +693,10 @@ define([
 
         return this;
     });
+    Function.prototype.$bound.dejavu = true;
 
     // Add custom bind function to supply binds
-    if (Function.prototype.$bind) {
+    if (Function.prototype.$bind && !Function.prototype.$bind.dejavu) {
         printWarning('Function.prototype.$bind is already defined and will be overwritten.');
         if (Object.getOwnPropertyDescriptor) {
             descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bind');
@@ -717,6 +718,7 @@ define([
 
         return doBind.apply(context, args);
     });
+    Function.prototype.$bound.dejavu = true;
 
     return Class;
 });
