@@ -22,28 +22,23 @@ prototypal inheritance, making it a breeze to move into JavaScript.
 
 There are some libraries out there able to shim classical inheritance,
 however none offers all the functionality that many programmers require.
-
-Plus, performance and testing round-trips are really important for developers,
-which is why `dejavu` is built on top of
-[AMD](https://github.com/amdjs/amdjs-api/wiki/AMD). Also, even though being one
-of the most feature rich OOP libraries out there, it has one of the best
-performances, rivaling with vanilla JS in production.
+Also, even though being one of the most feature rich OOP libraries out there, it has one of the best performances, rivaling with vanilla JS in production.
 
 
 
 ## Features ##
 
-* Classical inheritance
+* Concrete classes
 * Abstract classes
 * Interfaces
 * Mixins (so you can get some sort of multiple inheritance)
-* Private and protected members (access is only managed when Object.defineProperty is available)
+* Private and protected members
 * Static members
 * Constants
 * Ability to declare true singletons via protected/private constructors
-* Context binding for functions (useful for functions that will be used as
-  callbacks/handlers)
+* Context binding for functions
 * Method signature checks
+* Possible to extend or borrow from vanilla classes
 * Custom instanceOf with support for Interfaces
 * Classes and instances are locked by default
     * Functions cannot be added, replaced or deleted
@@ -64,23 +59,21 @@ using the `dejavu` in strict mode, otherwise some code might fail silently.
 This can happen because `dejavu` uses `Object.freeze` and `Object.seal` to lock
 classes and instances, guaranteeing that no one changes the behaviour of your
 classes by replacing methods, etc, and possibly breaking your code, making it
-really hard to pin point what's wrong.
+really hard to pin point what's wrong. Altough this is the default behavior, it can be changed.
+You will read more on it later in this document.
 
 **Do not confuse 'use strict' with the dejavu strict mode.**
 
 
+
 ## Works on ##
 
-* IE (6+?)
-* Chrome (4+?)
-* Safari (3+?)
-* Firefox (3.6+?)
-* Opera (9+?)
+* IE (6+)
+* Chrome (4+)
+* Safari (3+)
+* Firefox (3.6+)
+* Opera (9+)
 * Node.js and Rhino
-
-Since the regular build is compatible with CommonJS modules, it works well with
-[Node.js](http://nodejs.org/) and
-[Rhino](https://developer.mozilla.org/en-US/docs/Rhino).
 
 
 
@@ -92,7 +85,7 @@ The quickest way to start using `dejavu` in your project, is by simply including
 If you're developing a __client-side__ app, simply put the file in some folder,
 and include it in the HTML:
 
-```HTML
+```html
 <!DOCTYPE html>
 <html>
     <head>
@@ -103,7 +96,7 @@ and include it in the HTML:
         <script type="text/javascript">
             'use strict';
 
-            // declare the "Person" class
+            // Declare the "Person" class
             var Person = dejavu.Class.declare({
                 _name: null,
 
@@ -122,7 +115,7 @@ and include it in the HTML:
                 }
             });
 
-            // create a new instance of person
+            // Create a new instance of person
             var indigo = new Person('Marco');
             console.log('A new indigo was born,', indigo.getName());
         </script>
@@ -134,12 +127,9 @@ This will make a `dejavu` global available for you.
 If you're developing in __Node.js__, install it with `npm install dejavu` and use it like so:
 
 ```js
-'use strict';
-
-// in this case, dejavu.js is in the root folder of the project
 var dejavu = require('dejavu');
 
-// declare the "Person" class
+// Declare the "Person" class
 var Person = dejavu.Class.declare({
     _name: null,
 
@@ -158,20 +148,18 @@ var Person = dejavu.Class.declare({
     }
 });
 
-// create a new instance of person
+// Create a new instance of person
 var indigo = new Person("Marco");
 console.log("A new indigo was born,", indigo.getName());
 ```
 
-The default mode running will be the strict mode unless the STRICT environment variable is set to false.
+In node, the default mode running will be the strict mode unless the STRICT environmen
+ variable is set to false.
 Environment variables can be changed system wide or per process like so:
 
 ```js
 process.env.STRICT = false;
 ```
-
-Read further in order to check the syntax of `dejavu`, and also to check what
-is exactly supported.
 
 
 
@@ -206,71 +194,72 @@ and optimized versions are tested.
 
 ## Taking it to another level
 
-If you're an [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD) fan, and just
-want to require specific parts of `dejavu`, you can do so.
-
-Please note that this is only useful if you're developing something that
-absolutely can't live with those extra bytes, and it will be at the expense of
-having to keep closer attention to what you need exactly.
-
-The AMD approach is usually more useful for your own code, since you don't have
-to keep building your project into a monolithic file, after editing a single
-line in one of the dozens of files that compose the project, thus speeding up
-testing round-trips.
-
-Still, if you really want to have a full-blown AMD set up, and by this you mean
-having not only your code using an AMD philosophy, but also `dejavu` code, these
-are the modules you can include:
-
-* Interface
-* AbstractClass
-* Class
-* FinalClass
-* instanceOf
-* options
-
-Here's an example requiring `dejavu` selectively, using an AMD approach:
+Among other things, [AMD](https://github.com/amdjs/amdjs-api/wiki/AMD) decreases the
+time it takes to test changes in your code. Thats why dejavu is built using AMD.
+The easy way to set it up is to define a path for dejavu in your loader config like so:
 
 ```js
-define([
-    'path/to/Human',
-    'path/to/TalkInterface',
-    'path/to/dejavu/Class'
-],
-function (Human, TalkInterface, Class) {
+   // Your loader config
+   paths: {
+       'dejavu': '/path/to/dejavu/dist/strict/main'     // You can switch to the loose mode anytime
+   }
+}
 
-    'use strict';
+Then require it and use it:
 
-    var Person = Class.declare({
-        $extends: Human,
-        $implements: [TalkInterface],
+```js
 
-        /**
-         * class constructor.
-         */
-        initialize: function (name) {
-            // call super
-            this.$super(name);
+define(['dejavu'], function (dejavu) {
 
-            // greet the universe
-            this._say("Hi universe! I'm " + this.name);
-        },
+    // The dejavu variable is an object that contains:
+    // Class
+    // FinalClass
+    // AbstractClass
+    // Interface
+    // instanceOf
+    // options
 
-        _say: function (message) {
-            // implementation
-        },
-
+    // Example usage
+    var MyClass = dejavu.Class.declare({
+        initialize: function () {
+            // ...
+        }
     });
 
-    return Person;
+    return MyClass;
+});
+
+If you just want to require specific parts of `dejavu`, you can do so.
+In order to achieve this, you must configure your loader like so:
+
+```js
+    // Your loader config
+    packages: [
+        {
+            name: 'dejavu',
+            location: '/path/to/dejavu/dist/strict'     // You can switch to the loose mode anytime
+        }
+    ]
+```
+
+With this setup, you can still require the dejavu object like shown above or require specific parts of it:
+
+```js
+define(['dejavu/Class'], function (Class) {
+
+    // Example usage
+    var MyClass = dejavu.Class.declare({
+        initialize: function () {
+            // ...
+        }
+    });
+
+    return MyClass;
 });
 ```
 
 As you can see, in this case, only the `Class` module of `dejavu` is included,
 which means all the other modules are not loaded.
-
-You can find these modules in `dist/amd/strict`, for strict mode, and
-`dist/amd/loose`, for loose mode.
 
 
 
@@ -887,6 +876,7 @@ var MyClass = Class.declare({
 
 dejavu depends on [amd-utils](https://github.com/millermedeiros/amd-utils).
 If you use the regular build, you don't need to worry because all functions used from amd-utils are bundled for you.
+If you use it on node, npm will take care of getting the dependencies for you.
 If you use the AMD build, you must specify the path to amd-utils.
 For example, if you use [RequireJS](http://requirejs.org/):
 
