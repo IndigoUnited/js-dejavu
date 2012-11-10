@@ -876,6 +876,37 @@ var MyClass = Class.declare({
 
 
 
+## Optimizer ##
+
+dejavu bundles an optimizer that makes your code fast and lighter.
+It specifically:
+
+* Improves $super and $self usage
+* Removes the need for wrappers, improving performance by a great margin
+* Removes abstract functions from abstract classes
+* Removes functions from interfaces
+
+The optimizer is located in the `bin` folder.
+Example usage:
+
+`node optimizer < file_in.js > file_out.js`
+
+dejavu also comes with a grunt task.
+Bellow is a sample usage copied from a grunt file:
+
+```js
+dejavu: {
+    tmp: {
+        options: {
+            exclude: [/bootstrap(\.min)?\.js$/]
+        },
+        files: {
+            'dist/': 'src/**/*.js'
+        }
+    }
+},
+```
+
 ## Dependencies ##
 
 dejavu depends on [amd-utils](https://github.com/millermedeiros/amd-utils).
