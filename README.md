@@ -893,7 +893,7 @@ var MyClass = Class.declare({
 
 ## Optimizer ##
 
-dejavu bundles an optimizer that makes your code fast and lighter.
+dejavu bundles an optimizer that makes your code faster and lighter.
 It specifically:
 
 * Improves $super and $self usage
@@ -911,13 +911,18 @@ dejavu also comes with a grunt task.
 Bellow is a sample usage copied from a grunt file:
 
 ```js
-dejavu: {
-    optimize: {
-        options: {
-            exclude: [/bootstrap(\.min)?\.js$/]
-        },
-        files: {
-            'dist/': 'src/**/*.js'
+
+grunt.loadNpmTasks('dejavu');
+
+grunt.initConfig({
+    dejavu: {
+        optimize: {
+            options: {
+                exclude: [/bootstrap(\.min)?\.js$/]
+            },
+            files: {
+                'dist/': 'src/**/*.js'
+            }
         }
     }
 },
