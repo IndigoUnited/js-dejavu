@@ -925,7 +925,7 @@ grunt.initConfig({
             }
         }
     }
-},
+}
 ```
 
 ## Dependencies ##
