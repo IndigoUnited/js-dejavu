@@ -606,8 +606,7 @@ function (Class) {
          */
         _doSomething: function () {
             // ..
-        },
-
+        }
     });
 });
 ```
@@ -638,8 +637,7 @@ function (Class) {
          */
         _handleClick: function () {
             // Handle click here
-        }.$bound(),
-
+        }.$bound()
     });
 });
 ```
