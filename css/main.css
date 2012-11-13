@@ -226,6 +226,12 @@ pre code {
     border-radius: 4px;
     font-weight: 100;
     font-size: 14px;
+    font-family: 'Source Code Pro', sans-serif;
+}
+
+#chart {
+    position: relative;
+    top: -20px;
 }
 
 /* ==========================================================================
