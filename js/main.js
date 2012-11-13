@@ -16,11 +16,14 @@ $(document).ready(function () {
 
     drawChart = function (json) {
         var browserName, browser, testName, test, line, browserResults, data,
-            chart = new google.visualization.BarChart(document.getElementById('chart')),
+            chartEl = $('.benchmark'),
+            chart = new google.visualization.BarChart(chartEl.get(0)),
             results = json.results,
             lines = [],
             headerHash = {},
-            header = ['Browser'];
+            header = ['Browser'],
+            max = 0,
+            val;
 
         for (browserName in results) {
             if (results.hasOwnProperty(browserName)) {
@@ -34,14 +37,21 @@ $(document).ready(function () {
                             header.push(testName);
                         }
                         test = browserResults[testName];
-                        line.push(parseInt(test.result, 10));
+                        val = parseInt(test.result, 10);
+                        if (max < val) {
+                            max = val;
+                        }
+                        line.push(val);
                     }
                 }
                 lines.push(line);
             }
         }
-        data = [header].concat(lines);
 
+        data = [header].concat(lines);
+        max += 5 * 1e6;
+
+        chartEl.removeClass('loading');
         chart.draw(google.visualization.arrayToDataTable(data), {
             title: json.category_name,
             backgroundColor: '#000',
@@ -52,6 +62,15 @@ $(document).ready(function () {
                     fontName: 'Source Sans Pro',
                     fontSize: 14,
                     color: 'white'
+                },
+                pagingTextStyle: {
+                    fontName: 'Source Sans Pro',
+                    fontSize: 14,
+                    color: 'white'
+                },
+                scrollArrows: {
+                    activeColor: '#8C008C',
+                    inactiveColor: '#250025'
                 }
             },
             chartArea: {
@@ -63,7 +82,6 @@ $(document).ready(function () {
                 height: 600
             },
             vAxis: {
-                maxValue: 32.000,
                 baselineColor: '#8C008C',
                 textStyle: {
                     fontName: 'Source Sans Pro',
@@ -74,7 +92,10 @@ $(document).ready(function () {
             hAxis: {
                 title: 'ops per second (higher is better)',
                 baselineColor: '#8C008C',
-                maxValue: 35.000,
+                viewWindowMode: 'explicit',
+                viewWindow: {
+                    max: max
+                },
                 titleTextStyle: {
                     fontName: 'Source Sans Pro',
                     fontSize: 15,

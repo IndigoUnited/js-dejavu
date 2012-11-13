@@ -229,9 +229,18 @@ pre code {
     font-family: 'Source Code Pro', sans-serif;
 }
 
-#chart {
+.chart {
     position: relative;
     top: -20px;
+}
+
+.benchmark {
+    width: 100%;
+    height: 750px;
+}
+
+.chart.loading {
+    background: url('../img/loaders/loader_square.gif') center 100px no-repeat;
 }
 
 /* ==========================================================================
