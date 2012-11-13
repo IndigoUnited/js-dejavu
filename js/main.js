@@ -49,12 +49,19 @@ $(document).ready(function () {
         }
 
         data = [header].concat(lines);
-        max += 5 * 1e6;
+        max += 3 * 1e6;
 
         chartEl.removeClass('loading');
         chart.draw(google.visualization.arrayToDataTable(data), {
             title: json.category_name,
             backgroundColor: '#000',
+            tooltip: {
+                textStyle: {
+                    fontName: 'Source Sans Pro',
+                    fontSize: 14,
+                    color: 'black'
+                }
+            },
             legend: {
                 position: 'top',
                 alignment: 'start',
