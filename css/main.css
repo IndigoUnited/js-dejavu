@@ -1,3 +1,6 @@
+@import url('normalize.css');
+@import url('monokai.css');
+
 /*
  * HTML5 Boilerplate
  *
@@ -216,6 +219,10 @@ ul, ol {
 ul ul {
     margin: 5px 0 10px 0;
     font-size: 13px;
+}
+
+pre code {
+    background: #222;
 }
 
 /* ==========================================================================
