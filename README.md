@@ -66,16 +66,6 @@ You will read more on it later in this document.
 
 
 
-## Works on ##
-
-* IE (6+)
-* Chrome (4+)
-* Safari (3+)
-* Firefox (3.6+)
-* Opera (9+)
-* Node.js and Rhino
-
-
 
 ## Getting started ##
 
@@ -270,92 +260,138 @@ which means all the other modules are not loaded.
 
 ## Syntax
 
-### Class ###
-
 Classes are simply defined as we can see below:
 
 ```
 var Person = Class.declare({
     
     $name = 'Person',
+
+    _name: null,
+
+    initialize: function (name) {
+        
+        this.name = name;
+    },
+
+    getName: function () {
+        return this._name; 
+    }
+});
+
+```
+
+Person class has one protected property, a constructor and a public method.
+
+
+DejaVu allows too to implement interfaces and abstract classes. Here's simple example of each one:
+
+```
+var AbstractPerson = AbstractClass.declare({
+
+    $name = 'AbstractPerson',
+    
+    _name: null
+});
+```
+
+```
+var InterfacePerson = Interface.declare({
+
+    $name = 'InterfacePerson',
+    
+    getName: function() {}
+});
+```
+
+The interface and the abstract class now could be integrated into the Person class as we can see below:
+
+```
+var Person = Class.declare({
+    
+    $name = 'Person',
+    
+    $extends = AbstractPerson,
+    
+    $implements = InterfacePerson,
+
+    _name: null,
+
+    initialize: function (name) {
+        
+        this.name = name;
+    },
+
+    getName: function () {
+        return this._name; 
+    }
+});
+```
+The following sections show how you specifically can use other features.
+
+
+
+### Class ###
+
+
+
+```
+var Person = Class.declare({
+
+    $name: 'Person', // $name is an internal option used for debug
+
+    // extends classes - multiple interfaces should be specified as array
+    // $extends: [AbstractPerson, AbstractIndigo]
+    $extends: AbstractPerson,
+    
+    // implements interfaces - multiple interfaces should be specified as array
+    $implements: InterfacePerson
+    
+    // use mixins - multiple mixins should be specified as array
+    $borrows: Indigo,
+    
+    // define constants
+    $constants: {
+        INDIGO: 'nice dudes'
+    },
     
     // public property
     isIndigo: null,
     
-    // protected properties (starts with _)
+    // protected property (starts with _)
     _name: null,
     
     // private properties (starts with __)
-    __textBiography: null
     
     /**
      * Class constructor.
      */
     initialize: function () {
-        
-        // Call super
-        this.$super();
-        
-        // Do other stuff
-    },
 
-    // public methods
-    setName: function (name) {
-        this._name = name;
+        // call super
+        this.$super();
+
+        // do other stuff
     },
     
-    getName: function () {
+    // public method
+    getName: function () { // arguments prefixed with a $ are evaluated as optional.
         return this._name; 
     },
-    
-    // protected method (starts with _)
-    _getBiography: function (text) {
-        return this.__composeBiography(this.__textBiography);
-    },
-    
+
+    // protected methods (starts with _)
+
     // private method (starts with __)
-    __composeBiography (text) {
-        return text + ' :: under the IndigoUnited License';
-    }
-});
-
-```
-Classes can extend other classes or abstract classes, as well as implement several interfaces.
-They differ from abstract classes in the way that they can't have abstract methods.
-
-```
-var Person = Class.declare({
-
-    $name: 'Person',
-
-    // extends classes 
-    $extends: SomeClass,
     
-    // implements interfaces - multiple interfaces should be specified as array
-    // $implements: [PersonInterface, IndigoInterface]
-    
-    $implements: PersonInterface
-    
-    // use mixins - multiple mixins should be specified as array
-    $borrows: Indigo, 
-
     // define static properties and methos
     $statics: {
         // Some class static members
-    },
-    
-    // define constants
-    $constants: {
-        FOO: 'bar'
-        BAR: 'foo'
-    },
+    }
 });
 
 ```
 
 ### Abstract classes ###
-
-Classes defined as abstract may not be instantiated, and any class that contains at least one abstract method must also be abstract.
 
 Methods defined as abstract simply declare the method's signature.
 When an abstract class implements an interface and doesn't implement some of its methods, those will be automatically declared as abstract.
@@ -367,17 +403,6 @@ var AbstractPerson = AbstractClass.declare({
     
     $name = 'AbstractPerson',
     
-    initialize: function (argument1) {
-        // this is the constructor
-        // calling new on an abstract class will throw an error
-        // though a class that extends this abstract class will run this constructor if called
-    },
-
-    
-    getName: function (name) {
-        // Implementation goes here
-    },
-
     // here you can define abstract methods
     $abstracts: {
 
@@ -401,70 +426,29 @@ var Person = AbstractPerson.extend({
 });
 ```
 
-### Interface definition ###
+### Interfaces ###
 
-Object interfaces allow you to create code which specifies which methods a class must implement, without having to define how these methods are handled.
-
-Below there's an example:
-
-```
-var PersonInterface = Interface.declare({
-
-    $name: 'PersonInterface',
-
-    // public methods
-    setName: function (name) {},
-
-    // protected method
-    _setAge: function (age) {},
-        
-    // private method
-    __composeBiography: function (text) {}
-
-});
-```
-
-Interfaces can extend multiple interfaces. 
+Interfaces can extends multiple interfaces. 
 
 They can also define static functions signature.
-Be aware that all functions must obey its base signature (see explanation later in this document).
 
 ```
-var ExtendedInterface = Interface.declare({
+var ExtendedInterfacePerson = Interface.declare({
 
-    $name: 'ExtendedInterface',
-
-    $extends: PersonInterface,   
-    // Interfaces can extend multiple ones, just reference them in an array
+    $name: 'ExtendedInterfacePerson',
 
     $statics: {
         // this is how you can define statics
-        getBiography: function () {}
     }
-
 });
 ```
 Alternatively, one can extend an interface with the extend() function. The equivalent code of the shown above is:
 
 ```
-var ExtendedInterface = Person.extend(
-
+var ExtendedInterfacePerson = InterfacePerson.extend(
     $name: 'ExtendedInterface',
-    
-    $statics: { 
-        // this is how you can define statics
-        getTotalListeners: function () {}
-    }
-
 });
 ```
-
-
-A class that implements an interface must define all the interface methods and be compatible with their signature.
-
-You define that a class implements an interface by specifying it in the $implements keyword.
-The $implements keyword can be an interface or an array of interfaces.
-
 
 
 ### Mixins ###
@@ -504,40 +488,6 @@ var Person = Class.declare({
 
 Alternatively, one can use anonymous functions and bind them to the instanjsce to preserve the context as well as allowing private/protected methods invocations.
 
-```
-var PersonClass = Class.declare({
-
-    $name: 'Person',
-    
-    /**
-     * Constructor.
-     */
-    initialize: function (element) {
-        
-        // you can use the $bind
-        element.addEventListener('click', function () {
-        
-            console.log('is indigo');
-            this._doSomething();
-            
-        }.$bind(this)); 
-
-        // or use the this.$bind (same behavior as above)
-        element.addEventListener('keyup', this.$bind(function () {
-        
-                console.log('indigo key was pressed');
-                this._doSomething(); 
-        });
-    },
-
-    /**
-     * Some protected method
-     */
-     _doSomething: function () {
-         // ..
-     }
-});
-```
 
 
 ### Constants ###
@@ -547,26 +497,6 @@ If Object.defineProperty is available, any attempt to modify the constant value 
 Constants can be defined in classes, abstract classes and interfaces.
 
 ```
-var Person = Class.declare({
-
-    $name: 'Person',
-
-    $constants: {
-        INDIGOS: 'nice dudes'
-    },
-
-    /**
-     * Class constructor.
-     */
-    initialize: function () {
-        
-        this.$self.INDIGOS;
-        
-        // same behaviour as above
-        Person.INDIGOS;     
-    }
-});
-
 Person.INDIGOS; // 'nice dudes' :)
 ```
 
@@ -577,9 +507,9 @@ Final classes cannot be extended.
 
 ```
 // This class cannot be extended
-var Indigo = FinalClass.declare({    
+var FinalPerson = FinalClass.declare({    
 
-    $name: 'Indigo',
+    $name: 'FinalPerson',
     
     initialize: function () {
         // ...
@@ -589,13 +519,9 @@ var Indigo = FinalClass.declare({
 Members that are declared as final cannot be overriden by js child class.
 
 ```
-var Indigo = Class.declare({
+var Person = Class.declare({
 
-    $name: 'Indigo',
-
-    initialize: function () {
-        // ...
-    },
+    $name: 'Person',
 
     // classes that extend this one are not allowed to override the members below
     $finals: {
@@ -603,90 +529,17 @@ var Indigo = Class.declare({
         getName: function () {
             // ...
         },
-        description: 'dreamers',
 
-        // you can also define static methods as final
-        $statics: {             
-            getBiography: function () {
+        // you can also define static methods and members as final
+        $statics: {
                 // ...
-            },
-        license: 'IndigoUnited License'
+        }
     }
 });
 
 ```
-
-### Protected and private members ###
-
-Protected and private members should be prefixed with _ and __ respectively.
-If Object.defineProperty is available, it will be used to manage their access (only in the strict mode).
-
-
-
-### Signature check ###
-
-All functions are virtual functions, therefore they can be overriden except if it's classified as final.
-additionally, if a method is abstract, a subclass can only implement/override it if they obey their signature (must be equal or augmented with additional optional arguments).
-
-Arguments prefixed with a $ are evaluated as optional. The signature check done for all abstract functions (interface functions are also considered abstract).
-
-```
-var AbstractPerson = AbstractClass.declare({
-    
-    $name: 'AbstractPerson',
-
-    $abstracts: {
-        setName: function (name) {}
-    }
-});
-```
-
-Signature is equal, so it's valid.
-
-```
-var Indigo = Class.declare({
-
-    $name: 'Indigo',
-
-    $extends: AbstractPerson,
-
-    setName: function (name) {             
-        // ...
-    }
-});
-```
-
-Although it's signature is not equal, was augmented with an additional optional argument, so it's valid too.
-
-```
-var Indigo = Class.declare({
-
-    $name: 'Indigo',
-
-    $extends: AbstractPerson,
-
-    setName: function (name, $last_name) {
-        // ...
-    }
-});
-
-```
-Next example, will thrown an error because they have different signatures.
-```
-
-var Indigo = Class.declare({
-
-    $name: 'Indigo',
-
-    $extends: AbstractPerson,
-
-    // setName(name) is not compatible with setName(name, last_name)
-    setName: function (name, last_name) {
-        // ...
-    }
-});
-```
-
+### Option $name ###
+This option is only used for debug, and should be the same as class name.
 
 ### Calling static methods within an instance ###
 
@@ -952,6 +805,16 @@ Then just run `npm run-script build` or `node build`.
 
 Please take a look at the [test](https://github.com/IndigoUnited/dejavu/tree/master/test) section.
 
+
+
+## Works on ##
+
+* IE (6+)
+* Chrome (4+)
+* Safari (3+)
+* Firefox (3.6+)
+* Opera (9+)
+* Node.js and Rhino
 
 
 ## License ##
