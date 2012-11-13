@@ -1,12 +1,13 @@
 /*jshint node:true, onevar:false*/
 
+'use strict';
+
 var path     = require('path');
 var async    = require('async');
 var contrib  = require('grunt-lib-contrib');
 var cp       = require('child_process');
 
 module.exports = function (grunt) {
-    'use strict';
 
     // TODO: remove this when grunt v0.4 is released
     grunt.util = grunt.util || grunt.utils;
