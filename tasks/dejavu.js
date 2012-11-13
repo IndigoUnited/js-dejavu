@@ -68,6 +68,7 @@ module.exports = function (grunt) {
 
             if (srcFiles.length === 0) {
                 grunt.fail.warn('Unable to optimize; no valid source files were found.');
+                return;
             }
 
             destType = detectDestType(file.dest);
