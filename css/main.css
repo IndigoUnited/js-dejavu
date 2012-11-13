@@ -99,9 +99,9 @@ textarea {
 body {
     background: #000 url('../img/cat.jpg') top center no-repeat;
     color: #FFF;
-    font-size: 14px;
+    font-size: 15px;
     font-family: 'Source Sans Pro', sans-serif;
-    font-weight: 600;
+    font-weight: 300;
 }
 
 a, a:hover, a:visited, a:active {
@@ -219,13 +219,13 @@ ul, ol {
 
 ul ul {
     margin: 5px 0 10px 0;
-    font-size: 13px;
 }
 
 pre code {
     background: #222;
     border-radius: 4px;
     font-weight: 100;
+    font-size: 14px;
 }
 
 /* ==========================================================================
