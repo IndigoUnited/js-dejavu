@@ -51,7 +51,6 @@ Also, even though being one of the most feature rich OOP libraries out there, it
     * `strict` best in development, enforcing a lot of checks, making sure you
       don't make many typical mistakes
     * `loose` best for production, without checks, improving performance
-* Possible to extend or borrow vanilla classes
 
 Users are encouraged to declare
 ['use strict'](https://developer.mozilla.org/en/JavaScript/Strict_mode) while
