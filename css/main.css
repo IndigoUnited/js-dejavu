@@ -98,9 +98,10 @@ textarea {
 
 body {
     background: #000 url('../img/cat.jpg') top center no-repeat;
-    font-family: 'Helvetica', sans-serif;
     color: #FFF;
     font-size: 14px;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-weight: 600;
 }
 
 a, a:hover, a:visited, a:active {
@@ -223,6 +224,8 @@ ul ul {
 
 pre code {
     background: #222;
+    border-radius: 4px;
+    font-weight: 100;
 }
 
 /* ==========================================================================
