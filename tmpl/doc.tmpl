@@ -780,7 +780,7 @@ Example4.foo(); // bye</code></pre>
 
 
 </p>
-<h3>Classes and instances are locked</h3>
+<h3>Classes/instances are locked</h3>
 <p>By default, constructors and instances are locked. This means that no one can monkey patch your code.
 This behaviour can be changed in two ways:
 
@@ -848,8 +848,7 @@ Example usage:
 Bellow is a sample usage copied from a grunt file:
 
 </p>
-<pre><code class="lang-js">
-grunt.loadNpmTasks(&#39;dejavu&#39;);
+<pre><code class="lang-js">grunt.loadNpmTasks(&#39;dejavu&#39;);
 
 grunt.initConfig({
     dejavu: {

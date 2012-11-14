@@ -28,9 +28,9 @@ module.exports = function (grunt) {
     grunt.registerTask('markdown2html', 'Converts the dejavu README.md into HTML', function () {
         // Set default options
         md.setOptions({
-          gfm: true,
-          pedantic: false,
-          sanitize: true
+            gfm: true,
+            pedantic: false,
+            sanitize: true
         });
 
         var contents = fs.readFileSync('dejavu_readme.md').toString();
@@ -40,5 +40,5 @@ module.exports = function (grunt) {
         fs.writeFileSync('tmpl/doc.tmpl', html);
     });
 
-    grunt.registerTask('default', 'getreadme');
+    grunt.registerTask('default', 'getreadme markdown2html');
 };
