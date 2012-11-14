@@ -1,4 +1,4 @@
-/*jshint node:true onevar:false*/
+/*jshint node:true onevar:false regexp:false*/
 
 // Dependencies
 var fs    = require('fs');
@@ -8,6 +8,7 @@ var md    = require('marked');
 
 module.exports = function (grunt) {
 
+    // Download README task
     grunt.registerTask('getreadme', 'Downloads the dejavu README.md', function () {
         var file = fs.createWriteStream('dejavu_readme.md');
         var fileUrl = 'https://raw.github.com/IndigoUnited/dejavu/master/README.md';
@@ -21,10 +22,14 @@ module.exports = function (grunt) {
             res.on('data', function (data) {
                 file.write(data);
             })
-            .on('end', taskDone);
+            .on('end', function () {
+                grunt.log.ok();
+                taskDone();
+            });
         });
     });
 
+    // Markdown 2 HTML task
     grunt.registerTask('markdown2html', 'Converts the dejavu README.md into HTML', function () {
         // Set default options
         md.setOptions({
@@ -36,8 +41,36 @@ module.exports = function (grunt) {
         var contents = fs.readFileSync('dejavu_readme.md').toString();
         var html = md(contents);
 
-
         fs.writeFileSync('tmpl/doc.tmpl', html);
+        grunt.log.ok();
+    });
+
+    // Version task
+    grunt.registerTask('version', 'Bumps the version and updates stuff accordingly', function () {
+        var json = JSON.parse(fs.readFileSync('package.json'));
+        var version = (json.siteVersion || 0) + 1;
+        json.siteVersion = version;
+
+        grunt.log.writeln('Will bump version to: ' +  version);
+
+        // Update css url's
+        var css = fs.readFileSync('dist/compiled.css').toString();
+        css = css.replace(/(url\s*\(["'])(.*?)(["']\))/ig, function (match, start, url, end) {
+            url = start + url.split('?', 2)[0] + '?v=' + version + end;
+            return url;
+        });
+        fs.writeFileSync('dist/compiled.css', css);
+
+        // Update index.html
+        var index = fs.readFileSync('index.html').toString();
+        index = index.replace(/(dist\/compiled(:?\.min)?\.(:?css|js)(:?\?v=(:?\d+)?)?)/ig, function (match, file) {
+            return file.split('?', 2)[0] + '?v=' + version;
+        });
+        fs.writeFileSync('index.html', index);
+
+        // Update package.json
+        fs.writeFileSync('package.json', JSON.stringify(json, null, '  '));
+        grunt.log.ok();
     });
 
     grunt.loadNpmTasks('grunt-contrib-clean');
@@ -89,7 +122,7 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('build', 'clean concat removelogging min requirejs mincss');
+    grunt.registerTask('build', 'clean concat removelogging requirejs version min mincss');
     grunt.registerTask('doc', 'getreadme markdown2html');
     grunt.registerTask('default', 'doc build');
 };
