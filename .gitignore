@@ -56,4 +56,4 @@ npm-debug.*
 # Project specific #
 ######################
 dejavu_readme.md
-dist
+dist/
