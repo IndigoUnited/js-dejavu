@@ -225,12 +225,19 @@ ul ul {
     margin: 5px 0 10px 0;
 }
 
-pre code {
+code {
+    padding: 0 4px 0 4px;
     background: #222;
+    border: 1px solid #272822;
     border-radius: 4px;
-    font-weight: 100;
+    font-family: 'Source Sans Pro', sans-serif;
     font-size: 14px;
+    font-weight: 300;
+}
+
+pre code {
     font-family: 'Source Code Pro', sans-serif;
+    font-weight: 100;
 }
 
 .chart {
