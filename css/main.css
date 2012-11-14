@@ -232,15 +232,27 @@ pre code {
 .chart {
     position: relative;
     top: -20px;
+    left: -12px;
 }
 
 .benchmark {
-    width: 100%;
+    width: 470px;
     height: 515px;
+}
+
+.benchmark-mobile {
+    width: 470px;
+    height: 350px;
 }
 
 .chart.loading {
     background: url('../img/loaders/loader_square.gif') center 100px no-repeat;
+}
+
+h1 {
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-top: 0;
 }
 
 /* ==========================================================================

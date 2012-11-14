@@ -14,50 +14,20 @@ $(document).ready(function () {
         key = 'agt1YS1wcm9maWxlcnINCxIEVGVzdBidz-oRDA',
         cb = '_' + parseInt(Math.random() * 1e9, 10);
 
-    drawChart = function (json) {
+    drawChart = function (title, results, el) {
         var browserName, browser, testName, test, line, browserResults, data,
-            chartEl = $('.benchmark'),
-            chart = new google.visualization.BarChart(chartEl.get(0)),
-            results = json.results,
+            chart = new google.visualization.BarChart(el.get(0)),
             lines = [],
             headerHash = {},
             header = ['Browser'],
-            browserVersions = {},
-            newResults = {},
-            split,
             max = 0,
-            key,
-            val,
-            mobile = ['android', 'ipad', 'iphone'];
-
-        // Only keep the most recent browser in the results
-        for (key in results) {
-            split = key.split(' ', 2);
-            browserName = split[0];
-            // Skip mobile
-            if (mobile.indexOf(browserName.toLowerCase()) !== -1) {
-                continue;
-            }
-            split[1] = parseInt(split[1], 10);
-            if ((browserVersions[browserName] || 0) < split[1]) {
-                browserVersions[browserName] = split[1];
-                newResults[browserName] = results[key];
-            }
-        }
-
-        // Add the version to the browser names
-        for (key in newResults) {
-            newResults[key + ' ' + browserVersions[key]] = newResults[key];
-            delete newResults[key];
-        }
-
-        results = newResults;
+            val;
 
         // TODO: add mobile
         // TODO: add ops/sec to the tooltip
         // TODO: put M
 
-        // Process data
+        // Generate data for the
         for (browserName in results) {
             if (results.hasOwnProperty(browserName)) {
                 browser = results[browserName];
@@ -83,9 +53,9 @@ $(document).ready(function () {
 
         data = [header].concat(lines);
         max += 3 * 1e6;
-        chartEl.removeClass('loading');
+        el.removeClass('loading');
         chart.draw(google.visualization.arrayToDataTable(data), {
-            title: json.category_name,
+            title: title,
             backgroundColor: '#000',
             fontName: 'Source Sans Pro',
             fontSize: 14,
@@ -95,7 +65,7 @@ $(document).ready(function () {
                 right: 0,
                 bottom: 0,
                 width: 455,
-                height: 375
+                height: el.height() - 140
             },
             tooltip: {
                 textStyle: {
@@ -144,8 +114,67 @@ $(document).ready(function () {
         });
     };
 
+
     window[cb] = function (response) {
-        drawChart(response);
+        var results = response.results,
+            key,
+            browserName,
+            split,
+            mobile = ['android', 'ipad', 'iphone'],
+            browserVersions = {},
+            newResults = {};
+
+        // Parse non-mobile browsers
+        // Only keep the most recent browser in the results
+        for (key in results) {
+            split = key.split(' ', 2);
+            browserName = split[0];
+            // Skip mobile
+            if (mobile.indexOf(browserName.toLowerCase()) !== -1) {
+                continue;
+            }
+            split[1] = parseInt(split[1], 10);
+            if ((browserVersions[browserName] || 0) < split[1]) {
+                browserVersions[browserName] = split[1];
+                newResults[browserName] = results[key];
+            }
+        }
+
+        // Add the version to the browser names
+        for (key in newResults) {
+            newResults[key + ' ' + browserVersions[key]] = newResults[key];
+            delete newResults[key];
+        }
+
+        // Draw the chart
+        drawChart(response.category_name, newResults, $('.benchmark'));
+
+        // Parse mobile browsers
+        // Only keep the most recent browser in the results
+        newResults = {};
+        browserVersions = {};
+        for (key in results) {
+            split = key.split(' ', 2);
+            browserName = split[0];
+            // Skip mobile
+            if (mobile.indexOf(browserName.toLowerCase()) === -1) {
+                continue;
+            }
+            split[1] = parseInt(split[1], 10);
+            if ((browserVersions[browserName] || 0) < split[1]) {
+                browserVersions[browserName] = split[1];
+                newResults[browserName] = results[key];
+            }
+        }
+
+        // Add the version to the browser names
+        for (key in newResults) {
+            newResults[key + ' ' + browserVersions[key]] = newResults[key];
+            delete newResults[key];
+        }
+
+        // Draw the chart
+        drawChart(response.category_name, newResults, $('.benchmark-mobile'));
     };
 
     fetchData = function () {
