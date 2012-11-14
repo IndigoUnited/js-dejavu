@@ -55,7 +55,7 @@ $(document).ready(function () {
         max += 3 * 1e6;
         el.removeClass('loading');
         chart.draw(google.visualization.arrayToDataTable(data), {
-            title: title,
+            title: null,
             backgroundColor: '#000',
             fontName: 'Source Sans Pro',
             fontSize: 14,
