@@ -98,7 +98,6 @@
             max = 0,
             val;
 
-        // TODO: add mobile
         // TODO: add ops/sec to the tooltip
         // TODO: put M
 
@@ -271,7 +270,12 @@
 $(document).ready(function () {
 
     // Download the tmpl
-    var promise = $.get('tmpl/doc.tmpl');
+    var promise = $.get('tmpl/doc.tmpl', {
+        timeout: 15000
+    });
+    promise.fail(function () {
+        $('#content .left').html('Oops, something went wrong.');
+    });
     promise.success(function () {
         // Parse it
         Documentation.parse(promise.responseText);
