@@ -1,0 +1,10 @@
+{
+  "name": "dejavu",
+  "version": "0.0.0",
+  "scripts": {
+    "preinstall": "npm install -g grunt"
+  },
+  "dependencies": {
+    "marked": "~0.2.5"
+  }
+}

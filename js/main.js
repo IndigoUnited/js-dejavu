@@ -1,10 +1,85 @@
-$(document).ready(function () {
-    // Highlight code
-    hljs.initHighlightingOnLoad();
+/*global Documentation, Browserscope*/
 
-    // Get perf results from browserscope
-    Browserscope.update();
-});
+// Documentation parsing
+(function () {
+    var leftColumnEl,
+        rightColumnEl,
+        foundPerformance;
+
+    function parseBlock(els) {
+        var blockEl = $('<div class="block"></div>');
+        blockEl.append(els);
+
+        return blockEl;
+    }
+
+    function getBlockTitle(els) {
+        var first = els.get(0),
+            tag = first.tagName.toLowerCase();
+
+        if (tag === 'h1' || tag === 'h2') {
+            return first.innerHTML;
+        }
+
+        return null;
+    }
+
+    function addBlock(els) {
+        els = $(els);
+
+        if (leftColumnEl.height() < rightColumnEl.height()) {
+            leftColumnEl.append(parseBlock(els));
+        } else {
+            rightColumnEl.append(parseBlock(els));
+        }
+
+        if (!foundPerformance && getBlockTitle(els) === 'Performance') {
+            foundPerformance = true;
+            addBlock($('<h2>Benchmarks</h2><p>You can run the <a href="http://jsperf.com/oop-benchmark/58" target="_blank">benchmark</a> yourself. Note that the benchmark below compares dejavu with libraries that do not provide many of the features that dejavu does. For more details, please consult the libraries documentation.</p><div class="benchmark chart loading"></div><div class="mobile">Mobile</div><div class="benchmark-mobile chart loading"></div>'));
+        }
+    }
+
+    function parseDoc(str) {
+        leftColumnEl = $('#content .left'),
+        rightColumnEl = $('#content .right');
+
+        var el = $('<div style="display: none"></div>').html(str),
+            children,
+            length,
+            els,
+            x,
+            tag,
+            curr;
+
+        el.find('p').eq(0).remove();    // Remove first paragraph (the build status image)
+        el.find('hr').remove();         // Remove all hr's
+
+        children = el.children(),
+        length = children.length,
+        els = [],
+        foundPerformance = false;
+
+        for (x = 0; x < length; x += 1) {
+            curr = children.get(x);
+            tag = curr.tagName.toLowerCase();
+            if ((tag === 'h1' || tag === 'h2' || tag === 'h3') && els.length) {
+                addBlock(els);
+                els = [];
+            }
+
+            els.push(curr);
+        }
+
+        if (els.length) {
+            addBlock(els);
+        }
+    }
+
+    window.Documentation = {
+        parse: parseDoc
+    };
+}());
+
 
 // Browserscore object
 // Fetches the perf results and draws the graph
@@ -191,3 +266,18 @@ $(document).ready(function () {
         update: fetchData
     };
 }());
+
+$(document).ready(function () {
+
+    // Download the tmpl
+    var promise = $.get('tmpl/doc.tmpl');
+    promise.success(function () {
+        Documentation.parse(promise.responseText);
+
+        // Highlight code
+        hljs.initHighlightingOnLoad();
+
+        // Get perf results from browserscope
+        Browserscope.update();
+    });
+});

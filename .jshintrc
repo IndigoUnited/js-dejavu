@@ -3,8 +3,7 @@
         "console",
         "$",
         "google",
-        "hljs",
-        "Browserscope"
+        "hljs"
     ],
 
     "browser": true,

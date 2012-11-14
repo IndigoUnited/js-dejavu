@@ -235,7 +235,6 @@ pre code {
 
 .chart {
     position: relative;
-    top: -20px;
     left: -12px;
 }
 
@@ -253,10 +252,44 @@ pre code {
     background: url('../img/loaders/loader_square.gif') center 100px no-repeat;
 }
 
-h1 {
+h1, h2, h3, h4 {
+    color: #FF26FF;
+    font-size: 40px;
     text-transform: uppercase;
-    font-weight: 600;
+    font-weight: 300;
+    margin-top: 50px;
+    margin-bottom: 0;
+    position: relative;
+}
+
+h3, h4 {
+    font-size: 30px;
+    margin: 30px 0 0 0;
+}
+
+h4 {
+    font-size: 20px;
+}
+
+.block:first-child h1, .block:first-child h2 {
     margin-top: 0;
+}
+
+h1:after, h2:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #4C0066;
+    z-index: 2;
+}
+
+.block .mobile {
+    font-weight: bold;
+    font-size: 25px;
+    text-transform: uppercase;
 }
 
 /* ==========================================================================
