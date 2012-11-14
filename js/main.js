@@ -22,9 +22,42 @@ $(document).ready(function () {
             lines = [],
             headerHash = {},
             header = ['Browser'],
+            browserVersions = {},
+            newResults = {},
+            split,
             max = 0,
-            val;
+            key,
+            val,
+            mobile = ['android', 'ipad', 'iphone'];
 
+        // Only keep the most recent browser in the results
+        for (key in results) {
+            split = key.split(' ', 2);
+            browserName = split[0];
+            // Skip mobile
+            if (mobile.indexOf(browserName.toLowerCase()) !== -1) {
+                continue;
+            }
+            split[1] = parseInt(split[1], 10);
+            if ((browserVersions[browserName] || 0) < split[1]) {
+                browserVersions[browserName] = split[1];
+                newResults[browserName] = results[key];
+            }
+        }
+
+        // Add the version to the browser names
+        for (key in newResults) {
+            newResults[key + ' ' + browserVersions[key]] = newResults[key];
+            delete newResults[key];
+        }
+
+        results = newResults;
+
+        // TODO: add mobile
+        // TODO: add ops/sec to the tooltip
+        // TODO: put M
+
+        // Process data
         for (browserName in results) {
             if (results.hasOwnProperty(browserName)) {
                 browser = results[browserName];
@@ -50,15 +83,22 @@ $(document).ready(function () {
 
         data = [header].concat(lines);
         max += 3 * 1e6;
-
         chartEl.removeClass('loading');
         chart.draw(google.visualization.arrayToDataTable(data), {
             title: json.category_name,
             backgroundColor: '#000',
+            fontName: 'Source Sans Pro',
+            fontSize: 14,
+            chartArea: {
+                top: 70,
+                left: 85,
+                right: 0,
+                bottom: 0,
+                width: 455,
+                height: 375
+            },
             tooltip: {
                 textStyle: {
-                    fontName: 'Source Sans Pro',
-                    fontSize: 14,
                     color: 'black'
                 }
             },
@@ -66,13 +106,9 @@ $(document).ready(function () {
                 position: 'top',
                 alignment: 'start',
                 textStyle: {
-                    fontName: 'Source Sans Pro',
-                    fontSize: 14,
                     color: 'white'
                 },
                 pagingTextStyle: {
-                    fontName: 'Source Sans Pro',
-                    fontSize: 14,
                     color: 'white'
                 },
                 scrollArrows: {
@@ -80,19 +116,9 @@ $(document).ready(function () {
                     inactiveColor: '#250025'
                 }
             },
-            chartArea: {
-                top: 70,
-                left: 125,
-                right: 0,
-                bottom: 0,
-                width: 455,
-                height: 600
-            },
             vAxis: {
                 baselineColor: '#8C008C',
                 textStyle: {
-                    fontName: 'Source Sans Pro',
-                    fontSize: 14,
                     color: 'white'
                 }
             },
@@ -104,12 +130,10 @@ $(document).ready(function () {
                     max: max
                 },
                 titleTextStyle: {
-                    fontName: 'Source Sans Pro',
                     fontSize: 15,
                     color: 'white'
                 },
                 textStyle: {
-                    fontName: 'Source Sans Pro',
                     fontSize: 14,
                     color: 'white'
                 },
