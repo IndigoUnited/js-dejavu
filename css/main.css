@@ -239,10 +239,11 @@ pre code {
     font-family: 'Source Code Pro', sans-serif;
     font-size: 12px;
     font-weight: 100;
-    width: 455px;
+    width: 441px;
     overflow: auto;
     white-space: pre;
     word-wrap: normal;
+    padding: 7px;
 }
 
 .chart {

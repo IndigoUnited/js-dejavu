@@ -4,10 +4,8 @@
   "scripts": {
     "preinstall": "npm install -g grunt"
   },
-  "dependencies": {
-    "marked": "~0.2.5"
-  },
   "devDependencies": {
+    "marked": "~0.2.5",
     "grunt-contrib-requirejs": "~0.3.3",
     "grunt-contrib-mincss": "~0.3.2",
     "grunt-contrib-clean": "~0.3.1",
