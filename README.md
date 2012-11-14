@@ -909,7 +909,6 @@ dejavu also comes with a grunt task.
 Bellow is a sample usage copied from a grunt file:
 
 ```js
-
 grunt.loadNpmTasks('dejavu');
 
 grunt.initConfig({
