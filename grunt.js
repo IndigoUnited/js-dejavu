@@ -40,5 +40,49 @@ module.exports = function (grunt) {
         fs.writeFileSync('tmpl/doc.tmpl', html);
     });
 
-    grunt.registerTask('default', 'getreadme markdown2html');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-requirejs');
+    grunt.loadNpmTasks('grunt-contrib-mincss');
+
+    grunt.initConfig({
+        clean: {
+            dist: ['dist']
+        },
+
+        concat: {
+            dist: {
+                src: ['js/vendor/highlight.pack.js', 'js/main.js'],
+                dest: 'dist/compiled.js'
+            }
+        },
+
+        min: {
+            dist: {
+                src: 'dist/compiled.js',
+                dest: 'dist/compiled.min.js'
+            }
+        },
+
+        // Requirejs is used to inline all the css's
+        requirejs: {
+            dist: {
+                options: {
+                    optimizeCss: 'standard.keepLines',
+                    cssIn: 'css/main.css',
+                    out: 'dist/compiled.css'
+                }
+            }
+        },
+
+        mincss: {
+            dist: {
+                src: 'dist/compiled.css',
+                dest: 'dist/compiled.min.css'
+            }
+        }
+    });
+
+    grunt.registerTask('build', 'clean concat min requirejs mincss');
+    grunt.registerTask('doc', 'getreadme markdown2html');
+    grunt.registerTask('default', 'doc build');
 };

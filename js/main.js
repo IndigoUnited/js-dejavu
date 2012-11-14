@@ -73,6 +73,8 @@
         if (els.length) {
             addBlock(els);
         }
+
+        console.log('end parse');
     }
 
     window.Documentation = {
@@ -267,15 +269,23 @@
     };
 }());
 
+
 $(document).ready(function () {
 
     // Download the tmpl
     var promise = $.get('tmpl/doc.tmpl');
     promise.success(function () {
+        // Parse it
         Documentation.parse(promise.responseText);
 
         // Highlight code
-        hljs.initHighlightingOnLoad();
+        var blocks = $('pre code'),
+            length = blocks.length,
+            x;
+
+        for (x = 0; x < length; x += 1) {
+            hljs.highlightBlock(blocks.get(x));
+        }
 
         // Get perf results from browserscope
         Browserscope.update();

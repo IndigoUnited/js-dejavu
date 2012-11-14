@@ -6,5 +6,10 @@
   },
   "dependencies": {
     "marked": "~0.2.5"
+  },
+  "devDependencies": {
+    "grunt-contrib-requirejs": "~0.3.3",
+    "grunt-contrib-mincss": "~0.3.2",
+    "grunt-contrib-clean": "~0.3.1"
   }
 }
