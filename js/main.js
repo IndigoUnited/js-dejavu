@@ -73,8 +73,6 @@
         if (els.length) {
             addBlock(els);
         }
-
-        console.log('end parse');
     }
 
     window.Documentation = {

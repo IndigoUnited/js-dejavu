@@ -74,8 +74,6 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
         if (els.length) {
             addBlock(els);
         }
-
-        console.log('end parse');
     }
 
     window.Documentation = {

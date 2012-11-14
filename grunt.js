@@ -43,6 +43,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-requirejs');
     grunt.loadNpmTasks('grunt-contrib-mincss');
+    grunt.loadNpmTasks('grunt-remove-logging');
 
     grunt.initConfig({
         clean: {
@@ -52,6 +53,12 @@ module.exports = function (grunt) {
         concat: {
             dist: {
                 src: ['js/vendor/highlight.pack.js', 'js/main.js'],
+                dest: 'dist/compiled.js'
+            }
+        },
+        removelogging: {
+            dist: {
+                src: 'dist/compiled.js',
                 dest: 'dist/compiled.js'
             }
         },
@@ -82,7 +89,7 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('build', 'clean concat min requirejs mincss');
+    grunt.registerTask('build', 'clean concat removelogging min requirejs mincss');
     grunt.registerTask('doc', 'getreadme markdown2html');
     grunt.registerTask('default', 'doc build');
 };
