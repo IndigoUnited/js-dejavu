@@ -28,7 +28,7 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
     function addBlock(els) {
         els = $(els);
 
-        if (leftColumnEl.height() < rightColumnEl.height()) {
+        if (leftColumnEl.height() <= rightColumnEl.height()) {
             leftColumnEl.append(parseBlock(els));
         } else {
             rightColumnEl.append(parseBlock(els));
@@ -99,7 +99,6 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
             max = 0,
             val;
 
-        // TODO: add mobile
         // TODO: add ops/sec to the tooltip
         // TODO: put M
 
@@ -272,7 +271,12 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
 $(document).ready(function () {
 
     // Download the tmpl
-    var promise = $.get('tmpl/doc.tmpl');
+    var promise = $.get('tmpl/doc.tmpl', {
+        timeout: 15000
+    });
+    promise.fail(function () {
+        $('#content .left').html('Oops, something went wrong.');
+    });
     promise.success(function () {
         // Parse it
         Documentation.parse(promise.responseText);

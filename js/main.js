@@ -27,7 +27,7 @@
     function addBlock(els) {
         els = $(els);
 
-        if (leftColumnEl.height() < rightColumnEl.height()) {
+        if (leftColumnEl.height() <= rightColumnEl.height()) {
             leftColumnEl.append(parseBlock(els));
         } else {
             rightColumnEl.append(parseBlock(els));
