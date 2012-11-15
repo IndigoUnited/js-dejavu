@@ -279,6 +279,7 @@
 
 
 $(document).ready(function () {
+    // TODO: add loader for the content
 
     // Download the tmpl
     var promise = $.get('tmpl/doc.tmpl', {
