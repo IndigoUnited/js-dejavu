@@ -374,7 +374,7 @@ textarea {
     padding: 0.2em 0;
 }
 body {
-    background: #000 url('../img/cat.jpg?v=8') top center no-repeat;
+    background: #000 url('../img/cat.jpg?v=9') top center no-repeat;
     color: #FEECFF;
     font-size: 15px;
     font-family: 'Source Sans Pro', sans-serif;
@@ -402,7 +402,7 @@ a:hover {
     height: 300px;
 }
 #header .indigo {
-    background-image: url('../img/indigo_logo.png?v=8');
+    background-image: url('../img/indigo_logo.png?v=9');
     width: 145px;
     height: 50px;
     position: absolute;
@@ -426,7 +426,7 @@ a:hover {
     bottom: 0;
 }
 #header .logo {
-    background-image: url('../img/logo.png?v=8');
+    background-image: url('../img/logo.png?v=9');
     width: 378px;
     height: 121px;
     position: absolute;
@@ -459,19 +459,19 @@ a:hover {
     z-index: 2;
 }
 .block-title.dejavu-what-now {
-    background-image: url('../img/block_headers/dejavu_what_now.png?v=8');
+    background-image: url('../img/block_headers/dejavu_what_now.png?v=9');
 }
 .block-title.why-another {
-    background-image: url('../img/block_headers/why_another.png?v=8');
+    background-image: url('../img/block_headers/why_another.png?v=9');
 }
 .block-title.benchmarks {
-    background-image: url('../img/block_headers/benchmarks.png?v=8');
+    background-image: url('../img/block_headers/benchmarks.png?v=9');
 }
 .block-title.features {
-    background-image: url('../img/block_headers/features.png?v=8');
+    background-image: url('../img/block_headers/features.png?v=9');
 }
 .block-title.getting-started {
-    background-image: url('../img/block_headers/getting_started.png?v=8');
+    background-image: url('../img/block_headers/getting_started.png?v=9');
 }
 .block-content {
     min-height: 100px;
@@ -515,7 +515,7 @@ pre code {
     height: 350px;
 }
 .chart.loading {
-    background: url('../img/loaders/loader_square.gif?v=8') center 100px no-repeat;
+    background: url('../img/loaders/loader_square.gif?v=9') center 100px no-repeat;
 }
 h1, h2, h3, h4 {
     color: #FF26FF;
