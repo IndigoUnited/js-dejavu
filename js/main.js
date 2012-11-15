@@ -3,8 +3,7 @@
 // Documentation parsing
 (function () {
     var leftColumnEl,
-        rightColumnEl,
-        foundPerformance;
+        rightColumnEl;
 
     function parseBlock(els) {
         var blockEl = $('<div class="block"></div>');
@@ -27,15 +26,28 @@
     function addBlock(els) {
         els = $(els);
 
-        if (leftColumnEl.height() <= rightColumnEl.height()) {
-            leftColumnEl.append(parseBlock(els));
-        } else {
-            rightColumnEl.append(parseBlock(els));
-        }
+        var title = getBlockTitle(els);
 
-        if (!foundPerformance && getBlockTitle(els) === 'Performance') {
-            foundPerformance = true;
+        switch (title) {
+        case 'dejavu':
+        case 'Features':
+        case 'Getting started':
+            leftColumnEl.append(parseBlock(els));
+            break;
+        case 'Performance':
+            rightColumnEl.append(parseBlock(els));
             addBlock($('<h2>Benchmarks</h2><p>You can run the <a href="http://jsperf.com/oop-benchmark/58" target="_blank">benchmark</a> yourself. Note that the benchmark below compares dejavu with libraries that do not provide many of the features that dejavu does. For more details, please consult the libraries documentation.</p><div class="benchmark chart loading"></div><div class="mobile">Mobile</div><div class="benchmark-mobile chart loading"></div>'));
+            break;
+        case 'Benchmarks':
+        case 'Why another?':
+            rightColumnEl.append(parseBlock(els));
+            break;
+        default:
+            if (leftColumnEl.height() <= rightColumnEl.height()) {
+                leftColumnEl.append(parseBlock(els));
+            } else {
+                rightColumnEl.append(parseBlock(els));
+            }
         }
     }
 
@@ -56,8 +68,7 @@
 
         children = el.children(),
         length = children.length,
-        els = [],
-        foundPerformance = false;
+        els = [];
 
         for (x = 0; x < length; x += 1) {
             curr = children.get(x);
