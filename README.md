@@ -636,7 +636,7 @@ var Person = Class.declare({
 });
 ```
 
-###  Classes and instances are locked ###
+###  Classes/instances are locked ###
 
 By default, constructors and instances are locked. This means that no one can monkey patch your code.
 
@@ -755,7 +755,6 @@ dejavu also comes with a grunt task.
 Bellow is a sample usage copied from a grunt file:
 
 ```
-
 grunt.loadNpmTasks('dejavu');
 
 grunt.initConfig({
