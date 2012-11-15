@@ -124,6 +124,10 @@ a:hover {
     margin: auto;
 }
 
+.phone #site {
+    width: 710px;
+}
+
 #header {
     position: relative;
     width: 100%;
@@ -244,7 +248,7 @@ pre code {
     font-family: 'Source Code Pro', sans-serif;
     font-size: 12px;
     font-weight: 100;
-    width: 441px;
+    width: 439px;
     overflow: auto;
     white-space: pre;
     word-wrap: normal;
@@ -252,7 +256,7 @@ pre code {
 }
 
 .phone pre code {
-    width: 941px;
+    width: 696px;
 }
 
 .chart {
@@ -270,7 +274,7 @@ pre code {
 }
 
 .phone .benchmark, .phone .benchmark-mobile {
-    width: 970px;
+    width: 725px;
 }
 
 .chart.loading {
