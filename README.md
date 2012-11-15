@@ -1,9 +1,10 @@
 dejavu website
-=============================================
 
-# Development #
+---
+
+# Developing #
 - Run `npm install`
-- Run `grunt server`
+- Run `grunt run`
 - Open `index_dev.html`
 
 # Bulding #

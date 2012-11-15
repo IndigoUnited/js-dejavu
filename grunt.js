@@ -73,6 +73,10 @@ module.exports = function (grunt) {
         grunt.log.ok();
     });
 
+    grunt.registerTask('forever', 'Forever task to be used along with server', function () {
+        this.async();
+    });
+
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-requirejs');
     grunt.loadNpmTasks('grunt-contrib-mincss');
@@ -124,5 +128,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build', 'clean concat removelogging requirejs version min mincss');
     grunt.registerTask('doc', 'getreadme markdown2html');
+    grunt.registerTask('run', 'server forever');
     grunt.registerTask('default', 'doc build');
 };
