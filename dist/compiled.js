@@ -83,6 +83,7 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
         rightColumnEl = isPhone ? leftColumnEl : $('#content .right');
 
         if (isPhone) {
+            $(document.body).addClass('phone');
             $('#content .right').remove();
         }
 
@@ -180,7 +181,7 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
                 left: 85,
                 right: 0,
                 bottom: 0,
-                width: 455,
+                width: el.width(),
                 height: el.height() - 140
             },
             tooltip: {

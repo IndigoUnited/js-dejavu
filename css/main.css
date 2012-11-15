@@ -177,8 +177,13 @@ a:hover {
     width: 455px;
 }
 
+.phone #content .left {
+    width: 100%;
+    float: none;
+}
+
 .block-title {
-    width: 455px;
+    width: 100%;
     height: 30px;
     position: relative;
     background-repeat: no-repeat;
@@ -246,19 +251,26 @@ pre code {
     padding: 7px;
 }
 
+.phone pre code {
+    width: 941px;
+}
+
 .chart {
     position: relative;
     left: -12px;
 }
 
-.benchmark {
+.benchmark, .benchmark-mobile {
     width: 470px;
     height: 515px;
 }
 
 .benchmark-mobile {
-    width: 470px;
     height: 350px;
+}
+
+.phone .benchmark, .phone .benchmark-mobile {
+    width: 970px;
 }
 
 .chart.loading {
