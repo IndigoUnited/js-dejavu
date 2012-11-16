@@ -502,26 +502,42 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         });
         if (/strict/.test(global.build) && (Object.seal || Object.freeze)) {
             describe('$locked', function () {
-                var SomeClass = Class.declare(function ($self) {
-                        return {};
-                    }, true);
                 afterEach(function () {
                     options.locked = true;
                 });
                 it('should not lock classes if it\'s false', function () {
                     var SomeClass = Class.declare(function ($self) {
-                            return {};
-                        }, true), someClass = new SomeClass();
+                            return {
+                                test: function () {
+                                },
+                                $statics: {
+                                    testStatic: function () {
+                                    }
+                                }
+                            };
+                        }, true), someClass = new SomeClass(), someFunc = function () {
+                        };
                     SomeClass.foo = 'bar';
                     SomeClass.prototype.foo = 'bar';
                     someClass.bar = 'foo';
                     expect(SomeClass.foo).to.equal('bar');
                     expect(SomeClass.prototype.foo).to.equal('bar');
                     expect(someClass.bar).to.equal('foo');
+                    someClass.test = someFunc;
+                    expect(someClass.test).to.equal(someFunc);
+                    SomeClass.someFunc = someFunc;
+                    expect(SomeClass.someFunc).to.equal(someFunc);
                 });
                 it('should lock classes if it\'s true', function () {
                     var SomeClass = Class.declare(function ($self) {
-                            return {};
+                            return {
+                                test: function () {
+                                },
+                                $statics: {
+                                    staticFunc: function () {
+                                    }
+                                }
+                            };
                         }, true), someClass = new SomeClass();
                     expect(function () {
                         SomeClass.foo = 'bar';
@@ -531,6 +547,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     }).to.throwException('not extensible');
                     expect(function () {
                         someClass.bar = 'foo';
+                    }).to.throwException('not extensible');
+                    expect(function () {
+                        someClass.test = function () {
+                        };
+                    }).to.throwException('not extensible');
+                    expect(function () {
+                        SomeClass.staticFunc = function () {
+                        };
                     }).to.throwException('not extensible');
                 });
                 it('should read the default value', function () {

@@ -653,10 +653,6 @@ define(global.modules, function (
 
             describe('$locked', function () {
 
-                var SomeClass = Class.declare({
-                    $locked: false
-                });
-
                 afterEach(function () {
                     options.locked = true;
                 });
@@ -664,9 +660,16 @@ define(global.modules, function (
                 it('should not lock classes if it\'s false', function () {
 
                     var SomeClass = Class.declare({
-                        $locked: false
+                        $locked: false,
+
+                        test: function () {},
+
+                        $statics: {
+                            testStatic: function () {}
+                        }
                     }),
-                        someClass = new SomeClass();
+                        someClass = new SomeClass(),
+                        someFunc = function () {};
 
                     SomeClass.foo = 'bar';
                     SomeClass.prototype.foo = 'bar';
@@ -677,12 +680,24 @@ define(global.modules, function (
 
                     expect(someClass.bar).to.equal('foo');
 
+                    someClass.test = someFunc;
+                    expect(someClass.test).to.equal(someFunc);
+
+                    SomeClass.someFunc = someFunc;
+                    expect(SomeClass.someFunc).to.equal(someFunc);
+
                 });
 
                 it('should lock classes if it\'s true', function () {
 
                     var SomeClass = Class.declare({
-                        $locked: true
+                        $locked: true,
+
+                        test: function () {},
+
+                        $statics: {
+                            staticFunc: function () {}
+                        }
                     }),
                         someClass = new SomeClass();
 
@@ -696,6 +711,14 @@ define(global.modules, function (
 
                     expect(function () {
                         someClass.bar = 'foo';
+                    }).to.throwException('not extensible');
+
+                    expect(function () {
+                        someClass.test = function () {};
+                    }).to.throwException('not extensible');
+
+                    expect(function () {
+                        SomeClass.staticFunc = function () {};
                     }).to.throwException('not extensible');
 
                 });
