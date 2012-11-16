@@ -171,6 +171,14 @@ a:hover {
     top: 125px;
 }
 
+#content {
+    min-height: 300px;
+}
+
+#content.loading {
+    background: url('../img/loaders/loader_square.gif') center 100px no-repeat;
+}
+
 #content .left {
     float: left;
     width: 455px;

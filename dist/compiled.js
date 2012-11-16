@@ -311,14 +311,17 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
 
 
 $(document).ready(function () {
-    // TODO: add loader for the content
-
     // Download the tmpl
     var promise = $.get('tmpl/doc.tmpl', {
         timeout: 15000
+    }),
+        contentEl = $('#content');
+
+    promise.complete(function () {
+        contentEl.removeClass('loading');
     });
     promise.fail(function () {
-        $('#content .left').html('Oops, something went wrong.');
+        contentEl.find('.left').html('Oops, something went wrong.');
     });
     promise.success(function () {
         // Parse it
