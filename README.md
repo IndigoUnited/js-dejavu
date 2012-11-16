@@ -833,7 +833,7 @@ The instanceOf function works exactly the same way as the native instanceof exce
 
 
 
-###  Classes and instances are locked ###
+###  Classes/instances are locked ###
 
 By default, constructors and instances are locked. This means that no one can monkey patch your code.
 This behaviour can be changed in two ways:
@@ -909,7 +909,6 @@ dejavu also comes with a grunt task.
 Bellow is a sample usage copied from a grunt file:
 
 ```js
-
 grunt.loadNpmTasks('dejavu');
 
 grunt.initConfig({
