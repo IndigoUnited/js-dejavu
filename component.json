@@ -1,6 +1,6 @@
 {
     "name": "dejavu",
-    "version": "0.1.12",
+    "version": "0.1.13",
     "main": "src/",
     "dependencies": {
         "amd-utils": "0.6.x"

@@ -456,8 +456,8 @@ var parser = {
         }
 
         // Super replacement
-        code = code.replace(/(this|that)(?:\.|(?:[\'])?)\$super(?:'\])?\(/g, '$super.' + funcName + '.call($1, ')
-                   .replace(/(this|that), \)/g, '$1)');
+        code = code.replace(/(this|that|_this)(?:\.|(?:[\'])?)\$super(?:'\])?\(/g, '$super.' + funcName + '.call($1, ')
+                   .replace(/(this|that|_this), \)/g, '$1)');
 
         // If on static context, $super is actually $parent
         if (isStatic) {
@@ -465,10 +465,12 @@ var parser = {
         }
 
         // Self replacement
-        code = code.replace(/(this|that)(?:\.|(?:[\'])?)\$self(?:'\])?/g, selfReplacer);
+        code = code.replace(/(this|that|_this)(?:\.|(?:[\'])?)\$self(?:'\])?/g, selfReplacer);
 
         // $bind replacement
-        code = code.replace(/\.\$bind\(/g, '.bind(');
+        /*code = code.replace(/\.\$bind\(/g, function (match, offset) {
+            return !/(that|this|_this)$/.test(code.substr(offset - 5, 5)) ? '.bind(' : '.$bind(';
+        });*/
 
         code = code.replace(/function\s*\(/, 'function x(');
         ast.value = esprima.parse(code).body[0];

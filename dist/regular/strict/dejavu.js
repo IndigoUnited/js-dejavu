@@ -3511,11 +3511,6 @@ define('Class',[
             return doBind.apply(context, args);
         });
         Function.prototype.$bind.dejavu = true;
-
-        // Ensure .bind
-        if (!Function.prototype.bind) {
-            Function.prototype.bind = bind;
-        }
     }
 
     return Class;
