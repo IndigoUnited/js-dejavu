@@ -644,13 +644,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             var context = {}, SomeClass = Class.declare(function ($self) {
                     return {
                         simpleMethod: function () {
-                            var func = this.$bind(function () {
+                            var func = this.bind(function () {
                                     return this;
                                 });
                             return func.call(context);
                         },
                         otherSimpleMethod: function () {
-                            var func = this.$bind(function () {
+                            var func = this.bind(function () {
                                     return this._protectedProperty;
                                 });
                             return func;
@@ -658,14 +658,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         boundTwice: function () {
                             var func = function () {
                                     return this;
-                                }.$bind(this).$bind(context);
+                                }.bind(this).bind(context);
                             return func.call({});
                         },
                         boundOfNamed: function () {
-                            return this.$bind(this.simpleMethod);
+                            return this.bind(this.simpleMethod);
                         },
                         someMethod: function () {
-                            var func = this.$bind(function () {
+                            var func = this.bind(function () {
                                     this._protectedProperty = 'dummy';
                                     this.__privateProperty = 'dummy', this._protectedMethod();
                                     this.__privateMethod();
@@ -675,7 +675,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         someMethod2: function () {
                             var func = function (x) {
                                     return x;
-                                }.$bind(this, 'foo');
+                                }.bind(this, 'foo');
                             return func.call(context);
                         },
                         getProtectedProperty: function () {
@@ -692,19 +692,19 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         },
                         $statics: {
                             simpleMethodStatic: function () {
-                                var func = this.$bind(function () {
+                                var func = this.bind(function () {
                                         return this;
                                     });
                                 return func.call(context);
                             },
                             otherSimpleMethodStatic: function () {
-                                var func = this.$bind(function () {
+                                var func = this.bind(function () {
                                         return this._protectedPropertyStatic;
                                     });
                                 return func;
                             },
                             someMethodStatic: function () {
-                                var func = this.$bind(function () {
+                                var func = this.bind(function () {
                                         this._protectedPropertyStatic = 'dummy';
                                         this.__privatePropertyStatic = 'dummy', this._protectedMethodStatic();
                                         this.__privateMethodStatic();
@@ -714,7 +714,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             someMethod2Static: function () {
                                 var func = function (x) {
                                         return x;
-                                    }.$bind(this, 'foo');
+                                    }.bind(this, 'foo');
                                 return func.call(context);
                             },
                             getProtectedPropertyStatic: function () {
@@ -739,30 +739,30 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         simpleMethod: function () {
                             var func = function () {
                                     return this;
-                                }.$bind(this);
+                                }.bind(this);
                             return func.call(context);
                         },
                         boundTwice: function () {
                             var func = function () {
                                     return this;
-                                }.$bind(this).$bind(context);
+                                }.bind(this).bind(context);
                             return func.call({});
                         },
                         boundOfNamed: function () {
-                            return this.$bind(this.simpleMethod);
+                            return this.bind(this.simpleMethod);
                         },
                         someMethod: function () {
                             var func = function () {
                                     this._protectedProperty = 'dummy';
                                     this.__privateProperty = 'dummy', this._protectedMethod();
                                     this.__privateMethod();
-                                }.$bind(this);
+                                }.bind(this);
                             func.call(context);
                         },
                         someMethod2: function () {
                             var func = function (x) {
                                     return x;
-                                }.$bind(this, 'foo');
+                                }.bind(this, 'foo');
                             return func.call(context);
                         },
                         getProtectedProperty: function () {
@@ -781,7 +781,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             simpleMethodStatic: function () {
                                 var func = function () {
                                         return this;
-                                    }.$bind(this);
+                                    }.bind(this);
                                 return func.call(context);
                             },
                             someMethodStatic: function () {
@@ -789,13 +789,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                         this._protectedPropertyStatic = 'dummy';
                                         this.__privatePropertyStatic = 'dummy', this._protectedMethodStatic();
                                         this.__privateMethodStatic();
-                                    }.$bind(this);
+                                    }.bind(this);
                                 func.call(context);
                             },
                             someMethod2Static: function () {
                                 var func = function (x) {
                                         return x;
-                                    }.$bind(this, 'foo');
+                                    }.bind(this, 'foo');
                                 return func.call(context);
                             },
                             getProtectedPropertyStatic: function () {
