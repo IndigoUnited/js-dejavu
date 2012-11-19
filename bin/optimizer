@@ -468,7 +468,7 @@ var parser = {
         code = code.replace(/(this|that)(?:\.|(?:[\'])?)\$self(?:'\])?/g, selfReplacer);
 
         // $bind replacement
-        code = code.replace(/\.$bind\(/g, '.bind(');
+        code = code.replace(/\.\$bind\(/g, '.bind(');
 
         code = code.replace(/function\s*\(/, 'function x(');
         ast.value = esprima.parse(code).body[0];
