@@ -899,7 +899,6 @@ It specifically:
 * Removes the need for wrappers, improving performance by a great margin
 * Removes abstract functions from abstract classes
 * Removes functions from interfaces
-* Replaces $bind() with native bind()
 
 The optimizer is located in the `bin` folder.
 Example usage:
