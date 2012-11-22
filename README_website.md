@@ -317,15 +317,24 @@ This example illustrates the usage of:
 - `$extends` vs `$borrows`
 - binding (`$bind()` vs `$bound()`)
 
-In this case, and keep in mind that this is just for illustration purposes, we'll create two interfaces, that are implemented by an abstract class, that is then extended by a concrete class.
+In this case, and keep in mind that this is just for illustration purposes, we'll create three interfaces, that are implemented by an abstract class, that is then extended by a concrete class.
 
 
 ```js
 var dejavu = require('dejavu');
 
 // ------------ AN INTERFACE ------------
+// this interface is useless, is only used to illustrate
+// that interfaces can extend other interfaces
+var UselessInterface = dejavu.Interface.declare({
+    $name: 'UselessInterface'
+});
+
 var InterfacePerson = dejavu.Interface.declare({
     $name: 'InterfacePerson',
+    // if you need to extend multiple interfaces,
+    // just provide an array
+    $extends: UselessInterface,
     
     // method/attribute visibility is controlled by
     // the number of underscores that the identifier
@@ -384,6 +393,9 @@ var AbstractIndigo = dejavu.AbstractClass.declare({
         return this;
     },
     
+    // note that we're not implementing the method `think()` of the
+    // EngineerInterface. This will be automatically turned into an
+    // abstract method, since we're in an abstract class
     $abstracts: {
         beAwesome: function () {}
     },
@@ -404,12 +416,13 @@ var AbstractIndigo = dejavu.AbstractClass.declare({
 var Indigo = dejavu.Class.declare({
     $name: 'Indigo',
     // class extends another one.
+    //
     // in case you need to extend from several classes,
     // you can instead use $borrows, and specify an
     // array of identifiers. Still, note that borrowing
     // will not allow you to perform dejavu.instanceOf
     // tests, as the class is not technically extending
-    // the other, just borrowing its behaviour
+    // the other, just borrowing its behaviour.
     $extends: AbstractIndigo,
 
     _subject: 'nothing',
@@ -442,7 +455,7 @@ var Indigo = dejavu.Class.declare({
 
     _logThought: function () {
         console.log(this._name, 'is thinking about', this._subject);
-    }//.bound() would be equilvalent to what's in the constructor
+    }//.bound() would be equivalent to the binding in the constructor
 });
 
 var indigo = new Indigo('Indi');
