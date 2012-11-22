@@ -324,7 +324,7 @@ In this case, and keep in mind that this is just for illustration purposes, we'l
 var dejavu = require('dejavu');
 
 // ------------ AN INTERFACE ------------
-// this interface is useless, is only used to illustrate
+// this interface is useless, is only here to illustrate
 // that interfaces can extend other interfaces
 var UselessInterface = dejavu.Interface.declare({
     $name: 'UselessInterface'
