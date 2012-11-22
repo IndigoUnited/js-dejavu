@@ -112,7 +112,7 @@ and include it in the HTML:
 This will make a `dejavu` global available for you.
 If you're developing in __Node.js__, install it with `npm install dejavu` and use it like so:
 
-```javascript
+```js
 var dejavu = require('dejavu');
 
 // Declare the "Person" class
@@ -143,7 +143,7 @@ In node, the default mode running will be the strict mode unless the STRICT envi
  variable is set to false.
 Environment variables can be changed system wide or per process like so:
 
-```javascript
+```js
 process.env.STRICT = false;
 ```
 
@@ -188,7 +188,7 @@ Front-end devs are encouraged to program using the AMD paradigm because of its o
 Since dejavu is built on it, it will integrate seamlessly with your AMD loader.
 The easy way to set it up is to define a path for dejavu in your loader config like so:
 
-```javascript
+```js
 {
    // Your loader config
    paths: {
@@ -199,7 +199,7 @@ The easy way to set it up is to define a path for dejavu in your loader config l
 ```
 Then require it and use it:
 
-```javascript
+```js
 define(['dejavu'], function (dejavu) {
 
     // The dejavu variable is an object that contains:
@@ -225,7 +225,7 @@ If you just want to require specific parts of `dejavu`, you can do so.
 In order to achieve this, you must configure your loader like so:
 
 
-```javascript
+```js
 {
     // Your loader config
     packages: [
@@ -240,7 +240,7 @@ In order to achieve this, you must configure your loader like so:
 
 With this setup, you can still require the dejavu object like shown above or require specific parts of it:
 
-```javascript
+```js
 define(['dejavu/Class'], function (Class) {
 
     // Example usage
@@ -265,7 +265,7 @@ which means all the other modules are not loaded.
 
 Here's an overview of what most developers look for in an OOP library. You can find complete examples further down.
 
-```javascript
+```js
 var Person = Class.declare({
     // although not mandatory, it's really useful to identify
     // the class types, which simplifies debugging
@@ -320,7 +320,7 @@ This example illustrates the usage of:
 In this case, and keep in mind that this is just for illustration purposes, we'll create two interfaces, that are implemented by an abstract class, that is then extended by a concrete class.
 
 
-```javascript
+```js
 var dejavu = require('dejavu');
 
 // ------------ AN INTERFACE ------------
@@ -471,7 +471,7 @@ This behaviour can be changed in two ways:
 
 ##### With the $locked flag:
 
-```javascript
+```js
 var UnlockedIndigo = Class.declare({
     $name: 'UnlockedIndigo',
     $locked: false
@@ -491,7 +491,7 @@ var UnlockedIndigo = Class.declare({
 
 Methods can be replaced in the prototype
 
-```javascript
+```js
 UnlockedIndigo.prototype.talk = function () {
     console.log('... now is running');
 };
@@ -499,7 +499,7 @@ UnlockedIndigo.prototype.talk = function () {
 
 Properties can be added to the instance and methods can be replace in the instance.
 
-```javascript
+```js
 var Filipe     = new UnlockedIndigo();
 Filipe.friends = ['Marco','Andre'];
 Filipe.talk    = function () { 
@@ -511,7 +511,7 @@ Filipe.talk    = function () {
 
 This will change the default behaviour, but classes can still override it with the $locked flag.
 
-```javascript
+```js
 dejavu.options.locked = false;
 ```
 
@@ -524,7 +524,7 @@ Also, although undeclared members are allowed, they will not have their access c
 
 `dejavu` allows you to extend or borrow vanilla classes. In this case, constructors and instances are UNLOCKED by default.
 
-```javascript
+```js
 function Person(name) {
     this.name = name;
 };
@@ -536,7 +536,7 @@ filipe.name  // Filipe
 
 Now you can add a new function to Person.
 
-```javascript
+```js
 Person.prototype.monkey = function () {
     console.log(this.name + ' can monkey patch the code!');
 }
@@ -568,7 +568,7 @@ Example usage:
 
 Below is a sample usage copied from a grunt file:
 
-```javascript
+```js
 grunt.loadNpmTasks('dejavu');
 
 grunt.initConfig({
@@ -592,7 +592,7 @@ If you use the regular build, you don't need to worry because all functions used
 If you use the AMD build, you must specify the path to amd-utils.
 For example, if you use [RequireJS](http://requirejs.org/):
 
-```javascript
+```js
 paths : {
     'amd-utils': '../vendor/amd-utils/src'
 },
