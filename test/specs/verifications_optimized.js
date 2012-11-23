@@ -750,8 +750,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             });
             it('should throw an error when extending an invalid class', function () {
                 expect(function () {
-                    return Class.declare(function ($self) {
-                        return { $extends: 'wtf' };
+                    return Class.declare('wtf', function ($super) {
+                        return {};
                     }, true);
                 }).to.throwException(/is not a valid class/);
                 expect(function () {
@@ -760,8 +760,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     }, true);
                 }).to.throwException(/is not a valid class/);
                 expect(function () {
-                    return Class.declare(function ($self) {
-                        return { $extends: null };
+                    return Class.declare(null, function ($super) {
+                        return {};
                     }, true);
                 }).to.throwException(/is not a valid class/);
                 expect(function () {
