@@ -493,7 +493,7 @@ var parser = {
 
         for (x = 0; x < length; x += 1) {
             if (ast.properties[x].key.name === '$extends') {
-                return ast.properties[x].value.name;
+                return escodegen.generate(ast.properties[x].value, { comment: true });
             }
         }
     },

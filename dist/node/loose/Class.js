@@ -93,7 +93,7 @@ define([
     function wrapMethod(method, constructor, parent) {
         // Return the method if the class was created efficiently
         if (constructor[$class].efficient) {
-            method[$wrapped] = true;
+            method[$wrapped] = method;
             return method;
         }
 
@@ -524,7 +524,7 @@ define([
             canOptimizeConst = constructor.$canOptimizeConst;
             delete constructor.$canOptimizeConst;
 
-            if (canOptimizeConst && !tmp.properties.length && !tmp.binds.length) {
+            if (canOptimizeConst && hasOwn(constructor.prototype, 'initialize') && !tmp.properties.length && !tmp.binds.length) {
                 newConstructor = constructor.prototype.initialize;
                 newConstructor[$class] = constructor[$class];
                 mixIn(newConstructor, constructor);
