@@ -1918,7 +1918,25 @@ define([
                     newConstructor = constructor.prototype.initialize;
                 } else {
                     parentInitialize = constructor.prototype.initialize;
-                    newConstructor = function () { parentInitialize.apply(this, arguments); };
+
+                    // Optimize common use cases
+                    // Default to the slower apply..
+                    switch (parentInitialize.length) {
+                    case 1:
+                        newConstructor = function (a) { parentInitialize.call(this, a); };
+                        break;
+                    case 2:
+                        newConstructor = function (a, b) { parentInitialize.call(this, a, b); };
+                        break;
+                    case 3:
+                        newConstructor = function (a, b, c) { parentInitialize.call(this, a, b, c); };
+                        break;
+                    case 4:
+                        newConstructor = function (a, b, c, d) { parentInitialize.call(this, a, b, c, d); };
+                        break;
+                    default:
+                        newConstructor = function () { parentInitialize.apply(this, arguments); };
+                    }
                 }
 
                 newConstructor[$class] = constructor[$class];
