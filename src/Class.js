@@ -1905,15 +1905,22 @@ define([
     function optimizeConstructor(constructor) {
         var tmp = constructor[$class],
             canOptimizeConst,
-            newConstructor;
+            newConstructor,
+            parentInitialize;
 
         // Check if we can optimize the constructor
         if (tmp.efficient) {
             canOptimizeConst = constructor.$canOptimizeConst;
             delete constructor.$canOptimizeConst;
 
-            if (canOptimizeConst && hasOwn(constructor.prototype, 'initialize') && !tmp.properties.length && !tmp.binds.length) {
-                newConstructor = constructor.prototype.initialize;
+            if (canOptimizeConst && !tmp.properties.length && !tmp.binds.length) {
+                if (hasOwn(constructor.prototype, 'initialize'))  {
+                    newConstructor = constructor.prototype.initialize;
+                } else {
+                    parentInitialize = constructor.prototype.initialize;
+                    newConstructor = function () { parentInitialize.apply(this, arguments); };
+                }
+
                 newConstructor[$class] = constructor[$class];
                 mixIn(newConstructor, constructor);
                 newConstructor.prototype = constructor.prototype;

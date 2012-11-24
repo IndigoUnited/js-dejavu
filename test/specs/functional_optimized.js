@@ -1502,6 +1502,26 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 otherAbstractUsageImplementation.method2();
                 expect(otherAbstractUsageImplementation.some).to.be.equal('test2');
             });
+            it('should work correctly for multiple levels of inheritance while borrowing from the same mixin', function () {
+                var Mixin = function () {
+                    }, SomeClass, ComplexSomeClass, OtherClass;
+                Mixin.prototype.fireEvent = function () {
+                    return this._fire();
+                };
+                Mixin.prototype._fire = function () {
+                    return 'fired';
+                };
+                SomeClass = Class.declare(function ($self) {
+                    return { $borrows: Mixin };
+                }, true), ComplexSomeClass = Class.declare(SomeClass, function ($super) {
+                    return { $borrows: Mixin };
+                }, true);
+                OtherClass = Class.declare(function ($self) {
+                    return { $borrows: Mixin };
+                }, true), expect(new SomeClass().fireEvent()).to.equal('fired');
+                expect(new ComplexSomeClass().fireEvent()).to.equal('fired');
+                expect(new OtherClass().fireEvent()).to.equal('fired');
+            });
         });
         describe('Final members', function () {
             it('should be accessible just as normal parameter/function', function () {
@@ -2231,6 +2251,24 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(instanceOf(new Class4(), Class1)).to.be.equal(false);
                 expect(instanceOf(new Class6(), Class2)).to.be.equal(false);
             });
+            it('should work even with optimized constructors', function () {
+                var Class1 = Class.declare(function ($self) {
+                        return {
+                            initialize: function () {
+                            }
+                        };
+                    }, true), Class2 = Class.declare(Class1, function ($super) {
+                        return {};
+                    }, true), Class3 = Class.declare(Class2, function ($super) {
+                        return {};
+                    }, true), class2 = new Class2(), class3 = new Class3();
+                expect(instanceOf(class2, Class1)).to.be.equal(true);
+                expect(instanceOf(class3, Class1)).to.be.equal(true);
+                expect(instanceOf(class3, Class2)).to.be.equal(true);
+                expect(Class2 === Class1).to.be.equal(false);
+                expect(Class3 === Class1).to.be.equal(false);
+                expect(Class3 === Class2).to.be.equal(false);
+            });
             it('should work with interfaces as well', function () {
                 var Interface1 = Interface.declare({}), Interface2 = Interface.declare({}), Interface3 = Interface.declare({}), Interface4 = Interface.declare({ $extends: Interface3 }), Interface5 = Interface.declare({
                         $extends: [
@@ -2360,6 +2398,22 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return OtherSubSingleton2.getInstanceWrong2();
                     }).to.throwException(/is private/);
                 }
+            });
+        });
+        describe('Optimized code', function () {
+            it('should work with namespaced classes', function () {
+                var namespace = {};
+                namespace.SomeClass = Class.declare(function ($self) {
+                    return {
+                        someMethod: function () {
+                            return 'ok';
+                        }
+                    };
+                }, true);
+                namespace.ComplexSomeClass = Class.declare(namespace.SomeClass, function ($super) {
+                    return {};
+                }, true);
+                expect(new namespace.ComplexSomeClass().someMethod()).to.be.equal('ok');
             });
         });
     });

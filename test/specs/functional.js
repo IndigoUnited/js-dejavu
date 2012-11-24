@@ -1805,6 +1805,34 @@ define(global.modules, function (
                 expect(otherAbstractUsageImplementation.some).to.be.equal('test');
                 otherAbstractUsageImplementation.method2();
                 expect(otherAbstractUsageImplementation.some).to.be.equal('test2');
+
+            });
+
+            it('should work correctly for multiple levels of inheritance while borrowing from the same mixin', function () {
+
+                var Mixin = function () {},
+                    SomeClass,
+                    ComplexSomeClass,
+                    OtherClass;
+
+                Mixin.prototype.fireEvent = function () { return this._fire(); };
+                Mixin.prototype._fire = function () { return 'fired'; };
+
+                SomeClass = Class.declare({
+                    $borrows: Mixin
+                }),
+                ComplexSomeClass = Class.declare({
+                    $extends: SomeClass,
+                    $borrows: Mixin
+                });
+                OtherClass = Class.declare({
+                    $borrows: Mixin
+                }),
+
+                expect((new SomeClass()).fireEvent()).to.equal('fired');
+                expect((new ComplexSomeClass()).fireEvent()).to.equal('fired');
+                expect((new OtherClass()).fireEvent()).to.equal('fired');
+
             });
 
         });
@@ -2767,6 +2795,31 @@ define(global.modules, function (
 
             });
 
+            it('should work even with optimized constructors', function () {
+
+                var Class1 = Class.declare({
+                    initialize: function () {}
+                }),
+                    Class2 = Class.declare({
+                        $extends: Class1
+                    }),
+                    Class3 = Class.declare({
+                        $extends: Class2
+                    }),
+                    class2 = new Class2(),
+                    class3 = new Class3();
+
+                expect(instanceOf(class2, Class1)).to.be.equal(true);
+                expect(instanceOf(class3, Class1)).to.be.equal(true);
+                expect(instanceOf(class3, Class2)).to.be.equal(true);
+
+                // Constructors can't be the same
+                // This is very important
+                expect(Class2 === Class1).to.be.equal(false);
+                expect(Class3 === Class1).to.be.equal(false);
+                expect(Class3 === Class2).to.be.equal(false);
+            });
+
             it('should work with interfaces as well', function () {
 
                 var Interface1 = Interface.declare({}),
@@ -2904,6 +2957,28 @@ define(global.modules, function (
             });
 
         });
+
+        describe('Optimized code', function () {
+
+            it('should work with namespaced classes', function () {
+                var namespace = {};
+
+                namespace.SomeClass = Class.declare({
+                    someMethod: function () {
+                        return 'ok';
+                    }
+                });
+
+                namespace.ComplexSomeClass = Class.declare({
+                    $extends: namespace.SomeClass
+                });
+
+                expect((new namespace.ComplexSomeClass()).someMethod()).to.be.equal('ok');
+
+            });
+
+        });
+
     });
 
 });

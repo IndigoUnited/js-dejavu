@@ -1,6 +1,6 @@
 (function() {
 /**
- * almond 0.2.1 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
+ * almond 0.2.0 Copyright (c) 2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/almond for details
  */
@@ -16,12 +16,7 @@ var requirejs, require, define;
         waiting = {},
         config = {},
         defining = {},
-        hasOwn = Object.prototype.hasOwnProperty,
         aps = [].slice;
-
-    function hasProp(obj, prop) {
-        return hasOwn.call(obj, prop);
-    }
 
     /**
      * Given a relative module name, like ./something, normalize it to
@@ -156,14 +151,14 @@ var requirejs, require, define;
     }
 
     function callDep(name) {
-        if (hasProp(waiting, name)) {
+        if (waiting.hasOwnProperty(name)) {
             var args = waiting[name];
             delete waiting[name];
             defining[name] = true;
             main.apply(undef, args);
         }
 
-        if (!hasProp(defined, name) && !hasProp(defining, name)) {
+        if (!defined.hasOwnProperty(name) && !defining.hasOwnProperty(name)) {
             throw new Error('No ' + name);
         }
         return defined[name];
@@ -282,9 +277,9 @@ var requirejs, require, define;
                 } else if (depName === "module") {
                     //CommonJS module spec 1.1
                     cjsModule = args[i] = handlers.module(name);
-                } else if (hasProp(defined, depName) ||
-                           hasProp(waiting, depName) ||
-                           hasProp(defining, depName)) {
+                } else if (defined.hasOwnProperty(depName) ||
+                           waiting.hasOwnProperty(depName) ||
+                           defining.hasOwnProperty(depName)) {
                     args[i] = callDep(depName);
                 } else if (map.p) {
                     map.p.load(map.n, makeRequire(relName, true), makeLoad(depName), {});
@@ -382,9 +377,7 @@ var requirejs, require, define;
             deps = [];
         }
 
-        if (!hasProp(defined, name)) {
-            waiting[name] = [name, deps, callback];
-        }
+        waiting[name] = [name, deps, callback];
     };
 
     define.amd = {
