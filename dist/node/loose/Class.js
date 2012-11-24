@@ -534,6 +534,9 @@ define([
                     // Optimize common use cases
                     // Default to the slower apply..
                     switch (parentInitialize.length) {
+                    case 0:
+                        newConstructor = function () { parentInitialize.call(this); };
+                        break;
                     case 1:
                         newConstructor = function (a) { parentInitialize.call(this, a); };
                         break;

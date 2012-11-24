@@ -132,7 +132,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
 
         emptyDir(currentDistDir);
 
-        cp.exec(command + ' dir="' + currentDistDir + '" optimize=uglify pragmas.strict=false', function (error, stdout, stderr) {
+        cp.exec(command + ' dir="' + currentDistDir + '" optimize=none pragmas.strict=false', function (error, stdout, stderr) {
 
             // Print success or error
             if (error !== null) {
@@ -147,10 +147,10 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
             // Move concatenated file
             fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/loose/dejavu.js');
 
+            // Build regular loose (minified)
             emptyDir(currentDistDir);
 
-            // Build regular strict
-            cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
+            cp.exec(command + ' dir="' + currentDistDir + '" optimize=uglify pragmas.strict=false', function (error, stdout, stderr) {
 
                 // Print success or error
                 if (error !== null) {
@@ -163,13 +163,14 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                 console.log(stdout);
 
                 // Move concatenated file
-                fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/strict/dejavu.js');
+                fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/loose/dejavu.min.js');
 
                 emptyDir(currentDistDir);
-                fs.rmdirSync(currentDistDir);
 
-                // Generate optimized test files
-                tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/functional.js" > "' + testDir + 'specs/functional_optimized.js"', function (error, stdout, stderr) {
+                // Build regular strict
+                cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
+
+                    // Print success or error
                     if (error !== null) {
                         if (stderr) {
                             throw new Error(stderr.toString());
@@ -177,7 +178,16 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                         throw error;
                     }
 
-                    tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/verifications.js" > "' + testDir + 'specs/verifications_optimized.js"', function (error, stdout, stderr) {
+                    console.log(stdout);
+
+                    // Move concatenated file
+                    fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/strict/dejavu.js');
+
+                    emptyDir(currentDistDir);
+                    fs.rmdirSync(currentDistDir);
+
+                    // Generate optimized test files
+                    tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/functional.js" > "' + testDir + 'specs/functional_optimized.js"', function (error, stdout, stderr) {
                         if (error !== null) {
                             if (stderr) {
                                 throw new Error(stderr.toString());
@@ -185,32 +195,20 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                             throw error;
                         }
 
-                        // Run tests
-                        process.chdir(__dirname + '/..');
-
-                        command = mochaBin + ' -R list test/strict.js';
-
-                        console.log('Running strict tests..');
-                        console.log('-------------------------------------------------');
-
-                        if (process.platform === 'win32') {
-                            tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
-                        } else {
-                            tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
-                        }
-                        tests.on('exit', function (code) {
-
-                            var exitCode;
-
-                            if (code !== 0) {
-                                exitCode = 1;
-                            } else {
-                                exitCode = 0;
+                        tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/verifications.js" > "' + testDir + 'specs/verifications_optimized.js"', function (error, stdout, stderr) {
+                            if (error !== null) {
+                                if (stderr) {
+                                    throw new Error(stderr.toString());
+                                }
+                                throw error;
                             }
 
-                            command = mochaBin + ' -R list test/loose.js';
+                            // Run tests
+                            process.chdir(__dirname + '/..');
 
-                            console.log('Running loose tests..');
+                            command = mochaBin + ' -R list test/strict.js';
+
+                            console.log('Running strict tests..');
                             console.log('-------------------------------------------------');
 
                             if (process.platform === 'win32') {
@@ -220,11 +218,32 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                             }
                             tests.on('exit', function (code) {
 
+                                var exitCode;
+
                                 if (code !== 0) {
-                                    process.exit(1);
+                                    exitCode = 1;
                                 } else {
-                                    process.exit(exitCode);
+                                    exitCode = 0;
                                 }
+
+                                command = mochaBin + ' -R list test/loose.js';
+
+                                console.log('Running loose tests..');
+                                console.log('-------------------------------------------------');
+
+                                if (process.platform === 'win32') {
+                                    tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
+                                } else {
+                                    tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
+                                }
+                                tests.on('exit', function (code) {
+
+                                    if (code !== 0) {
+                                        process.exit(1);
+                                    } else {
+                                        process.exit(exitCode);
+                                    }
+                                });
                             });
                         });
                     });
