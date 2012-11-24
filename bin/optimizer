@@ -19,6 +19,14 @@ program
 
 ////////////////////////////////////////////////////
 
+var esprimaOpts = {
+    comment: true,
+    loc: true
+};
+var escodegenOpts = {
+    comment: true
+};
+
 var parser = {
     /**
      * Run the callback foreach dejavu usage.
@@ -65,10 +73,9 @@ var parser = {
                         } else if (parser._isAbstractClass(props)) {
                             callback({ type: 'abstract', ast: curr });
                         } else if (parser._isClass(props)) {
-
                             callback({ type: 'concrete', ast: curr });
                         } else {
-                            process.stderr.write('Could not guess if it is a dejavu usage (add a $name property?)\n');
+                            process.stderr.write('Not enough metadata to optimize usage at ' + curr.loc.start.line + ', column ' + curr.loc.start.column + ' (add a $name property?)\n');
                         }
                     }
                 }
@@ -438,7 +445,7 @@ var parser = {
      * @return {Boolean} False if this functions causes the constructor to not be optimized, false otherwise
      */
     _replaceSpecial: function (funcName, ast, isStatic) {
-        var code = escodegen.generate(ast.value, { comment: true }),
+        var code = escodegen.generate(ast.value, escodegenOpts),
             canBeOptimized = true;
 
         function superStaticReplacer() {
@@ -473,7 +480,7 @@ var parser = {
         });*/
 
         code = code.replace(/function\s*\(/, 'function x(');
-        ast.value = esprima.parse(code).body[0];
+        ast.value = esprima.parse(code, esprimaOpts).body[0];
         ast.value.id = null;
         ast.value.type = Syntax.FunctionExpression;
 
@@ -493,7 +500,7 @@ var parser = {
 
         for (x = 0; x < length; x += 1) {
             if (ast.properties[x].key.name === '$extends') {
-                return escodegen.generate(ast.properties[x].value, { comment: true });
+                return escodegen.generate(ast.properties[x].value, escodegenOpts);
             }
         }
     },
@@ -522,14 +529,14 @@ var len = fs.fstatSync(process.stdin.fd).size,
     output;
 
 // Read and get an ast
-ast = esprima.parse(contents, { comment: true });
+ast = esprima.parse(contents, esprimaOpts);
 
 parser.forEachUsage(ast, function (obj) {
     parser.optimize(obj);
 });
 
 // Generate the source
-output = escodegen.generate(ast, { comment: true });
+output = escodegen.generate(ast, escodegenOpts);
 
 // Output contents
 process.stdout.write(output);
