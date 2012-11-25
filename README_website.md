@@ -171,7 +171,7 @@ have a __lower memory footprint and filesize__.
 Finally, in order to achieve that extra edge, that puts `dejavu` next to vanilla
 JS in terms of performance, you should run the optimizer that is bundled with
 the library. Note that this step is completely optional, and `dejavu` will still
-perform faster than most ibraries, even if you don't run the [optimizer](https://github.com/IndigoUnited/dejavu#optimizer).
+perform faster than most libraries, even if you don't run the [optimizer](#optimizer).
 The optimizer will analyse your code and make some improvements,
 boosting it a bit further.
 
@@ -282,9 +282,6 @@ var Person = Class.declare({
     initialize: function (name, pinCode) {
         this._name = name;
         this.__pinCode = pinCode;
-
-        // create timer that will callback methods of the class
-        setTimeout(this._logName, 1000);
 
         // note that we're binding to the current instance in this case.
         // also note that if this function is to be used only as a callback, you can
@@ -607,8 +604,7 @@ grunt.initConfig({
 
 dejavu depends on [amd-utils](https://github.com/millermedeiros/amd-utils).
 If you use the regular build, you don't need to worry because all functions used from amd-utils are bundled for you.
-If you use the AMD build, learn (how)[https://github.com/IndigoUnited/dejavu#taking-it-to-another-level] to setup your loader.
-```
+If you use the AMD build, learn [how](#taking-it-to-another-level) to setup your loader.
 
 
 
