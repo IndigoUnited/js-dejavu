@@ -11,6 +11,7 @@ define([
     'amd-utils/lang/isDate',
     'amd-utils/lang/isRegExp',
     'amd-utils/lang/createObject',
+    'amd-utils/lang/inheritPrototype',
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
     'amd-utils/array/contains',
@@ -31,6 +32,7 @@ define([
     isDate,
     isRegExp,
     createObject,
+    inheritPrototype,
     hasOwn,
     combine,
     contains,
@@ -89,7 +91,6 @@ define([
     function wrapMethod(method, constructor, parent) {
         // Return the method if the class was created efficiently
         if (constructor[$class].efficient) {
-            method[$wrapped] = method;
             return method;
         }
 
@@ -548,11 +549,18 @@ define([
                     default:
                         newConstructor = function () { parentInitialize.apply(this, arguments); };
                     }
+
                 }
+
+                newConstructor.prototype = constructor.prototype;
+                newConstructor.prototype.constructor = newConstructor;
+                constructor.prototype = Function.prototype;
 
                 newConstructor[$class] = constructor[$class];
                 mixIn(newConstructor, constructor);
-                newConstructor.prototype = constructor.prototype;
+                if (constructor.$parent) {
+                    newConstructor.$parent = constructor.$parent;
+                }
 
                 return newConstructor;
             }
@@ -607,8 +615,7 @@ define([
 
             dejavu = createConstructor(constructor);
             obfuscateProperty(dejavu, '$parent', parent);
-            dejavu.prototype = createObject(parent.prototype);
-
+            inheritPrototype(dejavu, parent);
             inheritParent(dejavu, parent);
         } else {
             dejavu = createConstructor(constructor);

@@ -32,6 +32,7 @@ define([
     'amd-utils/lang/isDate',
     'amd-utils/lang/isRegExp',
     'amd-utils/lang/createObject',
+    'amd-utils/lang/inheritPrototype',
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
     'amd-utils/array/contains',
@@ -68,6 +69,7 @@ define([
     isDate,
     isRegExp,
     createObject,
+    inheritPrototype,
     hasOwn,
     combine,
     contains,
@@ -1668,8 +1670,7 @@ define([
                 params.initialize = params.initialize || params._initialize || params.__initialize;
             }
             obfuscateProperty(dejavu, '$parent', parent);
-            dejavu.prototype = createObject(parent.prototype);
-
+            inheritPrototype(dejavu, parent);
             inheritParent(dejavu, parent);
         } else {
             dejavu = createConstructor(constructor, opts.isAbstract);
