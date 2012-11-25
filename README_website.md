@@ -194,7 +194,8 @@ The easy way to set it up is to define a path for dejavu in your loader config l
    // your loader config
    paths: {
        // You can switch to the loose mode anytime
-       'dejavu': '/path/to/dejavu/dist/strict/main'
+       'dejavu': '/path/to/dejavu/dist/strict/main',
+       'amd-utils': '../vendor/amd-utils/src'
    }
 }
 ```
@@ -229,6 +230,9 @@ In order to achieve this, you must configure your loader like so:
 ```js
 {
     // your loader config
+    paths: {
+           'amd-utils': '../vendor/amd-utils/src'
+    },
     packages: [
         {
             name: 'dejavu',
@@ -605,7 +609,7 @@ grunt.initConfig({
 dejavu depends on [amd-utils](https://github.com/millermedeiros/amd-utils).
 If you use the regular build, you don't need to worry because all functions used from amd-utils are bundled for you.
 If you use the AMD build, learn [how](#taking-it-to-another-level) to setup your loader.
-
+If you use dejavu on `node`, `npm` will take care of fetching everything for you.
 
 
 ## Building dejavu
