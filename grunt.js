@@ -41,6 +41,9 @@ module.exports = function (grunt) {
         var contents = fs.readFileSync('dejavu_readme.md').toString();
         var html = md(contents);
 
+        // TODO: target _blank should be added to all links
+        //       don't forget to do the same to the automaton
+
         fs.writeFileSync('tmpl/doc.tmpl', html);
         grunt.log.ok();
     });
