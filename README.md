@@ -148,20 +148,6 @@ process.env.STRICT = false;
 
 
 
-## Benchmarks
-
-You can run the [benchmark](http://jsperf.com/oop-benchmark/78) yourself. Note that the benchmark below compares dejavu with libraries that do not provide many of the features that dejavu does. For more details, please consult the libraries documentation.
-
-It is also important to mention that [JSFace](https://github.com/tnhu/jsface) does not chain prototypes. This gives JSFace an extra edge in performance in some browsers, like Firefox, but renders the `instanceof` operator useless, so this is kind of a cheat.
-
-{{graph}}
-
-### Mobile
-
-{{graph_mobile}}
-
-
-
 ## Performance
 
 Since all those nice features and common rules of classic OOP degrade
@@ -187,7 +173,10 @@ boosting it a bit further.
 You can check the benchmarks in [jsperf](http://jsperf.com/oop-benchmark/58)
 comparing `dejavu` with other OOP libraries. Note that the loose mode
 is used in this test, simulating a production environment, and both the normal
-and optimized versions are tested.
+and optimized versions are tested. It is also important to mention that
+[JSFace](https://github.com/tnhu/jsface) does not chain prototypes. This gives
+JSFace an extra edge in performance in some browsers, like Firefox, but renders
+the `instanceof` operator useless, so this is kind of a cheat.
 
 
 
