@@ -464,7 +464,6 @@ var parser = {
      * @return {Boolean} False if this functions causes the constructor to not be optimized, false otherwise
      */
     _replaceSpecial: function (funcName, ast, isStatic) {
-
         if (!ast.value && !ast.object) {
             process.stderr.write(JSON.stringify(ast, null, '  '));
             process.exit(1);
