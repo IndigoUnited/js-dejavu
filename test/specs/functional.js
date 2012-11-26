@@ -2961,6 +2961,7 @@ define(global.modules, function (
         describe('Optimized code', function () {
 
             it('should work with namespaced classes', function () {
+
                 var namespace = {};
 
                 namespace.SomeClass = Class.declare({
@@ -2974,6 +2975,25 @@ define(global.modules, function (
                 });
 
                 expect((new namespace.ComplexSomeClass()).someMethod()).to.be.equal('ok');
+
+            });
+
+            it('should work for functions that are $bound', function () {
+
+                var SomeClass = Class.declare({
+                    test: function () {
+                        return 'foo';
+                    }
+                }),
+                    OtherClass = Class.declare({
+                        $extends: SomeClass,
+
+                        test: function () {
+                            return this.$super();
+                        }.$bound()
+                    });
+
+                expect((new OtherClass()).test()).to.be.equal('foo');
 
             });
 
