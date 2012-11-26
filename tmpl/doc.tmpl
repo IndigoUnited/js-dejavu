@@ -1,5 +1,4 @@
-<h1>dejavu</h1>
-<hr>
+<h2>dejavu</h2>
 <p><a href="http://travis-ci.org/IndigoUnited/dejavu"><img src="https://secure.travis-ci.org/IndigoUnited/dejavu.png" alt="Build Status"></a>
 
 </p>
@@ -71,7 +70,6 @@ really hard to pin point what&#39;s wrong. Although this is the default behaviou
 
 
 
-
 </p>
 <h2>Getting started</h2>
 <p>The quickest way to start using <code>dejavu</code> in your project, is by simply including
@@ -85,7 +83,8 @@ and include it in the HTML:
 <pre><code class="lang-html">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
     &lt;head&gt;
-        &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;
+        &lt;meta http-equiv=&quot;Content-Type&quot;
+              content=&quot;text/html; charset=UTF-8&quot;&gt;
         &lt;script type=&quot;text/javascript&quot; src=&quot;dejavu.js&quot;&gt;&lt;/script&gt;
     &lt;/head&gt;
     &lt;body&gt;
@@ -152,6 +151,21 @@ Environment variables can be changed system wide or per process like so:
 </p>
 <pre><code class="lang-js">process.env.STRICT = false;</code></pre>
 <h2>Benchmarks</h2>
+<p>You can run the <a href="http://jsperf.com/oop-benchmark/78">benchmark</a> yourself. Note that the benchmark below compares dejavu with libraries that do not provide many of the features that dejavu does. For more details, please consult the libraries documentation.
+
+</p>
+<p>It is also important to mention that <a href="https://github.com/tnhu/jsface">JSFace</a> does not chain prototypes. This gives JSFace an extra edge in performance in some browsers, like Firefox, but renders the <code>instanceof</code> operator useless, so this is kind of a cheat.
+
+</p>
+<p>{{graph}}
+
+</p>
+<h3>Mobile</h3>
+<p>{{graph_mobile}}
+
+
+
+</p>
 <h2>Performance</h2>
 <p>Since all those nice features and common rules of classic OOP degrade
 performance, <code>dejavu</code> has two separates modes, for different stages in the
@@ -173,7 +187,7 @@ have a <strong>lower memory footprint and filesize</strong>.
 <p>Finally, in order to achieve that extra edge, that puts <code>dejavu</code> next to vanilla
 JS in terms of performance, you should run the optimizer that is bundled with
 the library. Note that this step is completely optional, and <code>dejavu</code> will still
-perform faster than most libraries, even if you don&#39;t run the <a href="#optimizer">optimizer</a>.
+perform faster than most libraries, even if you don&#39;t run the <a href="https://github.com/IndigoUnited/dejavu##optimizer">optimizer</a>.
 The optimizer will analyse your code and make some improvements,
 boosting it a bit further.
 
@@ -181,82 +195,7 @@ boosting it a bit further.
 <p>You can check the benchmarks in <a href="http://jsperf.com/oop-benchmark/58">jsperf</a>
 comparing <code>dejavu</code> with other OOP libraries. Note that the loose mode
 is used in this test, simulating a production environment, and both the normal
-and optimized versions are tested. It is important to mention that <a href="https://github.com/tnhu/jsface">JSFace</a>
-does not chain prototypes, making the <code>instanceof</code> operator useless.
-
-
-
-</p>
-<h2>Taking it to another level</h2>
-<p>Front-end devs are encouraged to program using the AMD paradigm because of its obvious benefits.
-Since dejavu is built on it, it will integrate seamlessly with your AMD loader.
-The easy way to set it up is to define a path for dejavu in your loader config like so:
-
-</p>
-<pre><code class="lang-js">{
-   // your loader config
-   paths: {
-       // You can switch to the loose mode anytime
-       &#39;dejavu&#39;: &#39;/path/to/dejavu/dist/strict/main&#39;,
-       &#39;amd-utils&#39;: &#39;../vendor/amd-utils/src&#39;
-   }
-}</code></pre>
-<p>Then require it and use it:
-
-</p>
-<pre><code class="lang-js">define([&#39;dejavu&#39;], function (dejavu) {
-
-    // the dejavu variable is an object that contains:
-    // Class
-    // FinalClass
-    // AbstractClass
-    // Interface
-    // instanceOf
-    // options
-
-    // example usage
-    var Person = dejavu.Class.declare({
-        initialize: function () {
-            // ...
-        }
-    });
-
-    return Person;
-});</code></pre>
-<p>If you just want to require specific parts of <code>dejavu</code>, you can do so.
-In order to achieve this, you must configure your loader like so:
-
-
-</p>
-<pre><code class="lang-js">{
-    // your loader config
-    paths: {
-           &#39;amd-utils&#39;: &#39;../vendor/amd-utils/src&#39;
-    },
-    packages: [
-        {
-            name: &#39;dejavu&#39;,
-            // You can switch to the loose mode anytime
-            location: &#39;/path/to/dejavu/dist/strict&#39;
-        }
-    ]
-}</code></pre>
-<p>With this setup, you can still require the dejavu object like shown above or require specific parts of it:
-
-</p>
-<pre><code class="lang-js">define([&#39;dejavu/Class&#39;], function (Class) {
-
-    // Example usage
-    var Person = dejavu.Class.declare({
-        initialize: function () {
-            // ...
-        }
-    });
-
-    return MyClass;
-});</code></pre>
-<p>As you can see, in this case, only the <code>Class</code> module of <code>dejavu</code> is included,
-which means all the other modules are not loaded.
+and optimized versions are tested.
 
 
 
@@ -480,6 +419,81 @@ console.log((indigo instanceof Indigo) ?
     &#39;we have an indigo!&#39;
     : &#39;say what now?&#39;
 );</code></pre>
+<h2>Taking it to another level</h2>
+<p>Front-end devs are encouraged to program using the AMD paradigm because of its obvious benefits.
+Since dejavu is built on it, it will integrate seamlessly with your AMD loader.
+The easy way to set it up is to define a path for dejavu in your loader config like so:
+
+</p>
+<pre><code class="lang-js">{
+   // your loader config
+   paths: {
+       // You can switch to the loose mode anytime
+       &#39;dejavu&#39;: &#39;/path/to/dejavu/dist/strict/main&#39;,
+       &#39;amd-utils&#39;: &#39;../vendor/amd-utils/src&#39;
+   }
+}</code></pre>
+<p>Then require it and use it:
+
+</p>
+<pre><code class="lang-js">define([&#39;dejavu&#39;], function (dejavu) {
+
+    // the dejavu variable is an object that contains:
+    // Class
+    // FinalClass
+    // AbstractClass
+    // Interface
+    // instanceOf
+    // options
+
+    // example usage
+    var Person = dejavu.Class.declare({
+        initialize: function () {
+            // ...
+        }
+    });
+
+    return Person;
+});</code></pre>
+<p>If you just want to require specific parts of <code>dejavu</code>, you can do so.
+In order to achieve this, you must configure your loader like so:
+
+
+</p>
+<pre><code class="lang-js">{
+    // your loader config
+    paths: {
+           &#39;amd-utils&#39;: &#39;../vendor/amd-utils/src&#39;
+    },
+    packages: [
+        {
+            name: &#39;dejavu&#39;,
+            // You can switch to the loose mode anytime
+            location: &#39;/path/to/dejavu/dist/strict&#39;
+        }
+    ]
+}</code></pre>
+<p>With this setup, you can still require the dejavu object like shown above or require specific parts of it:
+
+</p>
+<pre><code class="lang-js">define([&#39;dejavu/Class&#39;], function (Class) {
+
+    // Example usage
+    var Person = dejavu.Class.declare({
+        initialize: function () {
+            // ...
+        }
+    });
+
+    return MyClass;
+});</code></pre>
+<p>As you can see, in this case, only the <code>Class</code> module of <code>dejavu</code> is included,
+which means all the other modules are not loaded.
+
+
+
+
+</p>
 <h3>Additional details</h3>
 <h4>Classes/instances are locked</h4>
 <p>By default, constructors and instances are locked. This means that no one can monkey patch your code.
@@ -525,4 +539,97 @@ Filipe.talk    = function () {
 </p>
 <pre><code class="lang-js">dejavu.options.locked = false;</code></pre>
 <p>Note that once a class is unlocked, its subclasses cannot be locked.
-Also, although undeclared members are allowed, they will not have their access controlled (they are interpreted</p>
+Also, although undeclared members are allowed, they will not have their access controlled (they are interpreted as public).
+
+
+
+</p>
+<h4>Vanilla classes</h4>
+<p><code>dejavu</code> allows you to extend or borrow vanilla classes. In this case, constructors and instances are forcibly UNLOCKED.
+
+</p>
+<pre><code class="lang-js">function Person(name) {
+    this.name = name;
+};
+
+var Engineer = dejavu.Class.declare({
+    $extends: Person
+});
+
+var filipe = new Engineer(&#39;Filipe&#39;);
+// Engineer class and filipe instance are unlocked</code></pre>
+<h2>Optimizer</h2>
+<p><code>dejavu</code> bundles an optimizer that makes your code faster and lighter.
+
+</p>
+<p>It specifically:
+
+</p>
+<ul>
+<li>Improves $super and $self usage</li>
+<li>Removes all $name and $locked properties because they are not used in the loose version</li>
+<li>Removes the need for wrappers, improving performance by a great margin</li>
+<li>Removes abstract functions from abstract classes</li>
+<li>Removes functions from interfaces</li>
+</ul>
+<p>The optimizer is located in the <code>bin</code> folder.
+
+</p>
+<p>Example usage:
+
+</p>
+<p><code>node optimizer &lt; file_in.js &gt; file_out.js</code>
+
+</p>
+<p><code>dejavu</code> also comes with a grunt task.
+
+</p>
+<p>Below is a sample usage copied from a grunt file:
+
+</p>
+<pre><code class="lang-js">grunt.loadNpmTasks(&#39;dejavu&#39;);
+
+grunt.initConfig({
+    dejavu: {
+        optimize: {
+            options: {
+                exclude: [/bootstrap(\.min)?\.js$/]
+            },
+            files: {
+                &#39;dist/&#39;: &#39;src/**/*.js&#39;
+            }
+        }
+    }
+});</code></pre>
+<h2>Works on</h2>
+<ul>
+<li>IE (6+)</li>
+<li>Chrome (4+)</li>
+<li>Safari (3+)</li>
+<li>Firefox (3.6+)</li>
+<li>Opera (9+)</li>
+<li>Node.js and Rhino</li>
+</ul>
+<h2>Dependencies</h2>
+<p>dejavu depends on <a href="https://github.com/millermedeiros/amd-utils">amd-utils</a>.
+If you use the regular build, you don&#39;t need to worry because all functions used from amd-utils are bundled for you.
+If you use the AMD build, learn <a href="https://github.com/IndigoUnited/dejavu#taking-it-to-another-level">how</a> to setup your loader.
+If you use dejavu on <code>node</code>, <code>npm</code> will take care of fetching everything for you.
+
+
+</p>
+<h2>Building dejavu</h2>
+<p>Simply run <code>npm install</code> to install all the tools needed.
+Then just run <code>npm run-script build</code> or <code>node build</code>.
+
+
+
+</p>
+<h2>Testing dejavu</h2>
+<p>Please take a look at the <a href="https://github.com/IndigoUnited/dejavu/tree/master/test">test</a> section.
+
+
+
+</p>
+<h2>License</h2>
+<p>Released under the <a href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>.</p>

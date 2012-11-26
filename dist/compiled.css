@@ -374,7 +374,7 @@ textarea {
     padding: 0.2em 0;
 }
 body {
-    background: #000 url('../img/cat.jpg?v=17') top center no-repeat;
+    background: #000 url('../img/cat.jpg?v=19') top center no-repeat;
     color: #FEECFF;
     font-size: 15px;
     font-family: 'Source Sans Pro', sans-serif;
@@ -393,7 +393,7 @@ a:hover {
     color: #FC8AFF;
 }
 #site {
-    width: 950px;
+    width: 1100px;
     margin: auto;
 }
 .phone #site {
@@ -405,7 +405,7 @@ a:hover {
     height: 300px;
 }
 #header .indigo {
-    background-image: url('../img/indigo_logo.png?v=17');
+    background-image: url('../img/indigo_logo.png?v=19');
     width: 145px;
     height: 50px;
     position: absolute;
@@ -429,7 +429,7 @@ a:hover {
     bottom: 0;
 }
 #header .logo {
-    background-image: url('../img/logo.png?v=17');
+    background-image: url('../img/logo.png?v=19');
     width: 378px;
     height: 121px;
     position: absolute;
@@ -440,15 +440,15 @@ a:hover {
     min-height: 300px;
 }
 #content.loading {
-    background: url('../img/loaders/loader_square.gif?v=17') center 100px no-repeat;
+    background: url('../img/loaders/loader_square.gif?v=19') center 100px no-repeat;
 }
 #content .left {
     float: left;
-    width: 455px;
+    width: 530px;
 }
 #content .right {
     float: right;
-    width: 455px;
+    width: 530px;
 }
 .phone #content .left {
     width: 100%;
@@ -472,19 +472,19 @@ a:hover {
     z-index: 2;
 }
 .block-title.dejavu-what-now {
-    background-image: url('../img/block_headers/dejavu_what_now.png?v=17');
+    background-image: url('../img/block_headers/dejavu_what_now.png?v=19');
 }
 .block-title.why-another {
-    background-image: url('../img/block_headers/why_another.png?v=17');
+    background-image: url('../img/block_headers/why_another.png?v=19');
 }
 .block-title.benchmarks {
-    background-image: url('../img/block_headers/benchmarks.png?v=17');
+    background-image: url('../img/block_headers/benchmarks.png?v=19');
 }
 .block-title.features {
-    background-image: url('../img/block_headers/features.png?v=17');
+    background-image: url('../img/block_headers/features.png?v=19');
 }
 .block-title.getting-started {
-    background-image: url('../img/block_headers/getting_started.png?v=17');
+    background-image: url('../img/block_headers/getting_started.png?v=19');
 }
 .block-content {
     min-height: 100px;
@@ -509,7 +509,7 @@ pre code {
     font-family: 'Source Code Pro', sans-serif;
     font-size: 12px;
     font-weight: 100;
-    width: 439px;
+    width: 514px;
     overflow: auto;
     white-space: pre;
     word-wrap: normal;
@@ -523,17 +523,17 @@ pre code {
     left: -12px;
 }
 .benchmark, .benchmark-mobile {
-    width: 470px;
-    height: 515px;
+    width: 545px;
+    height: 915px;
 }
 .benchmark-mobile {
-    height: 350px;
+    height: 550px;
 }
 .phone .benchmark, .phone .benchmark-mobile {
     width: 725px;
 }
 .chart.loading {
-    background: url('../img/loaders/loader_square.gif?v=17') center 100px no-repeat;
+    background: url('../img/loaders/loader_square.gif?v=19') center 100px no-repeat;
 }
 h1, h2, h3, h4 {
     color: #FF26FF;

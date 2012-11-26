@@ -120,7 +120,7 @@ a:hover {
 }
 
 #site {
-    width: 950px;
+    width: 1100px;
     margin: auto;
 }
 
@@ -181,12 +181,12 @@ a:hover {
 
 #content .left {
     float: left;
-    width: 455px;
+    width: 530px;
 }
 
 #content .right {
     float: right;
-    width: 455px;
+    width: 530px;
 }
 
 .phone #content .left {
@@ -256,7 +256,7 @@ pre code {
     font-family: 'Source Code Pro', sans-serif;
     font-size: 12px;
     font-weight: 100;
-    width: 439px;
+    width: 514px;
     overflow: auto;
     white-space: pre;
     word-wrap: normal;
@@ -273,12 +273,12 @@ pre code {
 }
 
 .benchmark, .benchmark-mobile {
-    width: 470px;
-    height: 515px;
+    width: 545px;
+    height: 915px;
 }
 
 .benchmark-mobile {
-    height: 350px;
+    height: 550px;
 }
 
 .phone .benchmark, .phone .benchmark-mobile {

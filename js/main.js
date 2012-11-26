@@ -50,27 +50,33 @@
     function addBlock(els) {
         els = $(els);
 
-        var title = getBlockTitle(els);
+        var title = getBlockTitle(els),
+            el = parseBlock(els)
+        ;
 
         switch (title) {
         case 'dejavu':
         case 'Features':
         case 'Getting started':
-            leftColumnEl.append(parseBlock(els));
+        case 'Syntax':
+            leftColumnEl.append(el);
             break;
         case 'Performance':
-            rightColumnEl.append(parseBlock(els));
-            addBlock($('<h2>Benchmarks</h2><p>You can run the <a href="http://jsperf.com/oop-benchmark/58" target="_blank">benchmark</a> yourself. Note that the benchmark below compares dejavu with libraries that do not provide many of the features that dejavu does. For more details, please consult the libraries documentation.</p><div class="benchmark chart loading"></div><div class="mobile">Mobile</div><div class="benchmark-mobile chart loading"></div>'));
+        case 'Why another?':
+            rightColumnEl.append(el);
             break;
         case 'Benchmarks':
-        case 'Why another?':
-            rightColumnEl.append(parseBlock(els));
+            el.get(0).innerHTML = el.get(0).innerHTML
+                .replace(/\{\{graph\}\}/, '<div class="benchmark chart loading"></div>')
+                .replace(/\{\{graph_mobile\}\}/, '<div class="benchmark-mobile chart loading"></div>')
+            ;
+            rightColumnEl.append(el);
             break;
         default:
             if (leftColumnEl.height() <= rightColumnEl.height()) {
-                leftColumnEl.append(parseBlock(els));
+                leftColumnEl.append(el);
             } else {
-                rightColumnEl.append(parseBlock(els));
+                rightColumnEl.append(el);
             }
         }
     }
@@ -104,7 +110,7 @@
         for (x = 0; x < length; x += 1) {
             curr = children.get(x);
             tag = curr.tagName.toLowerCase();
-            if ((tag === 'h1' || tag === 'h2' || tag === 'h3') && els.length) {
+            if ((tag === 'h1' || tag === 'h2' /*|| tag === 'h3'*/) && els.length) {
                 addBlock(els);
                 els = [];
             }
@@ -128,8 +134,30 @@
 (function () {
 
     var drawChart, fetchData,
-        key = 'agt1YS1wcm9maWxlcnINCxIEVGVzdBidz-oRDA',
-        cb = '_' + parseInt(Math.random() * 1e9, 10);
+        testId = 'agt1YS1wcm9maWxlcnINCxIEVGVzdBiShoITDA',
+        cb = '_' + parseInt(Math.random() * 1e9, 10),
+        // the blacklist below is due to unstable versions of browsers that should not
+        // yet be accounted for
+        browserBlacklist = [
+            /Firefox 18\./,
+            /Firefox 19\./,
+            /Safari 5\.1\.7/ // this graph was wacked, because the results weren't properly submitted
+        ]
+    ;
+
+    function browserIsBlacklisted(browser) {
+        var i,
+            totalBlacklisted = browserBlacklist.length
+        ;
+
+        for (i = 0; i < totalBlacklisted; ++i) {
+            if (browserBlacklist[i].test(browser)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     drawChart = function (title, results, el) {
         var browserName, browser, testName, test, line, browserResults, data,
@@ -143,7 +171,7 @@
         // TODO: add ops/sec to the tooltip
         // TODO: put M
 
-        // Generate data for the
+        // Generate data for the graph
         for (browserName in results) {
             if (results.hasOwnProperty(browserName)) {
                 browser = results[browserName];
@@ -177,7 +205,7 @@
             fontSize: 14,
             chartArea: {
                 top: 70,
-                left: 85,
+                left: 125,
                 right: 0,
                 bottom: 0,
                 width: el.width(),
@@ -234,7 +262,6 @@
     window[cb] = function (response) {
         var results = response.results,
             key,
-            browserName,
             split,
             mobile = ['android', 'ipad', 'iphone'],
             browserVersions = {},
@@ -243,50 +270,30 @@
         // Parse non-mobile browsers
         // Only keep the most recent browser in the results
         for (key in results) {
-            split = key.split(' ', 2);
-            browserName = split[0];
-            // Skip mobile
-            if (mobile.indexOf(browserName.toLowerCase()) !== -1) {
+            split = key.split(' ');
+            // Skip mobile and blacklisted browsers
+            if (mobile.indexOf(split[0].toLowerCase()) !== -1 || browserIsBlacklisted(key)) {
                 continue;
             }
-            split[1] = parseInt(split[1], 10);
-            if ((browserVersions[browserName] || 0) < split[1]) {
-                browserVersions[browserName] = split[1];
-                newResults[browserName] = results[key];
-            }
-        }
-
-        // Add the version to the browser names
-        for (key in newResults) {
-            newResults[key + ' ' + browserVersions[key]] = newResults[key];
-            delete newResults[key];
+            newResults[key] = results[key];
         }
 
         // Draw the chart
         drawChart(response.category_name, newResults, $('.benchmark'));
+
+
 
         // Parse mobile browsers
         // Only keep the most recent browser in the results
         newResults = {};
         browserVersions = {};
         for (key in results) {
-            split = key.split(' ', 2);
-            browserName = split[0];
-            // Skip mobile
-            if (mobile.indexOf(browserName.toLowerCase()) === -1) {
+            split = key.split(' ');
+            // Include mobile, but exclude blacklisted browsers
+            if (mobile.indexOf(split[0].toLowerCase()) === -1 || browserIsBlacklisted(key)) {
                 continue;
             }
-            split[1] = parseInt(split[1], 10);
-            if ((browserVersions[browserName] || 0) < split[1]) {
-                browserVersions[browserName] = split[1];
-                newResults[browserName] = results[key];
-            }
-        }
-
-        // Add the version to the browser names
-        for (key in newResults) {
-            newResults[key + ' ' + browserVersions[key]] = newResults[key];
-            delete newResults[key];
+            newResults[key] = results[key];
         }
 
         // Draw the chart
@@ -298,7 +305,7 @@
             first = document.getElementsByTagName('script')[0];
 
         script.async = 1;
-        script.src = '//www.browserscope.org/user/tests/table/' + key +
+        script.src = '//www.browserscope.org/user/tests/table/' + testId +
             '?v=3&o=json&callback=' + cb;
         first.parentNode.insertBefore(script, first);
     };
