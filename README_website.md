@@ -290,7 +290,6 @@ var Person = Class.declare({
         // note that we're binding to the current instance in this case.
         // also note that if this function is to be used only as a callback, you can
         // use $bound(), which will be more efficient
-        // TODO:
         setTimeout(this._logName.$bind(this), 1000);
     },
 
@@ -319,7 +318,6 @@ This example illustrates the usage of:
 - statics, abstracts, abstract statics, finals, final statics and constants
 - `$extends` vs `$borrows`
 - binding (`$bind()` vs `$bound()`)
- // TODO:
 
 In this case, and keep in mind that this is just for illustration purposes, we'll create three interfaces, that are implemented by an abstract class, that is then extended by a concrete class.
 
