@@ -35,6 +35,7 @@ define([
     'amd-utils/lang/isDate',
     'amd-utils/lang/isRegExp',
     'amd-utils/lang/createObject',
+    'amd-utils/lang/inheritPrototype',
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
     'amd-utils/array/contains',
@@ -76,6 +77,7 @@ define([
     isDate,
     isRegExp,
     createObject,
+    inheritPrototype,
     hasOwn,
     combine,
     contains,
@@ -163,7 +165,6 @@ define([
     function wrapMethod(method, constructor, parent) {
         // Return the method if the class was created efficiently
         if (constructor[$class].efficient) {
-            method[$wrapped] = true;
             return method;
         }
 
@@ -1243,26 +1244,26 @@ define([
             Object.defineProperty(instance, name, {
                 get: function get() {
 
-                    var method = this[cacheKeyword].methods[name],
+                    var method = instance[cacheKeyword].methods[name],
                         currCaller = caller,
                         isConstructor = name === 'initialize';
 
-                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
+                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
                         return method;
                     }
 
                     if (!isConstructor) {
-                        throw new Error('Cannot access private method "' + name + '" of class "' + this.$name + '".');
+                        throw new Error('Cannot access private method "' + name + '" of class "' + instance.$name + '".');
                     } else {
-                        throw new Error('Constructor of class "' + this.$name + '" is private.');
+                        throw new Error('Constructor of class "' + instance.$name + '" is private.');
                     }
                 },
                 set: function set(newVal) {
 
-                    if (this.$initializing) {
-                        this[cacheKeyword].methods[name] = newVal;
+                    if (instance.$initializing || !instance.$static[$class].locked || instance.$static[$class].forceUnlocked) {
+                        instance[cacheKeyword].methods[name] = newVal;
                     } else {
-                        throw new Error('Cannot set private method "' + name + '" of class "' + this.$name + '".');
+                        throw new Error('Cannot set private method "' + name + '" of class "' + instance.$name + '".');
                     }
                 },
                 configurable: false,
@@ -1272,26 +1273,26 @@ define([
             Object.defineProperty(instance, name, {
                 get: function get() {
 
-                    var method = this[cacheKeyword].methods[name],
+                    var method = instance[cacheKeyword].methods[name],
                         currCaller = caller,
                         isConstructor = name === 'initialize';
 
-                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this instanceof callerClass))) {
+                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || instance instanceof callerClass))) {
                         return method;
                     }
 
                     if (!isConstructor) {
-                        throw new Error('Cannot access protected method "' + name + '" of class "' + this.$name + '".');
+                        throw new Error('Cannot access protected method "' + name + '" of class "' + instance.$name + '".');
                     } else {
-                        throw new Error('Constructor of class "' + this.$name + '" is protected.');
+                        throw new Error('Constructor of class "' + instance.$name + '" is protected.');
                     }
                 },
                 set: function set(newVal) {
 
-                    if (this.$initializing) {
-                        this[cacheKeyword].methods[name] = newVal;
+                    if (instance.$initializing || !instance.$static[$class].locked || instance.$static[$class].forceUnlocked) {
+                        instance[cacheKeyword].methods[name] = newVal;
                     } else {
-                        throw new Error('Cannot set protected method "' + name + '" of class "' + this.$name + '".');
+                        throw new Error('Cannot set protected method "' + name + '" of class "' + instance.$name + '".');
                     }
                 },
                 configurable: false,
@@ -1300,14 +1301,14 @@ define([
         } else {
             Object.defineProperty(instance, name, {
                 get: function get() {
-                    return this[cacheKeyword].methods[name];
+                    return instance[cacheKeyword].methods[name];
                 },
                 set: function set(newVal) {
 
-                    if (this.$initializing) {
-                        this[cacheKeyword].methods[name] = newVal;
+                    if (instance.$initializing || !instance.$static[$class].locked || instance.$static[$class].forceUnlocked) {
+                        instance[cacheKeyword].methods[name] = newVal;
                     } else {
-                        throw new Error('Cannot set public method "' + name + '" of class "' + this.$name + '".');
+                        throw new Error('Cannot set public method "' + name + '" of class "' + instance.$name + '".');
                     }
                 },
                 configurable: false,
@@ -1330,7 +1331,7 @@ define([
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
-                    var method = this[cacheKeyword].methods[name],
+                    var method = constructor[cacheKeyword].methods[name],
                         currCaller = caller;
 
 
@@ -1338,10 +1339,12 @@ define([
                         return method;
                     }
 
-                    throw new Error('Cannot access private static method "' + name + '" of class "' + this.prototype.$name + '".');
+                    throw new Error('Cannot access private static method "' + name + '" of class "' + constructor.prototype.$name + '".');
                 },
                 set: function set() {
-                    throw new Error('Cannot set private static method "' + name + '" of class "' + this.prototype.$name + '".');
+                    if (constructor[$class].locked && !constructor[$class].forceUnlocked) {
+                        throw new Error('Cannot set private static method "' + name + '" of class "' + constructor.prototype.$name + '".');
+                    }
                 },
                 configurable: false,
                 enumerable: false
@@ -1350,17 +1353,19 @@ define([
             Object.defineProperty(constructor, name, {
                 get: function get() {
 
-                    var method = this[cacheKeyword].methods[name],
+                    var method = constructor[cacheKeyword].methods[name],
                         currCaller = caller;
 
-                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this.prototype instanceof callerClass))) {
+                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || constructor.prototype instanceof callerClass))) {
                         return method;
                     }
 
-                    throw new Error('Cannot access protected static method "' + name + '" of class "' + this.prototype.$name + '".');
+                    throw new Error('Cannot access protected static method "' + name + '" of class "' + constructor.prototype.$name + '".');
                 },
                 set: function set() {
-                    throw new Error('Cannot set protected static method "' + name + '" of class "' + this.prototype.$name + '".');
+                    if (constructor[$class].locked && !constructor[$class].forceUnlocked) {
+                        throw new Error('Cannot set protected static method "' + name + '" of class "' + constructor.prototype.$name + '".');
+                    }
                 },
                 configurable: false,
                 enumerable: false
@@ -1368,10 +1373,12 @@ define([
         } else {
             Object.defineProperty(constructor, name, {
                 get: function get() {
-                    return this[cacheKeyword].methods[name];
+                    return constructor[cacheKeyword].methods[name];
                 },
                 set: function set() {
-                    throw new Error('Cannot set public static method "' + name + '" of class "' + this.$name + '".');
+                    if (constructor[$class].locked && !constructor[$class].forceUnlocked) {
+                        throw new Error('Cannot set public static method "' + name + '" of class "' + constructor.$name + '".');
+                    }
                 },
                 configurable: false,
                 enumerable: false
@@ -1395,20 +1402,20 @@ define([
 
                     var currCaller = caller;
 
-                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
-                        return this[cacheKeyword].properties[name];
+                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
+                        return instance[cacheKeyword].properties[name];
                     }
 
-                    throw new Error('Cannot access private property "' + name + '" of class "' + this.$name + '".');
+                    throw new Error('Cannot access private property "' + name + '" of class "' + instance.$name + '".');
                 },
                 set: function set(newValue) {
 
                     var currCaller = caller;
 
-                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
-                        this[cacheKeyword].properties[name] = newValue;
+                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
+                        instance[cacheKeyword].properties[name] = newValue;
                     } else {
-                        throw new Error('Cannot set private property "' + name + '" of class "' + this.$name + '".');
+                        throw new Error('Cannot set private property "' + name + '" of class "' + instance.$name + '".');
                     }
                 },
                 configurable: false,
@@ -1422,20 +1429,20 @@ define([
 
                     var currCaller = caller;
 
-                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this instanceof callerClass))) {
-                        return this[cacheKeyword].properties[name];
+                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || instance instanceof callerClass))) {
+                        return instance[cacheKeyword].properties[name];
                     }
 
-                    throw new Error('Cannot access protected property "' + name + '" of class "' + this.$name + '".');
+                    throw new Error('Cannot access protected property "' + name + '" of class "' + instance.$name + '".');
                 },
                 set: function set(newValue) {
 
                     var currCaller = caller;
 
-                    if (this.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this instanceof callerClass))) {
-                        this[cacheKeyword].properties[name] = newValue;
+                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || instance instanceof callerClass))) {
+                        instance[cacheKeyword].properties[name] = newValue;
                     } else {
-                        throw new Error('Cannot set protected property "' + name + '" of class "' + this.$name + '".');
+                        throw new Error('Cannot set protected property "' + name + '" of class "' + instance.$name + '".');
                     }
                 },
                 configurable: false,
@@ -1465,23 +1472,23 @@ define([
                     var currCaller = caller;
 
                     if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
-                        return this[cacheKeyword].properties[name];
+                        return constructor[cacheKeyword].properties[name];
                     }
 
-                    throw new Error('Cannot access private static property "' + name + '" of class "' + this.prototype.$name + '".');
+                    throw new Error('Cannot access private static property "' + name + '" of class "' + constructor.prototype.$name + '".');
                 },
                 set: meta.isConst ?
                         function () {
-                            throw new Error('Cannot change value of constant property "' + name + '" of class "' + this.prototype.$name + '".');
+                            throw new Error('Cannot change value of constant property "' + name + '" of class "' + constructor.prototype.$name + '".');
                         } :
                         function set(newValue) {
 
                             var currCaller = caller;
 
                             if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId) {
-                                this[cacheKeyword].properties[name] = newValue;
+                                constructor[cacheKeyword].properties[name] = newValue;
                             } else {
-                                throw new Error('Cannot set private property "' + name + '" of class "' + this.prototype.$name + '".');
+                                throw new Error('Cannot set private property "' + name + '" of class "' + constructor.prototype.$name + '".');
                             }
                         },
                 configurable: false,
@@ -1495,24 +1502,24 @@ define([
 
                     var currCaller = caller;
 
-                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this.prototype instanceof callerClass))) {
+                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || constructor.prototype instanceof callerClass))) {
                         return constructor[cacheKeyword].properties[name];
                     }
 
-                    throw new Error('Cannot access protected static property "' + name + '" of class "' + this.prototype.$name + '".');
+                    throw new Error('Cannot access protected static property "' + name + '" of class "' + constructor.prototype.$name + '".');
                 },
                 set: meta.isConst ?
                         function () {
-                            throw new Error('Cannot change value of constant property "' + name + '" of class "' + this.prototype.$name + '".');
+                            throw new Error('Cannot change value of constant property "' + name + '" of class "' + constructor.prototype.$name + '".');
                         } :
                         function set(newValue) {
 
                             var currCaller = caller;
 
-                            if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || this.prototype instanceof callerClass)) {
-                                this[cacheKeyword].properties[name] = newValue;
+                            if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || constructor.prototype instanceof callerClass)) {
+                                constructor[cacheKeyword].properties[name] = newValue;
                             } else {
-                                throw new Error('Cannot set protected static property "' + name + '" of class "' + this.prototype.$name + '".');
+                                throw new Error('Cannot set protected static property "' + name + '" of class "' + constructor.prototype.$name + '".');
                             }
                         },
                 configurable: false,
@@ -1523,10 +1530,10 @@ define([
 
             Object.defineProperty(constructor, name, {
                 get: function () {
-                    return this[cacheKeyword].properties[name];
+                    return constructor[cacheKeyword].properties[name];
                 },
                 set: function () {
-                    throw new Error('Cannot change value of constant property "' + name + '" of class "' + this.prototype.$name + '".');
+                    throw new Error('Cannot change value of constant property "' + name + '" of class "' + constructor.prototype.$name + '".');
                 },
                 configurable: false,
                 enumerable: true
@@ -1899,7 +1906,8 @@ define([
     function optimizeConstructor(constructor) {
         var tmp = constructor[$class],
             canOptimizeConst,
-            newConstructor;
+            newConstructor,
+            parentInitialize;
 
         // Check if we can optimize the constructor
         if (tmp.efficient) {
@@ -1907,10 +1915,43 @@ define([
             delete constructor.$canOptimizeConst;
 
             if (canOptimizeConst && !tmp.properties.length && !tmp.binds.length) {
-                newConstructor = constructor.prototype.initialize;
+                if (hasOwn(constructor.prototype, 'initialize'))  {
+                    newConstructor = constructor.prototype.initialize;
+                } else {
+                    parentInitialize = constructor.prototype.initialize;
+
+                    // Optimize common use cases
+                    // Default to the slower apply..
+                    switch (parentInitialize.length) {
+                    case 0:
+                        newConstructor = function () { parentInitialize.call(this); };
+                        break;
+                    case 1:
+                        newConstructor = function (a) { parentInitialize.call(this, a); };
+                        break;
+                    case 2:
+                        newConstructor = function (a, b) { parentInitialize.call(this, a, b); };
+                        break;
+                    case 3:
+                        newConstructor = function (a, b, c) { parentInitialize.call(this, a, b, c); };
+                        break;
+                    case 4:
+                        newConstructor = function (a, b, c, d) { parentInitialize.call(this, a, b, c, d); };
+                        break;
+                    default:
+                        newConstructor = function () { parentInitialize.apply(this, arguments); };
+                    }
+                }
+
+                newConstructor.prototype = constructor.prototype;
+                newConstructor.prototype.constructor = newConstructor;
+                constructor.prototype = Function.prototype;
+
                 newConstructor[$class] = constructor[$class];
                 mixIn(newConstructor, constructor);
-                newConstructor.prototype = constructor.prototype;
+                if (constructor.$parent) {
+                    newConstructor.$parent = constructor.$parent;
+                }
 
                 return newConstructor;
             }
@@ -2068,8 +2109,7 @@ define([
             dejavu = createConstructor(constructor);
 //>>excludeEnd('strict');
             obfuscateProperty(dejavu, '$parent', parent);
-            dejavu.prototype = createObject(parent.prototype);
-
+            inheritPrototype(dejavu, parent);
             inheritParent(dejavu, parent);
         } else {
 //>>includeStart('strict', pragmas.strict);
@@ -2213,7 +2253,7 @@ define([
 //>>excludeStart('strict', pragmas.strict);
                 constructor.$canOptimizeConst = !!$arg3;
 //>>excludeEnd('strict');
-                params = arg2(arg1.prototype, constructor, arg1);
+                params = arg2(arg1.prototype, arg1, constructor);
             // create(parentClass, props)
             } else {
                 params = arg2;

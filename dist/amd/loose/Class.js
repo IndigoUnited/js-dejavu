@@ -11,6 +11,7 @@ define([
     'amd-utils/lang/isDate',
     'amd-utils/lang/isRegExp',
     'amd-utils/lang/createObject',
+    'amd-utils/lang/inheritPrototype',
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
     'amd-utils/array/contains',
@@ -31,6 +32,7 @@ define([
     isDate,
     isRegExp,
     createObject,
+    inheritPrototype,
     hasOwn,
     combine,
     contains,
@@ -89,7 +91,6 @@ define([
     function wrapMethod(method, constructor, parent) {
         // Return the method if the class was created efficiently
         if (constructor[$class].efficient) {
-            method[$wrapped] = true;
             return method;
         }
 
@@ -513,7 +514,8 @@ define([
     function optimizeConstructor(constructor) {
         var tmp = constructor[$class],
             canOptimizeConst,
-            newConstructor;
+            newConstructor,
+            parentInitialize;
 
         // Check if we can optimize the constructor
         if (tmp.efficient) {
@@ -521,10 +523,43 @@ define([
             delete constructor.$canOptimizeConst;
 
             if (canOptimizeConst && !tmp.properties.length && !tmp.binds.length) {
-                newConstructor = constructor.prototype.initialize;
+                if (hasOwn(constructor.prototype, 'initialize'))  {
+                    newConstructor = constructor.prototype.initialize;
+                } else {
+                    parentInitialize = constructor.prototype.initialize;
+
+                    // Optimize common use cases
+                    // Default to the slower apply..
+                    switch (parentInitialize.length) {
+                    case 0:
+                        newConstructor = function () { parentInitialize.call(this); };
+                        break;
+                    case 1:
+                        newConstructor = function (a) { parentInitialize.call(this, a); };
+                        break;
+                    case 2:
+                        newConstructor = function (a, b) { parentInitialize.call(this, a, b); };
+                        break;
+                    case 3:
+                        newConstructor = function (a, b, c) { parentInitialize.call(this, a, b, c); };
+                        break;
+                    case 4:
+                        newConstructor = function (a, b, c, d) { parentInitialize.call(this, a, b, c, d); };
+                        break;
+                    default:
+                        newConstructor = function () { parentInitialize.apply(this, arguments); };
+                    }
+                }
+
+                newConstructor.prototype = constructor.prototype;
+                newConstructor.prototype.constructor = newConstructor;
+                constructor.prototype = Function.prototype;
+
                 newConstructor[$class] = constructor[$class];
                 mixIn(newConstructor, constructor);
-                newConstructor.prototype = constructor.prototype;
+                if (constructor.$parent) {
+                    newConstructor.$parent = constructor.$parent;
+                }
 
                 return newConstructor;
             }
@@ -579,8 +614,7 @@ define([
 
             dejavu = createConstructor(constructor);
             obfuscateProperty(dejavu, '$parent', parent);
-            dejavu.prototype = createObject(parent.prototype);
-
+            inheritPrototype(dejavu, parent);
             inheritParent(dejavu, parent);
         } else {
             dejavu = createConstructor(constructor);
@@ -648,7 +682,7 @@ define([
             if (isFunction(arg2)) {
                 constructor = createConstructor();
                 constructor.$canOptimizeConst = !!$arg3;
-                params = arg2(arg1.prototype, constructor, arg1);
+                params = arg2(arg1.prototype, arg1, constructor);
             // create(parentClass, props)
             } else {
                 params = arg2;
