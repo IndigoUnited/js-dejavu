@@ -1,6 +1,5 @@
-# dejavu #
-
----
+dejavu
+------
 
 [![Build Status](https://secure.travis-ci.org/IndigoUnited/dejavu.png)](http://travis-ci.org/IndigoUnited/dejavu)
 
@@ -18,31 +17,27 @@ prototypal inheritance, making it a breeze to move into JavaScript.
 
 
 
-## Why another? ##
+## Why another?
 
 There are some libraries out there able to shim classical inheritance,
 however none offers all the functionality that many programmers require.
-Also, even though being one of the most feature rich OOP libraries out there, it has one of the best performances, rivaling with vanilla JS in production.
+
+Also, even though being one of the most feature rich OOP libraries out there, it has the best performance, rivaling with vanilla in production.
 
 
 
-## Features ##
+## Features
 
-* Concrete classes
-* Abstract classes
+* Classes (concrete, abstract and final)
 * Interfaces
 * Mixins (so you can get some sort of multiple inheritance)
 * Private and protected members
 * Static members
 * Constants
-* Ability to declare true singletons via protected/private constructors
 * Context binding for functions
 * Method signature checks
 * Possible to extend or borrow from vanilla classes
 * Custom instanceOf with support for Interfaces
-* Classes and instances are locked by default
-    * Functions cannot be added, replaced or deleted
-    * Properties can only be modified
 * Two builds, `regular` and `AMD` based
     * `AMD` optimized for speeding up developer workflow, allowing testing
       without the need to re-compile everything into a single file
@@ -58,15 +53,15 @@ using the `dejavu` in strict mode, otherwise some code might fail silently.
 This can happen because `dejavu` uses `Object.freeze` and `Object.seal` to lock
 classes and instances, guaranteeing that no one changes the behaviour of your
 classes by replacing methods, etc, and possibly breaking your code, making it
-really hard to pin point what's wrong. Altough this is the default behavior, it can be changed.
+really hard to pin point what's wrong. Although this is the default behaviour, it can be changed.
+
 You will read more on it later in this document.
 
 **Do not confuse 'use strict' with the dejavu strict mode.**
 
 
 
-
-## Getting started ##
+## Getting started
 
 The quickest way to start using `dejavu` in your project, is by simply including
 `dist/regular/strict/dejavu.js` (note that this is in __strict__ mode).
@@ -74,18 +69,19 @@ The quickest way to start using `dejavu` in your project, is by simply including
 If you're developing a __client-side__ app, simply put the file in some folder,
 and include it in the HTML:
 
-```
+```html
 <!DOCTYPE html>
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="Content-Type"
+              content="text/html; charset=UTF-8">
         <script type="text/javascript" src="dejavu.js"></script>
     </head>
     <body>
         <script type="text/javascript">
             'use strict';
 
-            // Declare the "Person" class
+            // declare the "Person" class
             var Person = dejavu.Class.declare({
                 _name: null,
 
@@ -104,7 +100,7 @@ and include it in the HTML:
                 }
             });
 
-            // Create a new instance of person
+            // create a new instance of person
             var indigo = new Person('Marco');
             console.log('A new indigo was born,', indigo.getName());
         </script>
@@ -115,10 +111,10 @@ and include it in the HTML:
 This will make a `dejavu` global available for you.
 If you're developing in __Node.js__, install it with `npm install dejavu` and use it like so:
 
-```
+```js
 var dejavu = require('dejavu');
 
-// Declare the "Person" class
+// declare the "Person" class
 var Person = dejavu.Class.declare({
     _name: null,
 
@@ -137,7 +133,7 @@ var Person = dejavu.Class.declare({
     }
 });
 
-// Create a new instance of person
+// create a new instance of person
 var indigo = new Person("Marco");
 console.log("A new indigo was born,", indigo.getName());
 ```
@@ -146,13 +142,13 @@ In node, the default mode running will be the strict mode unless the STRICT envi
  variable is set to false.
 Environment variables can be changed system wide or per process like so:
 
-```
+```js
 process.env.STRICT = false;
 ```
 
 
 
-## Performance ##
+## Performance
 
 Since all those nice features and common rules of classic OOP degrade
 performance, `dejavu` has two separates modes, for different stages in the
@@ -170,38 +166,268 @@ have a __lower memory footprint and filesize__.
 Finally, in order to achieve that extra edge, that puts `dejavu` next to vanilla
 JS in terms of performance, you should run the optimizer that is bundled with
 the library. Note that this step is completely optional, and `dejavu` will still
-perform faster than the other libraries in most browsers, even if you don't run
-the optimizer. The optimizer will analyse your code, and make some improvements
+perform faster than most libraries, even if you don't run the [optimizer](https://github.com/IndigoUnited/dejavu##optimizer).
+The optimizer will analyse your code and make some improvements,
 boosting it a bit further.
 
 You can check the benchmarks in [jsperf](http://jsperf.com/oop-benchmark/58)
 comparing `dejavu` with other OOP libraries. Note that the loose mode
 is used in this test, simulating a production environment, and both the normal
-and optimized versions are tested.
+and optimized versions are tested. It is also important to mention that
+[JSFace](https://github.com/tnhu/jsface) does not chain prototypes. This gives
+JSFace an extra edge in performance in some browsers, like Firefox, but renders
+the `instanceof` operator useless, so this is kind of a cheat.
+
+
+
+## Syntax
+
+### Overview
+
+Here's an overview of what most developers look for in an OOP library. You can find complete examples further down.
+
+```js
+var Person = Class.declare({
+    // although not mandatory, it's really useful to identify
+    // the class name, which simplifies debugging
+    $name: 'Person',
+
+    // this is a protected property, which is identified by
+    // the single underscore. two underscores denotes a
+    // private property, and no underscore stands for public
+    _name: null,
+    __pinCode: null,
+
+    // class constructor
+    initialize: function (name, pinCode) {
+        this._name = name;
+        this.__pinCode = pinCode;
+
+        // note that we're binding to the current instance in this case.
+        // also note that if this function is to be used only as a callback, you can
+        // use $bound(), which will be more efficient
+        setTimeout(this._logName.$bind(this), 1000);
+    },
+
+    // public method (follows the same visibility logic, in this case with no underscore)
+    getName: function () {
+        return this._name;
+    }
+
+    _logName: function () {
+        console.log(this._name);
+    }
+});
+```
+
+### Complete example
+
+For those looking for something more, here's a more complete usage of `dejavu`.
+
+This example illustrates the usage of:
+
+- `$name` meta attribute
+- `this.$self` vs `this.$static`
+- `$super()` for accessing overridden methods
+- `instanceOf`
+- member visibility
+- statics, abstracts, abstract statics, finals, final statics and constants
+- `$extends` vs `$borrows`
+- binding (`$bind()` vs `$bound()`)
+
+In this case, and keep in mind that this is just for illustration purposes, we'll create three interfaces, that are implemented by an abstract class, that is then extended by a concrete class.
+
+
+```js
+var dejavu = require('dejavu');
+
+// ------------ AN INTERFACE ------------
+// this interface is useless, is only here to illustrate
+// that interfaces can extend other interfaces
+var UselessInterface = dejavu.Interface.declare({
+    $name: 'UselessInterface'
+});
+
+var PersonInterface = dejavu.Interface.declare({
+    $name: 'PersonInterface',
+    // if you need to extend multiple interfaces,
+    // just provide an array
+    $extends: UselessInterface,
+
+    // interface methods can specify argument list, and any class
+    // that implements that interface will be automatically checked,
+    // to make sure it obeys the method signature. If you want to
+    // specify an optional argument, you should prepend it by a dollar
+    // sign, like so: someMethod(arg1, arg2, $thisArgIsOptional)
+    getName: function () {},
+    setName: function (name) {}
+});
+
+// ------------ ANOTHER INTERFACE ------------
+var EngineerInterface = dejavu.Interface.declare({
+    $name: 'EngineerInterface',
+
+    think: function(subject) {}
+});
+
+// ------------ AN ABSTRACT CLASS ------------
+var AbstractIndigo = dejavu.AbstractClass.declare({
+    $name: 'AbstractIndigo',
+    // implements multiple interfaces
+    $implements: [PersonInterface, EngineerInterface],
+
+    $constants: {
+        INDIGO_WEBSITE: 'http://www.indigounited.com/',
+        INDIGO_EMAIL:   'hello@indigounited.com'
+    },
+
+    $statics: {
+        logIndigoInfo: function () {
+            // by using this.$static, we're making sure that dejavu
+            // uses late binding to resolve the member. If you're
+            // looking for early binding, you can use this.$self
+            // instead
+            console.log(
+                this.$static.INDIGO_WEBSITE,
+                this.$static.INDIGO_EMAIL
+            );
+        }
+    },
+
+    // method/attribute visibility is controlled by
+    // the number of underscores that the identifier
+    // has:
+    // public:    no underscores
+    // protected: 1 underscore
+    // private:   2 underscores
+    //
+    // the attribute below is protected
+    _name: null,
+
+    getName: function () {
+        return this._name;
+    },
+
+    setName: function (name) {
+        this._name = name;
+
+        return this;
+    },
+
+    // note that we're not implementing the method `think()` of the
+    // EngineerInterface. This will be automatically turned into an
+    // abstract method, since we're in an abstract class
+    $abstracts: {
+        beAwesome: function () {}
+
+        // you can also put "$statics {}" here
+        // to create an abstract static method
+    },
+
+    // finals are not overridable
+    $finals: {
+        // you can also put "$statics {}" here
+        // to create a final static method
+
+        thisIsFinal: function () {
+            console.log('Can\'t change this!');
+        }
+    }
+});
+
+// ------------ A CONCRETE CLASS ------------
+// also, if you need this concrete class to be final,
+// you can just use dejavu.FinalClass.declare instead
+var Indigo = dejavu.Class.declare({
+    $name: 'Indigo',
+    // class extends another one.
+    //
+    // in case you need to extend from several classes,
+    // you can instead use $borrows, and specify an
+    // array of identifiers. Still, note that borrowing
+    // will not allow you to perform dejavu.instanceOf
+    // tests, as the class is not technically extending
+    // the other, just borrowing its behaviour.
+    $extends: AbstractIndigo,
+
+    _subject: 'nothing',
+
+    initialize: function (name) {
+        // call the parent method, in this case the parent constructor,
+        // but can be applied to any method when you need to call the
+        // overridden method
+        this.$super();
+
+        this.setName(name);
+
+        // note that we're binding the context to the current
+        // instance. If, like in this case, the callback
+        // function is to be used only as a callback, you
+        // can just do .$bound(), upon declaring the function
+        // which is equivalent to .$bind(this), but more efficient
+        setInterval(this._logThought.$bind(this), 1000);
+    },
+
+    beAwesome: function () {
+        console.log(this._name, 'is being awesome!');
+        this.$self.logIndigoInfo();
+        this.think('the next big thing');
+    },
+
+    think: function (subject) {
+        this._subject = subject;
+    },
+
+    _logThought: function () {
+        console.log(this._name, 'is thinking about', this._subject);
+    }//.bound() would be equivalent to the binding in the constructor
+});
+
+var indigo = new Indigo('André');
+indigo.beAwesome();
+
+// check the type of an object
+console.log(
+    dejavu.instanceOf(indigo, EngineerInterface) ?
+    'we have an engineer!'
+    : 'say what now?'
+);
+console.log(dejavu.instanceOf(indigo, Indigo) ?
+    'we have an indigo!'
+    : 'say what now?'
+);
+// native instanceof also works for classes, but not for interfaces
+console.log((indigo instanceof Indigo) ?
+    'we have an indigo!'
+    : 'say what now?'
+);
+
+```
 
 
 
 ## Taking it to another level
 
-
 Front-end devs are encouraged to program using the AMD paradigm because of its obvious benefits.
-Since dejavu is built upon it, it will integrate seamlessly with your AMD loader.
+Since dejavu is built on it, it will integrate seamlessly with your AMD loader.
 The easy way to set it up is to define a path for dejavu in your loader config like so:
 
-```
+```js
 {
-   // Your loader config
+   // your loader config
    paths: {
-       'dejavu': '/path/to/dejavu/dist/strict/main'     // You can switch to the loose mode anytime
+       // You can switch to the loose mode anytime
+       'dejavu': '/path/to/dejavu/dist/strict/main',
+       'amd-utils': '../vendor/amd-utils/src'
    }
 }
 ```
 Then require it and use it:
 
-```
+```js
 define(['dejavu'], function (dejavu) {
 
-    // The dejavu variable is an object that contains:
+    // the dejavu variable is an object that contains:
     // Class
     // FinalClass
     // AbstractClass
@@ -209,7 +435,7 @@ define(['dejavu'], function (dejavu) {
     // instanceOf
     // options
 
-    // Example usage
+    // example usage
     var Person = dejavu.Class.declare({
         initialize: function () {
             // ...
@@ -224,13 +450,17 @@ If you just want to require specific parts of `dejavu`, you can do so.
 In order to achieve this, you must configure your loader like so:
 
 
-```
+```js
 {
-    // Your loader config
+    // your loader config
+    paths: {
+           'amd-utils': '../vendor/amd-utils/src'
+    },
     packages: [
         {
             name: 'dejavu',
-            location: '/path/to/dejavu/dist/strict'     // You can switch to the loose mode anytime
+            // You can switch to the loose mode anytime
+            location: '/path/to/dejavu/dist/strict'
         }
     ]
 }
@@ -238,7 +468,7 @@ In order to achieve this, you must configure your loader like so:
 
 With this setup, you can still require the dejavu object like shown above or require specific parts of it:
 
-```
+```js
 define(['dejavu/Class'], function (Class) {
 
     // Example usage
@@ -257,407 +487,27 @@ which means all the other modules are not loaded.
 
 
 
-## Syntax
 
-Classes are simply defined as we can see below:
+### Additional details
 
-```
-var Person = Class.declare({
-    
-    $name = 'Person',
-
-    _name: null,
-
-    initialize: function (name) {
-        
-        this.name = name;
-    },
-
-    getName: function () {
-        return this._name; 
-    }
-});
-
-```
-
-Person class has one protected property, a constructor and a public method.
-
-
-DejaVu allows too to implement interfaces and abstract classes. Here's simple example of each one:
-
-```
-var AbstractPerson = AbstractClass.declare({
-
-    $name = 'AbstractPerson',
-    
-    _name: null
-});
-```
-
-```
-var InterfacePerson = Interface.declare({
-
-    $name = 'InterfacePerson',
-    
-    getName: function() {}
-});
-```
-
-The interface and the abstract class now could be integrated into the Person class as we can see below:
-
-```
-var Person = Class.declare({
-    
-    $name = 'Person',
-    
-    $extends = AbstractPerson,
-    
-    $implements = InterfacePerson,
-
-    _name: null,
-
-    initialize: function (name) {
-        
-        this.name = name;
-    },
-
-    getName: function () {
-        return this._name; 
-    }
-});
-```
-The following sections show how you specifically can use other features.
-
-
-
-### Class ###
-
-
-
-```
-var Person = Class.declare({
-
-    $name: 'Person', // $name is an internal option used for debug
-
-    // extends classes - multiple interfaces should be specified as array
-    // $extends: [AbstractPerson, AbstractIndigo]
-    $extends: AbstractPerson,
-    
-    // implements interfaces - multiple interfaces should be specified as array
-    $implements: InterfacePerson
-    
-    // use mixins - multiple mixins should be specified as array
-    $borrows: Indigo,
-    
-    // define constants
-    $constants: {
-        INDIGO: 'nice dudes'
-    },
-    
-    // public property
-    isIndigo: null,
-    
-    // protected property (starts with _)
-    _name: null,
-    
-    // private properties (starts with __)
-    
-    /**
-     * Class constructor.
-     */
-    initialize: function () {
-
-        // call super
-        this.$super();
-
-        // do other stuff
-    },
-    
-    // public method
-    getName: function () { // arguments prefixed with a $ are evaluated as optional.
-        return this._name; 
-    },
-
-    // protected methods (starts with _)
-
-    // private method (starts with __)
-    
-    // define static properties and methos
-    $statics: {
-        // Some class static members
-    }
-});
-
-```
-
-### Abstract classes ###
-
-Methods defined as abstract simply declare the method's signature.
-When an abstract class implements an interface and doesn't implement some of its methods, those will be automatically declared as abstract.
-
-Below there is an example of an abstract class.
-
-```
-var AbstractPerson = AbstractClass.declare({
-    
-    $name = 'AbstractPerson',
-    
-    // here you can define abstract methods
-    $abstracts: {
-
-        // you can define abstract methods
-            
-        $statics: {
-            // you can also define abstract static methods
-        }
-    }
-});
-```
-
-Abstract classes can extend other abstract classes or concrete classes while implementing other interfaces.
-
-A(n) (abstract) class can extend a another one with extend function, as shown above:
-
-```
-var Person = AbstractPerson.extend({
-
-    // class definition
-});
-```
-
-### Interfaces ###
-
-Interfaces can extends multiple interfaces. 
-
-They can also define static functions signature.
-
-```
-var ExtendedInterfacePerson = Interface.declare({
-
-    $name: 'ExtendedInterfacePerson',
-
-    $statics: {
-        // this is how you can define statics
-    }
-});
-```
-Alternatively, one can extend an interface with the extend() function. The equivalent code of the shown above is:
-
-```
-var ExtendedInterfacePerson = InterfacePerson.extend(
-    $name: 'ExtendedInterface',
-});
-```
-
-
-### Mixins ###
-
-A mixin is a class or object that provides a certain functionality to be reused by other classes, since all their members will be copied (expect for the initialize method).
-
-If clashes occur with multiple mixins, that last one takes precedence.
-
-
-
-### Binds ###
-
-The $bound() function allows you to bind a function to the instance.
-This is useful if certain functions are meant to be used as callbacks or handlers.
-You don't need to bind the function manually, it will be bound for you automatically.
-
-```
-var Person = Class.declare({
-
-    $name: 'Person',
-    
-    /**
-     * Constructor.
-     */
-     initialize: function (element) {
-         element.addEventListener('click', this._handleClick);
-     },
-
-    /**
-     * Handles some click event.
-     */
-     handleClick: function () {
-         console.log('is indigo');
-     }.$bound()
-});
-```
-
-Alternatively, one can use anonymous functions and bind them to the instanjsce to preserve the context as well as allowing private/protected methods invocations.
-
-
-
-### Constants ###
-
-The $constants keyword allows you to defined constants.
-If Object.defineProperty is available, any attempt to modify the constant value will throw an error (only in thjse strict mode).
-Constants can be defined in classes, abstract classes and interfaces.
-
-```
-Person.INDIGOS; // 'nice dudes' :)
-```
-
-
-### Final members/classes ###
-
-Final classes cannot be extended.
-
-```
-// This class cannot be extended
-var FinalPerson = FinalClass.declare({    
-
-    $name: 'FinalPerson',
-    
-    initialize: function () {
-        // ...
-    }
-});
-```
-Members that are declared as final cannot be overriden by js child class.
-
-```
-var Person = Class.declare({
-
-    $name: 'Person',
-
-    // classes that extend this one are not allowed to override the members below
-    $finals: {
-
-        getName: function () {
-            // ...
-        },
-
-        // you can also define static methods and members as final
-        $statics: {
-                // ...
-        }
-    }
-});
-
-```
-### Option $name ###
-This option is only used for debug, and should be the same as class name.
-
-### Calling static methods within an instance ###
-
-To call static methods inside an instance you can use $self and $static.
-
-$self gives access to the class itself and $static gives access to the called class in ajs context of static inheritance.
-
-$self is the same as using the class variable itself.
-
-```
-var Indigo1 = Class.declare({
-    
-    $name: 'Indigo1',
-    
-    getName: function () {
-        
-        // same as Filipe.name;
-        return this.$self.name;
-    },
-    $statics: {
-        name: 'Marco'
-    }
-});
-
-```
-
-```
-var Indigo2 = Class.declare({
-
-    $name: 'Indigo2',
-
-    getName: function () {
-        return this.$static.name;
-    },
-    $statics: {
-        name: 'Andre'
-    }
-});
-
-```
-
-```
-var Indigo3 = Class.declare({
-
-    $name: 'Indigo3',
-
-    $extends: Indigo1
-    $statics: {
-        bar: 'Filipe'
-    }
-});
-
-```
-
-```
-var Indigo4 = Class.declare({
-
-    $name: 'Indigo4',
-
-    $extends: Indigo2
-    $statics: {
-        bar: 'Filipe'
-    }
-});
-
-```
-
-```
-Indigo3.getName(); // Marco
-Indigo4.getName(); // Filipe
-```
-
-
-
-### instanceOf ###
-
-The instanceOf function works exactly the same way as the native instanceof except that it also works for interfaces.
-
-
-
-### Notes ##
-
-Please avoid using object constructors for strings, objects, booleans and numbers:
-
-```
-var Person = Class.declare({
-
-    $name: 'Person',
-
-    // don't use this
-    indigo: new String('Filipe'),
-    
-    // ok
-    indigo: 'Filipe'
-});
-```
-
-###  Classes/instances are locked ###
+####  Classes/instances are locked ###
 
 By default, constructors and instances are locked. This means that no one can monkey patch your code.
 
 This behaviour can be changed in two ways:
 
-#### With the $locked flag:
+##### With the $locked flag:
 
-```
+```js
 var UnlockedIndigo = Class.declare({
-
     $name: 'UnlockedIndigo',
-
     $locked: false
 
     initialize: function () {
-        
         // Altough the foo property is not declared,
         // it will not throw an error
-        
-        this.name = 'Filipe';           
-                                    
+
+        this.name = 'Filipe';
     },
 
     talk: function () {
@@ -666,95 +516,80 @@ var UnlockedIndigo = Class.declare({
 });
 ```
 
-Methods can be replaced in the prototype
+Members can be added, replaced and deleted from the prototype:
 
-```
+```js
+UnlockedIndigo.prototype.age = 20;
 UnlockedIndigo.prototype.talk = function () {
-
     console.log('... now is running');
 };
 ```
 
-Properties can be added to the instance and methods can be replace in the instance.
+Members can be added, replaced and deleted from the instance:
 
-```
-var Filipe = new UnlockedIndigo();
-
+```js
+var Filipe     = new UnlockedIndigo();
 Filipe.friends = ['Marco','Andre'];
-
-Filipe.talk = function () { 
+Filipe.talk    = function () {
     console.log('I'm talking about DejaVu!');
 };
 ```
 
-#### By setting the global option:
+##### By setting the global option:
 
 This will change the default behaviour, but classes can still override it with the $locked flag.
 
-```
+```js
 dejavu.options.locked = false;
 ```
 
 Note that once a class is unlocked, its subclasses cannot be locked.
 Also, although undeclared members are allowed, they will not have their access controlled (they are interpreted as public).
-### Notes ###
 
-Please avoid using object constructors for strings, objects, booleans and numbers:
 
-```
-var MyClass = Class.declare({
-    foo: new String('bar'),  // Don't use this
-    foz: 'bar'               // Ok
-});
-```
 
-## Vanilla classes ##
+#### Vanilla classes
 
-DejaVu allows you to extend or borrow vanilla classes. In this case, constructors and instances are UNLOCKED by default.
+`dejavu` allows you to extend or borrow vanilla classes. In this case, constructors and instances are forcibly UNLOCKED.
 
-```
+```js
 function Person(name) {
-
     this.name = name;
 };
 
-var filipe = new Person('Filipe');
+var Engineer = dejavu.Class.declare({
+    $extends: Person
+});
 
-
-filipe.name  // Filipe
-
-```
-
-Now you can add a new function to Person.
+var filipe = new Engineer('Filipe');
+// Engineer class and filipe instance are unlocked
 
 ```
-Person.prototype.monkey = function () {
-    console.log(this.name + ' can monkey patching the code!');
-}
 
 
-filipe.monkey()  // Filipe can monkey patching the code!
-```
-## Optimizer ##
+## Optimizer
 
-dejavu bundles an optimizer that makes your code faster and lighter.
+`dejavu` bundles an optimizer that makes your code faster and lighter.
+
 It specifically:
 
-* Improves $super and $self usage
-* Removes all $name and $locked properties because they are not used in the loose version
-* Removes the need for wrappers, improving performance by a great margin
-* Removes abstract functions from abstract classes
-* Removes functions from interfaces
+- Improves $super and $self usage
+- Removes all $name and $locked properties because they are not used in the loose version
+- Removes the need for wrappers, improving performance by a great margin
+- Removes abstract functions from abstract classes
+- Removes functions from interfaces
 
 The optimizer is located in the `bin` folder.
+
 Example usage:
 
 `node optimizer < file_in.js > file_out.js`
 
-dejavu also comes with a grunt task.
-Bellow is a sample usage copied from a grunt file:
+`dejavu` also comes with a grunt task.
 
-```
+Below is a sample usage copied from a grunt file:
+
+```js
 grunt.loadNpmTasks('dejavu');
 
 grunt.initConfig({
@@ -771,41 +606,9 @@ grunt.initConfig({
 });
 ```
 
-## Dependencies ##
-
-dejavu depends on [amd-utils](https://github.com/millermedeiros/amd-utils).
-If you use the regular build, you don't need to worry because all functions used from amd-utils are bundled for you.
-If you use the AMD build, you must specijsfy the path to amd-utils.
-For example, if you use [RequireJS](http://requirejs.org/):
-
-```
-paths : {
-    'amd-utils': '../vendor/amd-utils/src'
-},
-
-packages: [
-    {
-        name: 'dejavu'
-        location: '../../dist/amd/strict',
-    }
-]
-```
 
 
-
-## Building dejavu ##
-
-Simply run `npm install` to install all the tools needed.
-Then just run `npm run-script build` or `node build`.
-
-
-## Testing dejavu ##
-
-Please take a look at the [test](https://github.com/IndigoUnited/dejavu/tree/master/test) section.
-
-
-
-## Works on ##
+## Works on
 
 * IE (6+)
 * Chrome (4+)
@@ -813,6 +616,28 @@ Please take a look at the [test](https://github.com/IndigoUnited/dejavu/tree/mas
 * Firefox (3.6+)
 * Opera (9+)
 * Node.js and Rhino
+
+
+
+## Dependencies
+
+dejavu depends on [amd-utils](https://github.com/millermedeiros/amd-utils).
+If you use the regular build, you don't need to worry because all functions used from amd-utils are bundled for you.
+If you use the AMD build, learn [how](https://github.com/IndigoUnited/dejavu#taking-it-to-another-level) to setup your loader.
+If you use dejavu on `node`, `npm` will take care of fetching everything for you.
+
+
+## Building dejavu
+
+Simply run `npm install` to install all the tools needed.
+Then just run `npm run-script build` or `node build`.
+
+
+
+## Testing dejavu
+
+Please take a look at the [test](https://github.com/IndigoUnited/dejavu/tree/master/test) section.
+
 
 
 ## License ##
