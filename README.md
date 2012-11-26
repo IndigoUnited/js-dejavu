@@ -9,6 +9,7 @@ dejavu website
 
 # Bulding #
 - Run `npm install`
+- Run `grunt doc` to fetch the latest README
 - Run `grunt build`
 
 # Deploy #
