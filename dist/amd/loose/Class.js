@@ -549,7 +549,6 @@ define([
                     default:
                         newConstructor = function () { parentInitialize.apply(this, arguments); };
                     }
-
                 }
 
                 newConstructor.prototype = constructor.prototype;
@@ -683,7 +682,7 @@ define([
             if (isFunction(arg2)) {
                 constructor = createConstructor();
                 constructor.$canOptimizeConst = !!$arg3;
-                params = arg2(arg1.prototype, constructor, arg1);
+                params = arg2(arg1.prototype, arg1, constructor);
             // create(parentClass, props)
             } else {
                 params = arg2;

@@ -2253,7 +2253,7 @@ define([
 //>>excludeStart('strict', pragmas.strict);
                 constructor.$canOptimizeConst = !!$arg3;
 //>>excludeEnd('strict');
-                params = arg2(arg1.prototype, constructor, arg1);
+                params = arg2(arg1.prototype, arg1, constructor);
             // create(parentClass, props)
             } else {
                 params = arg2;

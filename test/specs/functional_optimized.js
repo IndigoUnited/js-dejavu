@@ -6,9 +6,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
     });
     describe('Functional:', function () {
         describe('Instantiation of a simple Class', function () {
-            var SomeClass = Class.declare(function ($self) {
+            var SomeClass = Class.declare(function () {
                     return {};
-                }, true), Example = Class.declare(SomeClass, function ($super) {
+                }, true), Example = Class.declare(SomeClass, function ($super, $parent) {
                     return {
                         some: 'property',
                         someOther: null,
@@ -142,45 +142,45 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             });
         });
         describe('Instantiation of a simple inheritance setup', function () {
-            var Person = Class.declare(function ($self) {
+            var Person = Class.declare(function () {
                     return {
                         status: null,
                         initialize: function () {
                             this.status = 'alive';
                         }
                     };
-                }, true), Andre = Class.declare(Person, function ($super) {
+                }, true), Andre = Class.declare(Person, function ($super, $parent) {
                     return {};
-                }, true), SuperAndre = Class.declare(Andre, function ($super) {
+                }, true), SuperAndre = Class.declare(Andre, function ($super, $parent) {
                     return {};
-                }, true), PersonAbstract = AbstractClass.declare(function ($self) {
+                }, true), PersonAbstract = AbstractClass.declare(function () {
                     return {
                         status: null,
                         initialize: function () {
                             this.status = 'alive';
                         }
                     };
-                }, true), AndreAbstract = AbstractClass.declare(PersonAbstract, function ($super) {
+                }, true), AndreAbstract = AbstractClass.declare(PersonAbstract, function ($super, $parent) {
                     return {};
-                }, true), SuperAndre2 = Class.declare(AndreAbstract, function ($super) {
+                }, true), SuperAndre2 = Class.declare(AndreAbstract, function ($super, $parent) {
                     return {};
-                }, true), ProtectedPerson = Class.declare(function ($self) {
+                }, true), ProtectedPerson = Class.declare(function () {
                     return {
                         status: null,
                         _initialize: function () {
                             this.status = 'alive';
                         }
                     };
-                }, true), PrivatePerson = Class.declare(function ($self) {
+                }, true), PrivatePerson = Class.declare(function () {
                     return {
                         __initialize: function () {
                         }
                     };
-                }, true), FreakPerson = Class.declare(ProtectedPerson, function ($super) {
+                }, true), FreakPerson = Class.declare(ProtectedPerson, function ($super, $parent) {
                     return {};
-                }, true), NerdPerson = Class.declare(PrivatePerson, function ($super) {
+                }, true), NerdPerson = Class.declare(PrivatePerson, function ($super, $parent) {
                     return {};
-                }, true), ComplexProtectedPerson = ProtectedPerson.extend(function ($super) {
+                }, true), ComplexProtectedPerson = ProtectedPerson.extend(function ($super, $parent) {
                     return {
                         initialize: function () {
                             $super.initialize.call(this);
@@ -244,22 +244,22 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             };
             Person2.prototype.__hmm = function () {
             };
-            Andre = Class.declare(Person, function ($super) {
+            Andre = Class.declare(Person, function ($super, $parent) {
                 return {
                     getName: function () {
                         return 'Andr\xe9 ' + $super.getName.call(this);
                     }
                 };
             }, true);
-            SuperAndre = Class.declare(Andre, function ($super) {
+            SuperAndre = Class.declare(Andre, function ($super, $parent) {
                 return {};
-            }, true), Mario = Class.declare(Person, function ($super) {
+            }, true), Mario = Class.declare(Person, function ($super, $parent) {
                 return {
                     initialize: function () {
                         $super.initialize.call(this);
                     }
                 };
-            }, true), Helena = Class.declare(Person2, function ($super) {
+            }, true), Helena = Class.declare(Person2, function ($super, $parent) {
                 return {
                     initialize: function () {
                         $super.initialize.call(this);
@@ -280,7 +280,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     }
                 };
             }, true);
-            Marco = Class.declare(Person2, function ($super) {
+            Marco = Class.declare(Person2, function ($super, $parent) {
                 return {
                     initialize: function () {
                         $super.initialize.call(this);
@@ -349,7 +349,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             }
         });
         describe('$super()', function () {
-            var SomeClass = Class.declare(function ($self) {
+            var SomeClass = Class.declare(function () {
                     return {
                         _firstName: null,
                         initialize: function () {
@@ -365,7 +365,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         }
                     };
-                }, true), OtherClass = Class.declare(SomeClass, function ($super, $self, $parent) {
+                }, true), OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                     return {
                         _lastName: null,
                         initialize: function () {
@@ -381,7 +381,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         }
                     };
-                }), HiClass = Class.declare(OtherClass, function ($super, $self, $parent) {
+                }, true), HiClass = Class.declare(OtherClass, function ($super, $parent) {
                     return {
                         getFullName: function () {
                             return 'hi ' + $super.getFullName.call(this);
@@ -392,7 +392,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         }
                     };
-                });
+                }, true);
             it('should call the parent method', function () {
                 expect(new OtherClass().getFullName()).to.be.equal('andre cruz');
                 expect(new HiClass().getFullName()).to.be.equal('hi andre cruz');
@@ -421,7 +421,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         }
                     };
-                }), OtherClass = Class.declare(SomeClass, function ($super, $self, $parent) {
+                }), OtherClass = Class.declare(SomeClass, function ($super, $parent, $self) {
                     return {
                         initialize: function () {
                             $super.initialize.call(this);
@@ -449,7 +449,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             });
         });
         describe('$static', function () {
-            var SomeClass = Class.declare(function ($self) {
+            var SomeClass = Class.declare(function () {
                     return {
                         initialize: function () {
                             this.$static._fruit = 'orange';
@@ -466,11 +466,11 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 this._fruit = fruit;
                             },
                             setFruitStatic2: function (fruit) {
-                                this.$static._fruit = fruit;
+                                this._fruit = fruit;
                             }
                         }
                     };
-                }, true), OtherClass = Class.declare(SomeClass, function ($super) {
+                }, true), OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                     return {
                         initialize: function () {
                             $super.initialize.call(this);
@@ -506,7 +506,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     options.locked = true;
                 });
                 it('should not lock classes if it\'s false', function () {
-                    var SomeClass = Class.declare(function ($self) {
+                    var SomeClass = Class.declare(function () {
                             return {
                                 test: function () {
                                 },
@@ -529,7 +529,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     expect(SomeClass.someFunc).to.equal(someFunc);
                 });
                 it('should lock classes if it\'s true', function () {
-                    var SomeClass = Class.declare(function ($self) {
+                    var SomeClass = Class.declare(function () {
                             return {
                                 test: function () {
                                 },
@@ -559,11 +559,11 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 });
                 it('should read the default value', function () {
                     options.locked = true;
-                    var SomeClass = Class.declare(function ($self) {
+                    var SomeClass = Class.declare(function () {
                             return {};
                         }, true), OtherClass;
                     options.locked = false;
-                    OtherClass = Class.declare(function ($self) {
+                    OtherClass = Class.declare(function () {
                         return {};
                     }, true);
                     expect(function () {
@@ -576,41 +576,41 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     var SomeClass = function () {
                     };
                     expect(function () {
-                        return Class.declare(SomeClass, function ($super) {
+                        return Class.declare(SomeClass, function ($super, $parent) {
                             return {};
                         }, true);
                     }).to.throwException(/cannot be locked/);
                     expect(function () {
-                        return Class.declare(SomeClass, function ($super) {
+                        return Class.declare(SomeClass, function ($super, $parent) {
                             return {};
                         }, true);
                     }).to.throwException(/cannot be locked/);
                     expect(function () {
-                        return Class.declare(function ($self) {
+                        return Class.declare(function () {
                             return { $borrows: SomeClass };
                         }, true);
                     }).to.throwException(/cannot be locked/);
                     expect(function () {
-                        return Class.declare(function ($self) {
+                        return Class.declare(function () {
                             return { $borrows: SomeClass };
                         }, true);
                     }).to.throwException(/cannot be locked/);
                     expect(function () {
-                        return Class.declare(SomeClass, function ($super) {
+                        return Class.declare(SomeClass, function ($super, $parent) {
                             return {};
                         }, true);
                     }).to.throwException(/cannot be locked/);
                 });
                 it('should be inherited and once unlocked it can\'t be locked', function () {
                     var SomeClass = function () {
-                        }, OtherClass = Class.declare(function ($self) {
+                        }, OtherClass = Class.declare(function () {
                             return {};
                         }, true), SomeSubClass, OtherSubClass, someSubClass, otherSubClass;
                     options.locked = true;
-                    SomeSubClass = Class.declare(SomeClass, function ($super) {
+                    SomeSubClass = Class.declare(SomeClass, function ($super, $parent) {
                         return {};
                     }, true);
-                    OtherSubClass = Class.declare(OtherClass, function ($super) {
+                    OtherSubClass = Class.declare(OtherClass, function ($super, $parent) {
                         return {};
                     }, true);
                     someSubClass = new SomeSubClass();
@@ -628,12 +628,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     expect(someSubClass._foo2).to.equal('bar');
                     expect(someSubClass.__foo3).to.equal('bar');
                     expect(function () {
-                        return Class.declare(SomeClass, function ($super) {
+                        return Class.declare(SomeClass, function ($super, $parent) {
                             return {};
                         }, true);
                     }).to.throwException(/cannot be locked/);
                     expect(function () {
-                        return Class.declare(OtherClass, function ($super) {
+                        return Class.declare(OtherClass, function ($super, $parent) {
                             return {};
                         }, true);
                     }).to.throwException(/cannot be locked/);
@@ -641,7 +641,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             });
         }
         describe('$bind', function () {
-            var context = {}, SomeClass = Class.declare(function ($self) {
+            var context = {}, SomeClass = Class.declare(function () {
                     return {
                         simpleMethod: function () {
                             var func = this.$bind(function () {
@@ -731,7 +731,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         }
                     };
-                }, true), someClass = new SomeClass(), ReplicaClass = Class.declare(function ($self) {
+                }, true), someClass = new SomeClass(), ReplicaClass = Class.declare(function () {
                     return {
                         retMethod: function () {
                             return this;
@@ -905,7 +905,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         }
                     };
                 }), Cat, pet = new Pet(), cat;
-            Cat = Class.declare(Pet, function ($super) {
+            Cat = Class.declare(Pet, function ($super, $parent) {
                 return {
                     initialize: function () {
                         this.name = 'Cat';
@@ -956,7 +956,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         });
         describe('Instantiation of Concrete Classes that implement Interfaces', function () {
             it('should not have the $implements property', function () {
-                var SomeImplementation = Class.declare(function ($self) {
+                var SomeImplementation = Class.declare(function () {
                         return {
                             $implements: [Interface.declare({})],
                             method1: function () {
@@ -968,9 +968,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         });
         describe('Instantiation of Concrete Classes that extend Abstract Classes', function () {
             it('should not have the $abstracts property', function () {
-                var tmp = AbstractClass.declare(function ($self) {
+                var tmp = AbstractClass.declare(function () {
                         return {};
-                    }, true), SomeImplementation = Class.declare(tmp, function ($super) {
+                    }, true), SomeImplementation = Class.declare(tmp, function ($super, $parent) {
                         return {
                             method1: function () {
                             }
@@ -983,18 +983,18 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             describe('Extending final classes', function () {
                 it('should throw an error', function () {
                     expect(function () {
-                        var tmp = FinalClass.declare(function ($self) {
+                        var tmp = FinalClass.declare(function () {
                                 return {};
                             }, true);
-                        return Class.declare(tmp, function ($super) {
+                        return Class.declare(tmp, function ($super, $parent) {
                             return {};
                         }, true);
                     }).to.throwException(/cannot inherit from final/);
                     expect(function () {
-                        var tmp = FinalClass.declare(function ($self) {
+                        var tmp = FinalClass.declare(function () {
                                 return {};
                             }, true);
-                        return AbstractClass.declare(tmp, function ($super) {
+                        return AbstractClass.declare(tmp, function ($super, $parent) {
                             return {};
                         }, true);
                     }).to.throwException(/cannot inherit from final/);
@@ -1002,17 +1002,17 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             });
         }
         describe('Defining a Concrete/Abstract Classes that implements $interfaces', function () {
-            var SomeInterface = Interface.declare({ $constants: { SOME: 'foo' } }), SomeClass = Class.declare(function ($self) {
+            var SomeInterface = Interface.declare({ $constants: { SOME: 'foo' } }), SomeClass = Class.declare(function () {
                     return { $implements: SomeInterface };
-                }, true), OtherClass = Class.declare(SomeClass, function ($super) {
+                }, true), OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                     return {};
-                }, true), SomeOtherClass = Class.declare(SomeClass, function ($super) {
+                }, true), SomeOtherClass = Class.declare(SomeClass, function ($super, $parent) {
                     return { $implements: SomeInterface };
-                }, true), SomeAbstractClass = AbstractClass.declare(function ($self) {
+                }, true), SomeAbstractClass = AbstractClass.declare(function () {
                     return { $implements: SomeInterface };
-                }, true), OtherAbstractClass = AbstractClass.declare(SomeAbstractClass, function ($super) {
+                }, true), OtherAbstractClass = AbstractClass.declare(SomeAbstractClass, function ($super, $parent) {
                     return {};
-                }, true), SomeOtherAbstractClass = Class.declare(SomeAbstractClass, function ($super) {
+                }, true), SomeOtherAbstractClass = Class.declare(SomeAbstractClass, function ($super, $parent) {
                     return { $implements: SomeInterface };
                 }, true);
             it('should inherit the interface constants', function () {
@@ -1026,14 +1026,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         });
         describe('Defining a Concrete/Abstract Classes that use $borrows (mixins)', function () {
             it('should grab the borrowed members to their own', function () {
-                var CommonMixin = AbstractClass.declare(function ($self) {
+                var CommonMixin = AbstractClass.declare(function () {
                         return {
                             method1: function () {
                             }
                         };
                     }, true);
                 (function () {
-                    var SomeImplementation = Class.declare(function ($self) {
+                    var SomeImplementation = Class.declare(function () {
                             return {
                                 $borrows: {
                                     method1: function () {
@@ -1043,7 +1043,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     some: 'property'
                                 }
                             };
-                        }, true), VanillaImplementation = Class.declare(function ($self) {
+                        }, true), VanillaImplementation = Class.declare(function () {
                             return {
                                 $borrows: function () {
                                     var Vanilla = function () {
@@ -1056,10 +1056,10 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     return Vanilla;
                                 }()
                             };
-                        }, true), OtherImplementation = Class.declare(function ($self) {
+                        }, true), OtherImplementation = Class.declare(function () {
                             return {
                                 $borrows: [
-                                    Class.declare(function ($self) {
+                                    Class.declare(function () {
                                         return {
                                             method1: function () {
                                             },
@@ -1080,9 +1080,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     }
                                 ]
                             };
-                        }, true), EvenOtherImplementation = Class.declare(function ($self) {
+                        }, true), EvenOtherImplementation = Class.declare(function () {
                             return {
-                                $borrows: Class.declare(function ($self) {
+                                $borrows: Class.declare(function () {
                                     return {
                                         method1: function () {
                                         },
@@ -1133,7 +1133,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     expect(EvenOtherImplementation.FOO).to.equal('bar');
                 }());
                 (function () {
-                    var SomeImplementation = Class.declare(function ($self) {
+                    var SomeImplementation = Class.declare(function () {
                             return {
                                 $borrows: {
                                     _method1: function () {
@@ -1158,7 +1158,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     expect(someImplementation.some()).to.be.equal('property');
                 }());
                 (function () {
-                    var SomeImplementation = Class.declare(function ($self) {
+                    var SomeImplementation = Class.declare(function () {
                             return {
                                 $borrows: {
                                     __method1: function () {
@@ -1183,14 +1183,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     expect(someImplementation.some()).to.be.equal('property');
                 }());
                 expect(function () {
-                    var SomeClass = Class.declare(function ($self) {
+                    var SomeClass = Class.declare(function () {
                             return {
                                 _protectedProp: 'foo',
                                 _privateProp: 'bar'
                             };
-                        }, true), Common1 = Class.declare(SomeClass, function ($super) {
+                        }, true), Common1 = Class.declare(SomeClass, function ($super, $parent) {
                             return {};
-                        }, true), Common2 = Class.declare(SomeClass, function ($super) {
+                        }, true), Common2 = Class.declare(SomeClass, function ($super, $parent) {
                             return {
                                 accessProtected: function (inst) {
                                     return inst._protectedProp;
@@ -1203,11 +1203,11 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     common2.accessProtected(common1);
                 }).to.not.throwException();
                 (function () {
-                    var SomeClass = Class.declare(function ($self) {
+                    var SomeClass = Class.declare(function () {
                             return {};
-                        }, true), Common1 = Class.declare(SomeClass, function ($super) {
+                        }, true), Common1 = Class.declare(SomeClass, function ($super, $parent) {
                             return { $borrows: CommonMixin };
-                        }, true), Common2 = Class.declare(SomeClass, function ($super) {
+                        }, true), Common2 = Class.declare(SomeClass, function ($super, $parent) {
                             return { $borrows: CommonMixin };
                         }, true), common1 = new Common1(), common2 = new Common2();
                     expect(common1.method1).to.be.a('function');
@@ -1225,7 +1225,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         __bleh: 'bar'
                     }, SomeClass, OtherClass, someClass, otherClass;
                 SomeVanillaClass.prototype = Def;
-                SomeClass = Class.declare(function ($self) {
+                SomeClass = Class.declare(function () {
                     return {
                         $borrows: SomeVanillaClass,
                         _bla: function () {
@@ -1235,7 +1235,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     };
                 }, true);
                 someClass = new SomeClass();
-                OtherClass = Class.declare(SomeClass, function ($super) {
+                OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                     return {
                         _method1: function () {
                             return 'foo';
@@ -1277,14 +1277,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             });
             it('should not lock instances if borrowing from vanilla classes', function () {
                 var SomeVanillaClass = function () {
-                    }, SomeClass = Class.declare(function ($self) {
+                    }, SomeClass = Class.declare(function () {
                         return { $borrows: SomeVanillaClass };
                     }, true), someClass = new SomeVanillaClass();
                 someClass.foo = 'bar';
                 expect(someClass.foo).to.equal('bar');
             });
             it('should grab the borrowed members, respecting the precedence order and not replace self methods', function () {
-                var SomeMixin = Class.declare(function ($self) {
+                var SomeMixin = Class.declare(function () {
                         return {
                             method1: function () {
                             },
@@ -1293,7 +1293,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    }, true), OtherMixin = Class.declare(function ($self) {
+                    }, true), OtherMixin = Class.declare(function () {
                         return {
                             method1: function () {
                             },
@@ -1302,14 +1302,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    }, true), SomeClass = Class.declare(function ($self) {
+                    }, true), SomeClass = Class.declare(function () {
                         return {
                             $borrows: [
                                 SomeMixin,
                                 OtherMixin
                             ]
                         };
-                    }, true), OtherClass = Class.declare(function ($self) {
+                    }, true), OtherClass = Class.declare(function () {
                         return {
                             $borrows: [
                                 OtherMixin,
@@ -1320,7 +1320,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return 'foo';
                     }, method2 = function () {
                         return 'bar';
-                    }, SomeOtherClass = Class.declare(function ($self) {
+                    }, SomeOtherClass = Class.declare(function () {
                         return {
                             $borrows: [
                                 SomeMixin,
@@ -1340,7 +1340,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should not grab the initialize method of any class/object', function () {
                 var initialize = function () {
                         this.some = 'test';
-                    }, SomeImplementation = Class.declare(function ($self) {
+                    }, SomeImplementation = Class.declare(function () {
                         return {
                             $borrows: {
                                 initialize: function () {
@@ -1352,9 +1352,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             some: 'property',
                             initialize: initialize
                         };
-                    }, true), OtherImplementation = Class.declare(function ($self) {
+                    }, true), OtherImplementation = Class.declare(function () {
                         return {
-                            $borrows: Class.declare(function ($self) {
+                            $borrows: Class.declare(function () {
                                 return {
                                     initialize: function () {
                                         this.some = 'nooo';
@@ -1368,9 +1368,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(otherImplementation.some).to.be.equal('property');
             });
             it('should have passed the specified binds correctly', function () {
-                var SomeImplementation = Class.declare(function ($self) {
+                var SomeImplementation = Class.declare(function () {
                         return {
-                            $borrows: Class.declare(function ($self) {
+                            $borrows: Class.declare(function () {
                                 return {
                                     method1: function () {
                                         this.some = 'test';
@@ -1382,9 +1382,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }, true),
                             some: 'property'
                         };
-                    }, true), OtherImplementation = Class.declare(function ($self) {
+                    }, true), OtherImplementation = Class.declare(function () {
                         return {
-                            $borrows: Class.declare(function ($self) {
+                            $borrows: Class.declare(function () {
                                 return {
                                     method1: function () {
                                         this.some = 'test';
@@ -1396,16 +1396,16 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }.$bound(),
                             some: 'property'
                         };
-                    }, true), SomeOtherImplementation = Class.declare(function ($self) {
+                    }, true), SomeOtherImplementation = Class.declare(function () {
                         return {
                             $borrows: [
-                                Class.declare(function ($self) {
+                                Class.declare(function () {
                                     return {
                                         method2: function () {
                                         }.$bound()
                                     };
                                 }, true),
-                                Class.declare(function ($self) {
+                                Class.declare(function () {
                                     return {
                                         method2: function () {
                                         }.$bound()
@@ -1421,7 +1421,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             some: 'property'
                         };
                     }, true), AbstractUsageImplementation = function () {
-                        var tmp = AbstractClass.declare(function ($self) {
+                        var tmp = AbstractClass.declare(function () {
                                 return {
                                     $abstracts: {
                                         method1: function () {
@@ -1429,7 +1429,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     }
                                 };
                             }, true);
-                        return Class.declare(tmp, function ($super) {
+                        return Class.declare(tmp, function ($super, $parent) {
                             return {
                                 method1: function () {
                                     this.some = 'test';
@@ -1441,7 +1441,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             };
                         }, true);
                     }(), OtherAbstractUsageImplementation = function () {
-                        var tmp = AbstractClass.declare(function ($self) {
+                        var tmp = AbstractClass.declare(function () {
                                 return {
                                     $abstracts: {
                                         method1: function () {
@@ -1452,7 +1452,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     }.$bound()
                                 };
                             }, true);
-                        return Class.declare(tmp, function ($super) {
+                        return Class.declare(tmp, function ($super, $parent) {
                             return {
                                 method1: function () {
                                     this.some = 'test';
@@ -1511,12 +1511,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 Mixin.prototype._fire = function () {
                     return 'fired';
                 };
-                SomeClass = Class.declare(function ($self) {
+                SomeClass = Class.declare(function () {
                     return { $borrows: Mixin };
-                }, true), ComplexSomeClass = Class.declare(SomeClass, function ($super) {
+                }, true), ComplexSomeClass = Class.declare(SomeClass, function ($super, $parent) {
                     return { $borrows: Mixin };
                 }, true);
-                OtherClass = Class.declare(function ($self) {
+                OtherClass = Class.declare(function () {
                     return { $borrows: Mixin };
                 }, true), expect(new SomeClass().fireEvent()).to.equal('fired');
                 expect(new ComplexSomeClass().fireEvent()).to.equal('fired');
@@ -1525,7 +1525,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         });
         describe('Final members', function () {
             it('should be accessible just as normal parameter/function', function () {
-                var SomeClass = Class.declare(function ($self) {
+                var SomeClass = Class.declare(function () {
                         return {
                             $finals: {
                                 foo: 'bar',
@@ -1540,7 +1540,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             });
         });
         describe('Constants', function () {
-            var SomeClass = Class.declare(function ($self) {
+            var SomeClass = Class.declare(function () {
                     return { $constants: { FOO: 'bar' } };
                 }, true), SomeInterface = Interface.declare({ $constants: { FOO: 'bar' } });
             it('should be accessible in a similiar way as static members', function () {
@@ -1630,19 +1630,19 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             }
             it('should not be copied to the childs constructor if they are static', function () {
                 expect(function () {
-                    var OtherClass = Class.declare(SomeClass, function ($super) {
+                    var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                             return {};
                         }, true);
                     return OtherClass.__funcStatic;
                 }()).to.be.equal(undefined);
                 expect(function () {
-                    var OtherClass = Class.declare(SomeClass, function ($super) {
+                    var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                             return {};
                         }, true);
                     return OtherClass.__propStatic;
                 }()).to.be.equal(undefined);
                 expect(function () {
-                    var OtherClass = Class.declare(SomeClass, function ($super) {
+                    var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                             return {};
                         }, true);
                     return OtherClass.__SOME;
@@ -1651,19 +1651,19 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             if (/strict/.test(global.build) && hasDefineProperty) {
                 it('should only be available to self', function () {
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {};
                             }, true);
                         return OtherClass.__funcStatic;
                     }()).to.be.equal(undefined);
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {};
                             }, true);
                         return OtherClass.__propStatic;
                     }()).to.be.equal(undefined);
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     some: function () {
                                         this.__privateMethod();
@@ -1673,7 +1673,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         new OtherClass().some();
                     }).to.throwException(/access private/);
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     some: function () {
                                         SomeClass.__funcStatic();
@@ -1683,7 +1683,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         new OtherClass().some();
                     }).to.throwException(/access private/);
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     $statics: {
                                         some: function () {
@@ -1695,7 +1695,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         OtherClass.some();
                     }).to.throwException();
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     some: function () {
                                         return this.__privateProperty;
@@ -1705,7 +1705,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         new OtherClass().some();
                     }).to.throwException(/access private/);
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     some: function () {
                                         return SomeClass.__propStatic;
@@ -1715,7 +1715,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         new OtherClass().some();
                     }).to.throwException(/access private/);
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     $statics: {
                                         some: function () {
@@ -1727,7 +1727,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return OtherClass.some();
                     }()).to.be.equal(undefined);
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     __test: function () {
                                     }
@@ -1736,7 +1736,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return new OtherClass().callTest();
                     }).to.throwException(/access private/);
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     $statics: {
                                         __test: function () {
@@ -1747,25 +1747,25 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         OtherClass.callTest();
                     }).to.throwException(/access private/);
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return { __test: 'some' };
                             }, true);
                         return new OtherClass().accessTest();
                     }).to.throwException(/access private/);
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return { $statics: { __test: 'some' } };
                             }, true);
                         return OtherClass.accessTest();
                     }).to.throwException(/access private/);
                     expect(function () {
-                        var tmp = Class.declare(function ($self) {
+                        var tmp = Class.declare(function () {
                                 return {
                                     initialize: function () {
                                         this.__test();
                                     }
                                 };
-                            }, true), OtherClass = Class.declare(tmp, function ($super) {
+                            }, true), OtherClass = Class.declare(tmp, function ($super, $parent) {
                                 return {
                                     __test: function () {
                                     }
@@ -1774,13 +1774,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return new OtherClass();
                     }).to.throwException(/access private/);
                     expect(function () {
-                        var tmp = Class.declare(function ($self) {
+                        var tmp = Class.declare(function () {
                                 return {
                                     initialize: function () {
                                         this.__test = 'test';
                                     }
                                 };
-                            }, true), OtherClass = Class.declare(tmp, function ($super) {
+                            }, true), OtherClass = Class.declare(tmp, function ($super, $parent) {
                                 return { __test: 'some' };
                             }, true);
                         return new OtherClass();
@@ -1804,7 +1804,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         new SomeClass().getProp();
                     }).to.not.throwException();
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     getProp: function () {
                                         return $super.getProp.call(this);
@@ -1817,7 +1817,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         new SomeClass().getProp2();
                     }).to.not.throwException();
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     getProp2: function () {
                                         return $super.getProp2.call(this);
@@ -1850,7 +1850,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return new SomeClass().getConst3();
                     }()).to.be.equal('foo');
                     expect(function () {
-                        var SomeTestClass = Class.declare(function ($self) {
+                        var SomeTestClass = Class.declare(function () {
                                 return {
                                     __someVar: 'foo',
                                     __someMethod: function () {
@@ -1862,7 +1862,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                         this.__someMethod();
                                     }
                                 };
-                            }, true), OtherClass = Class.declare(function ($self) {
+                            }, true), OtherClass = Class.declare(function () {
                                 return { $borrows: SomeTestClass };
                             }, true), myOtherClass = new OtherClass();
                         myOtherClass.test();
@@ -1871,7 +1871,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 });
                 it('cannot be overrided', function () {
                     expect(function () {
-                        return Class.declare(SomeClass, function ($super) {
+                        return Class.declare(SomeClass, function ($super, $parent) {
                             return {
                                 __getProp: function () {
                                 }
@@ -1879,18 +1879,18 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         }, true);
                     }).to.throwException(/override private/);
                     expect(function () {
-                        return Class.declare(SomeClass, function ($super) {
+                        return Class.declare(SomeClass, function ($super, $parent) {
                             return { __privateProperty: 'foo' };
                         }, true);
                     }).to.throwException(/override private/);
                 });
                 it('should do well with borrowed members', function () {
                     expect(function () {
-                        var secondClass, BaseClass = AbstractClass.declare(function ($self) {
+                        var secondClass, BaseClass = AbstractClass.declare(function () {
                                 return {};
-                            }, true), FirstClass = Class.declare(BaseClass, function ($super) {
+                            }, true), FirstClass = Class.declare(BaseClass, function ($super, $parent) {
                                 return { $borrows: Emitter.DirectEventsEmitter };
-                            }, true), firstClass = new FirstClass(), SecondClass = Class.declare(BaseClass, function ($super) {
+                            }, true), firstClass = new FirstClass(), SecondClass = Class.declare(BaseClass, function ($super, $parent) {
                                 return {
                                     $borrows: Emitter.DirectEventsEmitter,
                                     run: function () {
@@ -1985,7 +1985,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             if (/strict/.test(global.build) && hasDefineProperty) {
                 it('should only be available to derived classes', function () {
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     some: function () {
                                         this._protectedMethod();
@@ -1995,7 +1995,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         new OtherClass().some();
                     }).to.not.throwException();
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super, $self, $parent) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent, $self) {
                                 return {
                                     some: function () {
                                         $self._funcStatic();
@@ -2005,7 +2005,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         new OtherClass().some();
                     }).to.not.throwException();
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     $statics: {
                                         some: function () {
@@ -2017,7 +2017,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         OtherClass.some();
                     }).to.not.throwException();
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     some: function () {
                                         return this._protectedProperty;
@@ -2027,7 +2027,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         new OtherClass().some();
                     }).to.not.throwException();
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     $statics: {
                                         some: function () {
@@ -2039,7 +2039,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return OtherClass.some();
                     }()).to.be.equal(undefined);
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     _test: function () {
                                     }
@@ -2048,7 +2048,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return new OtherClass().callTest();
                     }).to.not.throwException();
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     $statics: {
                                         _test: function () {
@@ -2059,25 +2059,25 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         OtherClass.callTest();
                     }).to.not.throwException();
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return { _test: 'some' };
                             }, true);
                         return new OtherClass().accessTest();
                     }).to.not.throwException();
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return { $statics: { _test: 'some' } };
                             }, true);
                         return OtherClass.accessTest();
                     }).to.not.throwException();
                     expect(function () {
-                        var tmp = Class.declare(function ($self) {
+                        var tmp = Class.declare(function () {
                                 return {
                                     initialize: function () {
                                         this._test();
                                     }
                                 };
-                            }, true), OtherClass = Class.declare(tmp, function ($super) {
+                            }, true), OtherClass = Class.declare(tmp, function ($super, $parent) {
                                 return {
                                     _test: function () {
                                     }
@@ -2086,13 +2086,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return new OtherClass();
                     }).to.not.throwException();
                     expect(function () {
-                        var tmp = Class.declare(function ($self) {
+                        var tmp = Class.declare(function () {
                                 return {
                                     initialize: function () {
                                         this._test = 'test';
                                     }
                                 };
-                            }, true), OtherClass = Class.declare(tmp, function ($super) {
+                            }, true), OtherClass = Class.declare(tmp, function ($super, $parent) {
                                 return { _test: 'some' };
                             }, true);
                         return new OtherClass();
@@ -2116,7 +2116,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         new SomeClass().getProp();
                     }).to.not.throwException();
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     getProp: function () {
                                         return $super.getProp.call(this);
@@ -2129,7 +2129,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         new SomeClass().getProp2();
                     }).to.not.throwException();
                     expect(function () {
-                        var OtherClass = Class.declare(SomeClass, function ($super) {
+                        var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                                 return {
                                     getProp2: function () {
                                         return $super.getProp2.call(this);
@@ -2156,7 +2156,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return new SomeClass().getConst3();
                     }()).to.be.equal('foo');
                     expect(function () {
-                        var SomeClass = Class.declare(function ($self) {
+                        var SomeClass = Class.declare(function () {
                                 return {
                                     _someVar: 'foo',
                                     _someMethod: function () {
@@ -2168,22 +2168,22 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                         this._someMethod();
                                     }
                                 };
-                            }, true), OtherClass = Class.declare(function ($self) {
+                            }, true), OtherClass = Class.declare(function () {
                                 return { $borrows: SomeClass };
                             }, true), myOtherClass = new OtherClass();
                         myOtherClass.test();
                         myOtherClass.test2();
                     }).to.not.throwException();
                     expect(function () {
-                        var Common = Class.declare(function ($self) {
+                        var Common = Class.declare(function () {
                                 return {};
-                            }, true), A = Class.declare(Common, function ($super) {
+                            }, true), A = Class.declare(Common, function ($super, $parent) {
                                 return {
                                     foo: function (b) {
                                         return 'ola ' + b._bar();
                                     }
                                 };
-                            }, true), B = Class.declare(Common, function ($super) {
+                            }, true), B = Class.declare(Common, function ($super, $parent) {
                                 return {
                                     _bar: function () {
                                         return 'mundo';
@@ -2195,7 +2195,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 });
             }
             it('should work well with $super()', function () {
-                var OtherClass = Class.declare(SomeClass, function ($super, $self, $parent) {
+                var OtherClass = Class.declare(SomeClass, function ($super, $parent) {
                         return {
                             _getFruit: function () {
                                 return 'hot ' + $super._getFruit.call(this);
@@ -2206,7 +2206,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    }), HiClass = Class.declare(OtherClass, function ($super, $self, $parent) {
+                    }, true), HiClass = Class.declare(OtherClass, function ($super, $parent) {
                         return {
                             _getFruit: function () {
                                 return 'hi ' + $super._getFruit.call(this);
@@ -2217,7 +2217,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 }
                             }
                         };
-                    }), other = new OtherClass(), hi = new HiClass();
+                    }, true), other = new OtherClass(), hi = new HiClass();
                 expect(other.getFruit()).to.be.equal('hot potato');
                 expect(hi.getFruit()).to.be.equal('hi hot potato');
                 expect(OtherClass.getFruitStatic()).to.be.equal('hot potato');
@@ -2226,17 +2226,17 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         });
         describe('instanceOf', function () {
             it('should work the same was as native instanceof works (for normal classes)', function () {
-                var Class1 = Class.declare(function ($self) {
+                var Class1 = Class.declare(function () {
                         return {};
-                    }, true), Class2 = AbstractClass.declare(function ($self) {
+                    }, true), Class2 = AbstractClass.declare(function () {
                         return {};
-                    }, true), Class3 = Class.declare(Class1, function ($super) {
+                    }, true), Class3 = Class.declare(Class1, function ($super, $parent) {
                         return {};
-                    }, true), Class4 = Class.declare(Class2, function ($super) {
+                    }, true), Class4 = Class.declare(Class2, function ($super, $parent) {
                         return {};
-                    }, true), Class5 = AbstractClass.declare(Class1, function ($super) {
+                    }, true), Class5 = AbstractClass.declare(Class1, function ($super, $parent) {
                         return {};
-                    }, true), Class6 = Class.declare(Class5, function ($super) {
+                    }, true), Class6 = Class.declare(Class5, function ($super, $parent) {
                         return {};
                     }, true);
                 expect(instanceOf(new Class1(), Class1)).to.be.equal(true);
@@ -2252,14 +2252,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(instanceOf(new Class6(), Class2)).to.be.equal(false);
             });
             it('should work even with optimized constructors', function () {
-                var Class1 = Class.declare(function ($self) {
+                var Class1 = Class.declare(function () {
                         return {
                             initialize: function () {
                             }
                         };
-                    }, true), Class2 = Class.declare(Class1, function ($super) {
+                    }, true), Class2 = Class.declare(Class1, function ($super, $parent) {
                         return {};
-                    }, true), Class3 = Class.declare(Class2, function ($super) {
+                    }, true), Class3 = Class.declare(Class2, function ($super, $parent) {
                         return {};
                     }, true), class2 = new Class2(), class3 = new Class3();
                 expect(instanceOf(class2, Class1)).to.be.equal(true);
@@ -2275,31 +2275,31 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             Interface4,
                             Interface1
                         ]
-                    }), Interface6 = Interface5.extend({}), Class1 = Class.declare(function ($self) {
+                    }), Interface6 = Interface5.extend({}), Class1 = Class.declare(function () {
                         return { $implements: Interface1 };
-                    }, true), Class2 = AbstractClass.declare(function ($self) {
+                    }, true), Class2 = AbstractClass.declare(function () {
                         return {
                             $implements: [
                                 Interface1,
                                 Interface2
                             ]
                         };
-                    }, true), Class3 = Class.declare(Class1, function ($super) {
+                    }, true), Class3 = Class.declare(Class1, function ($super, $parent) {
                         return {};
-                    }, true), Class4 = Class.declare(Class2, function ($super) {
+                    }, true), Class4 = Class.declare(Class2, function ($super, $parent) {
                         return {};
-                    }, true), Class5 = AbstractClass.declare(Class1, function ($super) {
+                    }, true), Class5 = AbstractClass.declare(Class1, function ($super, $parent) {
                         return { $implements: Interface3 };
-                    }, true), Class6 = Class.declare(Class5, function ($super) {
+                    }, true), Class6 = Class.declare(Class5, function ($super, $parent) {
                         return {};
-                    }, true), Class7 = Class.declare(function ($self) {
+                    }, true), Class7 = Class.declare(function () {
                         return {
                             $implements: [
                                 Interface2,
                                 Interface5
                             ]
                         };
-                    }, true), Class8 = Class.declare(function ($self) {
+                    }, true), Class8 = Class.declare(function () {
                         return { $implements: Interface6 };
                     }, true);
                 expect(instanceOf(new Class1(), Interface1)).to.be.equal(true);
@@ -2318,7 +2318,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             });
         });
         describe('Singletons', function () {
-            var Singleton = Class.declare(function ($self) {
+            var Singleton = Class.declare(function () {
                     return {
                         foo: null,
                         _initialize: function () {
@@ -2330,7 +2330,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         }
                     };
-                }, true), Singleton2 = Class.declare(function ($self) {
+                }, true), Singleton2 = Class.declare(function () {
                     return {
                         foo: null,
                         __initialize: function () {
@@ -2342,11 +2342,11 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         }
                     };
-                }, true), SubSingleton = Class.declare(Singleton, function ($super) {
+                }, true), SubSingleton = Class.declare(Singleton, function ($super, $parent) {
                     return {};
-                }, true), SubSingleton2 = Class.declare(Singleton2, function ($super) {
+                }, true), SubSingleton2 = Class.declare(Singleton2, function ($super, $parent) {
                     return {};
-                }, true), OtherSubSingleton = Class.declare(SubSingleton, function ($super) {
+                }, true), OtherSubSingleton = Class.declare(SubSingleton, function ($super, $parent) {
                     return {
                         $statics: {
                             getInstance: function () {
@@ -2354,7 +2354,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         }
                     };
-                }, true), OtherSubSingleton2 = Class.declare(SubSingleton2, function ($super) {
+                }, true), OtherSubSingleton2 = Class.declare(SubSingleton2, function ($super, $parent) {
                     return {
                         $statics: {
                             getInstance: function () {
@@ -2403,14 +2403,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         describe('Optimized code', function () {
             it('should work with namespaced classes', function () {
                 var namespace = {};
-                namespace.SomeClass = Class.declare(function ($self) {
+                namespace.SomeClass = Class.declare(function () {
                     return {
                         someMethod: function () {
                             return 'ok';
                         }
                     };
                 }, true);
-                namespace.ComplexSomeClass = Class.declare(namespace.SomeClass, function ($super) {
+                namespace.ComplexSomeClass = Class.declare(namespace.SomeClass, function ($super, $parent) {
                     return {};
                 }, true);
                 expect(new namespace.ComplexSomeClass().someMethod()).to.be.equal('ok');

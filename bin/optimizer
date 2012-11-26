@@ -162,7 +162,8 @@ var parser = {
             type = ast.callee.property.name,
             extend,
             funcExpression,
-            canBeOptimized;
+            canBeOptimized,
+            hasParent;
 
         // Step 1
         // Convert the object to a return function with the magical $ params
@@ -182,6 +183,7 @@ var parser = {
         };
 
         if (type === 'extend' || (extend = parser._getExtends(args[0]))) {
+            hasParent = true;
             funcExpression.params.push(
                 {
                     type: Syntax.Identifier,
@@ -189,11 +191,11 @@ var parser = {
                 },
                 {
                     type: Syntax.Identifier,
-                    name: '$self'
+                    name: '$parent'
                 },
                 {
                     type: Syntax.Identifier,
-                    name: '$parent'
+                    name: '$self'
                 }
             );
 
@@ -210,6 +212,7 @@ var parser = {
                 ast['arguments'] = [funcExpression];
             }
         } else {
+            hasParent = false;
             funcExpression.params.push(
                 {
                     type: Syntax.Identifier,
@@ -234,7 +237,8 @@ var parser = {
                 type: 'Literal',
                 value: true
             });
-            funcExpression.params.splice(1, 2);
+
+            funcExpression.params.splice(hasParent ? 2 : 0, 1);
         }
 
         // Step 4
@@ -435,8 +439,8 @@ var parser = {
     },
 
     /**
-     * Replaces a function usage of keywords for their effiecient counterparts.
-     * Basically the this.$super and this.$self will be optimized.
+     * Replaces a function usage of keywords for their efficient counterparts.
+     * Basically this.$super, this.$static and this.$self will be optimized.
      *
      * @param {String} funcName The function name
      * @param {Object} ast      The function ast
@@ -449,7 +453,6 @@ var parser = {
             canBeOptimized = true;
 
         function superStaticReplacer() {
-            canBeOptimized = false;
             return '$parent';
         }
 
@@ -463,24 +466,31 @@ var parser = {
         }
 
         // Super replacement
-        code = code.replace(/(this|that|_this)(?:\.|(?:[\'])?)\$super(?:'\])?\(/g, '$super.' + funcName + '.call($1, ')
+        code = code.replace(/(this|that|_this)\.(\n)?\$super\(/g, '$super.' + funcName + '.call($1, ')
                    .replace(/(this|that|_this), \)/g, '$1)');
 
         // If on static context, $super is actually $parent
+        // Also this.$static can be replaced by this because is faster
         if (isStatic) {
             code = code.replace(/\$super/g, superStaticReplacer);
+            code = code.replace(/(this|that|_this)\.(\n)?\$static/g, '$1$2');
         }
 
         // Self replacement
-        code = code.replace(/(this|that|_this)(?:\.|(?:[\'])?)\$self(?:'\])?/g, selfReplacer);
+        code = code.replace(/(this|that|_this)\.(\n)?\$self?/g, selfReplacer);
 
         // $bind replacement
         /*code = code.replace(/\.\$bind\(/g, function (match, offset) {
             return !/(that|this|_this)$/.test(code.substr(offset - 5, 5)) ? '.bind(' : '.$bind(';
         });*/
 
+        // Test if something went wrong
+        if (/\.(\n)?\$super/g.test(code) || /\.(\n)?\$self/g.test(code) || /\.(\n)?\$static/g.test(code)) {
+            process.stderr.write('The optimization might have broken the behavior in usage at line ' + ast.value.loc.start.line + ', column ' + ast.value.loc.start.column);
+        }
+
         code = code.replace(/function\s*\(/, 'function x(');
-        ast.value = esprima.parse(code, esprimaOpts).body[0];
+        ast.value = esprima.parse(code).body[0];
         ast.value.id = null;
         ast.value.type = Syntax.FunctionExpression;
 
