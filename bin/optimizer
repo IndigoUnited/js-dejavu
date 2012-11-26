@@ -411,6 +411,7 @@ var parser = {
         }
 
         var x,
+            prevCurr,
             curr,
             currFuncName,
             canBeOptimized = true,
@@ -424,6 +425,20 @@ var parser = {
                 ret = parser._findAndParseFunctions(curr.value.properties, true);
             } else if (curr.key.name === '$finals') {
                 ret = parser._findAndParseFunctions(curr.value.properties);
+            } else if (curr.value.type === Syntax.CallExpression) {
+                // Traverse all the CallExpressions and MemberExpressions until we find the FunctionExpression
+                // This is because we can have functions with .$bound and other possibly things
+                currFuncName = curr.key.name;
+                curr = curr.value.callee;
+                prevCurr = null;
+                while (curr && curr.type !== Syntax.FunctionExpression) {
+                    prevCurr = curr;
+                    curr = curr.object || curr.callee;
+                }
+
+                if (curr && curr.type === Syntax.FunctionExpression && prevCurr) {
+                    ret = parser._replaceSpecial(currFuncName, prevCurr, isStatic);
+                }
             } else if (curr.value.type === Syntax.FunctionExpression) {
                 currFuncName = curr.key.name;
                 ret = parser._replaceSpecial(currFuncName, curr, isStatic);
@@ -449,8 +464,13 @@ var parser = {
      * @return {Boolean} False if this functions causes the constructor to not be optimized, false otherwise
      */
     _replaceSpecial: function (funcName, ast, isStatic) {
-        var code = escodegen.generate(ast.value, escodegenOpts),
-            canBeOptimized = true;
+        if (!ast.value && !ast.object) {
+            process.stderr.write(JSON.stringify(ast, null, '  '));
+            process.exit(1);
+        }
+        var code = escodegen.generate(ast.value || ast.object, escodegenOpts),
+            canBeOptimized = true,
+            newAst;
 
         function superStaticReplacer() {
             return '$parent';
@@ -493,9 +513,15 @@ var parser = {
         }
 
         code = code.replace(/function\s*\(/, 'function x(');
-        ast.value = esprima.parse(code).body[0];
-        ast.value.id = null;
-        ast.value.type = Syntax.FunctionExpression;
+
+        if (ast.value) {
+            ast.value = newAst = esprima.parse(code).body[0];
+        } else {
+            ast.object = newAst = esprima.parse(code).body[0];
+        }
+
+        newAst.id = null;
+        newAst.type = Syntax.FunctionExpression;
 
         return canBeOptimized;
     },

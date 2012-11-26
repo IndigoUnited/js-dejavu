@@ -2415,6 +2415,22 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 }, true);
                 expect(new namespace.ComplexSomeClass().someMethod()).to.be.equal('ok');
             });
+            it('should work for functions that are $bound', function () {
+                var SomeClass = Class.declare(function () {
+                        return {
+                            test: function () {
+                                return 'foo';
+                            }
+                        };
+                    }, true), OtherClass = Class.declare(SomeClass, function ($super, $parent) {
+                        return {
+                            test: function () {
+                                return $super.test.call(this);
+                            }.$bound()
+                        };
+                    }, true);
+                expect(new OtherClass().test()).to.be.equal('foo');
+            });
         });
     });
 });
