@@ -334,21 +334,17 @@ var UselessInterface = dejavu.Interface.declare({
     $name: 'UselessInterface'
 });
 
-var InterfacePerson = dejavu.Interface.declare({
-    $name: 'InterfacePerson',
+var PersonInterface = dejavu.Interface.declare({
+    $name: 'PersonInterface',
     // if you need to extend multiple interfaces,
     // just provide an array
     $extends: UselessInterface,
 
-    // method/attribute visibility is controlled by
-    // the number of underscores that the identifier
-    // has:
-    // public:    no underscores
-    // protected: 1 underscore
-    // private:   2 underscores
-    //
-    // the methods below are public
-    // TODO: signature and should not mention visibility here because interface should only contain empty public methods
+    // interface methods can specify argument list, and any class
+    // that implements that interface will be automatically checked,
+    // to make sure it obeys the method signature. If you want to
+    // specify an optional argument, you should prepend it by a dollar
+    // sign, like so: someMethod(arg1, arg2, $thisArgIsOptional)
     getName: function () {},
     setName: function (name) {}
 });
@@ -364,7 +360,7 @@ var EngineerInterface = dejavu.Interface.declare({
 var AbstractIndigo = dejavu.AbstractClass.declare({
     $name: 'AbstractIndigo',
     // implements multiple interfaces
-    $implements: [InterfacePerson, EngineerInterface],
+    $implements: [PersonInterface, EngineerInterface],
 
     $constants: {
         INDIGO_WEBSITE: 'http://www.indigounited.com/',
@@ -374,9 +370,9 @@ var AbstractIndigo = dejavu.AbstractClass.declare({
     $statics: {
         logIndigoInfo: function () {
             // by using this.$static, we're making sure that dejavu
-            // uses late binding to resolve the member. Instead,
-            // if you're looking for early binding, you can use
-            // this.$self
+            // uses late binding to resolve the member. If you're
+            // looking for early binding, you can use this.$self
+            // instead
             console.log(
                 this.$static.INDIGO_WEBSITE,
                 this.$static.INDIGO_EMAIL
@@ -384,6 +380,14 @@ var AbstractIndigo = dejavu.AbstractClass.declare({
         }
     },
 
+    // method/attribute visibility is controlled by
+    // the number of underscores that the identifier
+    // has:
+    // public:    no underscores
+    // protected: 1 underscore
+    // private:   2 underscores
+    //
+    // the attribute below is protected
     _name: null,
 
     getName: function () {
@@ -465,7 +469,7 @@ var Indigo = dejavu.Class.declare({
     }//.bound() would be equivalent to the binding in the constructor
 });
 
-var indigo = new Indigo('Indi');
+var indigo = new Indigo('André');
 indigo.beAwesome();
 
 // check the type of an object
@@ -479,7 +483,7 @@ console.log(dejavu.instanceOf(indigo, Indigo) ?
     : 'say what now?'
 );
 // native instanceof also works for classes, but not for interfaces
-console.log(indigo instanceof Indigo) ?
+console.log((indigo instanceof Indigo) ?
     'we have an indigo!'
     : 'say what now?'
 );
