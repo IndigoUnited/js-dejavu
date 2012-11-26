@@ -1,5 +1,5 @@
 var paths = {
-    'amd-utils': '../node_modules/amd-utils',
+    //'amd-utils': '../node_modules/amd-utils',
     'domReady': '../node_modules/domReady/domReady',
     'amd/strict': '../dist/amd/strict',
     'amd/loose': '../dist/amd/loose',
@@ -30,6 +30,13 @@ if (!(typeof window !== 'undefined' && window.navigator && window.document)) { /
     require({
         baseUrl: './',
         paths: paths,
+        packages: [
+            {
+                name: 'amd-utils',
+                location: '../node_modules/amd-utils',
+                main: 'index'
+            }
+        ],
         waitSeconds: (window.location.protocol === 'file:' || window.location.href.indexOf('://localhost') !== -1) ? 5 : 45, // Fail early locally
         urlArgs: 'bust=' + (+new Date())
     });

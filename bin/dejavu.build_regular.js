@@ -3,13 +3,14 @@
  * https://github.com/jrburke/r.js/blob/master/build/example.build.js
  */
 ({
-    appDir : '../src',
+    appDir: '../src',
     baseUrl: '.',
-    dir : '../tmp',
+    dir: '../tmp',
     paths : {
-        'amd-utils': '../node_modules/amd-utils',
-        'almond': '../node_modules/almond/almond'
+        'almond': '../node_modules/almond/almond',
+        'amd-utils': '../node_modules/amd-utils'
     },
+    cjsTranslate: true,
     pragmas: {
         'strict': true,
         'regular': true

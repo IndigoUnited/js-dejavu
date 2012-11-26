@@ -14,4 +14,11 @@ global.modules = [
 ];
 global.build = 'amd/loose';
 
-define(['specs/functional', 'specs/functional_optimized'], function () {});
+// As of requirejs 2.1 requirejs is also async in node
+// But if we call it directly by id it has sync behavior
+if (!global.browser) {
+    define('specs/functional');
+    define('specs/functional_optimized');
+} else {
+    define(['specs/functional', 'specs/functional_optimized']);
+}
