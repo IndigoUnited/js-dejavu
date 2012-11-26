@@ -75,7 +75,7 @@ var parser = {
                         } else if (parser._isClass(props)) {
                             callback({ type: 'concrete', ast: curr });
                         } else {
-                            process.stderr.write('Not enough metadata to optimize usage at ' + curr.loc.start.line + ', column ' + curr.loc.start.column + ' (add a $name property?)\n');
+                            process.stderr.write('Not enough metadata to optimize usage at line ' + curr.loc.start.line + ', column ' + curr.loc.start.column + ' (add a $name property?)\n');
                         }
                     }
                 }
