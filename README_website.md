@@ -498,15 +498,15 @@ which means all the other modules are not loaded.
 
 
 
-### Additional details
+## Additional details
 
-####  Classes/instances are locked ###
+###  Classes/instances are locked ###
 
 By default, constructors and instances are locked. This means that no one can monkey patch your code.
 
 This behaviour can be changed in two ways:
 
-##### With the $locked flag:
+#### With the $locked flag:
 
 ```js
 var UnlockedIndigo = Class.declare({
@@ -545,7 +545,7 @@ Filipe.talk    = function () {
 };
 ```
 
-##### By setting the global option:
+#### By setting the global option:
 
 This will change the default behaviour, but classes can still override it with the $locked flag.
 
@@ -558,7 +558,7 @@ Also, although undeclared members are allowed, they will not have their access c
 
 
 
-#### Vanilla classes
+### Vanilla classes
 
 `dejavu` allows you to extend or borrow vanilla classes. In this case, constructors and instances are forcibly UNLOCKED.
 
