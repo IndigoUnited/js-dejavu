@@ -12,14 +12,11 @@
         <script>
             var options = {
                 ui: 'bdd',
-                globals: ['console']
+                globals: []
             },
                 build = getBuild();
 
-            // TODO: remove this once mocha fixes this (https://github.com/visionmedia/mocha/issues/243)
-            if (navigator.userAgent.indexOf('Opera') !== -1) {
-                options.globals.push('stats', 'report');
-            } else if (navigator.userAgent.indexOf('Firefox') !== -1) {
+            if (navigator.userAgent.indexOf('Firefox') !== -1) {
                 options.globals.push('getInterface');   // Sometimes Firefox exposes a getInterface global.. I think it's Firebug
             }
 
