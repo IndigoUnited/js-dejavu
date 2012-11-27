@@ -492,15 +492,15 @@ which means all the other modules are not loaded.
 
 
 </p>
-<h3>Additional details</h3>
-<h4>Classes/instances are locked</h4>
+<h2>Additional details</h2>
+<h3>Classes/instances are locked</h3>
 <p>By default, constructors and instances are locked. This means that no one can monkey patch your code.
 
 </p>
 <p>This behaviour can be changed in two ways:
 
 </p>
-<h5>With the $locked flag:</h5>
+<h4>With the $locked flag:</h4>
 <pre><code class="lang-js">var UnlockedIndigo = Class.declare({
     $name: &#39;UnlockedIndigo&#39;,
     $locked: false
@@ -531,7 +531,7 @@ Filipe.friends = [&#39;Marco&#39;,&#39;Andre&#39;];
 Filipe.talk    = function () {
     console.log(&#39;I&#39;m talking about DejaVu!&#39;);
 };</code></pre>
-<h5>By setting the global option:</h5>
+<h4>By setting the global option:</h4>
 <p>This will change the default behaviour, but classes can still override it with the $locked flag.
 
 </p>
@@ -542,7 +542,7 @@ Also, although undeclared members are allowed, they will not have their access c
 
 
 </p>
-<h4>Vanilla classes</h4>
+<h3>Vanilla classes</h3>
 <p><code>dejavu</code> allows you to extend or borrow vanilla classes. In this case, constructors and instances are forcibly UNLOCKED.
 
 </p>

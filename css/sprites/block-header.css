@@ -1,5 +1,6 @@
-/* glue: 0.2.8.1 hash: b89fc7ac7e */
+/* glue: 0.2.8.1 hash: a2927cbf88 */
 .block-header-taking-it-to-another-level,
+.block-header-additional-details,
 .block-header-getting-started,
 .block-header-why-another,
 .block-header-dependencies,
@@ -12,14 +13,15 @@
 .block-header-syntax,
 .block-header-dejavu{background-image:url('../../img/sprites/block-header.png');background-repeat:no-repeat}
 .block-header-taking-it-to-another-level{background-position:0px 0px;width:499px;height:30px;}
-.block-header-getting-started{background-position:0px -30px;width:303px;height:30px;}
-.block-header-why-another{background-position:0px -60px;width:265px;height:30px;}
-.block-header-dependencies{background-position:0px -90px;width:258px;height:30px;}
-.block-header-performance{background-position:0px -120px;width:252px;height:30px;}
-.block-header-benchmarks{background-position:-265px -60px;width:233px;height:30px;}
-.block-header-works-on{background-position:-303px -30px;width:181px;height:30px;}
-.block-header-optimizer{background-position:-258px -90px;width:181px;height:30px;}
-.block-header-features{background-position:-252px -120px;width:170px;height:30px;}
-.block-header-license{background-position:0px -150px;width:137px;height:30px;}
-.block-header-syntax{background-position:-137px -150px;width:126px;height:30px;}
-.block-header-dejavu{background-position:-263px -150px;width:126px;height:29px;}
+.block-header-additional-details{background-position:0px -30px;width:348px;height:30px;}
+.block-header-getting-started{background-position:0px -60px;width:303px;height:30px;}
+.block-header-why-another{background-position:0px -90px;width:265px;height:30px;}
+.block-header-dependencies{background-position:0px -120px;width:258px;height:30px;}
+.block-header-performance{background-position:0px -150px;width:252px;height:30px;}
+.block-header-benchmarks{background-position:-265px -90px;width:233px;height:30px;}
+.block-header-works-on{background-position:-303px -60px;width:181px;height:30px;}
+.block-header-optimizer{background-position:-258px -120px;width:181px;height:30px;}
+.block-header-features{background-position:-252px -150px;width:170px;height:30px;}
+.block-header-license{background-position:-348px -30px;width:137px;height:30px;}
+.block-header-syntax{background-position:0px -180px;width:126px;height:30px;}
+.block-header-dejavu{background-position:-126px -180px;width:126px;height:29px;}
