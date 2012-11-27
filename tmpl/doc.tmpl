@@ -1,7 +1,4 @@
 <h2>dejavu</h2>
-<p><a href="http://travis-ci.org/IndigoUnited/dejavu"><img src="https://secure.travis-ci.org/IndigoUnited/dejavu.png" alt="Build Status"></a>
-
-</p>
 <p>Have you ever had the feeling that you&#39;re seeing something you&#39;ve already seen
 before? That&#39;s the feeling you get when using <code>dejavu</code>.
 
@@ -222,12 +219,13 @@ and optimized versions are tested.
         this.__pinCode = pinCode;
 
         // note that we&#39;re binding to the current instance in this case.
-        // also note that if this function is to be used only as a callback, you can
-        // use $bound(), which will be more efficient
+        // also note that if this function is to be used only as a
+        // callback, you can use $bound(), which will be more efficient
         setTimeout(this._logName.$bind(this), 1000);
     },
 
-    // public method (follows the same visibility logic, in this case with no underscore)
+    // public method (follows the same visibility logic, in this case
+    // with no underscore)
     getName: function () {
         return this._name;
     }
@@ -615,18 +613,6 @@ grunt.initConfig({
 If you use the regular build, you don&#39;t need to worry because all functions used from amd-utils are bundled for you.
 If you use the AMD build, learn <a href="https://github.com/IndigoUnited/dejavu#taking-it-to-another-level">how</a> to setup your loader.
 If you use dejavu on <code>node</code>, <code>npm</code> will take care of fetching everything for you.
-
-
-</p>
-<h2>Building dejavu</h2>
-<p>Simply run <code>npm install</code> to install all the tools needed.
-Then just run <code>npm run-script build</code> or <code>node build</code>.
-
-
-
-</p>
-<h2>Testing dejavu</h2>
-<p>Please take a look at the <a href="https://github.com/IndigoUnited/dejavu/tree/master/test">test</a> section.
 
 
 

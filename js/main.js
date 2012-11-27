@@ -51,8 +51,10 @@
         els = $(els);
 
         var title = getBlockTitle(els),
-            el = parseBlock(els)
-        ;
+            el = parseBlock(els),
+            headerEl = els.eq(0);
+
+        headerEl.addClass('ir block-header-' + title.replace(/\s+/g, '-').replace(/\?/g, '').toLowerCase());
 
         switch (title) {
         case 'dejavu':
@@ -100,9 +102,9 @@
             tag,
             curr;
 
-        el.find('p').eq(0).remove();           // Remove first paragraph (the build status image)
         el.find('hr').remove();                // Remove all hr's
         el.find('a').attr('target', '_blank'); // All links should open a new window
+
         children = el.children(),
         length = children.length,
         els = [];
@@ -145,8 +147,7 @@
 
     function browserIsBlacklisted(browser) {
         var i,
-            totalBlacklisted = browserBlacklist.length
-        ;
+            totalBlacklisted = browserBlacklist.length;
 
         for (i = 0; i < totalBlacklisted; i += 1) {
             if (browserBlacklist[i].test(browser)) {

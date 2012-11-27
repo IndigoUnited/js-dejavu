@@ -11,7 +11,7 @@ module.exports = function (grunt) {
     // Download README task
     grunt.registerTask('getreadme', 'Downloads the dejavu README.md', function () {
         var file = fs.createWriteStream('dejavu_readme.md');
-        var fileUrl = 'https://raw.github.com/IndigoUnited/dejavu/documentation/README_website.md';
+        var fileUrl = 'https://raw.github.com/IndigoUnited/dejavu/master/README_website.md';
         var taskDone = this.async();
         var options = {
             host: url.parse(fileUrl).host,
@@ -84,6 +84,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-requirejs');
     grunt.loadNpmTasks('grunt-contrib-mincss');
     grunt.loadNpmTasks('grunt-remove-logging');
+    grunt.loadNpmTasks('grunt-glue');
 
     grunt.initConfig({
         clean: {
@@ -96,6 +97,7 @@ module.exports = function (grunt) {
                 dest: 'dist/compiled.js'
             }
         },
+
         removelogging: {
             dist: {
                 src: 'dist/compiled.js',
@@ -107,6 +109,13 @@ module.exports = function (grunt) {
             dist: {
                 src: 'dist/compiled.js',
                 dest: 'dist/compiled.min.js'
+            }
+        },
+
+        glue: {
+            headers: {
+                src: 'img/block-header',
+                options: '--css=css/sprites --img=img/sprites --namespace='
             }
         },
 
@@ -129,7 +138,7 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('build', 'clean concat removelogging requirejs version min mincss');
+    grunt.registerTask('build', 'clean concat removelogging glue requirejs version min mincss');
     grunt.registerTask('doc', 'getreadme markdown2html');
     grunt.registerTask('run', 'server forever');
     grunt.registerTask('default', 'doc build');

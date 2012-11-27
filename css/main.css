@@ -1,5 +1,6 @@
 @import url('normalize.css');
 @import url('monokai.css');
+@import url('sprites/block-header.css');
 
 /*
  * HTML5 Boilerplate
@@ -194,46 +195,6 @@ a:hover {
     float: none;
 }
 
-.block-title {
-    width: 100%;
-    height: 30px;
-    position: relative;
-    background-repeat: no-repeat;
-    margin-bottom: 20px;
-}
-
-.block-title:after {
-    content: '';
-    position: absolute;
-    top: 40px;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: #4C0066;
-    z-index: 2;
-}
-
-.block-title.dejavu-what-now {
-    background-image: url('../img/block_headers/dejavu_what_now.png');
-}
-.block-title.why-another {
-    background-image: url('../img/block_headers/why_another.png');
-}
-.block-title.benchmarks {
-    background-image: url('../img/block_headers/benchmarks.png');
-}
-.block-title.features {
-    background-image: url('../img/block_headers/features.png');
-}
-.block-title.getting-started {
-    background-image: url('../img/block_headers/getting_started.png');
-}
-
-.block-content {
-    min-height: 100px;
-    padding-bottom: 50px;
-}
-
 ul, ol {
     padding: 0 0 0 15px;
 }
@@ -299,6 +260,11 @@ h1, h2, h3, h4 {
     position: relative;
 }
 
+h1, h2 {
+    position: static;
+    margin-bottom: 20px;
+}
+
 h3, h4 {
     font-size: 30px;
     margin: 30px 0 0 0;
@@ -308,6 +274,10 @@ h4 {
     font-size: 20px;
 }
 
+.block {
+    position: relative;
+}
+
 .block:first-child h1, .block:first-child h2 {
     margin-top: 0;
 }
@@ -315,7 +285,7 @@ h4 {
 h1:after, h2:after {
     content: '';
     position: absolute;
-    bottom: 0;
+    top: 38px;
     left: 0;
     right: 0;
     height: 1px;

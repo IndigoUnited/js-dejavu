@@ -329,6 +329,31 @@ pre .xml .css,
 pre .xml .cdata {
   opacity: 0.5;
 }
+
+.block-header-taking-it-to-another-level,
+.block-header-getting-started,
+.block-header-why-another,
+.block-header-dependencies,
+.block-header-performance,
+.block-header-benchmarks,
+.block-header-works-on,
+.block-header-optimizer,
+.block-header-features,
+.block-header-license,
+.block-header-syntax,
+.block-header-dejavu{background-image:url(../img/sprites/block-header.png);background-repeat:no-repeat}
+.block-header-taking-it-to-another-level{background-position:0px 0px;width:499px;height:30px;}
+.block-header-getting-started{background-position:0px -30px;width:303px;height:30px;}
+.block-header-why-another{background-position:0px -60px;width:265px;height:30px;}
+.block-header-dependencies{background-position:0px -90px;width:258px;height:30px;}
+.block-header-performance{background-position:0px -120px;width:252px;height:30px;}
+.block-header-benchmarks{background-position:-265px -60px;width:233px;height:30px;}
+.block-header-works-on{background-position:-303px -30px;width:181px;height:30px;}
+.block-header-optimizer{background-position:-258px -90px;width:181px;height:30px;}
+.block-header-features{background-position:-252px -120px;width:170px;height:30px;}
+.block-header-license{background-position:0px -150px;width:137px;height:30px;}
+.block-header-syntax{background-position:-137px -150px;width:126px;height:30px;}
+.block-header-dejavu{background-position:-263px -150px;width:126px;height:29px;}
 html,
 button,
 input,
@@ -374,7 +399,7 @@ textarea {
     padding: 0.2em 0;
 }
 body {
-    background: #000 url('../img/cat.jpg?v=19') top center no-repeat;
+    background: #000 url('../img/cat.jpg?v=20') top center no-repeat;
     color: #FEECFF;
     font-size: 15px;
     font-family: 'Source Sans Pro', sans-serif;
@@ -405,7 +430,7 @@ a:hover {
     height: 300px;
 }
 #header .indigo {
-    background-image: url('../img/indigo_logo.png?v=19');
+    background-image: url('../img/indigo_logo.png?v=20');
     width: 145px;
     height: 50px;
     position: absolute;
@@ -429,7 +454,7 @@ a:hover {
     bottom: 0;
 }
 #header .logo {
-    background-image: url('../img/logo.png?v=19');
+    background-image: url('../img/logo.png?v=20');
     width: 378px;
     height: 121px;
     position: absolute;
@@ -440,7 +465,7 @@ a:hover {
     min-height: 300px;
 }
 #content.loading {
-    background: url('../img/loaders/loader_square.gif?v=19') center 100px no-repeat;
+    background: url('../img/loaders/loader_square.gif?v=20') center 100px no-repeat;
 }
 #content .left {
     float: left;
@@ -453,42 +478,6 @@ a:hover {
 .phone #content .left {
     width: 100%;
     float: none;
-}
-.block-title {
-    width: 100%;
-    height: 30px;
-    position: relative;
-    background-repeat: no-repeat;
-    margin-bottom: 20px;
-}
-.block-title:after {
-    content: '';
-    position: absolute;
-    top: 40px;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: #4C0066;
-    z-index: 2;
-}
-.block-title.dejavu-what-now {
-    background-image: url('../img/block_headers/dejavu_what_now.png?v=19');
-}
-.block-title.why-another {
-    background-image: url('../img/block_headers/why_another.png?v=19');
-}
-.block-title.benchmarks {
-    background-image: url('../img/block_headers/benchmarks.png?v=19');
-}
-.block-title.features {
-    background-image: url('../img/block_headers/features.png?v=19');
-}
-.block-title.getting-started {
-    background-image: url('../img/block_headers/getting_started.png?v=19');
-}
-.block-content {
-    min-height: 100px;
-    padding-bottom: 50px;
 }
 ul, ol {
     padding: 0 0 0 15px;
@@ -533,7 +522,7 @@ pre code {
     width: 725px;
 }
 .chart.loading {
-    background: url('../img/loaders/loader_square.gif?v=19') center 100px no-repeat;
+    background: url('../img/loaders/loader_square.gif?v=20') center 100px no-repeat;
 }
 h1, h2, h3, h4 {
     color: #FF26FF;
@@ -544,6 +533,10 @@ h1, h2, h3, h4 {
     margin-bottom: 0;
     position: relative;
 }
+h1, h2 {
+    position: static;
+    margin-bottom: 20px;
+}
 h3, h4 {
     font-size: 30px;
     margin: 30px 0 0 0;
@@ -551,13 +544,16 @@ h3, h4 {
 h4 {
     font-size: 20px;
 }
+.block {
+    position: relative;
+}
 .block:first-child h1, .block:first-child h2 {
     margin-top: 0;
 }
 h1:after, h2:after {
     content: '';
     position: absolute;
-    bottom: 0;
+    top: 38px;
     left: 0;
     right: 0;
     height: 1px;

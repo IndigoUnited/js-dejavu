@@ -52,8 +52,10 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
         els = $(els);
 
         var title = getBlockTitle(els),
-            el = parseBlock(els)
-        ;
+            el = parseBlock(els),
+            headerEl = els.eq(0);
+
+        headerEl.addClass('ir block-header-' + title.replace(/\s+/g, '-').replace(/\?/g, '').toLowerCase());
 
         switch (title) {
         case 'dejavu':
@@ -101,8 +103,8 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
             tag,
             curr;
 
-        el.find('p').eq(0).remove();    // Remove first paragraph (the build status image)
-        el.find('hr').remove();         // Remove all hr's
+        el.find('hr').remove();                // Remove all hr's
+        el.find('a').attr('target', '_blank'); // All links should open a new window
 
         children = el.children(),
         length = children.length,
@@ -111,7 +113,7 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
         for (x = 0; x < length; x += 1) {
             curr = children.get(x);
             tag = curr.tagName.toLowerCase();
-            if ((tag === 'h1' || tag === 'h2' /*|| tag === 'h3'*/) && els.length) {
+            if ((tag === 'h1' || tag === 'h2') && els.length) {
                 addBlock(els);
                 els = [];
             }
@@ -134,24 +136,21 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
 // Fetches the perf results and draws the graph
 (function () {
 
-    var drawChart, fetchData,
-        testId = 'agt1YS1wcm9maWxlcnINCxIEVGVzdBiShoITDA',
+    var testId = 'agt1YS1wcm9maWxlcnINCxIEVGVzdBiShoITDA',
         cb = '_' + parseInt(Math.random() * 1e9, 10),
-        // the blacklist below is due to unstable versions of browsers that should not
+        // The blacklist below is due to unstable versions of browsers that should not
         // yet be accounted for
         browserBlacklist = [
-            /Firefox 18\./,
-            /Firefox 19\./,
-            /Safari 5\.1\.7/ // this graph was wacked, because the results weren't properly submitted
-        ]
-    ;
+            /Firefox 1[8-9]\./,
+            /Firefox [2-9][0-9]\./,
+            /Safari 5\.1\.7/ // This graph was wacked, because the results weren't properly submitted
+        ];
 
     function browserIsBlacklisted(browser) {
         var i,
-            totalBlacklisted = browserBlacklist.length
-        ;
+            totalBlacklisted = browserBlacklist.length;
 
-        for (i = 0; i < totalBlacklisted; ++i) {
+        for (i = 0; i < totalBlacklisted; i += 1) {
             if (browserBlacklist[i].test(browser)) {
                 return true;
             }
@@ -160,7 +159,7 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
         return false;
     }
 
-    drawChart = function (title, results, el) {
+    function drawChart(title, results, el) {
         var browserName, browser, testName, test, line, browserResults, data,
             chart = new google.visualization.BarChart(el.get(0)),
             lines = [],
@@ -257,7 +256,7 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
                 }
             }
         });
-    };
+    }
 
 
     window[cb] = function (response) {
@@ -282,8 +281,6 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
         // Draw the chart
         drawChart(response.category_name, newResults, $('.benchmark'));
 
-
-
         // Parse mobile browsers
         // Only keep the most recent browser in the results
         newResults = {};
@@ -301,7 +298,7 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
         drawChart(response.category_name, newResults, $('.benchmark-mobile'));
     };
 
-    fetchData = function () {
+    function fetchData() {
         var script = document.createElement('script'),
             first = document.getElementsByTagName('script')[0];
 
@@ -309,7 +306,7 @@ var hljs=new function(){function l(o){return o.replace(/&/gm,"&amp;").replace(/<
         script.src = '//www.browserscope.org/user/tests/table/' + testId +
             '?v=3&o=json&callback=' + cb;
         first.parentNode.insertBefore(script, first);
-    };
+    }
 
     window.Browserscope = {
         update: fetchData
