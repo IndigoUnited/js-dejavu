@@ -234,6 +234,7 @@ pre code {
 .benchmark, .benchmark-mobile {
     width: 545px;
     height: 915px;
+    display: block;
 }
 
 .benchmark-mobile {

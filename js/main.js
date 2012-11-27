@@ -98,8 +98,8 @@ if (!window.siteVersion) {
         case 'Benchmarks':
             el.find('p').each(function (i, p) {
                 p.innerHTML = p.innerHTML
-                    .replace(/\{\{graph\}\}/, '<div class="benchmark chart loading"></div>')
-                    .replace(/\{\{graph_mobile\}\}/, '<div class="benchmark-mobile chart loading"></div>');
+                    .replace(/\{\{graph\}\}/, '<span class="benchmark chart loading"></span>')
+                    .replace(/\{\{graph_mobile\}\}/, '<span class="benchmark-mobile chart loading"></span>');
             });
             rightColumnEl.append(el);
             break;
@@ -311,7 +311,7 @@ if (!window.siteVersion) {
         for (key in results) {
             split = key.split(' ');
             // Skip mobile and blacklisted browsers
-            if (mobile.indexOf(split[0].toLowerCase()) !== -1 || browserIsBlacklisted(key)) {
+            if ($.inArray(split[0].toLowerCase(), mobile) !== -1 || browserIsBlacklisted(key)) {
                 continue;
             }
             newResults[key] = results[key];
@@ -327,7 +327,7 @@ if (!window.siteVersion) {
         for (key in results) {
             split = key.split(' ');
             // Include mobile, but exclude blacklisted browsers
-            if (mobile.indexOf(split[0].toLowerCase()) === -1 || browserIsBlacklisted(key)) {
+            if ($.inArray(split[0].toLowerCase(), mobile) === -1 || browserIsBlacklisted(key)) {
                 continue;
             }
             newResults[key] = results[key];
@@ -371,12 +371,15 @@ $(document).ready(function () {
         Documentation.parse(promise.responseText);
 
         // Highlight code
-        var blocks = $('pre code'),
-            length = blocks.length,
-            x;
+        // Do not highlight in <=IE8 because highlightjs throws errors on it
+        if (!$.browser.msie || $.browser.version > 8)  {
+            var blocks = $('pre code'),
+                length = blocks.length,
+                x;
 
-        for (x = 0; x < length; x += 1) {
-            hljs.highlightBlock(blocks.get(x));
+            for (x = 0; x < length; x += 1) {
+                hljs.highlightBlock(blocks.get(x));
+            }
         }
 
         // Get perf results from browserscope
