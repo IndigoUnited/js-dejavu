@@ -248,42 +248,46 @@ pre code {
     background: url('../img/loaders/loader_square.gif') center 100px no-repeat;
 }
 
-h1, h2, h3, h4 {
+h3, h4 {
     color: #FF26FF;
-    font-size: 40px;
+    font-size: 30px;
     text-transform: uppercase;
     font-weight: 300;
-    margin-top: 50px;
+    margin-top: 30px;
     margin-bottom: 0;
     position: relative;
 }
 
-h1, h2 {
-    position: static;
-    margin-bottom: 20px;
-}
-
-h3, h4 {
-    font-size: 30px;
-    margin: 30px 0 0 0;
-}
-
-h4 {
-    font-size: 20px;
+.block-header {
+    display: block;
+    float: left;
+    margin-top: 40px;
+    margin-bottom: 10px;
 }
 
 .block {
     position: relative;
 }
 
-.block:first-child h1, .block:first-child h2 {
+.block:first-child .block-header {
     margin-top: 0;
 }
 
-h1:after, h2:after {
+.block-header:after {
     content: '';
     position: absolute;
-    top: 38px;
+    top: 80px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #4C0066;
+    z-index: 2;
+}
+
+.block:first-child .block-header:after {
+    content: '';
+    position: absolute;
+    top: 40px;
     left: 0;
     right: 0;
     height: 1px;

@@ -41,15 +41,12 @@ module.exports = function (grunt) {
         var contents = fs.readFileSync('dejavu_readme.md').toString();
         var html = md(contents);
 
-        // TODO: target _blank should be added to all links
-        //       don't forget to do the same to the automaton
-
         fs.writeFileSync('tmpl/doc.tmpl', html);
         grunt.log.ok();
     });
 
     // Version task
-    grunt.registerTask('version', 'Bumps the version and updates stuff accordingly', function () {
+    grunt.registerTask('version', 'Bumps the vers ion and updates stuff accordingly', function () {
         var json = JSON.parse(fs.readFileSync('package.json'));
         var version = (json.siteVersion || 0) + 1;
         json.siteVersion = version;
@@ -99,7 +96,11 @@ module.exports = function (grunt) {
 
         concat: {
             dist: {
-                src: ['js/vendor/highlight.pack.js', 'js/main.js'],
+                src: [
+                    'js/vendor/highlight.pack.js',
+                    'js/vendor/jquery.smooth-scroll.js',
+                    'js/main.js'
+                ],
                 dest: 'dist/compiled.js'
             }
         },

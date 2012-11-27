@@ -56,10 +56,19 @@ if (!window.siteVersion) {
         els = $(els);
 
         var title = getBlockTitle(els),
-            el = parseBlock(els),
-            headerEl = els.eq(0);
+            headerEl = els.eq(0),
+            el,
+            slug = title.replace(/\s+/g, '-').replace(/\?/g, '').toLowerCase(),
+            aEl = $('<a href="#' + slug + '" id="' + slug + '"></a>').append($('<span></span>'));
 
-        headerEl.addClass('ir block-header-' + title.replace(/\s+/g, '-').replace(/\?/g, '').toLowerCase());
+        els = els.not(headerEl);
+        aEl.children().empty();
+        headerEl = aEl.children().eq(0);
+        Array.prototype.unshift.call(els, aEl.get(0));
+        el = parseBlock(els),
+        headerEl.addClass('block-header block-header-' + slug);
+
+        aEl.after($('<div class="clearfix"></div>'));
 
         switch (title) {
         case 'dejavu':
@@ -73,10 +82,11 @@ if (!window.siteVersion) {
             rightColumnEl.append(el);
             break;
         case 'Benchmarks':
-            el.get(0).innerHTML = el.get(0).innerHTML
-                .replace(/\{\{graph\}\}/, '<div class="benchmark chart loading"></div>')
-                .replace(/\{\{graph_mobile\}\}/, '<div class="benchmark-mobile chart loading"></div>')
-            ;
+            el.find('p').each(function (i, p) {
+                p.innerHTML = p.innerHTML
+                    .replace(/\{\{graph\}\}/, '<div class="benchmark chart loading"></div>')
+                    .replace(/\{\{graph_mobile\}\}/, '<div class="benchmark-mobile chart loading"></div>');
+            });
             rightColumnEl.append(el);
             break;
         default:
@@ -86,6 +96,9 @@ if (!window.siteVersion) {
                 rightColumnEl.append(el);
             }
         }
+
+        // Finally add smooth scroll (for the headers)
+        aEl.smoothScroll();
     }
 
     function parseDoc(str) {
@@ -338,7 +351,8 @@ $(document).ready(function () {
         // Highlight code
         var blocks = $('pre code'),
             length = blocks.length,
-            x;
+            x,
+            hash;
 
         for (x = 0; x < length; x += 1) {
             hljs.highlightBlock(blocks.get(x));
@@ -346,5 +360,13 @@ $(document).ready(function () {
 
         // Get perf results from browserscope
         Browserscope.update();
+
+        // Scroll to the hashbang if any
+        hash = location.hash;
+        if (hash) {
+            $.smoothScroll({
+                scrollTarget: hash
+            });
+        }
     });
 });
