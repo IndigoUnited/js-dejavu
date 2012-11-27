@@ -1,8 +1,6 @@
 dejavu
 ------
 
-[![Build Status](https://secure.travis-ci.org/IndigoUnited/dejavu.png)](http://travis-ci.org/IndigoUnited/dejavu)
-
 Have you ever had the feeling that you're seeing something you've already seen
 before? That's the feeling you get when using `dejavu`.
 
@@ -215,12 +213,13 @@ var Person = Class.declare({
         this.__pinCode = pinCode;
 
         // note that we're binding to the current instance in this case.
-        // also note that if this function is to be used only as a callback, you can
-        // use $bound(), which will be more efficient
+        // also note that if this function is to be used only as a
+        // callback, you can use $bound(), which will be more efficient
         setTimeout(this._logName.$bind(this), 1000);
     },
 
-    // public method (follows the same visibility logic, in this case with no underscore)
+    // public method (follows the same visibility logic, in this case
+    // with no underscore)
     getName: function () {
         return this._name;
     }
@@ -499,15 +498,15 @@ which means all the other modules are not loaded.
 
 
 
-### Additional details
+## Additional details
 
-####  Classes/instances are locked ###
+###  Classes/instances are locked ###
 
 By default, constructors and instances are locked. This means that no one can monkey patch your code.
 
 This behaviour can be changed in two ways:
 
-##### With the $locked flag:
+#### With the $locked flag:
 
 ```js
 var UnlockedIndigo = Class.declare({
@@ -546,7 +545,7 @@ Filipe.talk    = function () {
 };
 ```
 
-##### By setting the global option:
+#### By setting the global option:
 
 This will change the default behaviour, but classes can still override it with the $locked flag.
 
@@ -559,7 +558,7 @@ Also, although undeclared members are allowed, they will not have their access c
 
 
 
-#### Vanilla classes
+### Vanilla classes
 
 `dejavu` allows you to extend or borrow vanilla classes. In this case, constructors and instances are forcibly UNLOCKED.
 
@@ -636,18 +635,6 @@ dejavu depends on [amd-utils](https://github.com/millermedeiros/amd-utils).
 If you use the regular build, you don't need to worry because all functions used from amd-utils are bundled for you.
 If you use the AMD build, learn [how](https://github.com/IndigoUnited/dejavu#taking-it-to-another-level) to setup your loader.
 If you use dejavu on `node`, `npm` will take care of fetching everything for you.
-
-
-## Building dejavu
-
-Simply run `npm install` to install all the tools needed.
-Then just run `npm run-script build` or `node build`.
-
-
-
-## Testing dejavu
-
-Please take a look at the [test](https://github.com/IndigoUnited/dejavu/tree/master/test) section.
 
 
 
