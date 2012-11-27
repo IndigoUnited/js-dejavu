@@ -3,7 +3,8 @@
         "console",
         "$",
         "google",
-        "hljs"
+        "hljs",
+        "siteVersion"
     ],
 
     "browser": true,

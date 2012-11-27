@@ -1,6 +1,11 @@
 /*jshint regexp:false*/
 /*global Documentation, Browserscope*/
 
+// Website version
+if (!window.siteVersion) {
+    window.siteVersion = +(new Date());
+}
+
 // Documentation parsing
 (function () {
     var leftColumnEl,
@@ -315,7 +320,7 @@
 
 $(document).ready(function () {
     // Download the tmpl
-    var promise = $.get('tmpl/doc.tmpl', {
+    var promise = $.ajax('tmpl/doc.tmpl' + '?v=' + siteVersion, {
         timeout: 15000
     }),
         contentEl = $('#content');
