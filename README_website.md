@@ -136,8 +136,7 @@ var indigo = new Person("Marco");
 console.log("A new indigo was born,", indigo.getName());
 ```
 
-In node, the default mode running will be the strict mode unless the STRICT environmen
- variable is set to false.
+In node, the default mode running will be the strict mode unless the STRICT environment variable is set to false.
 Environment variables can be changed system wide or per process like so:
 
 ```js
