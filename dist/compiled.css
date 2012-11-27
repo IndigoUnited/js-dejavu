@@ -342,7 +342,7 @@ pre .xml .cdata {
 .block-header-features,
 .block-header-license,
 .block-header-syntax,
-.block-header-dejavu{background-image:url(../img/sprites/block-header.png?v=26);background-repeat:no-repeat}
+.block-header-dejavu{background-image:url(../img/sprites/block-header.png?v=27);background-repeat:no-repeat}
 .block-header-taking-it-to-another-level{background-position:0px 0px;width:499px;height:30px;}
 .block-header-additional-details{background-position:0px -30px;width:348px;height:30px;}
 .block-header-getting-started{background-position:0px -60px;width:303px;height:30px;}
@@ -401,7 +401,7 @@ textarea {
     padding: 0.2em 0;
 }
 body {
-    background: #000 url('../img/cat.jpg?v=26') top center no-repeat;
+    background: #000 url('../img/cat.jpg?v=27') top center no-repeat;
     color: #FEECFF;
     font-size: 15px;
     font-family: 'Source Sans Pro', sans-serif;
@@ -432,7 +432,7 @@ a:hover {
     height: 300px;
 }
 #header .indigo {
-    background-image: url('../img/indigo_logo.png?v=26');
+    background-image: url('../img/indigo_logo.png?v=27');
     width: 145px;
     height: 50px;
     position: absolute;
@@ -456,7 +456,7 @@ a:hover {
     bottom: 0;
 }
 #header .logo {
-    background-image: url('../img/logo.png?v=26');
+    background-image: url('../img/logo.png?v=27');
     width: 378px;
     height: 121px;
     position: absolute;
@@ -467,7 +467,7 @@ a:hover {
     min-height: 300px;
 }
 #content.loading {
-    background: url('../img/loaders/loader_square.gif?v=26') center 100px no-repeat;
+    background: url('../img/loaders/loader_square.gif?v=27') center 100px no-repeat;
 }
 #content .left {
     float: left;
@@ -524,7 +524,7 @@ pre code {
     width: 725px;
 }
 .chart.loading {
-    background: url('../img/loaders/loader_square.gif?v=26') center 100px no-repeat;
+    background: url('../img/loaders/loader_square.gif?v=27') center 100px no-repeat;
 }
 h1, h2, h3, h4 {
     color: #FF26FF;

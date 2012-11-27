@@ -1,7 +1,7 @@
 {
   "name": "dejavu",
   "version": "0.0.0",
-  "siteVersion": 26,
+  "siteVersion": 27,
   "scripts": {
     "preinstall": "npm install -g grunt"
   },
