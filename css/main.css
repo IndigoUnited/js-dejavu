@@ -208,14 +208,12 @@ code {
     background: #222;
     border: 1px solid #272822;
     border-radius: 4px;
-    font-family: 'Source Sans Pro', sans-serif;
-    font-size: 14px;
+    font-family: 'Source Code Pro', sans-serif;
+    font-size: 12px;
     font-weight: 300;
 }
 
 pre code {
-    font-family: 'Source Code Pro', sans-serif;
-    font-size: 12px;
     font-weight: 100;
     width: 514px;
     overflow: auto;
