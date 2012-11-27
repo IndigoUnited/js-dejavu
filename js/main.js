@@ -10,7 +10,8 @@ if (!window.siteVersion) {
 (function () {
     var leftColumnEl,
         rightColumnEl,
-        isPhone;
+        isPhone,
+        hash;
 
     isPhone = (function () {
         var uAgent = navigator.userAgent.toLowerCase(),
@@ -33,6 +34,19 @@ if (!window.siteVersion) {
 
         return true;
     }());
+
+    // Reach to hash chages
+    function reactToHash() {
+        var newHash = location.hash.replace(/#(section\-)?/, '');
+        if (hash === newHash) {
+            return;
+        }
+
+        hash = newHash;
+        if (hash) {
+            $.smoothScroll({ scrollTarget: '#' + newHash });
+        }
+    }
 
     function parseBlock(els) {
         var blockEl = $('<div class="block"></div>');
@@ -98,7 +112,12 @@ if (!window.siteVersion) {
         }
 
         // Finally add smooth scroll (for the headers)
-        aEl.smoothScroll();
+        aEl.smoothScroll({
+            afterScroll: function () {
+                hash = slug;
+                location.hash = '#section-' + slug;
+            }
+        });
     }
 
     function parseDoc(str) {
@@ -141,6 +160,9 @@ if (!window.siteVersion) {
         if (els.length) {
             addBlock(els);
         }
+
+        reactToHash();
+        $(window).on('hashchange', reactToHash);
     }
 
     window.Documentation = {
@@ -351,8 +373,7 @@ $(document).ready(function () {
         // Highlight code
         var blocks = $('pre code'),
             length = blocks.length,
-            x,
-            hash;
+            x;
 
         for (x = 0; x < length; x += 1) {
             hljs.highlightBlock(blocks.get(x));
@@ -360,13 +381,5 @@ $(document).ready(function () {
 
         // Get perf results from browserscope
         Browserscope.update();
-
-        // Scroll to the hashbang if any
-        hash = location.hash;
-        if (hash) {
-            $.smoothScroll({
-                scrollTarget: hash
-            });
-        }
     });
 });
