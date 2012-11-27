@@ -175,7 +175,7 @@ if (!window.siteVersion) {
 // Fetches the perf results and draws the graph
 (function () {
 
-    var testId = 'agt1YS1wcm9maWxlcnINCxIEVGVzdBiShoITDA',
+    var testId = 'agt1YS1wcm9maWxlcnINCxIEVGVzdBjEhIETDA',
         cb = '_' + parseInt(Math.random() * 1e9, 10),
         // The blacklist below is due to unstable versions of browsers that should not
         // yet be accounted for
