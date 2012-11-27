@@ -13,6 +13,7 @@
         "escodegen": "~0.0.15"
     },
     "devDependencies": {
+        "bower": "~0.6.3",
         "almond": "~0.2.1",
         "mocha": "~1.7.1",
         "wrench": "~1.4.3",

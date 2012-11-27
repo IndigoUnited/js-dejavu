@@ -394,33 +394,29 @@ var requirejs, require, define;
 
 define("almond", function(){});
 
-define('amd-utils/lang/kindOf',['require','exports','module'],function (require, exports, module) {
+define('amd-utils/lang/kindOf',[],function () {
 
+    var _rKind = /^\[object (.*)\]$/,
+        _toString = Object.prototype.toString,
+        UNDEF;
 
-var _rKind = /^\[object (.*)\]$/,
-    _toString = Object.prototype.toString,
-    UNDEF;
-
-/**
- * Gets the "kind" of value. (e.g. "String", "Number", etc)
- * @version 0.1.0 (2011/10/31)
- */
-function kindOf(val) {
-    if (val === null) {
-        return 'Null';
-    } else if (val === UNDEF) {
-        return 'Undefined';
-    } else {
-        return _rKind.exec( _toString.call(val) )[1];
+    /**
+     * Gets the "kind" of value. (e.g. "String", "Number", etc)
+     * @version 0.1.0 (2011/10/31)
+     */
+    function kindOf(val) {
+        if (val === null) {
+            return 'Null';
+        } else if (val === UNDEF) {
+            return 'Undefined';
+        } else {
+            return _rKind.exec( _toString.call(val) )[1];
+        }
     }
-}
-module.exports = kindOf;
-
-
+    return kindOf;
 });
 
-define('amd-utils/lang/isKind',['require','exports','module','./kindOf'],function (require, exports, module) {
-var kindOf = require('./kindOf');
+define('amd-utils/lang/isKind',['./kindOf'], function (kindOf) {
     /**
      * Check if value is from a specific "kind".
      * @version 0.1.0 (2011/10/31)
@@ -428,26 +424,20 @@ var kindOf = require('./kindOf');
     function isKind(val, kind){
         return kindOf(val) === kind;
     }
-    module.exports = isKind;
-
-
+    return isKind;
 });
 
-define('amd-utils/lang/isString',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('amd-utils/lang/isString',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
      */
     function isString(val) {
         return isKind(val, 'String');
     }
-    module.exports = isString;
-
-
+    return isString;
 });
 
-define('amd-utils/array/indexOf',['require','exports','module'],function (require, exports, module) {
-
+define('amd-utils/array/indexOf',[],function () {
 
     /**
      * Array.indexOf
@@ -468,13 +458,10 @@ define('amd-utils/array/indexOf',['require','exports','module'],function (requir
         return -1;
     }
 
-    module.exports = indexOf;
-
-
+    return indexOf;
 });
 
-define('amd-utils/array/forEach',['require','exports','module'],function (require, exports, module) {
-
+define('amd-utils/array/forEach',[],function () {
 
     /**
      * Array forEach
@@ -495,14 +482,11 @@ define('amd-utils/array/forEach',['require','exports','module'],function (requir
         }
     }
 
-    module.exports = forEach;
-
-
+    return forEach;
 
 });
 
-define('amd-utils/array/filter',['require','exports','module','./forEach'],function (require, exports, module) {
-var forEach = require('./forEach');
+define('amd-utils/array/filter',['./forEach'], function (forEach) {
 
     /**
      * Array filter
@@ -518,15 +502,11 @@ var forEach = require('./forEach');
         return results;
     }
 
-    module.exports = filter;
-
-
+    return filter;
 
 });
 
-define('amd-utils/array/unique',['require','exports','module','./indexOf','./filter'],function (require, exports, module) {
-var indexOf = require('./indexOf');
-var filter = require('./filter');
+define('amd-utils/array/unique',['./indexOf', './filter'], function(indexOf, filter){
 
     /**
      * @return {array} Array of unique items
@@ -540,14 +520,11 @@ var filter = require('./filter');
         return indexOf(arr, item, i+1) === -1;
     }
 
-    module.exports = unique;
-
-
-
+    return unique;
 });
 
-define('amd-utils/array/every',['require','exports','module'],function (require, exports, module) {
 
+define('amd-utils/array/every',[],function () {
 
     /**
      * Array every
@@ -568,13 +545,10 @@ define('amd-utils/array/every',['require','exports','module'],function (require,
         return result;
     }
 
-    module.exports = every;
-
-
+    return every;
 });
 
-define('amd-utils/array/contains',['require','exports','module','./indexOf'],function (require, exports, module) {
-var indexOf = require('./indexOf');
+define('amd-utils/array/contains',['./indexOf'], function (indexOf) {
 
     /**
      * If array contains values.
@@ -583,16 +557,10 @@ var indexOf = require('./indexOf');
     function contains(arr, val) {
         return indexOf(arr, val) !== -1;
     }
-    module.exports = contains;
-
-
+    return contains;
 });
 
-define('amd-utils/array/intersection',['require','exports','module','./unique','./filter','./every','./contains'],function (require, exports, module) {
-var unique = require('./unique');
-var filter = require('./filter');
-var every = require('./every');
-var contains = require('./contains');
+define('amd-utils/array/intersection',['./unique', './filter', './every', './contains'], function (unique, filter, every, contains) {
 
 
     /**
@@ -610,14 +578,11 @@ var contains = require('./contains');
         return result;
     }
 
-    module.exports = intersection;
-
-
+    return intersection;
 
 });
 
-define('amd-utils/array/compact',['require','exports','module','./filter'],function (require, exports, module) {
-var filter = require('./filter');
+define('amd-utils/array/compact',['./filter'], function (filter) {
 
     /**
      * Remove all null/undefined items from array.
@@ -629,13 +594,10 @@ var filter = require('./filter');
         });
     }
 
-    module.exports = compact;
-
-
+    return compact;
 });
 
-define('amd-utils/array/remove',['require','exports','module','./indexOf'],function (require, exports, module) {
-var indexOf = require('./indexOf');
+define('amd-utils/array/remove',['./indexOf'], function(indexOf){
 
     /**
      * Remove a single item from the array.
@@ -647,13 +609,10 @@ var indexOf = require('./indexOf');
         if (idx !== -1) arr.splice(idx, 1);
     }
 
-    module.exports = remove;
-
-
+    return remove;
 });
 
-define('amd-utils/object/hasOwn',['require','exports','module'],function (require, exports, module) {
-
+define('amd-utils/object/hasOwn',[],function () {
 
     /**
      * Safer Object.hasOwnProperty
@@ -663,14 +622,11 @@ define('amd-utils/object/hasOwn',['require','exports','module'],function (requir
          return Object.prototype.hasOwnProperty.call(obj, prop);
      }
 
-     module.exports = hasOwn;
-
-
+     return hasOwn;
 
 });
 
-define('amd-utils/object/forIn',['require','exports','module'],function (require, exports, module) {
-
+define('amd-utils/object/forIn',[],function () {
 
     var _hasDontEnumBug,
         _dontEnums;
@@ -730,15 +686,11 @@ define('amd-utils/object/forIn',['require','exports','module'],function (require
         return fn.call(thisObj, obj[key], key, obj);
     }
 
-    module.exports = forIn;
-
-
+    return forIn;
 
 });
 
-define('amd-utils/object/forOwn',['require','exports','module','./hasOwn','./forIn'],function (require, exports, module) {
-var hasOwn = require('./hasOwn');
-var forIn = require('./forIn');
+define('amd-utils/object/forOwn',['./hasOwn', './forIn'], function (hasOwn, forIn) {
 
     /**
      * Similar to Array/forEach but works over object properties and fixes Don't
@@ -754,14 +706,11 @@ var forIn = require('./forIn');
         });
     }
 
-    module.exports = forOwn;
-
-
+    return forOwn;
 
 });
 
-define('amd-utils/object/keys',['require','exports','module','./forOwn'],function (require, exports, module) {
-var forOwn = require('./forOwn');
+define('amd-utils/object/keys',['./forOwn'], function (forOwn) {
 
     /**
      * Get object keys
@@ -775,14 +724,11 @@ var forOwn = require('./forOwn');
             return keys;
         };
 
-    module.exports = keys;
-
-
+    return keys;
 
 });
 
-define('amd-utils/object/size',['require','exports','module','./forOwn'],function (require, exports, module) {
-var forOwn = require('./forOwn');
+define('amd-utils/object/size',['./forOwn'], function (forOwn) {
 
     /**
      * Get object size
@@ -796,9 +742,7 @@ var forOwn = require('./forOwn');
         return count;
     }
 
-    module.exports = size;
-
-
+    return size;
 
 });
 
@@ -932,8 +876,7 @@ define('common/isFunctionCompatible',[], function () {
     return isFunctionCompatible;
 });
 
-define('amd-utils/array/append',['require','exports','module'],function (require, exports, module) {
-
+define('amd-utils/array/append',[],function () {
 
     /**
      * Appends an array to the end of another.
@@ -949,9 +892,7 @@ define('amd-utils/array/append',['require','exports','module'],function (require
         }
         return arr1;
     }
-    module.exports = append;
-
-
+    return append;
 });
 
 define('common/checkKeywords',[
@@ -993,8 +934,7 @@ define('common/checkKeywords',[
     return checkKeywords;
 });
 
-define('amd-utils/array/some',['require','exports','module'],function (require, exports, module) {
-
+define('amd-utils/array/some',[],function () {
 
     /**
      * Array some
@@ -1015,16 +955,10 @@ define('amd-utils/array/some',['require','exports','module'],function (require, 
         return result;
     }
 
-    module.exports = some;
-
-
+    return some;
 });
 
-define('amd-utils/array/difference',['require','exports','module','./unique','./filter','./some','./contains'],function (require, exports, module) {
-var unique = require('./unique');
-var filter = require('./filter');
-var some = require('./some');
-var contains = require('./contains');
+define('amd-utils/array/difference',['./unique', './filter', './some', './contains'], function (unique, filter, some, contains) {
 
 
     /**
@@ -1041,9 +975,7 @@ var contains = require('./contains');
         return result;
     }
 
-    module.exports = difference;
-
-
+    return difference;
 
 });
 
@@ -1086,17 +1018,14 @@ define('common/testKeywords',[
     return testKeywords;
 });
 
-define('amd-utils/lang/isFunction',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('amd-utils/lang/isFunction',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
      */
     function isFunction(val) {
         return isKind(val, 'Function');
     }
-    module.exports = isFunction;
-
-
+    return isFunction;
 });
 
 define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFunction) {
@@ -1307,30 +1236,24 @@ define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefinePr
     return obfuscateProperty;
 });
 
-define('amd-utils/lang/isNumber',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('amd-utils/lang/isNumber',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
      */
     function isNumber(val) {
         return isKind(val, 'Number');
     }
-    module.exports = isNumber;
-
-
+    return isNumber;
 });
 
-define('amd-utils/lang/isBoolean',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('amd-utils/lang/isBoolean',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
      */
     function isBoolean(val) {
         return isKind(val, 'Boolean');
     }
-    module.exports = isBoolean;
-
-
+    return isBoolean;
 });
 
 define('common/isImmutable',[
@@ -1409,60 +1332,47 @@ define('common/isPlainObject',[
     return isPlainObject;
 });
 
-define('amd-utils/lang/isObject',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('amd-utils/lang/isObject',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
      */
     function isObject(val) {
         return isKind(val, 'Object');
     }
-    module.exports = isObject;
-
-
+    return isObject;
 });
 
-define('amd-utils/lang/isArray',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('amd-utils/lang/isArray',['./isKind'], function (isKind) {
     /**
      * @version 0.2.0 (2011/12/06)
      */
     var isArray = Array.isArray || function (val) {
         return isKind(val, 'Array');
     };
-    module.exports = isArray;
-
-
+    return isArray;
 });
 
-define('amd-utils/lang/isDate',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('amd-utils/lang/isDate',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
      */
     function isDate(val) {
         return isKind(val, 'Date');
     }
-    module.exports = isDate;
-
-
+    return isDate;
 });
 
-define('amd-utils/lang/isRegExp',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('amd-utils/lang/isRegExp',['./isKind'], function (isKind) {
     /**
      * @version 0.1.0 (2011/10/31)
      */
     function isRegExp(val) {
         return isKind(val, 'RegExp');
     }
-    module.exports = isRegExp;
-
-
+    return isRegExp;
 });
 
-define('amd-utils/object/mixIn',['require','exports','module','./forOwn'],function (require, exports, module) {
-var forOwn = require('./forOwn');
+define('amd-utils/object/mixIn',['./forOwn'], function(forOwn){
 
     /**
     * Combine properties from all the objects into first one.
@@ -1489,13 +1399,10 @@ var forOwn = require('./forOwn');
         this[key] = val;
     }
 
-    module.exports = mixIn;
-
-
+    return mixIn;
 });
 
-define('amd-utils/lang/createObject',['require','exports','module','../object/mixIn'],function (require, exports, module) {
-var mixIn = require('../object/mixIn');
+define('amd-utils/lang/createObject',['../object/mixIn'], function(mixIn){
 
     /**
      * Create Object using prototypal inheritance and setting custom properties.
@@ -1511,14 +1418,11 @@ var mixIn = require('../object/mixIn');
         return mixIn(new F(), props);
 
     }
-    module.exports = createObject;
-
-
-
+    return createObject;
 });
 
-define('amd-utils/lang/inheritPrototype',['require','exports','module','./createObject'],function (require, exports, module) {
-var createObject = require('./createObject');
+
+define('amd-utils/lang/inheritPrototype',['./createObject'], function(createObject){
 
     /**
     * Inherit prototype from another Object.
@@ -1533,13 +1437,10 @@ var createObject = require('./createObject');
         child.prototype = p;
     }
 
-    module.exports = inheritPrototype;
-
-
+    return inheritPrototype;
 });
 
-define('amd-utils/array/combine',['require','exports','module','./indexOf'],function (require, exports, module) {
-var indexOf = require('./indexOf');
+define('amd-utils/array/combine',['./indexOf'], function (indexOf) {
 
     /**
      * Combines an array with all the items of another.
@@ -1558,9 +1459,7 @@ var indexOf = require('./indexOf');
 
         return arr1;
     }
-    module.exports = combine;
-
-
+    return combine;
 });
 
 define('common/mixIn',[], function () {
@@ -1596,8 +1495,7 @@ define('common/mixIn',[], function () {
     return mixIn;
 });
 
-define('amd-utils/function/bind',['require','exports','module'],function (require, exports, module) {
-
+define('amd-utils/function/bind',[],function(){
 
     function slice(arr, offset){
         return Array.prototype.slice.call(arr, offset || 0);
@@ -1618,14 +1516,11 @@ define('amd-utils/function/bind',['require','exports','module'],function (requir
         };
     }
 
-    module.exports = bind;
-
-
-
+    return bind;
 });
 
-define('amd-utils/lang/toArray',['require','exports','module','./kindOf'],function (require, exports, module) {
-var kindOf = require('./kindOf');
+
+define('amd-utils/lang/toArray',['./kindOf'], function (kindOf) {
 
     var _win = this;
 
@@ -1655,14 +1550,10 @@ var kindOf = require('./kindOf');
         }
         return ret;
     }
-    module.exports = toArray;
-
-
+    return toArray;
 });
 
-define('amd-utils/lang/clone',['require','exports','module','../object/forOwn','./kindOf'],function (require, exports, module) {
-var forOwn = require('../object/forOwn');
-var kindOf = require('./kindOf');
+define('amd-utils/lang/clone',['../object/forOwn', './kindOf'], function (forOwn, kindOf) {
 
     /**
      * Clone native types.
@@ -1722,16 +1613,12 @@ var kindOf = require('./kindOf');
         return out;
     }
 
-    module.exports = clone;
-
-
-
+    return clone;
 
 });
 
-define('amd-utils/array/insert',['require','exports','module','./difference','../lang/toArray'],function (require, exports, module) {
-var difference = require('./difference');
-var toArray = require('../lang/toArray');
+
+define('amd-utils/array/insert',['./difference', '../lang/toArray'], function (difference, toArray) {
 
     /**
      * Insert item into array if not already present.
@@ -1744,9 +1631,7 @@ var toArray = require('../lang/toArray');
         }
         return arr.length;
     }
-    module.exports = insert;
-
-
+    return insert;
 });
 
 /*jshint strict:false, noarg:false, expr:true*/
