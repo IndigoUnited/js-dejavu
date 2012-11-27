@@ -537,10 +537,10 @@ UnlockedIndigo.prototype.talk = function () {
 Members can be added, replaced and deleted from the instance:
 
 ```js
-var Filipe     = new UnlockedIndigo();
-Filipe.friends = ['Marco','Andre'];
-Filipe.talk    = function () {
-    console.log('I'm talking about DejaVu!');
+var filipe     = new UnlockedIndigo();
+filipe.friends = ['Marco','Andre'];
+filipe.talk    = function () {
+    console.log('I am talking about dejavu!');
 };
 ```
 
