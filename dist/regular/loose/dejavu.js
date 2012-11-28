@@ -668,7 +668,6 @@ define('common/hasDefineProperty',['amd-utils/lang/isFunction', 'amd-utils/lang/
             return false;
         }
 
-        console.log('all ok');
         return true;
     }
 
@@ -1735,7 +1734,8 @@ define('Class',[
                 if (hasOwn(constructor.prototype, 'initialize'))  {
                     newConstructor = constructor.prototype.initialize;
                 } else {
-                    parentInitialize = constructor.prototype.initialize;
+                     // We use $parent because older versions of safari do not work correctly
+                    parentInitialize = constructor.prototype.initialize || constructor.$parent;
 
                     // Optimize common use cases
                     // Default to the slower apply..

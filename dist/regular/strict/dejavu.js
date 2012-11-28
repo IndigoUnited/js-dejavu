@@ -1142,7 +1142,6 @@ define('common/hasDefineProperty',['amd-utils/lang/isFunction', 'amd-utils/lang/
             return false;
         }
 
-        console.log('all ok');
         return true;
     }
 

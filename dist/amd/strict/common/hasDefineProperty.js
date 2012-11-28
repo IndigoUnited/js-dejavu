@@ -44,7 +44,6 @@ define(['amd-utils/lang/isFunction', 'amd-utils/lang/inheritPrototype'], functio
             return false;
         }
 
-        console.log('all ok');
         return true;
     }
 
