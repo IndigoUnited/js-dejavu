@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script type="text/javascript" src="../../dist/regular/loose/dejavu.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            'use strict';
+
+            var dejavuClassPerson2 = dejavu.Class.declare(function () {
+              return {
+                    initialize: function(name){
+                        this.name = name;
+                    },
+                    setAddress: function(country, city, street) {
+                        this.country = country;
+                        this.city = city;
+                        this.street = street;
+                    }
+                };
+            }, true);
+
+            var dejavuClassFrenchGuy2 = dejavuClassPerson2.extend(function ($super) {
+               return {
+                   setAddress: function(city, street) {
+                       $super.setAddress.call(this, 'France', city, street);
+                   }
+               };
+            }, true);
+
+            var dejavuClassParisLover2 = dejavuClassFrenchGuy2.extend(function ($super) {
+                return {
+                    setAddress: function(street) {
+                        $super.setAddress.call(this, 'Paris', street);
+                    }
+                };
+            }, true);
+
+            var p20 = new dejavuClassParisLover2('Mary');
+            p20.setAddress('CH');
+
+        </script>
+    </body>
+</html>
