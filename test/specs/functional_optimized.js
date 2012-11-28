@@ -541,21 +541,30 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         }, true), someClass = new SomeClass();
                     expect(function () {
                         SomeClass.foo = 'bar';
-                    }).to.throwException('not extensible');
+                        if (!SomeClass.foo) {
+                            throw new Error('not extensible');
+                        }
+                    }).to.throwException(/not extensible/);
                     expect(function () {
                         SomeClass.prototype.foo = 'bar';
-                    }).to.throwException('not extensible');
+                        if (!SomeClass.prototype.foo) {
+                            throw new Error('not extensible');
+                        }
+                    }).to.throwException(/not extensible/);
                     expect(function () {
                         someClass.bar = 'foo';
-                    }).to.throwException('not extensible');
+                        if (!someClass.bar) {
+                            throw new Error('not extensible');
+                        }
+                    }).to.throwException(/not extensible/);
                     expect(function () {
                         someClass.test = function () {
                         };
-                    }).to.throwException('not extensible');
+                    }).to.throwException(/(not extensible|cannot set)/i);
                     expect(function () {
                         SomeClass.staticFunc = function () {
                         };
-                    }).to.throwException('not extensible');
+                    }).to.throwException(/(not extensible|cannot set)/i);
                 });
                 it('should read the default value', function () {
                     options.locked = true;
@@ -568,7 +577,10 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     }, true);
                     expect(function () {
                         SomeClass.foo = 'bar';
-                    }).to.throwException('not extensible');
+                        if (!SomeClass.foo) {
+                            throw new Error('not extensible');
+                        }
+                    }).to.throwException(/not extensible/);
                     OtherClass.foo = 'bar';
                     expect(OtherClass.foo).to.equal('bar');
                 });

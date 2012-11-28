@@ -3,7 +3,8 @@
         "console",
         "require",
         "define",
-        "module"
+        "module",
+        "global"
     ],
 
     "browser": true,

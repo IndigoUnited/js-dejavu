@@ -1759,7 +1759,8 @@ define('Class',[
         callerClass,
         callerClassId,
         toStringInstance,
-        toStringConstructor;
+        toStringConstructor,
+        glob = typeof window !== 'undefined' && window.navigator && window.document ? window : global;
 
     /**
      * Clones a property in order to make them unique for the instance.
@@ -1810,7 +1811,7 @@ define('Class',[
         }
 
         wrapper = function () {
-            if (this == null) {
+            if (this == null || this === glob) {
                 throw new Error('Method "' + (wrapper[$name] || 'anonymous') + '" was called with a null context (did you forget to bind?).');
             }
 
@@ -1868,7 +1869,7 @@ define('Class',[
             wrapper;
 
         wrapper = function () {
-            if (this == null) {
+            if (this == null || this === glob) {
                 throw new Error('Static method "' + (wrapper[$name] || 'anonymous') + '" was called with a null context (did you forget to bind?).');
             }
 
