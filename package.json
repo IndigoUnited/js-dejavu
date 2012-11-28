@@ -22,6 +22,7 @@
         "requirejs": "~2.1.2"
     },
     "scripts": {
+        "postinstall": "node node_modules/bower/bin/bower install",
         "build": "node build",
         "test": "mocha -R spec test/strict && mocha -R spec test/loose"
     },
