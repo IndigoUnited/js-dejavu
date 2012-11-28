@@ -456,6 +456,119 @@ define('common/printWarning',['amd-utils/lang/isFunction'], function (isFunction
     return printWarning;
 });
 
+define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFunction) {
+
+    
+
+    /**
+     * Check if the environment supports Object.hasDefineProperty.
+     * There is some quirks related to IE that is handled inside.
+     *
+     * @return {Boolean} True if it supports, false otherwise
+     */
+    function hasDefineProperty() {
+        if (!isFunction(Object.defineProperty)) {
+            return false;
+        }
+
+        // Avoid IE8 bug
+        try {
+            Object.defineProperty({}, 'x', {});
+        } catch (e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    return hasDefineProperty();
+});
+define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefineProperty) {
+
+    
+
+    /**
+     * Sets the key of object with the specified value.
+     * The property is obfuscated, by not being enumerable, configurable and writable.
+     *
+     * @param {Object}  obj           The object
+     * @param {String}  key           The key
+     * @param {Mixed}   value         The value
+     * @param {Boolean} [isWritable]  True to be writable, false otherwise (defaults to false)
+     * @param {Boolean} [isDeletable] True to be deletable, false otherwise (defaults to false)
+     */
+    function obfuscateProperty(obj, key, value, isWritable, isDeletable) {
+        if (hasDefineProperty) {
+            Object.defineProperty(obj, key, {
+                value: value,
+                configurable: isDeletable || false,
+                writable: isWritable || false,
+                enumerable: false
+            });
+        } else {
+            obj[key] = value;
+        }
+    }
+
+    return obfuscateProperty;
+});
+
+define('amd-utils/lang/isNumber',['./isKind'], function (isKind) {
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isNumber(val) {
+        return isKind(val, 'Number');
+    }
+    return isNumber;
+});
+
+define('amd-utils/lang/isString',['./isKind'], function (isKind) {
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isString(val) {
+        return isKind(val, 'String');
+    }
+    return isString;
+});
+
+define('amd-utils/lang/isBoolean',['./isKind'], function (isKind) {
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isBoolean(val) {
+        return isKind(val, 'Boolean');
+    }
+    return isBoolean;
+});
+
+define('common/isImmutable',[
+    'amd-utils/lang/isNumber',
+    'amd-utils/lang/isString',
+    'amd-utils/lang/isBoolean'
+], function (
+    isNumber,
+    isString,
+    isBoolean
+) {
+
+    
+
+    /**
+     * Checks if a value is immutable.
+     *
+     * @param {Mixed} value The value
+     *
+     * @return {Boolean} True if it is, false otherwise
+     */
+    function isImmutable(value) {
+        return value == null || isBoolean(value) || isNumber(value) || isString(value);
+    }
+
+    return isImmutable;
+});
+
 define('amd-utils/object/hasOwn',[],function () {
 
     /**
@@ -468,6 +581,96 @@ define('amd-utils/object/hasOwn',[],function () {
 
      return hasOwn;
 
+});
+
+define('common/isPlainObject',[
+    'amd-utils/lang/isFunction',
+    'amd-utils/object/hasOwn'
+], function (
+    isFunction,
+    hasOwn
+) {
+
+    
+
+    var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
+
+    /**
+     * Checks if a given object is a plain object.
+     *
+     * @param {Object} obj The object
+     */
+    function isPlainObject(obj) {
+        var proto = '__proto__',
+            key;
+
+        // This function is based on the jquery one
+        if (obj.nodeType || obj === obj.window) {
+            return false;
+        }
+
+        try {
+            proto = hasObjectPrototypeOf ? Object.getPrototypeOf(obj) : obj[proto];
+
+            if (proto && proto !== Object.prototype) {
+                return false;
+            }
+
+            if (obj.constructor && !hasOwn(obj, 'constructor') && !hasOwn(obj.constructor.prototype, 'isPrototypeOf')) {
+                return false;
+            }
+        } catch (e) {
+            return false;       // IE8,9 Will throw exceptions on certain host objects
+        }
+
+        // Own properties are enumerated firstly, so to speed up,
+        // if last one is own, then all properties are own
+        for (key in obj) {}
+
+        return key === undefined || hasOwn(obj, key);
+    }
+
+    return isPlainObject;
+});
+
+define('amd-utils/lang/isObject',['./isKind'], function (isKind) {
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isObject(val) {
+        return isKind(val, 'Object');
+    }
+    return isObject;
+});
+
+define('amd-utils/lang/isArray',['./isKind'], function (isKind) {
+    /**
+     * @version 0.2.0 (2011/12/06)
+     */
+    var isArray = Array.isArray || function (val) {
+        return isKind(val, 'Array');
+    };
+    return isArray;
+});
+
+define('amd-utils/lang/isDate',['./isKind'], function (isKind) {
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isDate(val) {
+        return isKind(val, 'Date');
+    }
+    return isDate;
+});
+
+define('amd-utils/lang/isRegExp',['./isKind'], function (isKind) {
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isRegExp(val) {
+        return isKind(val, 'RegExp');
+    }
+    return isRegExp;
 });
 
 define('amd-utils/object/forIn',[],function () {
@@ -620,233 +823,6 @@ define('amd-utils/lang/inheritPrototype',['./createObject'], function(createObje
     }
 
     return inheritPrototype;
-});
-
-define('common/hasDefineProperty',['amd-utils/lang/isFunction', 'amd-utils/lang/inheritPrototype'], function (isFunction, inheritPrototype) {
-
-    
-
-    /**
-     * Check if the environment supports Object.hasDefineProperty.
-     * There is some quirks related to IE that is handled inside.
-     *
-     * @return {Boolean} True if it supports, false otherwise
-     */
-    function hasDefineProperty() {
-        if (!isFunction(Object.defineProperty)) {
-            return false;
-        }
-
-        // Avoid IE8 bug
-        try {
-            Object.defineProperty({}, 'x', {});
-        } catch (e) {
-            return false;
-        }
-
-        // Avoid Safari bug (in some lower versions)
-        var BaseClass = function () {},
-            SuperClass = function () {};
-
-        Object.defineProperty(BaseClass.prototype, 'x', {
-            value: 'foo',
-            configurable: false,
-            writable: false,
-            enumerable: false
-        });
-
-        inheritPrototype(SuperClass, BaseClass);
-
-        try {
-            Object.defineProperty(SuperClass.prototype, 'x', {
-                value: 'bar',
-                configurable: false,
-                writable: false,
-                enumerable: false
-            });
-        } catch (e) {
-            return false;
-        }
-
-        return true;
-    }
-
-    return hasDefineProperty();
-});
-define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefineProperty) {
-
-    
-
-    /**
-     * Sets the key of object with the specified value.
-     * The property is obfuscated, by not being enumerable, configurable and writable.
-     *
-     * @param {Object}  obj           The object
-     * @param {String}  key           The key
-     * @param {Mixed}   value         The value
-     * @param {Boolean} [isWritable]  True to be writable, false otherwise (defaults to false)
-     * @param {Boolean} [isDeletable] True to be deletable, false otherwise (defaults to false)
-     */
-    function obfuscateProperty(obj, key, value, isWritable, isDeletable) {
-        if (hasDefineProperty) {
-            Object.defineProperty(obj, key, {
-                value: value,
-                configurable: isDeletable || false,
-                writable: isWritable || false,
-                enumerable: false
-            });
-        } else {
-            obj[key] = value;
-        }
-    }
-
-    return obfuscateProperty;
-});
-
-define('amd-utils/lang/isNumber',['./isKind'], function (isKind) {
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isNumber(val) {
-        return isKind(val, 'Number');
-    }
-    return isNumber;
-});
-
-define('amd-utils/lang/isString',['./isKind'], function (isKind) {
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isString(val) {
-        return isKind(val, 'String');
-    }
-    return isString;
-});
-
-define('amd-utils/lang/isBoolean',['./isKind'], function (isKind) {
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isBoolean(val) {
-        return isKind(val, 'Boolean');
-    }
-    return isBoolean;
-});
-
-define('common/isImmutable',[
-    'amd-utils/lang/isNumber',
-    'amd-utils/lang/isString',
-    'amd-utils/lang/isBoolean'
-], function (
-    isNumber,
-    isString,
-    isBoolean
-) {
-
-    
-
-    /**
-     * Checks if a value is immutable.
-     *
-     * @param {Mixed} value The value
-     *
-     * @return {Boolean} True if it is, false otherwise
-     */
-    function isImmutable(value) {
-        return value == null || isBoolean(value) || isNumber(value) || isString(value);
-    }
-
-    return isImmutable;
-});
-
-define('common/isPlainObject',[
-    'amd-utils/lang/isFunction',
-    'amd-utils/object/hasOwn'
-], function (
-    isFunction,
-    hasOwn
-) {
-
-    
-
-    var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
-
-    /**
-     * Checks if a given object is a plain object.
-     *
-     * @param {Object} obj The object
-     */
-    function isPlainObject(obj) {
-        var proto = '__proto__',
-            key;
-
-        // This function is based on the jquery one
-        if (obj.nodeType || obj === obj.window) {
-            return false;
-        }
-
-        try {
-            proto = hasObjectPrototypeOf ? Object.getPrototypeOf(obj) : obj[proto];
-
-            if (proto && proto !== Object.prototype) {
-                return false;
-            }
-
-            if (obj.constructor && !hasOwn(obj, 'constructor') && !hasOwn(obj.constructor.prototype, 'isPrototypeOf')) {
-                return false;
-            }
-        } catch (e) {
-            return false;       // IE8,9 Will throw exceptions on certain host objects
-        }
-
-        // Own properties are enumerated firstly, so to speed up,
-        // if last one is own, then all properties are own
-        for (key in obj) {}
-
-        return key === undefined || hasOwn(obj, key);
-    }
-
-    return isPlainObject;
-});
-
-define('amd-utils/lang/isObject',['./isKind'], function (isKind) {
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isObject(val) {
-        return isKind(val, 'Object');
-    }
-    return isObject;
-});
-
-define('amd-utils/lang/isArray',['./isKind'], function (isKind) {
-    /**
-     * @version 0.2.0 (2011/12/06)
-     */
-    var isArray = Array.isArray || function (val) {
-        return isKind(val, 'Array');
-    };
-    return isArray;
-});
-
-define('amd-utils/lang/isDate',['./isKind'], function (isKind) {
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isDate(val) {
-        return isKind(val, 'Date');
-    }
-    return isDate;
-});
-
-define('amd-utils/lang/isRegExp',['./isKind'], function (isKind) {
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isRegExp(val) {
-        return isKind(val, 'RegExp');
-    }
-    return isRegExp;
 });
 
 define('amd-utils/array/indexOf',[],function () {

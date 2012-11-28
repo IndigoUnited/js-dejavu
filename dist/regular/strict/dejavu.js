@@ -1028,75 +1028,7 @@ define('amd-utils/lang/isFunction',['./isKind'], function (isKind) {
     return isFunction;
 });
 
-define('amd-utils/object/mixIn',['./forOwn'], function(forOwn){
-
-    /**
-    * Combine properties from all the objects into first one.
-    * - This method affects target object in place, if you want to create a new Object pass an empty object as first param.
-    * @param {object} target    Target Object
-    * @param {...object} objects    Objects to be combined (0...n objects).
-    * @return {object} Target Object.
-    * @version 0.1.4 (2012/10/29)
-    */
-    function mixIn(target, objects){
-        var i = 0,
-            n = arguments.length,
-            obj;
-        while(++i < n){
-            obj = arguments[i];
-            if (obj != null) {
-                forOwn(obj, copyProp, target);
-            }
-        }
-        return target;
-    }
-
-    function copyProp(val, key){
-        this[key] = val;
-    }
-
-    return mixIn;
-});
-
-define('amd-utils/lang/createObject',['../object/mixIn'], function(mixIn){
-
-    /**
-     * Create Object using prototypal inheritance and setting custom properties.
-     * - Mix between Douglas Crockford Prototypal Inheritance <http://javascript.crockford.com/prototypal.html> and the EcmaScript 5 `Object.create()` method.
-     * @param {object} parent    Parent Object.
-     * @param {object} [props] Object properties.
-     * @return {object} Created object.
-     * @version 0.1.0 (2011/08/09)
-     */
-    function createObject(parent, props){
-        function F(){}
-        F.prototype = parent;
-        return mixIn(new F(), props);
-
-    }
-    return createObject;
-});
-
-
-define('amd-utils/lang/inheritPrototype',['./createObject'], function(createObject){
-
-    /**
-    * Inherit prototype from another Object.
-    * - inspired by Nicholas Zackas <http://nczonline.net> Solution
-    * @param {object} child Child object
-    * @param {object} parent    Parent Object
-    * @version 0.1.0 (2011/02/18)
-    */
-    function inheritPrototype(child, parent){
-        var p = createObject(parent.prototype);
-        p.constructor = child;
-        child.prototype = p;
-    }
-
-    return inheritPrototype;
-});
-
-define('common/hasDefineProperty',['amd-utils/lang/isFunction', 'amd-utils/lang/inheritPrototype'], function (isFunction, inheritPrototype) {
+define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFunction) {
 
     'use strict';
 
@@ -1114,30 +1046,6 @@ define('common/hasDefineProperty',['amd-utils/lang/isFunction', 'amd-utils/lang/
         // Avoid IE8 bug
         try {
             Object.defineProperty({}, 'x', {});
-        } catch (e) {
-            return false;
-        }
-
-        // Avoid Safari bug (in some lower versions)
-        var BaseClass = function () {},
-            SuperClass = function () {};
-
-        Object.defineProperty(BaseClass.prototype, 'x', {
-            value: 'foo',
-            configurable: false,
-            writable: false,
-            enumerable: false
-        });
-
-        inheritPrototype(SuperClass, BaseClass);
-
-        try {
-            Object.defineProperty(SuperClass.prototype, 'x', {
-                value: 'bar',
-                configurable: false,
-                writable: false,
-                enumerable: false
-            });
         } catch (e) {
             return false;
         }
@@ -1462,6 +1370,74 @@ define('amd-utils/lang/isRegExp',['./isKind'], function (isKind) {
         return isKind(val, 'RegExp');
     }
     return isRegExp;
+});
+
+define('amd-utils/object/mixIn',['./forOwn'], function(forOwn){
+
+    /**
+    * Combine properties from all the objects into first one.
+    * - This method affects target object in place, if you want to create a new Object pass an empty object as first param.
+    * @param {object} target    Target Object
+    * @param {...object} objects    Objects to be combined (0...n objects).
+    * @return {object} Target Object.
+    * @version 0.1.4 (2012/10/29)
+    */
+    function mixIn(target, objects){
+        var i = 0,
+            n = arguments.length,
+            obj;
+        while(++i < n){
+            obj = arguments[i];
+            if (obj != null) {
+                forOwn(obj, copyProp, target);
+            }
+        }
+        return target;
+    }
+
+    function copyProp(val, key){
+        this[key] = val;
+    }
+
+    return mixIn;
+});
+
+define('amd-utils/lang/createObject',['../object/mixIn'], function(mixIn){
+
+    /**
+     * Create Object using prototypal inheritance and setting custom properties.
+     * - Mix between Douglas Crockford Prototypal Inheritance <http://javascript.crockford.com/prototypal.html> and the EcmaScript 5 `Object.create()` method.
+     * @param {object} parent    Parent Object.
+     * @param {object} [props] Object properties.
+     * @return {object} Created object.
+     * @version 0.1.0 (2011/08/09)
+     */
+    function createObject(parent, props){
+        function F(){}
+        F.prototype = parent;
+        return mixIn(new F(), props);
+
+    }
+    return createObject;
+});
+
+
+define('amd-utils/lang/inheritPrototype',['./createObject'], function(createObject){
+
+    /**
+    * Inherit prototype from another Object.
+    * - inspired by Nicholas Zackas <http://nczonline.net> Solution
+    * @param {object} child Child object
+    * @param {object} parent    Parent Object
+    * @version 0.1.0 (2011/02/18)
+    */
+    function inheritPrototype(child, parent){
+        var p = createObject(parent.prototype);
+        p.constructor = child;
+        child.prototype = p;
+    }
+
+    return inheritPrototype;
 });
 
 define('amd-utils/array/combine',['./indexOf'], function (indexOf) {
