@@ -526,8 +526,7 @@ define([
                 if (hasOwn(constructor.prototype, 'initialize'))  {
                     newConstructor = constructor.prototype.initialize;
                 } else {
-                     // We use $parent because older versions of safari do not work correctly
-                    parentInitialize = constructor.prototype.initialize || constructor.$parent;
+                    parentInitialize = constructor.prototype.initialize;
 
                     // Optimize common use cases
                     // Default to the slower apply..
@@ -552,15 +551,14 @@ define([
                     }
                 }
 
-                newConstructor.prototype = constructor.prototype;
-                newConstructor.prototype.constructor = newConstructor;
-                constructor.prototype = Function.prototype;
-
-                newConstructor[$class] = constructor[$class];
-                mixIn(newConstructor, constructor);
                 if (constructor.$parent) {
+                    inheritPrototype(newConstructor, constructor);
                     newConstructor.$parent = constructor.$parent;
                 }
+
+                mixIn(newConstructor.prototype, constructor.prototype);
+                mixIn(newConstructor, constructor);
+                obfuscateProperty(newConstructor, $class, constructor[$class]);
 
                 return newConstructor;
             }
