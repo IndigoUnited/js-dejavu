@@ -3,15 +3,15 @@
     <head>
         <title></title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="http://dl.dropbox.com/u/7677927/oop-benchmark/lib/my.class.js"></script>
         <script type="text/javascript" src="../../dist/regular/loose/dejavu.js"></script>
     </head>
     <body>
         <script type="text/javascript">
-            'use strict';
 
             var dejavuClassPerson2 = dejavu.Class.declare(function () {
-              return {
-                    initialize: function(name){
+                return {
+                    initialize: function(name) {
                         this.name = name;
                     },
                     setAddress: function(country, city, street) {
@@ -23,24 +23,88 @@
             }, true);
 
             var dejavuClassFrenchGuy2 = dejavuClassPerson2.extend(function ($super) {
-               return {
-                   setAddress: function(city, street) {
-                       $super.setAddress.call(this, 'France', city, street);
-                   }
-               };
-            }, true);
-
-            var dejavuClassParisLover2 = dejavuClassFrenchGuy2.extend(function ($super) {
                 return {
-                    setAddress: function(street) {
-                        $super.setAddress.call(this, 'Paris', street);
+                    initialize: function(name) {
+                        dejavuClassFrenchGuy2.$parent.call(this, name);
+                    },
+                    setAddress: function(city, street) {
+                        $super.setAddress.call(this, 'France', city, street);
                     }
                 };
             }, true);
 
-            var p20 = new dejavuClassParisLover2('Mary');
-            p20.setAddress('CH');
+            var dejavuClassParisLover2 = dejavuClassFrenchGuy2.extend(function ($super) {
+                return {
+                    initialize: function(name) {
+                        dejavuClassParisLover2.$parent.call(this, name);
+                    },
+                    setAddress: function(city, street) {
+                        $super.setAddress.call(this, 'France', city, street);
+                    }
+                };
+            }, true);
 
+            // -------------------------------------------------------------------------
+
+            var MyPerson = my.Class({
+                constructor: function(name){
+                    this.name = name;
+                },
+                setAddress: function(country, city, street) {
+                    this.country = country;
+                    this.city = city;
+                    this.street = street;
+                }
+            });
+
+            var MyFrenchGuy = my.Class(MyPerson, {
+                constructor: function(name) {
+                    MyFrenchGuy.Super.call(this, name);
+                },
+                setAddress: function(city, street) {
+                    MyFrenchGuy.Super.prototype.setAddress.call(this, 'France', city, street);
+                }
+            });
+
+            var MyParisLover = my.Class(MyFrenchGuy, {
+                constructor: function(name) {
+                    MyParisLover.Super.call(this, name);
+                },
+                setAddress: function(street) {
+                    MyParisLover.Super.prototype.setAddress.call(this, 'Paris', street);
+                }
+            });
+
+            function runDejavu() {
+                var x,
+                    instance;
+
+                console.time('dejavu');
+
+                for (x = 0; x < 1000000; x += 1) {
+                    instance = new dejavuClassParisLover2('Mary');
+                    //instance.setAddress('CH');
+                }
+
+                console.timeEnd('dejavu');
+            }
+
+            function runMy() {
+                var x,
+                    instance;
+
+                console.time('my');
+
+                for (x = 0; x < 1000000; x += 1) {
+                    instance = new MyParisLover('Mary');
+                    //instance.setAddress('CH');
+                }
+
+                console.timeEnd('my')
+            }
         </script>
+
+        <button onclick="runDejavu()">dejavu</button>
+        <button onclick="runMy()">my.Class</button>
     </body>
 </html>
