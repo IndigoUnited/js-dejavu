@@ -9,8 +9,8 @@
     <body>
         <script type="text/javascript">
 
-            var dejavuClassPerson2 = dejavu.Class.declare(function () {
-                return {
+            var dejavuClassPerson2 = dejavu.Class.declare({
+                //return {
                     initialize: function(name) {
                         this.name = name;
                     },
@@ -19,29 +19,25 @@
                         this.city = city;
                         this.street = street;
                     }
-                };
+                //};
             }, true);
 
-            var dejavuClassFrenchGuy2 = dejavuClassPerson2.extend(function ($super) {
-                return {
-                    initialize: function(name) {
-                        dejavuClassFrenchGuy2.$parent.call(this, name);
-                    },
-                    setAddress: function(city, street) {
-                        $super.setAddress.call(this, 'France', city, street);
-                    }
-                };
+            var dejavuClassFrenchGuy2 = dejavuClassPerson2.extend({
+                initialize: function(name) {
+                    dejavuClassFrenchGuy2.$parent.call(this, name);
+                },
+                setAddress: function(city, street) {
+                    dejavuClassPerson2.prototype.setAddress.call(this, 'France', city, street);
+                }
             }, true);
 
-            var dejavuClassParisLover2 = dejavuClassFrenchGuy2.extend(function ($super) {
-                return {
-                    initialize: function(name) {
-                        dejavuClassParisLover2.$parent.call(this, name);
-                    },
-                    setAddress: function(city, street) {
-                        $super.setAddress.call(this, 'France', city, street);
-                    }
-                };
+            var dejavuClassParisLover2 = dejavuClassFrenchGuy2.extend({
+                initialize: function(name) {
+                    dejavuClassParisLover2.$parent.call(this, name);
+                },
+                setAddress: function(city, street) {
+                    dejavuClassFrenchGuy2.prototype.setAddress.call(this, 'France', city, street);
+                }
             }, true);
 
             // -------------------------------------------------------------------------
@@ -83,7 +79,7 @@
 
                 for (x = 0; x < 1000000; x += 1) {
                     instance = new dejavuClassParisLover2('Mary');
-                    //instance.setAddress('CH');
+                    instance.setAddress('CH');
                 }
 
                 console.timeEnd('dejavu');
@@ -97,7 +93,7 @@
 
                 for (x = 0; x < 1000000; x += 1) {
                     instance = new MyParisLover('Mary');
-                    //instance.setAddress('CH');
+                    instance.setAddress('CH');
                 }
 
                 console.timeEnd('my')
