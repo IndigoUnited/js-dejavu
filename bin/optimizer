@@ -489,18 +489,18 @@ var parser = {
         //       investigate why..
 
         // Super replacement
-        code = code.replace(/(this|that|_this)\.((?:\r|\n|\s)*)\$super\(/g, '$super.$2' + funcName + '.call($1, ')
-                   .replace(/(this|that|_this), \)/g, '$1)');
+        code = code.replace(/(this|that|_this|self)\.((?:\r|\n|\s)*)\$super\(/g, '$super.$2' + funcName + '.call($1, ')
+                   .replace(/(this|that|_this|self), \)/g, '$1)');
 
         // If on static context, $super is actually $parent
         // Also this.$static can be replaced by this because is faster
         if (isStatic) {
             code = code.replace(/\$super/g, superStaticReplacer);
-            code = code.replace(/(this|that|_this)\.((?:\r|\n|\s)*)?\$static/g, '$1$2');
+            code = code.replace(/(this|that|_this|self)\.((?:\r|\n|\s)*)?\$static/g, '$1$2');
         }
 
         // Self replacement
-        code = code.replace(/(this|that|_this)\.((?:\r|\n|\s)*)?\$self?/g, selfReplacer);
+        code = code.replace(/(this|that|_this|self)\.((?:\r|\n|\s)*)?\$self?/g, selfReplacer);
 
         // $bind replacement
         /*code = code.replace(/\.\$bind\(/g, function (match, offset) {

@@ -26,7 +26,7 @@ if (!(typeof window !== 'undefined' && window.navigator && window.document)) { /
     global.expect = expect;
     global.browser = true;
 
-    paths['amd-utils'] = '../components/amd-utils/src',
+    paths['amd-utils'] = '../node_modules/amd-utils/src',
 
     require({
         baseUrl: './',

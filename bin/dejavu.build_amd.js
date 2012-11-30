@@ -7,7 +7,7 @@
     baseUrl: '.',
     dir : '../dist',
     paths : {
-        'amd-utils': '../components/amd-utils/src'
+        'amd-utils': '../node_modules/amd-utils/src'
     },
     pragmas: {
         'strict': true,
