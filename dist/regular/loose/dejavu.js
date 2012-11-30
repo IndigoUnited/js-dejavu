@@ -394,7 +394,8 @@ var requirejs, require, define;
 
 define("almond", function(){});
 
-define('amd-utils/lang/kindOf',[],function () {
+define('amd-utils/lang/kindOf',['require','exports','module'],function (require, exports, module) {
+
 
     var _rKind = /^\[object (.*)\]$/,
         _toString = Object.prototype.toString,
@@ -413,10 +414,13 @@ define('amd-utils/lang/kindOf',[],function () {
             return _rKind.exec( _toString.call(val) )[1];
         }
     }
-    return kindOf;
+    module.exports = kindOf;
+
+
 });
 
-define('amd-utils/lang/isKind',['./kindOf'], function (kindOf) {
+define('amd-utils/lang/isKind',['require','exports','module','./kindOf'],function (require, exports, module) {
+var kindOf = require('./kindOf');
     /**
      * Check if value is from a specific "kind".
      * @version 0.1.0 (2011/10/31)
@@ -424,17 +428,22 @@ define('amd-utils/lang/isKind',['./kindOf'], function (kindOf) {
     function isKind(val, kind){
         return kindOf(val) === kind;
     }
-    return isKind;
+    module.exports = isKind;
+
+
 });
 
-define('amd-utils/lang/isFunction',['./isKind'], function (isKind) {
+define('amd-utils/lang/isFunction',['require','exports','module','./isKind'],function (require, exports, module) {
+var isKind = require('./isKind');
     /**
      * @version 0.1.0 (2011/10/31)
      */
     function isFunction(val) {
         return isKind(val, 'Function');
     }
-    return isFunction;
+    module.exports = isFunction;
+
+
 });
 
 define('common/printWarning',['amd-utils/lang/isFunction'], function (isFunction) {
@@ -513,34 +522,43 @@ define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefinePr
     return obfuscateProperty;
 });
 
-define('amd-utils/lang/isNumber',['./isKind'], function (isKind) {
+define('amd-utils/lang/isNumber',['require','exports','module','./isKind'],function (require, exports, module) {
+var isKind = require('./isKind');
     /**
      * @version 0.1.0 (2011/10/31)
      */
     function isNumber(val) {
         return isKind(val, 'Number');
     }
-    return isNumber;
+    module.exports = isNumber;
+
+
 });
 
-define('amd-utils/lang/isString',['./isKind'], function (isKind) {
+define('amd-utils/lang/isString',['require','exports','module','./isKind'],function (require, exports, module) {
+var isKind = require('./isKind');
     /**
      * @version 0.1.0 (2011/10/31)
      */
     function isString(val) {
         return isKind(val, 'String');
     }
-    return isString;
+    module.exports = isString;
+
+
 });
 
-define('amd-utils/lang/isBoolean',['./isKind'], function (isKind) {
+define('amd-utils/lang/isBoolean',['require','exports','module','./isKind'],function (require, exports, module) {
+var isKind = require('./isKind');
     /**
      * @version 0.1.0 (2011/10/31)
      */
     function isBoolean(val) {
         return isKind(val, 'Boolean');
     }
-    return isBoolean;
+    module.exports = isBoolean;
+
+
 });
 
 define('common/isImmutable',[
@@ -569,7 +587,8 @@ define('common/isImmutable',[
     return isImmutable;
 });
 
-define('amd-utils/object/hasOwn',[],function () {
+define('amd-utils/object/hasOwn',['require','exports','module'],function (require, exports, module) {
+
 
     /**
      * Safer Object.hasOwnProperty
@@ -579,7 +598,9 @@ define('amd-utils/object/hasOwn',[],function () {
          return Object.prototype.hasOwnProperty.call(obj, prop);
      }
 
-     return hasOwn;
+     module.exports = hasOwn;
+
+
 
 });
 
@@ -633,47 +654,60 @@ define('common/isPlainObject',[
     return isPlainObject;
 });
 
-define('amd-utils/lang/isObject',['./isKind'], function (isKind) {
+define('amd-utils/lang/isObject',['require','exports','module','./isKind'],function (require, exports, module) {
+var isKind = require('./isKind');
     /**
      * @version 0.1.0 (2011/10/31)
      */
     function isObject(val) {
         return isKind(val, 'Object');
     }
-    return isObject;
+    module.exports = isObject;
+
+
 });
 
-define('amd-utils/lang/isArray',['./isKind'], function (isKind) {
+define('amd-utils/lang/isArray',['require','exports','module','./isKind'],function (require, exports, module) {
+var isKind = require('./isKind');
     /**
      * @version 0.2.0 (2011/12/06)
      */
     var isArray = Array.isArray || function (val) {
         return isKind(val, 'Array');
     };
-    return isArray;
+    module.exports = isArray;
+
+
 });
 
-define('amd-utils/lang/isDate',['./isKind'], function (isKind) {
+define('amd-utils/lang/isDate',['require','exports','module','./isKind'],function (require, exports, module) {
+var isKind = require('./isKind');
     /**
      * @version 0.1.0 (2011/10/31)
      */
     function isDate(val) {
         return isKind(val, 'Date');
     }
-    return isDate;
+    module.exports = isDate;
+
+
 });
 
-define('amd-utils/lang/isRegExp',['./isKind'], function (isKind) {
+define('amd-utils/lang/isRegExp',['require','exports','module','./isKind'],function (require, exports, module) {
+var isKind = require('./isKind');
     /**
      * @version 0.1.0 (2011/10/31)
      */
     function isRegExp(val) {
         return isKind(val, 'RegExp');
     }
-    return isRegExp;
+    module.exports = isRegExp;
+
+
 });
 
-define('amd-utils/object/forIn',[],function () {
+define('amd-utils/object/forIn',['require','exports','module'],function (require, exports, module) {
+
 
     var _hasDontEnumBug,
         _dontEnums;
@@ -733,11 +767,15 @@ define('amd-utils/object/forIn',[],function () {
         return fn.call(thisObj, obj[key], key, obj);
     }
 
-    return forIn;
+    module.exports = forIn;
+
+
 
 });
 
-define('amd-utils/object/forOwn',['./hasOwn', './forIn'], function (hasOwn, forIn) {
+define('amd-utils/object/forOwn',['require','exports','module','./hasOwn','./forIn'],function (require, exports, module) {
+var hasOwn = require('./hasOwn');
+var forIn = require('./forIn');
 
     /**
      * Similar to Array/forEach but works over object properties and fixes Don't
@@ -753,11 +791,14 @@ define('amd-utils/object/forOwn',['./hasOwn', './forIn'], function (hasOwn, forI
         });
     }
 
-    return forOwn;
+    module.exports = forOwn;
+
+
 
 });
 
-define('amd-utils/object/mixIn',['./forOwn'], function(forOwn){
+define('amd-utils/object/mixIn',['require','exports','module','./forOwn'],function (require, exports, module) {
+var forOwn = require('./forOwn');
 
     /**
     * Combine properties from all the objects into first one.
@@ -784,10 +825,13 @@ define('amd-utils/object/mixIn',['./forOwn'], function(forOwn){
         this[key] = val;
     }
 
-    return mixIn;
+    module.exports = mixIn;
+
+
 });
 
-define('amd-utils/lang/createObject',['../object/mixIn'], function(mixIn){
+define('amd-utils/lang/createObject',['require','exports','module','../object/mixIn'],function (require, exports, module) {
+var mixIn = require('../object/mixIn');
 
     /**
      * Create Object using prototypal inheritance and setting custom properties.
@@ -803,11 +847,14 @@ define('amd-utils/lang/createObject',['../object/mixIn'], function(mixIn){
         return mixIn(new F(), props);
 
     }
-    return createObject;
+    module.exports = createObject;
+
+
+
 });
 
-
-define('amd-utils/lang/inheritPrototype',['./createObject'], function(createObject){
+define('amd-utils/lang/inheritPrototype',['require','exports','module','./createObject'],function (require, exports, module) {
+var createObject = require('./createObject');
 
     /**
     * Inherit prototype from another Object.
@@ -822,10 +869,13 @@ define('amd-utils/lang/inheritPrototype',['./createObject'], function(createObje
         child.prototype = p;
     }
 
-    return inheritPrototype;
+    module.exports = inheritPrototype;
+
+
 });
 
-define('amd-utils/array/indexOf',[],function () {
+define('amd-utils/array/indexOf',['require','exports','module'],function (require, exports, module) {
+
 
     /**
      * Array.indexOf
@@ -846,10 +896,13 @@ define('amd-utils/array/indexOf',[],function () {
         return -1;
     }
 
-    return indexOf;
+    module.exports = indexOf;
+
+
 });
 
-define('amd-utils/array/combine',['./indexOf'], function (indexOf) {
+define('amd-utils/array/combine',['require','exports','module','./indexOf'],function (require, exports, module) {
+var indexOf = require('./indexOf');
 
     /**
      * Combines an array with all the items of another.
@@ -868,10 +921,13 @@ define('amd-utils/array/combine',['./indexOf'], function (indexOf) {
 
         return arr1;
     }
-    return combine;
+    module.exports = combine;
+
+
 });
 
-define('amd-utils/array/contains',['./indexOf'], function (indexOf) {
+define('amd-utils/array/contains',['require','exports','module','./indexOf'],function (require, exports, module) {
+var indexOf = require('./indexOf');
 
     /**
      * If array contains values.
@@ -880,7 +936,9 @@ define('amd-utils/array/contains',['./indexOf'], function (indexOf) {
     function contains(arr, val) {
         return indexOf(arr, val) !== -1;
     }
-    return contains;
+    module.exports = contains;
+
+
 });
 
 define('common/mixIn',[], function () {
@@ -916,7 +974,8 @@ define('common/mixIn',[], function () {
     return mixIn;
 });
 
-define('amd-utils/array/append',[],function () {
+define('amd-utils/array/append',['require','exports','module'],function (require, exports, module) {
+
 
     /**
      * Appends an array to the end of another.
@@ -932,10 +991,13 @@ define('amd-utils/array/append',[],function () {
         }
         return arr1;
     }
-    return append;
+    module.exports = append;
+
+
 });
 
-define('amd-utils/function/bind',[],function(){
+define('amd-utils/function/bind',['require','exports','module'],function (require, exports, module) {
+
 
     function slice(arr, offset){
         return Array.prototype.slice.call(arr, offset || 0);
@@ -956,11 +1018,14 @@ define('amd-utils/function/bind',[],function(){
         };
     }
 
-    return bind;
+    module.exports = bind;
+
+
+
 });
 
-
-define('amd-utils/lang/toArray',['./kindOf'], function (kindOf) {
+define('amd-utils/lang/toArray',['require','exports','module','./kindOf'],function (require, exports, module) {
+var kindOf = require('./kindOf');
 
     var _win = this;
 
@@ -990,10 +1055,14 @@ define('amd-utils/lang/toArray',['./kindOf'], function (kindOf) {
         }
         return ret;
     }
-    return toArray;
+    module.exports = toArray;
+
+
 });
 
-define('amd-utils/lang/clone',['../object/forOwn', './kindOf'], function (forOwn, kindOf) {
+define('amd-utils/lang/clone',['require','exports','module','../object/forOwn','./kindOf'],function (require, exports, module) {
+var forOwn = require('../object/forOwn');
+var kindOf = require('./kindOf');
 
     /**
      * Clone native types.
@@ -1053,12 +1122,15 @@ define('amd-utils/lang/clone',['../object/forOwn', './kindOf'], function (forOwn
         return out;
     }
 
-    return clone;
+    module.exports = clone;
+
+
+
 
 });
 
+define('amd-utils/array/forEach',['require','exports','module'],function (require, exports, module) {
 
-define('amd-utils/array/forEach',[],function () {
 
     /**
      * Array forEach
@@ -1079,11 +1151,14 @@ define('amd-utils/array/forEach',[],function () {
         }
     }
 
-    return forEach;
+    module.exports = forEach;
+
+
 
 });
 
-define('amd-utils/array/filter',['./forEach'], function (forEach) {
+define('amd-utils/array/filter',['require','exports','module','./forEach'],function (require, exports, module) {
+var forEach = require('./forEach');
 
     /**
      * Array filter
@@ -1099,11 +1174,15 @@ define('amd-utils/array/filter',['./forEach'], function (forEach) {
         return results;
     }
 
-    return filter;
+    module.exports = filter;
+
+
 
 });
 
-define('amd-utils/array/unique',['./indexOf', './filter'], function(indexOf, filter){
+define('amd-utils/array/unique',['require','exports','module','./indexOf','./filter'],function (require, exports, module) {
+var indexOf = require('./indexOf');
+var filter = require('./filter');
 
     /**
      * @return {array} Array of unique items
@@ -1117,11 +1196,14 @@ define('amd-utils/array/unique',['./indexOf', './filter'], function(indexOf, fil
         return indexOf(arr, item, i+1) === -1;
     }
 
-    return unique;
+    module.exports = unique;
+
+
+
 });
 
+define('amd-utils/array/some',['require','exports','module'],function (require, exports, module) {
 
-define('amd-utils/array/some',[],function () {
 
     /**
      * Array some
@@ -1142,10 +1224,16 @@ define('amd-utils/array/some',[],function () {
         return result;
     }
 
-    return some;
+    module.exports = some;
+
+
 });
 
-define('amd-utils/array/difference',['./unique', './filter', './some', './contains'], function (unique, filter, some, contains) {
+define('amd-utils/array/difference',['require','exports','module','./unique','./filter','./some','./contains'],function (require, exports, module) {
+var unique = require('./unique');
+var filter = require('./filter');
+var some = require('./some');
+var contains = require('./contains');
 
 
     /**
@@ -1162,11 +1250,15 @@ define('amd-utils/array/difference',['./unique', './filter', './some', './contai
         return result;
     }
 
-    return difference;
+    module.exports = difference;
+
+
 
 });
 
-define('amd-utils/array/insert',['./difference', '../lang/toArray'], function (difference, toArray) {
+define('amd-utils/array/insert',['require','exports','module','./difference','../lang/toArray'],function (require, exports, module) {
+var difference = require('./difference');
+var toArray = require('../lang/toArray');
 
     /**
      * Insert item into array if not already present.
@@ -1179,7 +1271,9 @@ define('amd-utils/array/insert',['./difference', '../lang/toArray'], function (d
         }
         return arr.length;
     }
-    return insert;
+    module.exports = insert;
+
+
 });
 
 /*jshint noarg:false*/
@@ -1249,13 +1343,8 @@ define('Class',[
      */
     function cloneProperty(prop) {
         // We treat object differently than amd-utils
-        // If is a plain object, we use our built-in mixIn to be faster
-        // Otherwise we do a createObject
-        if (isObject(prop)) {
-            if (isPlainObject(prop)) {
-                return mixIn({}, prop);
-            }
-
+        // If is non plain object, we use createObject instead
+        if (isObject(prop) && !isPlainObject(prop)) {
             return createObject(prop);
         }
 

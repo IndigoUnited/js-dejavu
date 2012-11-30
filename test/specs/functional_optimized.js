@@ -16,7 +16,10 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         someClass: SomeClass,
                         someInstance: new SomeClass(),
                         someRegExp: /some/gi,
-                        options: { option1: 'property' },
+                        options: {
+                            option1: 'property',
+                            option2: { foo: 'bar' }
+                        },
                         someArray: ['some'],
                         initialize: function () {
                             this.someOther = 'property';
@@ -45,6 +48,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         test: function () {
                             this.some = 'test';
                             this.options.option1 = 'test';
+                            this.options.option2.foo = 'baz';
                             this.someArray.push('other');
                         },
                         $finals: {
@@ -108,6 +112,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(example.some).to.be.equal('property');
                 expect(example2.options.option1).to.be.equal('test');
                 expect(example.options.option1).to.be.equal('property');
+                expect(example2.options.option2.foo).to.be.equal('baz');
+                expect(example.options.option2.foo).to.be.equal('bar');
                 expect(example2.someArray.length).to.be.equal(2);
                 expect(example.someArray.length).to.be.equal(1);
                 expect(example.someDate).to.not.be.equal(example2.someDate);

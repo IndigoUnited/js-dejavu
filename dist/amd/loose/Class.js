@@ -65,13 +65,8 @@ define([
      */
     function cloneProperty(prop) {
         // We treat object differently than amd-utils
-        // If is a plain object, we use our built-in mixIn to be faster
-        // Otherwise we do a createObject
-        if (isObject(prop)) {
-            if (isPlainObject(prop)) {
-                return mixIn({}, prop);
-            }
-
+        // If is non plain object, we use createObject instead
+        if (isObject(prop) && !isPlainObject(prop)) {
             return createObject(prop);
         }
 
