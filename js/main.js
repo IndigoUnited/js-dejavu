@@ -355,7 +355,7 @@ if (!window.siteVersion) {
 
 $(document).ready(function () {
     // Download the tmpl
-    var promise = $.ajax('tmpl/doc.tmpl' + '?v=' + siteVersion, {
+    var promise = $.ajax('tmpl/doc.tmpl?v=' + siteVersion, {
         timeout: 15000
     }),
         contentEl = $('#content');
