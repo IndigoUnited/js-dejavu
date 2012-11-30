@@ -207,7 +207,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                             // Run tests
                             process.chdir(__dirname + '/..');
 
-                            command = mochaBin + ' -R list test/strict.js';
+                            command = mochaBin + ' -R spec test/strict.js';
 
                             console.log('Running strict tests..');
                             console.log('-------------------------------------------------');
@@ -227,7 +227,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                                     exitCode = 0;
                                 }
 
-                                command = mochaBin + ' -R list test/loose.js';
+                                command = mochaBin + ' -R spec test/loose.js';
 
                                 console.log('Running loose tests..');
                                 console.log('-------------------------------------------------');
