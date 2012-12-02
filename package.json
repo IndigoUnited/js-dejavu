@@ -1,41 +1,41 @@
 {
-    "name": "dejavu",
-    "description": "A set of object-oriented tools for JavaScript",
-    "keywords": ["oop", "interface", "class", "abstract", "final", "inheritance"],
-    "version": "0.1.20",
-    "author": "IndigoUnited <hello@indigounited.com> (http://indigounited.com)",
-    "main": "dist/node/node.js",
-    "dependencies": {
-        "amdefine": "~0.0.4",
-        "amd-utils": "~0.9.0",
-        "commander": "~1.1.1",
-        "esprima": "~1.0.2",
-        "escodegen": "~0.0.15"
-    },
-    "devDependencies": {
-        "almond": "~0.2.1",
-        "mocha": "~1.7.1",
-        "wrench": "~1.4.3",
-        "expect.js": "~0.2.0",
-        "domReady": "git://github.com/requirejs/domReady.git",
-        "requirejs": "~2.1.2"
-    },
-    "scripts": {
-        "build": "node build",
-        "test": "mocha -R spec test/strict && mocha -R spec test/loose"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/IndigoUnited/dejavu.git"
-    },
-    "licenses": [
-        {
-          "type": "MIT",
-          "url": "http://www.opensource.org/licenses/mit-license.php"
-        }
-    ],
-    "bugs": {
-        "url": "https://github.com/IndigoUnited/dejavu/issues/"
-    },
-    "engine": "node >= 0.8.x"
+  "name": "dejavu",
+  "description": "A set of object-oriented tools for JavaScript",
+  "keywords": ["oop", "interface", "class", "abstract", "final", "inheritance"],
+  "version": "0.1.20",
+  "author": "IndigoUnited <hello@indigounited.com> (http://indigounited.com)",
+  "main": "dist/node/node.js",
+  "dependencies": {
+    "amdefine": "~0.0.4",
+    "amd-utils": "~0.9.0",
+    "commander": "~1.1.1",
+    "esprima": "~1.0.2",
+    "escodegen": "~0.0.15"
+  },
+  "devDependencies": {
+    "almond": "~0.2.1",
+    "mocha": "~1.7.1",
+    "wrench": "~1.4.3",
+    "expect.js": "~0.2.0",
+    "domReady": "git://github.com/requirejs/domReady.git",
+    "requirejs": "~2.1.2"
+  },
+  "scripts": {
+    "build": "node build",
+    "test": "mocha -R spec test/strict && mocha -R spec test/loose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/IndigoUnited/dejavu.git"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/mit-license.php"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/IndigoUnited/dejavu/issues/"
+  },
+  "engine": "node >= 0.8.x"
 }
