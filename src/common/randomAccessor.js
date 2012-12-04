@@ -1,11 +1,19 @@
 //>>includeStart('strict', pragmas.strict);
+/*global process*/
+
 define(['amd-utils/array/contains'], function (contains) {
 
     'use strict';
 
-    var random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1)),
+    var random,
         nrAccesses = 0,
         allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'FinalClassWrapper', 'instanceOfWrapper'];
+
+    if (!(typeof window !== 'undefined' && window.navigator && window.document)) {
+        random = process.pid;
+    } else {
+        random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1));
+    }
 
     /**
      * Provides access to a random string that allows acceess to some hidden properties
