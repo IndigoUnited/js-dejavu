@@ -3131,7 +3131,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     }).to.throwException(/is private/);
                 });
             }
-            it('should throw an error if calling a function with a null context', function () {
+            it('should not throw an error if calling a function with a null context', function () {
                 var Example = Class.declare(function () {
                         return {
                             method: function () {
@@ -3144,16 +3144,16 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     }, true), example = new Example();
                 expect(function () {
                     return example.method.call(null);
-                }).to.throwException(/with a null context/);
+                }).to.not.throwException();
                 expect(function () {
                     return example.method.call(undefined);
-                }).to.throwException(/with a null context/);
+                }).to.not.throwException();
                 expect(function () {
                     return Example.staticMethod.call(null);
-                }).to.throwException(/with a null context/);
+                }).to.not.throwException();
                 expect(function () {
                     return Example.staticMethod.call(undefined);
-                }).to.throwException(/with a null context/);
+                }).to.not.throwException();
             });
             it('should not throw an error while invoking the the parent abstract class constructor', function () {
                 expect(function () {

@@ -239,7 +239,7 @@ define([
 
         wrapper = function () {
             if (this == null || this === glob) {
-                throw new Error('Method "' + (wrapper[$name] || 'anonymous') + '" was called with a null context (did you forget to bind?).');
+                return method.apply(this, arguments);
             }
 
             var _super = this.$super,
@@ -297,7 +297,7 @@ define([
 
         wrapper = function () {
             if (this == null || this === glob) {
-                throw new Error('Static method "' + (wrapper[$name] || 'anonymous') + '" was called with a null context (did you forget to bind?).');
+                return method.apply(this, arguments);
             }
 
             var _super = this.$super,
