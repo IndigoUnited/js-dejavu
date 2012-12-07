@@ -1905,12 +1905,9 @@ define('Class',[
         }
 
         wrapper = function () {
-            if (this == null || this === glob) {
-                return method.apply(this, arguments);
-            }
-
-            var _super = this.$super,
-                _self = this.$self,
+            var that = this == null || this === glob ? {} : this,
+                _super = that.$super,
+                _self = that.$self,
                 prevCaller = caller,
                 prevCallerClass = callerClass,
                 prevCallerClassId = callerClassId,
@@ -1918,16 +1915,16 @@ define('Class',[
 
             caller = method;
             callerClassId = classId;
-            this.$super = parent;
-            this.$self = callerClass = constructor;
+            that.$super = parent;
+            that.$self = callerClass = constructor;
 
             try {
                 ret = method.apply(this, arguments);
             } finally {
                 caller = prevCaller;
                 callerClassId = prevCallerClassId;
-                this.$super = _super;
-                this.$self = _self;
+                that.$super = _super;
+                that.$self = _self;
                 callerClass = prevCallerClass;
             }
 
@@ -1963,12 +1960,9 @@ define('Class',[
             wrapper;
 
         wrapper = function () {
-            if (this == null || this === glob) {
-                return method.apply(this, arguments);
-            }
-
-            var _super = this.$super,
-                _self = this.$self,
+            var that = this == null || this === glob ? {} : this,
+                _super = that.$super,
+                _self = that.$self,
                 prevCaller = caller,
                 prevCallerClassId = callerClassId,
                 prevCallerClass = callerClass,
@@ -1976,16 +1970,16 @@ define('Class',[
 
             caller = method;
             callerClassId = classId;
-            this.$super = parent;
-            this.$self = callerClass = constructor;
+            that.$super = parent;
+            that.$self = callerClass = constructor;
 
             try {
                 ret = method.apply(this, arguments);
             } finally {
                 caller = prevCaller;
                 callerClassId = prevCallerClassId;
-                this.$super = _super;
-                this.$self = _self;
+                that.$super = _super;
+                that.$self = _self;
                 callerClass = prevCallerClass;
             }
 
