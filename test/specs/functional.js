@@ -1500,29 +1500,6 @@ define(global.modules, function (
 
                 }());
 
-                expect(function () {
-                    var SomeClass = Class.declare({
-                        _protectedProp: 'foo',
-                        _privateProp: 'bar'
-                    }),
-                        Common1 = Class.declare({
-                            $extends: SomeClass
-                        }),
-                        Common2 = Class.declare({
-                            $extends: SomeClass,
-                            accessProtected: function (inst) {
-                                return inst._protectedProp;
-                            },
-                            accessPrivate: function (inst) {
-                                return inst._protectedProp;
-                            }
-                        }),
-                        common1 = new Common1(),
-                        common2  = new Common2();
-
-                    common2.accessProtected(common1);
-                }).to.not.throwException();
-
                 (function () {
                     var SomeClass = Class.declare({}),
                         Common1 = Class.declare({
@@ -1634,9 +1611,13 @@ define(global.modules, function (
             it('should grab the borrowed members, respecting the precedence order and not replace self methods', function () {
 
                 var SomeMixin = Class.declare({
-                    method1: function () {},
+                    method1: function () {
+                        return 'mixin_foo';
+                    },
                     $statics: {
-                        staticMethod1: function () {}
+                        staticMethod1: function () {
+                            return 'mixin_bar';
+                        }
                     }
                 }),
                     OtherMixin = Class.declare({
@@ -1645,11 +1626,25 @@ define(global.modules, function (
                             staticMethod1: function () {}
                         }
                     }),
+                    BaseClass = Class.declare({
+                        method1: function () {
+                            return 'bla';
+                        },
+                        $statics: {
+                            staticMethod1: function () {
+                                return 'bla';
+                            }
+                        }
+                    }),
                     SomeClass = Class.declare({
                         $borrows: [SomeMixin, OtherMixin]
                     }),
                     OtherClass = Class.declare({
                         $borrows: [OtherMixin, SomeMixin]
+                    }),
+                    ComplexClass = Class.declare({
+                        $extends: BaseClass,
+                        $borrows: SomeMixin
                     }),
                     method1 = function () {
                         return 'foo';
@@ -1666,7 +1661,8 @@ define(global.modules, function (
                     }),
                     someClass = new SomeClass(),
                     otherClass = new OtherClass(),
-                    someOtherClass = new SomeOtherClass();
+                    someOtherClass = new SomeOtherClass(),
+                    complexClass = new ComplexClass();
 
                 expect(someClass.method1.$wrapped).to.be.equal(OtherMixin.prototype.method1.$wrapped);
                 expect(SomeClass.staticMethod1.$wrapped).to.be.equal(OtherMixin.staticMethod1.$wrapped);
@@ -1674,7 +1670,8 @@ define(global.modules, function (
                 expect(OtherClass.staticMethod1.$wrapped).to.be.equal(SomeMixin.staticMethod1.$wrapped);
                 expect(someOtherClass.method1()).to.be.equal('foo');
                 expect(SomeOtherClass.staticMethod1()).to.be.equal('bar');
-
+                expect(complexClass.method1()).to.be.equal('mixin_foo');
+                expect(ComplexClass.staticMethod1()).to.be.equal('mixin_bar');
             });
 
             it('should not grab the initialize method of any class/object', function () {
@@ -2748,6 +2745,26 @@ define(global.modules, function (
 
                         a.foo(b);
                     }).to.throwException(/access protected/);
+
+                    expect(function () {
+                        var SomeClass = Class.declare({
+                            _protectedProp: 'foo'
+                        }),
+                            Common1 = Class.declare({
+                                $extends: SomeClass
+                            }),
+                            Common2 = Class.declare({
+                                $extends: SomeClass,
+                                accessProtected: function (inst) {
+                                    return inst._protectedProp;
+                                }
+                            }),
+                            common1 = new Common1(),
+                            common2  = new Common2();
+
+                        common2.accessProtected(common1);
+                    }).to.not.throwException();
+
                 });
 
             }

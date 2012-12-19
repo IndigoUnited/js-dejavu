@@ -1,6 +1,6 @@
 (function() {
 /**
- * almond 0.2.1 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
+ * almond 0.2.3 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/almond for details
  */
@@ -77,6 +77,10 @@ var requirejs, require, define;
                 //end trimDots
 
                 name = name.join("/");
+            } else if (name.indexOf('./') === 0) {
+                // No baseName, so this is ID is resolved relative
+                // to baseUrl, pull off the leading dot.
+                name = name.substring(2);
             }
         }
 
@@ -382,7 +386,7 @@ var requirejs, require, define;
             deps = [];
         }
 
-        if (!hasProp(defined, name)) {
+        if (!hasProp(defined, name) && !hasProp(waiting, name)) {
             waiting[name] = [name, deps, callback];
         }
     };
@@ -2334,7 +2338,7 @@ define('Class',[
         for (key in params) {
             value = params[key];
 
-            if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
+            if (!hasOwn(constructor.prototype, key)) {    // Already defined members are not overwritten
                 if (isFunction(value) && !value[$class] && !value[$interface]) {
                     addMethod(key, value, constructor, opts);
                 } else {
@@ -2406,7 +2410,7 @@ define('Class',[
 
                 // Grab mixin members
                 for (key in current.$static[$class].methods) {
-                    if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
+                    if (!hasOwn(constructor.prototype, key)) {    // Already defined members are not overwritten
                         // We need to clone the metadata and delete the allowed because otherwise multiple classes borrowing from the same would have access
                         // Same applies to the things bellow
                         opts.metadata = mixIn({}, current.$static[$class].methods[key]);
@@ -2416,7 +2420,7 @@ define('Class',[
                 }
 
                 for (key in current.$static[$class].properties) {
-                    if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
+                    if (!hasOwn(constructor.prototype, key)) {    // Already defined members are not overwritten
                         opts.metadata = mixIn({}, current.$static[$class].properties[key]);
                         delete opts.metadata.allowed;
                         addProperty(key, opts.metadata.value || current[key], constructor, opts);
@@ -2427,19 +2431,15 @@ define('Class',[
 
                 // Grab mixin static members
                 for (key in current.$static[$class].staticMethods) {
-                    if (constructor[key] === undefined) {              // Already defined members are not overwritten
-                        opts.metadata = mixIn({}, current.$static[$class].staticMethods[key]);
-                        delete opts.metadata.allowed;
-                        addMethod(key, opts.metadata.implementation || current.$static[key], constructor, opts);
-                    }
+                    opts.metadata = mixIn({}, current.$static[$class].staticMethods[key]);
+                    delete opts.metadata.allowed;
+                    addMethod(key, opts.metadata.implementation || current.$static[key], constructor, opts);
                 }
 
                 for (key in current.$static[$class].staticProperties) {
-                    if (constructor[key] === undefined) {              // Already defined members are not overwritten
-                        opts.metadata = mixIn({}, current.$static[$class].staticProperties[key]);
-                        delete opts.metadata.allowed;
-                        addProperty(key, opts.metadata.value || current.$static[key], constructor, opts);
-                    }
+                    opts.metadata = mixIn({}, current.$static[$class].staticProperties[key]);
+                    delete opts.metadata.allowed;
+                    addProperty(key, opts.metadata.value || current.$static[key], constructor, opts);
                 }
 
                 if (current.$static[$class].isVanilla) {
@@ -3439,11 +3439,11 @@ define('Class',[
             obfuscateProperty(dejavu, $abstract, true, true); // Signal it has abstract
         }
 
-        // Parse class members
-        parseClass(params, dejavu);
-
         // Parse mixins
         parseBorrows(params, dejavu);
+
+        // Parse class members
+        parseClass(params, dejavu);
 
         // Assign aliases
         obfuscateProperty(dejavu.prototype, '$static', dejavu);

@@ -154,7 +154,7 @@ define([
         for (key in params) {
             value = params[key];
 
-            if (constructor.prototype[key] === undefined) {    // Already defined members are not overwritten
+            if (!hasOwn(constructor.prototype, key)) {    // Already defined members are not overwritten
                 if (isFunction(value) && !value[$class] && !value[$interface]) {
                     constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
 
@@ -210,20 +210,16 @@ define([
                 for (k = current.$static[$class].staticMethods.length - 1; k >= 0; k -= 1) {
                     key = current.$static[$class].staticMethods[k];
 
-                    if (constructor[key] === undefined) {    // Already defined members are not overwritten
-                        insert(constructor[$class].staticMethods, key);
-                        constructor[key] = current.$static[key];
-                    }
+                    insert(constructor[$class].staticMethods, key);
+                    constructor[key] = current.$static[key];
                 }
 
                 // Grab mixin static properties
                 for (key in current.$static[$class].staticProperties) {
                     value = current.$static[$class].staticProperties[key];
 
-                    if (constructor[key] === undefined) {              // Already defined members are not overwritten
-                        constructor[$class].staticProperties[key] = value;
-                        constructor[key] = cloneProperty(value);
-                    }
+                    constructor[$class].staticProperties[key] = value;
+                    constructor[key] = cloneProperty(value);
                 }
 
                 // Merge the binds
@@ -625,11 +621,11 @@ define([
             delete params.__initialize;
         }
 
-        // Parse class members
-        parseClass(params, dejavu);
-
         // Parse mixins
         parseBorrows(params, dejavu);
+
+        // Parse class members
+        parseClass(params, dejavu);
 
         // Optimize constructor if possible
         dejavu = optimizeConstructor(dejavu);

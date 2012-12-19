@@ -1200,26 +1200,6 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     expect(someImplementation.method2()).to.be.a('function');
                     expect(someImplementation.some()).to.be.equal('property');
                 }());
-                expect(function () {
-                    var SomeClass = Class.declare(function () {
-                            return {
-                                _protectedProp: 'foo',
-                                _privateProp: 'bar'
-                            };
-                        }, true), Common1 = Class.declare(SomeClass, function ($super, $parent) {
-                            return {};
-                        }, true), Common2 = Class.declare(SomeClass, function ($super, $parent) {
-                            return {
-                                accessProtected: function (inst) {
-                                    return inst._protectedProp;
-                                },
-                                accessPrivate: function (inst) {
-                                    return inst._protectedProp;
-                                }
-                            };
-                        }, true), common1 = new Common1(), common2 = new Common2();
-                    common2.accessProtected(common1);
-                }).to.not.throwException();
                 (function () {
                     var SomeClass = Class.declare(function () {
                             return {};
@@ -1305,9 +1285,11 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 var SomeMixin = Class.declare(function () {
                         return {
                             method1: function () {
+                                return 'mixin_foo';
                             },
                             $statics: {
                                 staticMethod1: function () {
+                                    return 'mixin_bar';
                                 }
                             }
                         };
@@ -1317,6 +1299,17 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             },
                             $statics: {
                                 staticMethod1: function () {
+                                }
+                            }
+                        };
+                    }, true), BaseClass = Class.declare(function () {
+                        return {
+                            method1: function () {
+                                return 'bla';
+                            },
+                            $statics: {
+                                staticMethod1: function () {
+                                    return 'bla';
                                 }
                             }
                         };
@@ -1334,6 +1327,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 SomeMixin
                             ]
                         };
+                    }, true), ComplexClass = Class.declare(BaseClass, function ($super, $parent) {
+                        return { $borrows: SomeMixin };
                     }, true), method1 = function () {
                         return 'foo';
                     }, method2 = function () {
@@ -1347,13 +1342,15 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             method1: method1,
                             $statics: { staticMethod1: method2 }
                         };
-                    }, true), someClass = new SomeClass(), otherClass = new OtherClass(), someOtherClass = new SomeOtherClass();
+                    }, true), someClass = new SomeClass(), otherClass = new OtherClass(), someOtherClass = new SomeOtherClass(), complexClass = new ComplexClass();
                 expect(someClass.method1.$wrapped).to.be.equal(OtherMixin.prototype.method1.$wrapped);
                 expect(SomeClass.staticMethod1.$wrapped).to.be.equal(OtherMixin.staticMethod1.$wrapped);
                 expect(otherClass.method1.$wrapped).to.be.equal(SomeMixin.prototype.method1.$wrapped);
                 expect(OtherClass.staticMethod1.$wrapped).to.be.equal(SomeMixin.staticMethod1.$wrapped);
                 expect(someOtherClass.method1()).to.be.equal('foo');
                 expect(SomeOtherClass.staticMethod1()).to.be.equal('bar');
+                expect(complexClass.method1()).to.be.equal('mixin_foo');
+                expect(ComplexClass.staticMethod1()).to.be.equal('mixin_bar');
             });
             it('should not grab the initialize method of any class/object', function () {
                 var initialize = function () {
@@ -2210,6 +2207,20 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }, true), a = new A(), b = new B();
                         a.foo(b);
                     }).to.throwException(/access protected/);
+                    expect(function () {
+                        var SomeClass = Class.declare(function () {
+                                return { _protectedProp: 'foo' };
+                            }, true), Common1 = Class.declare(SomeClass, function ($super, $parent) {
+                                return {};
+                            }, true), Common2 = Class.declare(SomeClass, function ($super, $parent) {
+                                return {
+                                    accessProtected: function (inst) {
+                                        return inst._protectedProp;
+                                    }
+                                };
+                            }, true), common1 = new Common1(), common2 = new Common2();
+                        common2.accessProtected(common1);
+                    }).to.not.throwException();
                 });
             }
             it('should work well with $super()', function () {
