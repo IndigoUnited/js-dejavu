@@ -591,73 +591,6 @@ define('common/isImmutable',[
     return isImmutable;
 });
 
-define('amd-utils/object/hasOwn',['require','exports','module'],function (require, exports, module) {
-
-
-    /**
-     * Safer Object.hasOwnProperty
-     * @version 0.1.0 (2012/01/19)
-     */
-     function hasOwn(obj, prop){
-         return Object.prototype.hasOwnProperty.call(obj, prop);
-     }
-
-     module.exports = hasOwn;
-
-
-
-});
-
-define('common/isPlainObject',[
-    'amd-utils/lang/isFunction',
-    'amd-utils/object/hasOwn'
-], function (
-    isFunction,
-    hasOwn
-) {
-
-    
-
-    var hasObjectPrototypeOf = isFunction(Object.getPrototypeOf);
-
-    /**
-     * Checks if a given object is a plain object.
-     *
-     * @param {Object} obj The object
-     */
-    function isPlainObject(obj) {
-        var proto = '__proto__',
-            key;
-
-        // This function is based on the jquery one
-        if (obj.nodeType || obj === obj.window) {
-            return false;
-        }
-
-        try {
-            proto = hasObjectPrototypeOf ? Object.getPrototypeOf(obj) : obj[proto];
-
-            if (proto && proto !== Object.prototype) {
-                return false;
-            }
-
-            if (obj.constructor && !hasOwn(obj, 'constructor') && !hasOwn(obj.constructor.prototype, 'isPrototypeOf')) {
-                return false;
-            }
-        } catch (e) {
-            return false;       // IE8,9 Will throw exceptions on certain host objects
-        }
-
-        // Own properties are enumerated firstly, so to speed up,
-        // if last one is own, then all properties are own
-        for (key in obj) {}
-
-        return key === undefined || hasOwn(obj, key);
-    }
-
-    return isPlainObject;
-});
-
 define('amd-utils/lang/isObject',['require','exports','module','./isKind'],function (require, exports, module) {
 var isKind = require('./isKind');
     /**
@@ -706,6 +639,23 @@ var isKind = require('./isKind');
         return isKind(val, 'RegExp');
     }
     module.exports = isRegExp;
+
+
+});
+
+define('amd-utils/object/hasOwn',['require','exports','module'],function (require, exports, module) {
+
+
+    /**
+     * Safer Object.hasOwnProperty
+     * @version 0.1.0 (2012/01/19)
+     */
+     function hasOwn(obj, prop){
+         return Object.prototype.hasOwnProperty.call(obj, prop);
+     }
+
+     module.exports = hasOwn;
+
 
 
 });
@@ -978,6 +928,87 @@ define('common/mixIn',[], function () {
     return mixIn;
 });
 
+define('common/clone',[
+    'amd-utils/object/forOwn',
+    'amd-utils/lang/kindOf',
+    'amd-utils/lang/createObject'
+], function (forOwn, kindOf, createObject) {
+
+    
+
+    /**
+     * Modified version of amd-utils's clone.
+     * Works with instances.
+     *
+     * @param {Mixed} val The val to clone
+     *
+     * @return {Mixed} The cloned value
+     */
+    function clone(val) {
+        var result;
+
+        switch (kindOf(val)) {
+        case 'Object':
+            if (val.constructor !== Object) {
+                result = createObject(val);
+            } else {
+                result = cloneObject(val);
+            }
+            break;
+        case 'Array':
+            result = deepCloneArray(val);
+            break;
+        case 'RegExp':
+            result = cloneRegExp(val);
+            break;
+        case 'Date':
+            result = cloneDate(val);
+            break;
+        default:
+            result = val;
+        }
+        return result;
+    }
+
+    function cloneObject(source) {
+        var out = {};
+        forOwn(source, copyProperty, out);
+        return out;
+    }
+
+    function copyProperty(val, key) {
+        /*jshint validthis:true*/
+        this[key] = clone(val);
+    }
+
+    function cloneRegExp(r) {
+        var flags = '';
+
+        flags += r.multiline ? 'm' : '';
+        flags += r.global ? 'g' : '';
+        flags += r.ignoreCase ? 'i' : '';
+
+        return new RegExp(r.source, flags);
+    }
+
+    function cloneDate(date) {
+        return new Date(date.getTime());
+    }
+
+    function deepCloneArray(arr) {
+        var out = [],
+            i = 0,
+            n = arr.length;
+
+        while (i < n) {
+            out[i] = clone(arr[i]);
+            i += 1;
+        }
+        return out;
+    }
+
+    return clone;
+});
 define('amd-utils/array/append',['require','exports','module'],function (require, exports, module) {
 
 
@@ -1060,75 +1091,6 @@ var kindOf = require('./kindOf');
         return ret;
     }
     module.exports = toArray;
-
-
-});
-
-define('amd-utils/lang/clone',['require','exports','module','../object/forOwn','./kindOf'],function (require, exports, module) {
-var forOwn = require('../object/forOwn');
-var kindOf = require('./kindOf');
-
-    /**
-     * Clone native types.
-     * @version 0.1.0 (2012/07/13)
-     */
-    function clone(val){
-        var result;
-        switch ( kindOf(val) ) {
-            case 'Object':
-                result = cloneObject(val);
-                break;
-            case 'Array':
-                result = deepCloneArray(val);
-                break;
-            case 'RegExp':
-                result = cloneRegExp(val);
-                break;
-            case 'Date':
-                result = cloneDate(val);
-                break;
-            default:
-                result = val;
-        }
-        return result;
-    }
-
-    function cloneObject(source) {
-        var out = {};
-        forOwn(source, copyProperty, out);
-        return out;
-    }
-
-    function copyProperty(val, key){
-        this[key] = clone(val);
-    }
-
-    function cloneRegExp(r){
-        var flags = '';
-        flags += r.multiline? 'm' : '';
-        flags += r.global? 'g' : '';
-        flags += r.ignoreCase? 'i' : '';
-        return new RegExp(r.source, flags);
-    }
-
-    function cloneDate(date){
-        return new Date( date.getTime() );
-    }
-
-    function deepCloneArray(arr){
-        var out = [],
-            i = -1,
-            n = arr.length,
-            val;
-        while (++i < n) {
-            out[i] = clone(arr[i]);
-        }
-        return out;
-    }
-
-    module.exports = clone;
-
-
 
 
 });
@@ -1286,7 +1248,6 @@ define('Class',[
     './common/printWarning',
     './common/obfuscateProperty',
     './common/isImmutable',
-    './common/isPlainObject',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
@@ -1298,16 +1259,15 @@ define('Class',[
     'amd-utils/array/combine',
     'amd-utils/array/contains',
     './common/mixIn',
+    './common/clone',
     'amd-utils/array/append',
     'amd-utils/function/bind',
     'amd-utils/lang/toArray',
-    'amd-utils/lang/clone',
     'amd-utils/array/insert'
 ], function ClassWrapper(
     printWarning,
     obfuscateProperty,
     isImmutable,
-    isPlainObject,
     isFunction,
     isObject,
     isArray,
@@ -1319,10 +1279,10 @@ define('Class',[
     combine,
     contains,
     mixIn,
+    clone,
     append,
     bind,
     toArray,
-    clone,
     insert
 ) {
 
@@ -1336,24 +1296,6 @@ define('Class',[
         $wrapped = '$wrapped_dejavu',
         tmp,
         descriptor;
-
-    /**
-     * Clones a property in order to make them unique for the instance.
-     * This solves the shared properties for types like objects or arrays.
-     *
-     * @param {Mixed} prop The property
-     *
-     * @return {Mixed} The cloned property
-     */
-    function cloneProperty(prop) {
-        // We treat object differently than amd-utils
-        // If is non plain object, we use createObject instead
-        if (isObject(prop) && !isPlainObject(prop)) {
-            return createObject(prop);
-        }
-
-        return clone(prop);
-    }
 
     /**
      * Wraps a method.
@@ -1497,7 +1439,7 @@ define('Class',[
                     value = current.$static[$class].staticProperties[key];
 
                     constructor[$class].staticProperties[key] = value;
-                    constructor[key] = cloneProperty(value);
+                    constructor[key] = clone(value);
                 }
 
                 // Merge the binds
@@ -1592,7 +1534,7 @@ define('Class',[
                 }
 
                 // We should remove the key here because a class may override from primitive to non primitive,
-                // but we skip it because the cloneProperty already handles it
+                // but we skip it because the clone already handles it
             } else {
                 constructor.prototype[key] = value;
 
@@ -1686,7 +1628,7 @@ define('Class',[
 
             // Reset some types of the object in order for each instance to have their variables
             for (x = tmp.properties.length - 1; x >= 0; x -= 1) {
-                this[tmp.properties[x]] = cloneProperty(this[tmp.properties[x]]);
+                this[tmp.properties[x]] = clone(this[tmp.properties[x]]);
             }
 
             if (!tmp.efficient) {
@@ -1769,7 +1711,7 @@ define('Class',[
 
             if (key.substr(0, 2) !== '__') {
                 constructor[$class].staticProperties[key] = value;
-                constructor[key] = cloneProperty(value);
+                constructor[key] = clone(value);
             }
         }
 

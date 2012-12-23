@@ -38,7 +38,8 @@ define(global.modules, function (
                         option1: 'property',
                         option2: {
                             foo: 'bar'
-                        }
+                        },
+                        option3: new SomeClass()
                     },
                     someArray: ['some'],
                     initialize: function () {
@@ -179,6 +180,10 @@ define(global.modules, function (
 
                 expect(example.someRegExp).to.not.be.equal(example2.someRegExp);
                 expect(example.someRegExp.toString()).to.be.equal(example2.someRegExp.toString());
+
+                expect(example.options.option3).to.not.be.equal(example2.options.option3);
+                expect(instanceOf(example.options.option3, SomeClass)).to.be.equal(true);
+                expect(instanceOf(example2.options.option3, SomeClass)).to.be.equal(true);
 
             });
 
@@ -712,29 +717,30 @@ define(global.modules, function (
                         if (!SomeClass.foo) {
                             throw new Error('not extensible');
                         }
-                    }).to.throwException(/not extensible/);
+                    }).to.throwException(/(not extensible|invalid assignment|attempted to assign to readonly)/i); // Opera reports "Invalid assignment in strict mode", wtf?
+                                                                                                                  // Safari reports "Attempted to assign to readonly property", wtf?
 
                     expect(function () {
                         SomeClass.prototype.foo = 'bar';
                         if (!SomeClass.prototype.foo) {
                             throw new Error('not extensible');
                         }
-                    }).to.throwException(/not extensible/);
+                    }).to.throwException(/(not extensible|invalid assignment|attempted to assign to readonly)/i);
 
                     expect(function () {
                         someClass.bar = 'foo';
                         if (!someClass.bar) {
                             throw new Error('not extensible');
                         }
-                    }).to.throwException(/not extensible/);
+                    }).to.throwException(/(not extensible|invalid assignment|attempted to assign to readonly)/i);
 
                     expect(function () {
                         someClass.test = function () {};
-                    }).to.throwException(/(not extensible|cannot set)/i);
+                    }).to.throwException(/(cannot set|not extensible|invalid assignment|attempted to assign to readonly)/i);
 
                     expect(function () {
                         SomeClass.staticFunc = function () {};
-                    }).to.throwException(/(not extensible|cannot set)/i);
+                    }).to.throwException(/(cannot set|not extensible|invalid assignment|attempted to assign to readonly)/i);
 
                 });
 
@@ -754,7 +760,7 @@ define(global.modules, function (
                         if (!SomeClass.foo) {
                             throw new Error('not extensible');
                         }
-                    }).to.throwException(/not extensible/);
+                    }).to.throwException(/(not extensible|invalid assignment|attempted to assign to readonly)/i);
 
                     OtherClass.foo = 'bar';
 

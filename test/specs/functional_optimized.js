@@ -18,7 +18,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         someRegExp: /some/gi,
                         options: {
                             option1: 'property',
-                            option2: { foo: 'bar' }
+                            option2: { foo: 'bar' },
+                            option3: new SomeClass()
                         },
                         someArray: ['some'],
                         initialize: function () {
@@ -127,6 +128,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(instanceOf(example2.otherInstance, SomeClass)).to.be.equal(true);
                 expect(example.someRegExp).to.not.be.equal(example2.someRegExp);
                 expect(example.someRegExp.toString()).to.be.equal(example2.someRegExp.toString());
+                expect(example.options.option3).to.not.be.equal(example2.options.option3);
+                expect(instanceOf(example.options.option3, SomeClass)).to.be.equal(true);
+                expect(instanceOf(example2.options.option3, SomeClass)).to.be.equal(true);
             });
             it('should have bound the methods into the instance context', function () {
                 example.method1.call(this);
@@ -550,27 +554,27 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         if (!SomeClass.foo) {
                             throw new Error('not extensible');
                         }
-                    }).to.throwException(/not extensible/);
+                    }).to.throwException(/(not extensible|invalid assignment|attempted to assign to readonly)/i);
                     expect(function () {
                         SomeClass.prototype.foo = 'bar';
                         if (!SomeClass.prototype.foo) {
                             throw new Error('not extensible');
                         }
-                    }).to.throwException(/not extensible/);
+                    }).to.throwException(/(not extensible|invalid assignment|attempted to assign to readonly)/i);
                     expect(function () {
                         someClass.bar = 'foo';
                         if (!someClass.bar) {
                             throw new Error('not extensible');
                         }
-                    }).to.throwException(/not extensible/);
+                    }).to.throwException(/(not extensible|invalid assignment|attempted to assign to readonly)/i);
                     expect(function () {
                         someClass.test = function () {
                         };
-                    }).to.throwException(/(not extensible|cannot set)/i);
+                    }).to.throwException(/(cannot set|not extensible|invalid assignment|attempted to assign to readonly)/i);
                     expect(function () {
                         SomeClass.staticFunc = function () {
                         };
-                    }).to.throwException(/(not extensible|cannot set)/i);
+                    }).to.throwException(/(cannot set|not extensible|invalid assignment|attempted to assign to readonly)/i);
                 });
                 it('should read the default value', function () {
                     options.locked = true;
@@ -586,7 +590,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         if (!SomeClass.foo) {
                             throw new Error('not extensible');
                         }
-                    }).to.throwException(/not extensible/);
+                    }).to.throwException(/(not extensible|invalid assignment|attempted to assign to readonly)/i);
                     OtherClass.foo = 'bar';
                     expect(OtherClass.foo).to.equal('bar');
                 });

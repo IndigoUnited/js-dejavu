@@ -25,7 +25,6 @@ define([
     './common/printWarning',
     './common/obfuscateProperty',
     './common/isImmutable',
-    './common/isPlainObject',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
@@ -37,9 +36,9 @@ define([
     'amd-utils/array/combine',
     'amd-utils/array/contains',
     './common/mixIn',
+    './common/clone',
     'amd-utils/function/bind',
     'amd-utils/lang/toArray',
-    'amd-utils/lang/clone',
     'amd-utils/array/insert'
 ], function ClassWrapper(
     isString,
@@ -62,7 +61,6 @@ define([
     printWarning,
     obfuscateProperty,
     isImmutable,
-    isPlainObject,
     isFunction,
     isObject,
     isArray,
@@ -74,9 +72,9 @@ define([
     combine,
     contains,
     mixIn,
+    clone,
     bind,
     toArray,
-    clone,
     insert
 ) {
 
@@ -105,25 +103,6 @@ define([
         toStringInstance,
         toStringConstructor,
         glob = typeof window !== 'undefined' && window.navigator && window.document ? window : global;
-
-    /**
-     * Clones a property in order to make them unique for the instance.
-     * This solves the shared properties for types like objects or arrays.
-     *
-     * @param {Mixed} prop The property
-     *
-     * @return {Mixed} The cloned property
-     */
-    function cloneProperty(prop) {
-        // We treat object differently than amd-utils
-        // If is non plain object, we use createObject instead
-        if (isObject(prop) && !isPlainObject(prop)) {
-            return createObject(prop);
-        }
-
-        return clone(prop);
-    }
-
     /**
      * Wraps a method.
      * This is to make some alias such as $super and $self to work correctly.
@@ -522,7 +501,7 @@ define([
             metadata.value = value;
         } else if (isStatic) {
             if (!isConst) {
-                constructor[name] = cloneProperty(value);
+                constructor[name] = clone(value);
             } else {
                 constructor[name] = value;
             }
@@ -1115,7 +1094,7 @@ define([
      */
     function protectProperty(name, meta, instance) {
         if (meta.isPrivate) {
-            instance[cacheKeyword].properties[name] = cloneProperty(meta.value);
+            instance[cacheKeyword].properties[name] = clone(meta.value);
 
             Object.defineProperty(instance, name, {
                 get: function get() {
@@ -1142,7 +1121,7 @@ define([
                 enumerable: false
             });
         } else if (meta.isProtected) {
-            instance[cacheKeyword].properties[name] = cloneProperty(meta.value);
+            instance[cacheKeyword].properties[name] = clone(meta.value);
 
             Object.defineProperty(instance, name, {
                 get: function get() {
@@ -1169,7 +1148,7 @@ define([
                 enumerable: false
             });
         } else if (!meta.isPrimitive) {
-            instance[name] = cloneProperty(instance[name]);
+            instance[name] = clone(instance[name]);
         } else {
             instance[name] = instance.$static.prototype[name];
         }
@@ -1184,7 +1163,7 @@ define([
      */
     function protectStaticProperty(name, meta, constructor) {
         if (meta.isPrivate) {
-            constructor[cacheKeyword].properties[name] = !meta.isConst ? cloneProperty(meta.value) : meta.value;
+            constructor[cacheKeyword].properties[name] = !meta.isConst ? clone(meta.value) : meta.value;
 
             Object.defineProperty(constructor, name, {
                 get: function get() {
@@ -1215,7 +1194,7 @@ define([
                 enumerable: false
             });
         } else if (meta.isProtected) {
-            constructor[cacheKeyword].properties[name] = !meta.isConst ? cloneProperty(meta.value) : meta.value;
+            constructor[cacheKeyword].properties[name] = !meta.isConst ? clone(meta.value) : meta.value;
 
             Object.defineProperty(constructor, name, {
                 get: function get() {
@@ -1354,7 +1333,7 @@ define([
                 // Reset some types of the object in order for each instance to have their variables
                 for (x in tmp.properties) {
                     if (!tmp.properties[x].isPrimitive) {
-                        this[x] = cloneProperty(this[x]);
+                        this[x] = clone(this[x]);
                     }
                 }
             }
@@ -1511,7 +1490,7 @@ define([
 
             if (!value.isPrivate) {
                 constructor[$class].staticProperties[key] = value;
-                constructor[key] = cloneProperty(value.value);
+                constructor[key] = clone(value.value);
 
                 if (value.isProtected) {
                     value.allowed.push(classId);

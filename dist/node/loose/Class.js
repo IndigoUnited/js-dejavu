@@ -8,7 +8,6 @@ define([
     './common/printWarning',
     './common/obfuscateProperty',
     './common/isImmutable',
-    './common/isPlainObject',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
@@ -20,16 +19,15 @@ define([
     'amd-utils/array/combine',
     'amd-utils/array/contains',
     './common/mixIn',
+    './common/clone',
     'amd-utils/array/append',
     'amd-utils/function/bind',
     'amd-utils/lang/toArray',
-    'amd-utils/lang/clone',
     'amd-utils/array/insert'
 ], function ClassWrapper(
     printWarning,
     obfuscateProperty,
     isImmutable,
-    isPlainObject,
     isFunction,
     isObject,
     isArray,
@@ -41,10 +39,10 @@ define([
     combine,
     contains,
     mixIn,
+    clone,
     append,
     bind,
     toArray,
-    clone,
     insert
 ) {
 
@@ -58,24 +56,6 @@ define([
         $wrapped = '$wrapped_dejavu',
         tmp,
         descriptor;
-
-    /**
-     * Clones a property in order to make them unique for the instance.
-     * This solves the shared properties for types like objects or arrays.
-     *
-     * @param {Mixed} prop The property
-     *
-     * @return {Mixed} The cloned property
-     */
-    function cloneProperty(prop) {
-        // We treat object differently than amd-utils
-        // If is non plain object, we use createObject instead
-        if (isObject(prop) && !isPlainObject(prop)) {
-            return createObject(prop);
-        }
-
-        return clone(prop);
-    }
 
     /**
      * Wraps a method.
@@ -219,7 +199,7 @@ define([
                     value = current.$static[$class].staticProperties[key];
 
                     constructor[$class].staticProperties[key] = value;
-                    constructor[key] = cloneProperty(value);
+                    constructor[key] = clone(value);
                 }
 
                 // Merge the binds
@@ -314,7 +294,7 @@ define([
                 }
 
                 // We should remove the key here because a class may override from primitive to non primitive,
-                // but we skip it because the cloneProperty already handles it
+                // but we skip it because the clone already handles it
             } else {
                 constructor.prototype[key] = value;
 
@@ -408,7 +388,7 @@ define([
 
             // Reset some types of the object in order for each instance to have their variables
             for (x = tmp.properties.length - 1; x >= 0; x -= 1) {
-                this[tmp.properties[x]] = cloneProperty(this[tmp.properties[x]]);
+                this[tmp.properties[x]] = clone(this[tmp.properties[x]]);
             }
 
             if (!tmp.efficient) {
@@ -491,7 +471,7 @@ define([
 
             if (key.substr(0, 2) !== '__') {
                 constructor[$class].staticProperties[key] = value;
-                constructor[key] = cloneProperty(value);
+                constructor[key] = clone(value);
             }
         }
 
