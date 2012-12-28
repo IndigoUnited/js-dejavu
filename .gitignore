@@ -56,5 +56,3 @@ npm-debug.*
 # Project specific #
 ######################
 tmp
-components
-vendor
