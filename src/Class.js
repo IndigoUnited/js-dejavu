@@ -650,6 +650,11 @@ define([
 
         // Grab mixin members
         for (key in params) {
+            // Ignore the constructor
+            if (/^(_){0,2}initialize$/.test(key)) {
+                continue;
+            }
+
             value = params[key];
 
             if (!hasOwn(constructor.prototype, key)) {    // Already defined members are not overwritten

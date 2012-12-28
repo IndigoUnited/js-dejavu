@@ -1694,12 +1694,46 @@ define(global.modules, function (
                         $borrows: Class.declare({ initialize: function () { this.some = 'nooo'; } }),
                         some: 'property'
                     }),
+                    SomeOtherImplementation = Class.declare({
+                        $extends: SomeImplementation,
+                        $borrows: Class.declare({ initialize: function () { this.some = 'nooo'; } })
+                    }),
+                    SomeOtherProtectedImplementation = Class.declare({
+                        $extends: SomeImplementation,
+                        $borrows: Class.declare({ _initialize: function () { this.some = 'nooo'; } })
+                    }),
+                    SomeOtherProtectedImplementation2 = Class.declare({
+                        $extends: SomeImplementation,
+                        $borrows: { _initialize: function () { this.some = 'nooo'; } }
+                    }),
+                    SomeOtherPrivateImplementation = Class.declare({
+                        $extends: SomeImplementation,
+                        $borrows: Class.declare({ __initialize: function () { this.some = 'nooo'; } })
+                    }),
+                    SomeOtherPrivateImplementation2 = Class.declare({
+                        $extends: SomeImplementation,
+                        $borrows: { __initialize: function () { this.some = 'nooo'; } }
+                    }),
                     someImplementation = new SomeImplementation(),
-                    otherImplementation = new OtherImplementation();
+                    otherImplementation = new OtherImplementation(),
+                    someOtherImplementation = new SomeOtherImplementation(),
+                    someOtherProtectedImplementation = new SomeOtherProtectedImplementation(),
+                    someOtherProtectedImplementation2 = new SomeOtherProtectedImplementation2(),
+                    someOtherPivateImplementation = new SomeOtherPrivateImplementation(),
+                    someOtherPivateImplementation2 = new SomeOtherPrivateImplementation2();
 
                 expect(someImplementation.some).to.be.equal('test');
                 expect(otherImplementation.some).to.be.equal('property');
+                expect(someOtherImplementation.some).to.be.equal('test');
+                expect(someOtherProtectedImplementation.some).to.be.equal('test');
+                expect(someOtherProtectedImplementation2.some).to.be.equal('test');
+                expect(someOtherPivateImplementation.some).to.be.equal('test');
+                expect(someOtherPivateImplementation2.some).to.be.equal('test');
 
+                expect(someOtherProtectedImplementation._initialize).to.not.be.ok();
+                expect(someOtherProtectedImplementation2._initialize).to.not.be.ok();
+                expect(someOtherPivateImplementation.__initialize).to.not.be.ok();
+                expect(someOtherPivateImplementation2.__initialize).to.not.be.ok();
             });
 
             it('should have passed the specified binds correctly', function () {

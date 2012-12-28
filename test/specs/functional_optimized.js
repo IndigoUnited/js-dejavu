@@ -1382,9 +1382,64 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }, true),
                             some: 'property'
                         };
-                    }, true), someImplementation = new SomeImplementation(), otherImplementation = new OtherImplementation();
+                    }, true), SomeOtherImplementation = Class.declare(SomeImplementation, function ($super, $parent) {
+                        return {
+                            $borrows: Class.declare(function () {
+                                return {
+                                    initialize: function () {
+                                        this.some = 'nooo';
+                                    }
+                                };
+                            }, true)
+                        };
+                    }, true), SomeOtherProtectedImplementation = Class.declare(SomeImplementation, function ($super, $parent) {
+                        return {
+                            $borrows: Class.declare(function () {
+                                return {
+                                    _initialize: function () {
+                                        this.some = 'nooo';
+                                    }
+                                };
+                            }, true)
+                        };
+                    }, true), SomeOtherProtectedImplementation2 = Class.declare(SomeImplementation, function ($super, $parent) {
+                        return {
+                            $borrows: {
+                                _initialize: function () {
+                                    this.some = 'nooo';
+                                }
+                            }
+                        };
+                    }, true), SomeOtherPrivateImplementation = Class.declare(SomeImplementation, function ($super, $parent) {
+                        return {
+                            $borrows: Class.declare(function () {
+                                return {
+                                    __initialize: function () {
+                                        this.some = 'nooo';
+                                    }
+                                };
+                            }, true)
+                        };
+                    }, true), SomeOtherPrivateImplementation2 = Class.declare(SomeImplementation, function ($super, $parent) {
+                        return {
+                            $borrows: {
+                                __initialize: function () {
+                                    this.some = 'nooo';
+                                }
+                            }
+                        };
+                    }, true), someImplementation = new SomeImplementation(), otherImplementation = new OtherImplementation(), someOtherImplementation = new SomeOtherImplementation(), someOtherProtectedImplementation = new SomeOtherProtectedImplementation(), someOtherProtectedImplementation2 = new SomeOtherProtectedImplementation2(), someOtherPivateImplementation = new SomeOtherPrivateImplementation(), someOtherPivateImplementation2 = new SomeOtherPrivateImplementation2();
                 expect(someImplementation.some).to.be.equal('test');
                 expect(otherImplementation.some).to.be.equal('property');
+                expect(someOtherImplementation.some).to.be.equal('test');
+                expect(someOtherProtectedImplementation.some).to.be.equal('test');
+                expect(someOtherProtectedImplementation2.some).to.be.equal('test');
+                expect(someOtherPivateImplementation.some).to.be.equal('test');
+                expect(someOtherPivateImplementation2.some).to.be.equal('test');
+                expect(someOtherProtectedImplementation._initialize).to.not.be.ok();
+                expect(someOtherProtectedImplementation2._initialize).to.not.be.ok();
+                expect(someOtherPivateImplementation.__initialize).to.not.be.ok();
+                expect(someOtherPivateImplementation2.__initialize).to.not.be.ok();
             });
             it('should have passed the specified binds correctly', function () {
                 var SomeImplementation = Class.declare(function () {
