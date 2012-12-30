@@ -17,6 +17,7 @@ var fs = require('fs'),
 program
     .usage('< file.js > optimized_file.js')
     .version('0.1.1')
+    .option('-c, --closure', 'Use closures (better perf for nodejs)')
     .parse(process.argv);
 
 ////////////////////////////////////////////////////
@@ -46,10 +47,12 @@ var optimizerClosure = new OptimizerClosure({ escodegen: escodegenOpts });
 parser.forEachUsage(ast, function (obj) {
     var slice = contents.substr(obj.ast.range[0], obj.ast.range[1]);
 
-    if (optimizer.canOptimize(slice)) {
-        optimizer.optimize(obj);
-    } else {
+    // Use to closure optimizer if the user wants to use it
+    // or if the default one can't be used
+    if (program.closure || !optimizer.canOptimize(slice)) {
         optimizerClosure.optimize(obj);
+    } else {
+        optimizer.optimize(obj);
     }
 });
 
