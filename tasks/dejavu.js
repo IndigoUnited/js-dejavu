@@ -20,6 +20,7 @@ module.exports = function (grunt) {
         var helpers = contrib.init(grunt);
         var options = helpers.options(this, {
             exclude: [],
+            closure: false,
             basePath: false,
             minimatch: {}
         });
@@ -46,7 +47,7 @@ module.exports = function (grunt) {
                 grunt.fail.fatal('Source and destination files can\'t be equal.');
             }
 
-            cp.exec('node ./node_modules/dejavu/bin/optimizer < ' + task.src + ' > ' + task.dest, function (error, stdout, stderr) {
+            cp.exec('node ./node_modules/dejavu/bin/optimizer ' + (options.closure ? '--closure ' : '') + '< ' + task.src + ' > ' + task.dest, function (error, stdout, stderr) {
                 if (error) {
                     grunt.fail.fatal('Unable to optimize ' + task.src.cyan);
                 }

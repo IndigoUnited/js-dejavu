@@ -589,6 +589,8 @@ It specifically:
 - Removes functions from interfaces
 
 The optimizer is located in the `bin` folder.
+By default, the optimized code is suitable for the browser.
+If you are optimizing your code for `nodejs` then pass the --closure option. This will boost the performance when running code in v8.
 
 Example usage:
 
@@ -605,7 +607,8 @@ grunt.initConfig({
     dejavu: {
         optimize: {
             options: {
-                exclude: [/bootstrap(\.min)?\.js$/]
+                exclude: [/bootstrap(\.min)?\.js$/],
+                closure: false  // Set to true if optimizing only for nodejs to get better performance
             },
             files: {
                 'dist/': 'src/**/*.js'
