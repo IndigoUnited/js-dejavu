@@ -1479,27 +1479,6 @@ var mixIn = require('../object/mixIn');
 
 });
 
-define('amd-utils/lang/inheritPrototype',['require','exports','module','./createObject'],function (require, exports, module) {
-var createObject = require('./createObject');
-
-    /**
-    * Inherit prototype from another Object.
-    * - inspired by Nicholas Zackas <http://nczonline.net> Solution
-    * @param {object} child Child object
-    * @param {object} parent    Parent Object
-    * @version 0.1.0 (2011/02/18)
-    */
-    function inheritPrototype(child, parent){
-        var p = createObject(parent.prototype);
-        p.constructor = child;
-        child.prototype = p;
-    }
-
-    module.exports = inheritPrototype;
-
-
-});
-
 define('amd-utils/array/combine',['require','exports','module','./indexOf'],function (require, exports, module) {
 var indexOf = require('./indexOf');
 
@@ -1752,7 +1731,6 @@ define('Class',[
     'amd-utils/lang/isDate',
     'amd-utils/lang/isRegExp',
     'amd-utils/lang/createObject',
-    'amd-utils/lang/inheritPrototype',
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
     'amd-utils/array/contains',
@@ -1788,7 +1766,6 @@ define('Class',[
     isDate,
     isRegExp,
     createObject,
-    inheritPrototype,
     hasOwn,
     combine,
     contains,

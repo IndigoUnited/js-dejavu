@@ -10,7 +10,6 @@ define([
     'amd-utils/lang/isDate',
     'amd-utils/lang/isRegExp',
     'amd-utils/lang/createObject',
-    'amd-utils/lang/inheritPrototype',
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
     'amd-utils/array/contains',
@@ -30,7 +29,6 @@ define([
     isDate,
     isRegExp,
     createObject,
-    inheritPrototype,
     hasOwn,
     combine,
     contains,
@@ -52,6 +50,18 @@ define([
         $wrapped = '$wrapped_dejavu',
         tmp,
         descriptor;
+
+    /**
+     * Function that does exactly the same as the amd-utils counterpart,
+     * but is fater in firefox due to a bug:
+     * https://bugzilla.mozilla.org/show_bug.cgi?id=816439
+     */
+    function inheritPrototype(A, B) {
+        var EmptyFunc = function () {};
+        EmptyFunc.prototype = B.prototype;
+        A.prototype = new EmptyFunc();
+        A.prototype.constructor = A;
+    }
 
     /**
      * Wraps a method.
