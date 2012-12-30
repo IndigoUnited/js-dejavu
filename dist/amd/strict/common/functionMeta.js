@@ -17,7 +17,7 @@ define([], function () {
      * @return {Object|null} An object containg the function metadata
      */
     function functionMeta(func, name) {
-        var matches = /^function(\s+[a-zA-Z0-9_$]*)*\s*\(([^\(]*)\)/m.exec(func.toString()),
+        var matches = /^function(\s+[a-zA-Z0-9_\$]*)*\s*\(([^\(]*)\)/m.exec(func.toString()),
             ret,
             split,
             optionalReached = false,

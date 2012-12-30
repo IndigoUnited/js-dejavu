@@ -825,7 +825,7 @@ define('common/functionMeta',[], function () {
      * @return {Object|null} An object containg the function metadata
      */
     function functionMeta(func, name) {
-        var matches = /^function(\s+[a-zA-Z0-9_$]*)*\s*\(([^\(]*)\)/m.exec(func.toString()),
+        var matches = /^function(\s+[a-zA-Z0-9_\$]*)*\s*\(([^\(]*)\)/m.exec(func.toString()),
             ret,
             split,
             optionalReached = false,
@@ -3361,6 +3361,7 @@ define('Class',[
                 params.initialize = params.initialize || params._initialize || params.__initialize;
             }
             obfuscateProperty(dejavu, '$parent', parent);
+            obfuscateProperty(dejavu, '$parentp', parent.prototype);
             inheritPrototype(dejavu, parent);
             inheritParent(dejavu, parent);
         } else {
@@ -3462,6 +3463,7 @@ define('Class',[
     Class.declare = function (arg1, arg2, $arg3) {
         var params,
             callable = isFunction(this) ? this : createClass,
+            tmp,
             constructor;
 
         if (arg1 && arg2 && arg2 !== true) {
@@ -3469,11 +3471,11 @@ define('Class',[
                 throw new Error('Expected first argument to be a class.');
             }
 
-            // create(parentClass, func)
-            if (isFunction(arg2)) {
+            // create(parentClass, func | props, true | false)
+            if ((tmp = isFunction(arg2)) || $arg3) {
                 constructor = createConstructor();
-                params = arg2(arg1.prototype, arg1, constructor);
-            // create(parentClass, props)
+                params = tmp ? arg2(arg1.prototype, arg1, constructor) : arg2;
+            // create(parentClass, props, false)
             } else {
                 params = arg2;
             }
@@ -3483,10 +3485,10 @@ define('Class',[
             }
 
             params.$extends = arg1;
-        // create(func)
-        } else if (isFunction(arg1)) {
+        // create(func | props, true | false)
+        } else if ((tmp = isFunction(arg1)) || arg2) {
             constructor = createConstructor();
-            params = arg1(constructor);
+            params = tmp ? arg1(constructor) : arg1;
         // create (props)
         } else {
             params = arg1;

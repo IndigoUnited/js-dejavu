@@ -534,6 +534,7 @@ define([
                 if (constructor.$parent) {
                     inheritPrototype(newConstructor, constructor);
                     newConstructor.$parent = constructor.$parent;
+                    newConstructor.$parentp = constructor.$parentp;
                 }
 
                 mixIn(newConstructor.prototype, constructor.prototype);
@@ -593,6 +594,7 @@ define([
 
             dejavu = createConstructor(constructor);
             obfuscateProperty(dejavu, '$parent', parent);
+            obfuscateProperty(dejavu, '$parentp', parent.prototype);
             inheritPrototype(dejavu, parent);
             inheritParent(dejavu, parent);
         } else {
@@ -654,25 +656,26 @@ define([
     Class.declare = function (arg1, arg2, $arg3) {
         var params,
             callable = isFunction(this) ? this : createClass,
+            tmp,
             constructor;
 
         if (arg1 && arg2 && arg2 !== true) {
-            // create(parentClass, func)
-            if (isFunction(arg2)) {
+            // create(parentClass, func | props, true | false)
+            if ((tmp = isFunction(arg2)) || $arg3) {
                 constructor = createConstructor();
                 constructor.$canOptimizeConst = !!$arg3;
-                params = arg2(arg1.prototype, arg1, constructor);
-            // create(parentClass, props)
+                params = tmp ? arg2(arg1.prototype, arg1, constructor) : arg2;
+            // create(parentClass, props, false)
             } else {
                 params = arg2;
             }
 
             params.$extends = arg1;
-        // create(func)
-        } else if (isFunction(arg1)) {
+        // create(func | props, true | false)
+        } else if ((tmp = isFunction(arg1)) || arg2) {
             constructor = createConstructor();
             constructor.$canOptimizeConst = !!arg2;
-            params = arg1(constructor);
+            params = tmp ? arg1(constructor) : arg1;
         // create (props)
         } else {
             params = arg1;
