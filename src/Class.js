@@ -1,10 +1,3 @@
-//>>includeStart('strict', pragmas.strict);
-/*jshint strict:false, noarg:false, expr:true*/
-//>>includeEnd('strict');
-//>>excludeStart('strict', pragmas.strict);
-/*jshint noarg:false*/
-//>>excludeEnd('strict');
-
 define([
 //>>includeStart('strict', pragmas.strict);
     'amd-utils/lang/isString',

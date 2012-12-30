@@ -1221,8 +1221,6 @@ var toArray = require('../lang/toArray');
 
 });
 
-/*jshint noarg:false*/
-
 define('Class',[
     './common/printWarning',
     './common/obfuscateProperty',

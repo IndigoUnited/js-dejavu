@@ -1,5 +1,3 @@
-/*jshint noarg:false*/
-
 define([
     './common/printWarning',
     './common/obfuscateProperty',

@@ -1,5 +1,3 @@
-/*jshint strict:false, noarg:false, expr:true*/
-
 define([
     'amd-utils/lang/isString',
     'amd-utils/array/intersection',

@@ -1702,8 +1702,6 @@ var toArray = require('../lang/toArray');
 
 });
 
-/*jshint strict:false, noarg:false, expr:true*/
-
 define('Class',[
     'amd-utils/lang/isString',
     'amd-utils/array/intersection',

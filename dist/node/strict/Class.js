@@ -2,8 +2,6 @@ if (typeof define !== 'function') {
     var define = require('amdefine')(module);
 }
 
-/*jshint strict:false, noarg:false, expr:true*/
-
 define([
     'amd-utils/lang/isString',
     'amd-utils/array/intersection',
