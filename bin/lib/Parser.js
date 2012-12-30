@@ -30,49 +30,51 @@ Parser.prototype.forEachUsage = function (ast, callback) {
     while (queue.length) {
         curr = queue.pop();
 
-        if (curr) {
-            if (curr.type === Syntax.CallExpression &&
-                curr.callee.type === Syntax.MemberExpression &&
-                curr.callee.property.type === Syntax.Identifier &&
-                curr['arguments'].length && curr['arguments'][0].type === Syntax.ObjectExpression) {
+        if (!curr) {
+            continue;
+        }
 
-                objectName = curr.callee.object.type === 'MemberExpression' ? curr.callee.object.property.name : curr.callee.object.name;
+        if (curr.type === Syntax.CallExpression &&
+            curr.callee.type === Syntax.MemberExpression &&
+            curr.callee.property.type === Syntax.Identifier &&
+            curr['arguments'].length && curr['arguments'][0].type === Syntax.ObjectExpression) {
 
-                // Obvious usage
-                if (curr.callee.property.name === 'declare') {
-                    if (objectName === 'Interface') {
-                        callback({ type: 'interface', ast: curr });
-                    } else if (objectName === 'AbstractClass') {
-                        callback({ type: 'abstract', ast: curr });
-                    } else if (objectName === 'Class' || objectName === 'FinalClass') {
-                        callback({ type: 'concrete', ast: curr });
-                    }
-                // Usage with extend
-                } else if (curr.callee.property.name === 'extend') {
-                    props = curr['arguments'][0].properties;
+            objectName = curr.callee.object.type === 'MemberExpression' ? curr.callee.object.property.name : curr.callee.object.name;
 
-                    if (this._isInterface(props)) {
-                        callback({ type: 'interface', ast: curr });
-                    } else if (this._isAbstractClass(props)) {
-                        callback({ type: 'abstract', ast: curr });
-                    } else if (this._isClass(props)) {
-                        callback({ type: 'concrete', ast: curr });
-                    } else {
-                        process.stderr.write('Not enough metadata to optimize usage at line ' + curr.loc.start.line + ', column ' + curr.loc.start.column + ' (add a $name property?)\n');
-                    }
+            // Obvious usage
+            if (curr.callee.property.name === 'declare') {
+                if (objectName === 'Interface') {
+                    callback({ type: 'interface', ast: curr });
+                } else if (objectName === 'AbstractClass') {
+                    callback({ type: 'abstract', ast: curr });
+                } else if (objectName === 'Class' || objectName === 'FinalClass') {
+                    callback({ type: 'concrete', ast: curr });
+                }
+            // Usage with extend
+            } else if (curr.callee.property.name === 'extend') {
+                props = curr['arguments'][0].properties;
+
+                if (this._isInterface(props)) {
+                    callback({ type: 'interface', ast: curr });
+                } else if (this._isAbstractClass(props)) {
+                    callback({ type: 'abstract', ast: curr });
+                } else if (this._isClass(props)) {
+                    callback({ type: 'concrete', ast: curr });
+                } else {
+                    process.stderr.write('Not enough metadata to optimize usage at line ' + curr.loc.start.line + ', column ' + curr.loc.start.column + ' (add a $name property?)\n');
                 }
             }
+        }
 
-            if (Object.prototype.toString.call(curr) === '[object Array]') {
-                for (x = curr.length - 1; x >= 0; x -= 1) {
-                    queue.push(curr[x]);
-                }
-            } else if (curr.type) {
-                keys = Object.keys(curr);
+        if (Object.prototype.toString.call(curr) === '[object Array]') {
+            for (x = curr.length - 1; x >= 0; x -= 1) {
+                queue.push(curr[x]);
+            }
+        } else if (curr.type) {
+            keys = Object.keys(curr);
 
-                for (x = keys.length - 1; x >= 0; x -= 1) {
-                    queue.push(curr[keys[x]]);
-                }
+            for (x = keys.length - 1; x >= 0; x -= 1) {
+                queue.push(curr[keys[x]]);
             }
         }
     }
