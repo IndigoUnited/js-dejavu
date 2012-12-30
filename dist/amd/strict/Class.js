@@ -97,6 +97,19 @@ define([
         toStringInstance,
         toStringConstructor,
         glob = typeof window !== 'undefined' && window.navigator && window.document ? window : global;
+
+    /**
+     * Function that does exactly the same as the amd-utils counterpart,
+     * but is fater in firefox due to a bug:
+     * https://bugzilla.mozilla.org/show_bug.cgi?id=816439
+     */
+    function inheritPrototype(A, B) {
+        var EmptyFunc = function () {};
+        EmptyFunc.prototype = B.prototype;
+        A.prototype = new EmptyFunc();
+        A.prototype.constructor = A;
+    }
+
     /**
      * Wraps a method.
      * This is to make some alias such as $super and $self to work correctly.

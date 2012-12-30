@@ -123,6 +123,7 @@ define([
         $wrapped = '$wrapped_dejavu',
         tmp,
         descriptor;
+//>>excludeEnd('strict');
 
     /**
      * Function that does exactly the same as the amd-utils counterpart,
@@ -136,6 +137,7 @@ define([
         A.prototype.constructor = A;
     }
 
+//>>excludeStart('strict', pragmas.strict);
     /**
      * Wraps a method.
      * This is to make some alias such as $super and $self to work correctly.
