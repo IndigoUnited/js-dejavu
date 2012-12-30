@@ -1638,7 +1638,6 @@ define([
                 params.initialize = params.initialize || params._initialize || params.__initialize;
             }
             obfuscateProperty(dejavu, '$parent', parent);
-            obfuscateProperty(dejavu, '$parentp', parent.prototype);
             inheritPrototype(dejavu, parent);
             inheritParent(dejavu, parent);
         } else {

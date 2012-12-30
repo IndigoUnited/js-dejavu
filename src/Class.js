@@ -1921,7 +1921,6 @@ define([
                 if (constructor.$parent) {
                     inheritPrototype(newConstructor, constructor);
                     newConstructor.$parent = constructor.$parent;
-                    newConstructor.$parentp = constructor.$parentp;
                 }
 
                 mixIn(newConstructor.prototype, constructor.prototype);
@@ -2084,7 +2083,6 @@ define([
             dejavu = createConstructor(constructor);
 //>>excludeEnd('strict');
             obfuscateProperty(dejavu, '$parent', parent);
-            obfuscateProperty(dejavu, '$parentp', parent.prototype);
             inheritPrototype(dejavu, parent);
             inheritParent(dejavu, parent);
         } else {
