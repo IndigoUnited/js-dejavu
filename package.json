@@ -17,7 +17,8 @@
     "amd-utils": "~0.9.0",
     "commander": "~1.1.1",
     "esprima": "~1.0.2",
-    "escodegen": "~0.0.15"
+    "escodegen": "~0.0.15",
+    "inherits": "~1.0.0"
   },
   "devDependencies": {
     "almond": "~0.2.1",
@@ -25,8 +26,7 @@
     "wrench": "~1.4.3",
     "expect.js": "~0.2.0",
     "domReady": "git://github.com/requirejs/domReady.git",
-    "requirejs": "~2.1.2",
-    "inherits": "~1.0.0"
+    "requirejs": "~2.1.2"
   },
   "scripts": {
     "build": "node build",
