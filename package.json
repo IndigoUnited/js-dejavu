@@ -30,7 +30,8 @@
   },
   "scripts": {
     "build": "node build",
-    "test": "mocha -R spec test/strict && mocha -R spec test/loose"
+    "test": "mocha -R spec test/strict && mocha -R spec test/loose",
+    "postinstall": "node bin/post_install.js"
   },
   "repository": {
     "type": "git",
