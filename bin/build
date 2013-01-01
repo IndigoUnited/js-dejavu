@@ -61,10 +61,7 @@ currentDistDir = distDir + 'amd/strict/';
 cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
     // Print success or error
     if (error !== null) {
-        if (stderr) {
-            throw new Error(stderr.toString());
-        }
-        throw error;
+        throw new Error(stderr + '\n' + stdout);
     }
 
     console.log(stdout);
@@ -110,11 +107,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
         cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true pragmas.node=true useStrict=true', function (error, stdout, stderr) {
             // Print success or error
             if (error !== null) {
-                if (stderr) {
-                    throw new Error(stderr.toString());
-                }
-                console.log(arguments);
-                throw error;
+                throw new Error(stderr + '\n' + stdout);
             }
 
             console.log(stdout);
@@ -128,10 +121,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
 
                 // Print success or error
                 if (error !== null) {
-                    if (stderr) {
-                        throw new Error(stderr.toString());
-                    }
-                    throw error;
+                    throw new Error(stderr + '\n' + stdout);
                 }
 
                 console.log(stdout);
@@ -183,10 +173,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
 
                     // Print success or error
                     if (error !== null) {
-                        if (stderr) {
-                            throw new Error(stderr.toString());
-                        }
-                        throw error;
+                        throw new Error(stderr + '\n' + stdout);
                     }
 
                     console.log(stdout);
@@ -201,10 +188,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
 
                         // Print success or error
                         if (error !== null) {
-                            if (stderr) {
-                                throw new Error(stderr.toString());
-                            }
-                            throw error;
+                            throw new Error(stderr + '\n' + stdout);
                         }
 
                         console.log(stdout);
@@ -219,10 +203,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
 
                             // Print success or error
                             if (error !== null) {
-                                if (stderr) {
-                                    throw new Error(stderr.toString());
-                                }
-                                throw error;
+                                throw new Error(stderr + '\n' + stdout);
                             }
 
                             console.log(stdout);
