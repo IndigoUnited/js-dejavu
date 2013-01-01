@@ -1,12 +1,13 @@
 define([
     './common/randomAccessor',
+    './options',
     'amd-utils/lang/createObject',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
     'amd-utils/lang/isFunction',
     'amd-utils/object/hasOwn',
     'amd-utils/array/forEach'
-], function (randomAccessor, createObject, isObject, isArray, isFunction, hasOwn, forEach) {
+], function (randomAccessor, options, createObject, isObject, isArray, isFunction, hasOwn, forEach) {
 
     'use strict';
 
@@ -221,7 +222,7 @@ define([
     }
 
     // Rewrite some console methods to deliver the inspect automatically
-    if (typeof console !== 'undefined') {
+    if (options.rewriteConsole && typeof console !== 'undefined') {
         rewriteConsole(['log', 'warn', 'error', 'debug', 'dir']);
     }
 

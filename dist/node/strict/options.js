@@ -7,6 +7,7 @@ define([], function () {
     'use strict';
 
     return {
-        locked: true
+        locked: true,
+        rewriteConsole: false
     };
 });

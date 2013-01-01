@@ -2265,7 +2265,8 @@ define('options',[], function () {
     
 
     return {
-        locked: true
+        locked: true,
+        rewriteConsole: false
     };
 });
 
