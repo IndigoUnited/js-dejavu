@@ -1488,12 +1488,10 @@ define('inspect',[
             obj[key] = inspect(tmp, cache);
         }
 
-        // If the class is not locked, handle undeclared properties
-        if (!def.locked) {
-            for (key in target) {
-                if (!hasOwn(obj, key) && !propertiesCache[name] && !methodsCache[name]) {
-                    obj[key] = inspect(target[key], cache);
-                }
+        // Handle undeclared properties
+        for (key in target) {
+            if (!hasOwn(obj, key) && !hasOwn(propertiesCache, key) && !methodsCache[key]) {
+                obj[key] = inspect(target[key], cache);
             }
         }
 
@@ -1545,12 +1543,10 @@ define('inspect',[
             obj[key] = inspect(tmp, cache);
         }
 
-        // If the class is not locked, handle undeclared properties
-        if (!def.locked) {
-            for (key in target) {
-                if (!hasOwn(obj, key) && !propertiesCache[name] && !methodsCache[name]) {
-                    obj[key] = inspect(target[key], cache);
-                }
+        // Handle undeclared properties
+        for (key in target) {
+            if (!hasOwn(obj, key) && !hasOwn(propertiesCache, key) && !methodsCache[key]) {
+                obj[key] = inspect(target[key], cache);
             }
         }
 
