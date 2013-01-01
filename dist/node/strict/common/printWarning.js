@@ -2,7 +2,7 @@ if (typeof define !== 'function') {
     var define = require('amdefine')(module);
 }
 
-define(['amd-utils/lang/isFunction'], function (isFunction) {
+define([], function () {
 
     'use strict';
 
@@ -12,7 +12,7 @@ define(['amd-utils/lang/isFunction'], function (isFunction) {
      * @param {String} message The message to print
      */
     function printWarning(message) {
-        if (typeof console !== 'undefined' && isFunction(console.warn)) {
+        if (typeof console !== 'undefined') {
             console.warn(message);
         }
 

@@ -398,6 +398,25 @@ var requirejs, require, define;
 
 define("almond", function(){});
 
+define('common/printWarning',[], function () {
+
+    
+
+    /**
+     * Simple function to print warning in the console only if the console is available.
+     *
+     * @param {String} message The message to print
+     */
+    function printWarning(message) {
+        if (typeof console !== 'undefined') {
+            console.warn(message);
+        }
+
+    }
+
+    return printWarning;
+});
+
 define('amd-utils/lang/kindOf',['require','exports','module'],function (require, exports, module) {
 
 
@@ -448,25 +467,6 @@ var isKind = require('./isKind');
     module.exports = isFunction;
 
 
-});
-
-define('common/printWarning',['amd-utils/lang/isFunction'], function (isFunction) {
-
-    
-
-    /**
-     * Simple function to print warning in the console only if the console is available.
-     *
-     * @param {String} message The message to print
-     */
-    function printWarning(message) {
-        if (typeof console !== 'undefined' && isFunction(console.warn)) {
-            console.warn(message);
-        }
-
-    }
-
-    return printWarning;
 });
 
 define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFunction) {

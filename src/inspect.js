@@ -4,8 +4,9 @@ define([
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
     'amd-utils/lang/isFunction',
-    'amd-utils/object/hasOwn'
-], function (randomAccessor, createObject, isObject, isArray, isFunction, hasOwn) {
+    'amd-utils/object/hasOwn',
+    'amd-utils/array/forEach'
+], function (randomAccessor, createObject, isObject, isArray, isFunction, hasOwn, forEach) {
 
     'use strict';
 
@@ -76,20 +77,20 @@ define([
         // Properties
         for (key in target[redefinedCacheKeyword].properties) {
             tmp = propertiesCache[key];
-            obj[key] = inspect(tmp, cache);
+            obj[key] = inspect(tmp, cache, true);
         }
 
         // Handle undeclared properties
         for (key in target) {
             if (!hasOwn(obj, key) && !hasOwn(propertiesCache, key) && !methodsCache[key]) {
-                obj[key] = inspect(target[key], cache);
+                obj[key] = inspect(target[key], cache, true);
             }
         }
 
         // Fix the .constructor
         tmp = obj.constructor;
         while (tmp) {
-            obj.constructor = inspectConstructor(obj.constructor.$constructor, cache);
+            obj.constructor = inspectConstructor(obj.constructor.$constructor, cache, true);
             tmp = tmp.$parent;
         }
 
@@ -131,29 +132,29 @@ define([
         // Properties
         for (key in propertiesCache) {
             tmp = propertiesCache[key];
-            obj[key] = inspect(tmp, cache);
+            obj[key] = inspect(tmp, cache, true);
         }
 
         // Handle undeclared properties
         for (key in target) {
             if (!hasOwn(obj, key) && !hasOwn(propertiesCache, key) && !methodsCache[key]) {
-                obj[key] = inspect(target[key], cache);
+                obj[key] = inspect(target[key], cache, true);
             }
         }
 
         return obj;
     }
 
-
     /**
      * Inspects a property, recursively finding for instances/constructors.
      *
-     * @param {Object} prop The property
-     * @param {Array}  cache  The cache
+     * @param {Object}  prop  The property
+     * @param {Array}   cache The cache
+     * @param {Boolean} clone True to clone findings, false otherwise
      *
      * @return {Object} The inspected property
      */
-    function inspect(prop, cache) {
+    function inspect(prop, cache, clone) {
         var key,
             x,
             length,
@@ -166,9 +167,9 @@ define([
                 return inspectInstance(prop, cache);
             }
 
-            ret = {};
+            ret = clone ? {} : prop;
             for (key in prop) {
-                ret[key] = inspect(prop[key], cache);
+                ret[key] = inspect(prop[key], cache, clone);
             }
 
             return ret;
@@ -176,9 +177,9 @@ define([
 
         if (isArray(prop)) {
             length = prop.length;
-            ret = [];
+            ret = clone ? [] : prop;
             for (x = 0; x < length; x += 1) {
-                ret.push(inspect(prop[x], cache));
+                ret[x] = inspect(prop[x], cache, clone);
             }
 
             return ret;
@@ -193,6 +194,35 @@ define([
         }
 
         return prop;
+    }
+
+    /**
+     * Rewrites console methods, enhancing them with inspect capability
+     *
+     * @param {Array} methods The method names to rewrite
+     */
+    function rewriteConsole(methods) {
+        forEach(methods, function (method) {
+            var prev = console[method];
+            if (prev) {
+                console[method] = function () {
+                    var args = [],
+                        length = arguments.length,
+                        x;
+
+                    for (x = 0; x < length; x += 1) {
+                        args[x] = inspect(arguments[x]);
+                    }
+
+                    prev.apply(console, args);
+                };
+            }
+        });
+    }
+
+    // Rewrite some console methods to deliver the inspect automatically
+    if (typeof console !== 'undefined') {
+        rewriteConsole(['log', 'warn', 'error', 'debug', 'dir']);
     }
 
     return inspect;
