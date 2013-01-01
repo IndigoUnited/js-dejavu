@@ -11,6 +11,7 @@ define([
     Interface,
     FinalClass,
     instanceOf,
+    inspect,
     options
 ) {
 

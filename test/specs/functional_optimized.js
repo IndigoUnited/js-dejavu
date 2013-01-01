@@ -499,9 +499,11 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             return {
                                 test: function () {
                                 },
+                                testProp: null,
                                 $statics: {
                                     testStatic: function () {
-                                    }
+                                    },
+                                    testStaticProp: null
                                 }
                             };
                         }, true), someClass = new SomeClass(), someFunc = function () {
@@ -513,9 +515,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     expect(SomeClass.prototype.foo).to.equal('bar');
                     expect(someClass.bar).to.equal('foo');
                     someClass.test = someFunc;
+                    someClass.testProp = 'foo';
                     expect(someClass.test).to.equal(someFunc);
-                    SomeClass.someFunc = someFunc;
-                    expect(SomeClass.someFunc).to.equal(someFunc);
+                    expect(someClass.testProp).to.equal('foo');
+                    SomeClass.testStatic = someFunc;
+                    SomeClass.testStaticProp = 'foo';
+                    expect(SomeClass.testStatic).to.equal(someFunc);
+                    expect(SomeClass.testStaticProp).to.equal('foo');
                 });
                 it('should lock classes if it\'s true', function () {
                     var SomeClass = Class.declare(function () {

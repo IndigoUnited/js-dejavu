@@ -9,8 +9,9 @@ define(['amd-utils/array/contains'], function (contains) {
     'use strict';
 
     var random,
-        nrAccesses = 0,
-        allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'FinalClassWrapper', 'instanceOfWrapper'];
+        allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'FinalClassWrapper', 'instanceOfWrapper', 'inspectWrapper'],
+        nrAllowed = allowed.length,
+        nrAccesses = 0;
 
     if (!(typeof window !== 'undefined' && window.navigator && window.document)) {
         random = process.pid;
@@ -27,7 +28,7 @@ define(['amd-utils/array/contains'], function (contains) {
      * @return {String} The random string
      */
     function randomAccessor(caller) {
-        if (nrAccesses > 5 || !contains(allowed, caller)) {
+        if (nrAccesses > nrAllowed || !contains(allowed, caller)) {
             throw new Error('Can\'t access random identifier.');
         }
 

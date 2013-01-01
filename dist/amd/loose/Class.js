@@ -51,13 +51,13 @@ define([
 
     /**
      * Function that does exactly the same as the amd-utils counterpart,
-     * but is fater in firefox due to a bug:
+     * but is faster in firefox due to a bug:
      * https://bugzilla.mozilla.org/show_bug.cgi?id=816439
      */
     function inheritPrototype(A, B) {
-        var EmptyFunc = function () {};
-        EmptyFunc.prototype = B.prototype;
-        A.prototype = new EmptyFunc();
+        var F = function () {};
+        F.prototype = B.prototype;
+        A.prototype = new F();
         A.prototype.constructor = A;
     }
 
@@ -348,7 +348,6 @@ define([
         // Parse constants
         if (has.$constants) {
             for (key in saved.$constants) {
-
                 value = saved.$constants[key];
 
                 constructor[$class].staticProperties[key] = value;
@@ -484,6 +483,8 @@ define([
             }
         }
 
+        obfuscateProperty(constructor, '$parent', parent);
+
         // Inherit implemented interfaces
         constructor[$class].interfaces = [].concat(parent[$class].interfaces);
     }
@@ -596,7 +597,6 @@ define([
             }
 
             dejavu = createConstructor(constructor);
-            obfuscateProperty(dejavu, '$parent', parent);
             inheritPrototype(dejavu, parent);
             inheritParent(dejavu, parent);
         } else {

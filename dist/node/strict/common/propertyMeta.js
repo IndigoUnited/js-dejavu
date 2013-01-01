@@ -2,13 +2,12 @@ if (typeof define !== 'function') {
     var define = require('amdefine')(module);
 }
 
-define([], function () {
+define(['./isImmutable'], function (isImmutable) {
 
     'use strict';
 
     /**
      * Extract meta data from a property.
-     * For now, the returns an object containing the visibility.
      *
      * @param {Mixed} prop The property
      * @param {String} name The name of the property
@@ -35,6 +34,9 @@ define([], function () {
                 ret.isPublic = true;
             }
         }
+
+        ret.isImmutable = isImmutable(prop);
+        ret.value = prop;
 
         return ret;
     }

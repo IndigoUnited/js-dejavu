@@ -878,13 +878,64 @@ define('common/functionMeta',[], function () {
     return functionMeta;
 });
 
-define('common/propertyMeta',[], function () {
+define('amd-utils/lang/isNumber',['require','exports','module','./isKind'],function (require, exports, module) {
+var isKind = require('./isKind');
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isNumber(val) {
+        return isKind(val, 'Number');
+    }
+    module.exports = isNumber;
+
+
+});
+
+define('amd-utils/lang/isBoolean',['require','exports','module','./isKind'],function (require, exports, module) {
+var isKind = require('./isKind');
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isBoolean(val) {
+        return isKind(val, 'Boolean');
+    }
+    module.exports = isBoolean;
+
+
+});
+
+define('common/isImmutable',[
+    'amd-utils/lang/isNumber',
+    'amd-utils/lang/isString',
+    'amd-utils/lang/isBoolean'
+], function (
+    isNumber,
+    isString,
+    isBoolean
+) {
+
+    'use strict';
+
+    /**
+     * Checks if a value is immutable.
+     *
+     * @param {Mixed} value The value
+     *
+     * @return {Boolean} True if it is, false otherwise
+     */
+    function isImmutable(value) {
+        return value == null || isBoolean(value) || isNumber(value) || isString(value);
+    }
+
+    return isImmutable;
+});
+
+define('common/propertyMeta',['./isImmutable'], function (isImmutable) {
 
     'use strict';
 
     /**
      * Extract meta data from a property.
-     * For now, the returns an object containing the visibility.
      *
      * @param {Mixed} prop The property
      * @param {String} name The name of the property
@@ -911,6 +962,9 @@ define('common/propertyMeta',[], function () {
                 ret.isPublic = true;
             }
         }
+
+        ret.isImmutable = isImmutable(prop);
+        ret.value = prop;
 
         return ret;
     }
@@ -1190,8 +1244,9 @@ define('common/randomAccessor',['amd-utils/array/contains'], function (contains)
     'use strict';
 
     var random,
-        nrAccesses = 0,
-        allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'FinalClassWrapper', 'instanceOfWrapper'];
+        allowed = ['ClassWrapper', 'InterfaceWrapper', 'AbstractClassWrapper', 'FinalClassWrapper', 'instanceOfWrapper', 'inspectWrapper'],
+        nrAllowed = allowed.length,
+        nrAccesses = 0;
 
     if (!(typeof window !== 'undefined' && window.navigator && window.document)) {
         random = process.pid;
@@ -1208,7 +1263,7 @@ define('common/randomAccessor',['amd-utils/array/contains'], function (contains)
      * @return {String} The random string
      */
     function randomAccessor(caller) {
-        if (nrAccesses > 5 || !contains(allowed, caller)) {
+        if (nrAccesses > nrAllowed || !contains(allowed, caller)) {
             throw new Error('Can\'t access random identifier.');
         }
 
@@ -1270,159 +1325,6 @@ define('options',[], function () {
     };
 });
 
-define('common/printWarning',['amd-utils/lang/isFunction'], function (isFunction) {
-
-    'use strict';
-
-    /**
-     * Simple function to print warning in the console only if the console is available.
-     *
-     * @param {String} message The message to print
-     */
-    function printWarning(message) {
-        if (typeof console !== 'undefined' && isFunction(console.warn)) {
-            console.warn(message);
-        }
-
-    }
-
-    return printWarning;
-});
-
-define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefineProperty) {
-
-    'use strict';
-
-    /**
-     * Sets the key of object with the specified value.
-     * The property is obfuscated, by not being enumerable, configurable and writable.
-     *
-     * @param {Object}  obj           The object
-     * @param {String}  key           The key
-     * @param {Mixed}   value         The value
-     * @param {Boolean} [isWritable]  True to be writable, false otherwise (defaults to false)
-     * @param {Boolean} [isDeletable] True to be deletable, false otherwise (defaults to false)
-     */
-    function obfuscateProperty(obj, key, value, isWritable, isDeletable) {
-        if (hasDefineProperty) {
-            Object.defineProperty(obj, key, {
-                value: value,
-                configurable: isDeletable || false,
-                writable: isWritable || false,
-                enumerable: false
-            });
-        } else {
-            obj[key] = value;
-        }
-    }
-
-    return obfuscateProperty;
-});
-
-define('amd-utils/lang/isNumber',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isNumber(val) {
-        return isKind(val, 'Number');
-    }
-    module.exports = isNumber;
-
-
-});
-
-define('amd-utils/lang/isBoolean',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isBoolean(val) {
-        return isKind(val, 'Boolean');
-    }
-    module.exports = isBoolean;
-
-
-});
-
-define('common/isImmutable',[
-    'amd-utils/lang/isNumber',
-    'amd-utils/lang/isString',
-    'amd-utils/lang/isBoolean'
-], function (
-    isNumber,
-    isString,
-    isBoolean
-) {
-
-    'use strict';
-
-    /**
-     * Checks if a value is immutable.
-     *
-     * @param {Mixed} value The value
-     *
-     * @return {Boolean} True if it is, false otherwise
-     */
-    function isImmutable(value) {
-        return value == null || isBoolean(value) || isNumber(value) || isString(value);
-    }
-
-    return isImmutable;
-});
-
-define('amd-utils/lang/isObject',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isObject(val) {
-        return isKind(val, 'Object');
-    }
-    module.exports = isObject;
-
-
-});
-
-define('amd-utils/lang/isArray',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
-    /**
-     * @version 0.2.0 (2011/12/06)
-     */
-    var isArray = Array.isArray || function (val) {
-        return isKind(val, 'Array');
-    };
-    module.exports = isArray;
-
-
-});
-
-define('amd-utils/lang/isDate',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isDate(val) {
-        return isKind(val, 'Date');
-    }
-    module.exports = isDate;
-
-
-});
-
-define('amd-utils/lang/isRegExp',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
-    /**
-     * @version 0.1.0 (2011/10/31)
-     */
-    function isRegExp(val) {
-        return isKind(val, 'RegExp');
-    }
-    module.exports = isRegExp;
-
-
-});
-
 define('amd-utils/object/mixIn',['require','exports','module','./forOwn'],function (require, exports, module) {
 var forOwn = require('./forOwn');
 
@@ -1475,6 +1377,310 @@ var mixIn = require('../object/mixIn');
     }
     module.exports = createObject;
 
+
+
+});
+
+define('amd-utils/lang/isObject',['require','exports','module','./isKind'],function (require, exports, module) {
+var isKind = require('./isKind');
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isObject(val) {
+        return isKind(val, 'Object');
+    }
+    module.exports = isObject;
+
+
+});
+
+define('amd-utils/lang/isArray',['require','exports','module','./isKind'],function (require, exports, module) {
+var isKind = require('./isKind');
+    /**
+     * @version 0.2.0 (2011/12/06)
+     */
+    var isArray = Array.isArray || function (val) {
+        return isKind(val, 'Array');
+    };
+    module.exports = isArray;
+
+
+});
+
+define('inspect',[
+    './common/randomAccessor',
+    'amd-utils/lang/createObject',
+    'amd-utils/lang/isObject',
+    'amd-utils/lang/isArray',
+    'amd-utils/lang/isFunction',
+    'amd-utils/object/hasOwn'
+], function (randomAccessor, createObject, isObject, isArray, isFunction, hasOwn) {
+
+    'use strict';
+
+    var random = randomAccessor('inspectWrapper'),
+        $class = '$class_' + random,
+        cacheKeyword = '$cache_' + random,
+        redefinedCacheKeyword = '$redefined_cache_' + random;
+
+    /**
+     * Fetches an already inspected target from the cache.
+     * Returns null if not in the cache.
+     *
+     * @param {Object|Function} target The instance or constructor.
+     * @param {Array}           cache  The cache
+     *
+     * @return {Object|Function} The inspected target
+     */
+    function fetchCache(target, cache) {
+        var x,
+            length = cache.length,
+            curr;
+
+        for (x = 0; x < length; x += 1) {
+            curr = cache[x];
+            if (curr.target === target) {
+                return curr.inspect;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Inspects an instance.
+     *
+     * @param {Object} target The instance
+     * @param {Array}  cache  The cache
+     *
+     * @return {Object} The inspected instance
+     */
+    function inspectInstance(target, cache) {
+        var cached = fetchCache(target, cache),
+            def,
+            simpleConstructor,
+            methodsCache,
+            propertiesCache,
+            obj,
+            tmp,
+            key;
+
+        if (cached) {
+            return cached;
+        }
+
+        def = target.$static[$class];
+        simpleConstructor = def.simpleConstructor;
+        methodsCache = target[cacheKeyword].methods;
+        propertiesCache = target[cacheKeyword].properties;
+
+        obj = createObject(simpleConstructor.prototype);
+        cache.push({ target: target, inspect: obj });
+
+        // Methods
+        for (key in target[redefinedCacheKeyword].methods) {
+            obj[key] = methodsCache[key];
+        }
+
+        // Properties
+        for (key in target[redefinedCacheKeyword].properties) {
+            tmp = propertiesCache[key];
+            obj[key] = inspect(tmp, cache);
+        }
+
+        // If the class is not locked, handle undeclared properties
+        if (!def.locked) {
+            for (key in target) {
+                if (!hasOwn(obj, key) && !propertiesCache[name] && !methodsCache[name]) {
+                    obj[key] = inspect(target[key], cache);
+                }
+            }
+        }
+
+        // Fix the .constructor
+        tmp = obj.constructor;
+        while (tmp) {
+            obj.constructor = inspectConstructor(obj.constructor.$constructor, cache);
+            tmp = tmp.$parent;
+        }
+
+        return obj;
+    }
+
+    /**
+     * Inspects an constructor.
+     *
+     * @param {Function} target The constructor
+     *
+     * @return {Object} The inspected constructor
+     */
+    function inspectConstructor(target, cache) {
+        var cached = fetchCache(target, cache),
+            def,
+            methodsCache,
+            propertiesCache,
+            obj,
+            tmp,
+            key;
+
+        if (cached) {
+            return cached;
+        }
+
+        def = target[$class];
+        obj = def.simpleConstructor;
+        methodsCache = target[cacheKeyword].methods;
+        propertiesCache = target[cacheKeyword].properties;
+
+        cache.push({ target: target, inspect: obj });
+
+        // Methods
+        for (key in methodsCache) {
+            obj[key] = methodsCache[key];
+        }
+
+        // Properties
+        for (key in propertiesCache) {
+            tmp = propertiesCache[key];
+            obj[key] = inspect(tmp, cache);
+        }
+
+        // If the class is not locked, handle undeclared properties
+        if (!def.locked) {
+            for (key in target) {
+                if (!hasOwn(obj, key) && !propertiesCache[name] && !methodsCache[name]) {
+                    obj[key] = inspect(target[key], cache);
+                }
+            }
+        }
+
+        return obj;
+    }
+
+
+    /**
+     * Inspects a property, recursively finding for instances/constructors.
+     *
+     * @param {Object} prop The property
+     * @param {Array}  cache  The cache
+     *
+     * @return {Object} The inspected property
+     */
+    function inspect(prop, cache) {
+        var key,
+            x,
+            length,
+            ret;
+
+        cache = cache || [];
+
+        if (isObject(prop)) {
+            if (prop.$static) {
+                return inspectInstance(prop, cache);
+            }
+
+            ret = {};
+            for (key in prop) {
+                ret[key] = inspect(prop[key], cache);
+            }
+
+            return ret;
+        }
+
+        if (isArray(prop)) {
+            length = prop.length;
+            ret = [];
+            for (x = 0; x < length; x += 1) {
+                ret.push(inspect(prop[x], cache));
+            }
+
+            return ret;
+        }
+
+        if (isFunction(prop)) {
+            if (prop[$class]) {
+                return inspectConstructor(prop, cache);
+            }
+
+            return prop;
+        }
+
+        return prop;
+    }
+
+    return inspect;
+});
+define('common/printWarning',['amd-utils/lang/isFunction'], function (isFunction) {
+
+    'use strict';
+
+    /**
+     * Simple function to print warning in the console only if the console is available.
+     *
+     * @param {String} message The message to print
+     */
+    function printWarning(message) {
+        if (typeof console !== 'undefined' && isFunction(console.warn)) {
+            console.warn(message);
+        }
+
+    }
+
+    return printWarning;
+});
+
+define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefineProperty) {
+
+    'use strict';
+
+    /**
+     * Sets the key of object with the specified value.
+     * The property is obfuscated, by not being enumerable, configurable and writable.
+     *
+     * @param {Object}  obj           The object
+     * @param {String}  key           The key
+     * @param {Mixed}   value         The value
+     * @param {Boolean} [isWritable]  True to be writable, false otherwise (defaults to false)
+     * @param {Boolean} [isDeletable] True to be deletable, false otherwise (defaults to false)
+     */
+    function obfuscateProperty(obj, key, value, isWritable, isDeletable) {
+        if (hasDefineProperty) {
+            Object.defineProperty(obj, key, {
+                value: value,
+                configurable: isDeletable || false,
+                writable: isWritable || false,
+                enumerable: false
+            });
+        } else {
+            obj[key] = value;
+        }
+    }
+
+    return obfuscateProperty;
+});
+
+define('amd-utils/lang/isDate',['require','exports','module','./isKind'],function (require, exports, module) {
+var isKind = require('./isKind');
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isDate(val) {
+        return isKind(val, 'Date');
+    }
+    module.exports = isDate;
+
+
+});
+
+define('amd-utils/lang/isRegExp',['require','exports','module','./isKind'],function (require, exports, module) {
+var isKind = require('./isKind');
+    /**
+     * @version 0.1.0 (2011/10/31)
+     */
+    function isRegExp(val) {
+        return isKind(val, 'RegExp');
+    }
+    module.exports = isRegExp;
 
 
 });
@@ -1720,6 +1926,7 @@ define('Class',[
     './common/randomAccessor',
     './common/hasFreezeBug',
     './options',
+    './inspect',
     './common/printWarning',
     './common/obfuscateProperty',
     './common/isImmutable',
@@ -1755,6 +1962,7 @@ define('Class',[
     randomAccessor,
     hasFreezeBug,
     options,
+    inspect,
     printWarning,
     obfuscateProperty,
     isImmutable,
@@ -1789,6 +1997,7 @@ define('Class',[
         $anonymous = '$anonymous_' + random,
         $wrapped = '$wrapped_' + random,
         cacheKeyword = '$cache_' + random,
+        redefinedCacheKeyword = '$redefined_cache_' + random,
         inheriting,
         descriptor,
         tmp,
@@ -1802,13 +2011,13 @@ define('Class',[
 
     /**
      * Function that does exactly the same as the amd-utils counterpart,
-     * but is fater in firefox due to a bug:
+     * but is faster in firefox due to a bug:
      * https://bugzilla.mozilla.org/show_bug.cgi?id=816439
      */
     function inheritPrototype(A, B) {
-        var EmptyFunc = function () {};
-        EmptyFunc.prototype = B.prototype;
-        A.prototype = new EmptyFunc();
+        var F = function () {};
+        F.prototype = B.prototype;
+        A.prototype = new F();
         A.prototype.constructor = A;
     }
 
@@ -1984,7 +2193,10 @@ define('Class',[
             metadata = mixIn({}, constructor.$parent[$class].methods[name]);
             inherited = true;
             delete method.$inherited;
-        } else if (!opts.metadata) {
+        } else if (opts.metadata) {
+            metadata = opts.metadata;
+            isFinal = metadata.isFinal;
+        } else {
             // Grab function metadata and throw error if is not valid (it's invalid if the arguments are invalid)
             if (method[$wrapped]) {
                 throw new Error('Cannot grab metadata from wrapped method.');
@@ -1994,7 +2206,7 @@ define('Class',[
                 throw new Error((isStatic ? 'Static method' : 'Method') + ' "' + name + '" contains optional arguments before mandatory ones in class "' + constructor.prototype.$name + '".');
             }
 
-            metadata.isFinal = !!opts.isFinal;
+            metadata.isFinal = isFinal = !!opts.isFinal;
 
             if (isStatic) {
                 if (constructor[$class].staticMethods[name]) {
@@ -2005,9 +2217,6 @@ define('Class',[
                     metadata.allowed = constructor[$class].methods[name].allowed;
                 }
             }
-        } else {
-            metadata = opts.metadata;
-            opts.isFinal = metadata.isFinal;
         }
 
         // Force public if told so
@@ -2016,7 +2225,7 @@ define('Class',[
         }
 
         // Take care of $prefix if the method is initialize
-        if (name === 'initialize' && method.$prefix) {
+        if (name === 'initialize' && method.$prefix != null) {
             if (method.$prefix === '_') {
                 metadata.isProtected = true;
             } else if (method.$prefix === '__') {
@@ -2068,23 +2277,15 @@ define('Class',[
                   wrapStaticMethod(method, constructor, constructor.$parent ? constructor.$parent[$class].staticMethods[name] : null);
 
         obfuscateProperty(method, $name, name);
-
-        // If the function is protected/private we delete it from the target because they will be protected later
-        if (!metadata.isPublic && hasDefineProperty) {
-            if (!isStatic) {
-                delete constructor.prototype[name];
-            } else {
-                delete constructor[name];
-            }
-        } else {
-            target = isStatic ? constructor : constructor.prototype;
-            target[name] = method;
-        }
-
         metadata.implementation = method;
 
-        if (isFinal) {
-            metadata.isFinal = isFinal;
+        // Add it to the constructor or the prototype
+        target = isStatic ? constructor : constructor.prototype;
+        target[name] = method;
+
+        // Add also to the simple constructor (for the inspect)
+        if (!isStatic) {
+            constructor[$class].simpleConstructor.prototype[name] = originalMethod;
         }
 
         // If the function is specified to be bound, add it to the binds
@@ -2139,8 +2340,8 @@ define('Class',[
             if (!metadata) {
                 throw new Error('Value of property "' + name + '"  in class "' + constructor.prototype.$name + '" cannot be parsed (undefined values are not allowed).');
             }
-            isFinal = !!opts.isFinal;
-            isConst = !!opts.isConst;
+            metadata.isFinal = isFinal = !!opts.isFinal;
+            metadata.isConst = isConst = !!opts.isConst;
             isStatic = !!opts.isStatic || isConst;
 
             if (isStatic) {
@@ -2162,6 +2363,10 @@ define('Class',[
         // Check if the metadata was fine (if not then the property is undefined)
         if (!metadata) {
             throw new Error('Value of ' + (isConst ? 'constant ' : (isStatic ? 'static ' : '')) + ' property "' + name + '" defined in class "' + constructor.prototype.$name + '" can\'t be undefined (use null instead).');
+        }
+        // Check if its a constant and its value is immutable
+        if (isConst && !metadata.isImmutable) {
+            throw new Error('Value for constant "' + name + '" defined in class "' + constructor.prototype.$name + '" must be a primitive type (immutable).');
         }
         // Check if it's a private property classified as final
         if (metadata.isPrivate && isFinal) {
@@ -2200,24 +2405,13 @@ define('Class',[
         target[name] = metadata;
 
         // If the property is protected/private we delete it from the target because they will be protected later
-        if (!metadata.isPublic && hasDefineProperty) {
-            if (!isStatic) {
-                delete constructor.prototype[name];
-            } else {
-                delete constructor[name];
-            }
+        // Add it to the constructor or the prototype
+        target = isStatic ? constructor : constructor.prototype;
+        target[name] = !metadata.isImmutable ? clone(value) : value;
 
-            metadata.value = value;
-        } else if (isStatic) {
-            if (!isConst) {
-                constructor[name] = clone(value);
-            } else {
-                constructor[name] = value;
-            }
-            metadata.value = value;
-        } else {
-            constructor.prototype[name] = value;
-            metadata.isImmutable = isImmutable(value);
+        // Add also to the simple constructor (for the inspect)
+        if (!isStatic) {
+            constructor[$class].simpleConstructor.prototype[name] = inspect(value);
         }
 
         if (isFinal) {
@@ -2607,12 +2801,7 @@ define('Class',[
             opts.isConst = true;
 
             for (key in saved.$constants) {
-
                 value = saved.$constants[key];
-
-                if (!isImmutable(value)) {
-                    throw new Error('Value for constant "' + key + '" defined in class "' + params.$name + '" must be a primitive type (immutable).');
-                }
 
                 addProperty(key, value, constructor, opts);
             }
@@ -2656,7 +2845,6 @@ define('Class',[
         if (meta.isPrivate) {
             Object.defineProperty(instance, name, {
                 get: function get() {
-
                     var method = instance[cacheKeyword].methods[name],
                         currCaller = caller,
                         isConstructor = name === 'initialize';
@@ -2672,9 +2860,9 @@ define('Class',[
                     }
                 },
                 set: function set(newVal) {
-
                     if (instance.$initializing || !instance.$static[$class].locked || instance.$static[$class].forceUnlocked) {
                         instance[cacheKeyword].methods[name] = newVal;
+                        instance[redefinedCacheKeyword].methods[name] = true; // This is just for the inspect
                     } else {
                         throw new Error('Cannot set private method "' + name + '" of class "' + instance.$name + '".');
                     }
@@ -2685,7 +2873,6 @@ define('Class',[
         } else if (meta.isProtected) {
             Object.defineProperty(instance, name, {
                 get: function get() {
-
                     var method = instance[cacheKeyword].methods[name],
                         currCaller = caller,
                         isConstructor = name === 'initialize';
@@ -2704,6 +2891,7 @@ define('Class',[
 
                     if (instance.$initializing || !instance.$static[$class].locked || instance.$static[$class].forceUnlocked) {
                         instance[cacheKeyword].methods[name] = newVal;
+                        instance[redefinedCacheKeyword].methods[name] = true; // This is just for the inspect
                     } else {
                         throw new Error('Cannot set protected method "' + name + '" of class "' + instance.$name + '".');
                     }
@@ -2717,9 +2905,9 @@ define('Class',[
                     return instance[cacheKeyword].methods[name];
                 },
                 set: function set(newVal) {
-
                     if (instance.$initializing || !instance.$static[$class].locked || instance.$static[$class].forceUnlocked) {
                         instance[cacheKeyword].methods[name] = newVal;
+                        instance[redefinedCacheKeyword].methods[name] = true;
                     } else {
                         throw new Error('Cannot set public method "' + name + '" of class "' + instance.$name + '".');
                     }
@@ -2743,10 +2931,8 @@ define('Class',[
         if (meta.isPrivate) {
             Object.defineProperty(constructor, name, {
                 get: function get() {
-
                     var method = constructor[cacheKeyword].methods[name],
                         currCaller = caller;
-
 
                     if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
                         return method;
@@ -2754,8 +2940,10 @@ define('Class',[
 
                     throw new Error('Cannot access private static method "' + name + '" of class "' + constructor.prototype.$name + '".');
                 },
-                set: function set() {
-                    if (constructor[$class].locked && !constructor[$class].forceUnlocked) {
+                set: function set(newVal) {
+                    if (!constructor[$class].locked || constructor[$class].forceUnlocked) {
+                        constructor[cacheKeyword].methods[name] = newVal;
+                    } else {
                         throw new Error('Cannot set private static method "' + name + '" of class "' + constructor.prototype.$name + '".');
                     }
                 },
@@ -2765,7 +2953,6 @@ define('Class',[
         } else if (meta.isProtected) {
             Object.defineProperty(constructor, name, {
                 get: function get() {
-
                     var method = constructor[cacheKeyword].methods[name],
                         currCaller = caller;
 
@@ -2775,8 +2962,10 @@ define('Class',[
 
                     throw new Error('Cannot access protected static method "' + name + '" of class "' + constructor.prototype.$name + '".');
                 },
-                set: function set() {
-                    if (constructor[$class].locked && !constructor[$class].forceUnlocked) {
+                set: function set(newVal) {
+                    if (!constructor[$class].locked || constructor[$class].forceUnlocked) {
+                        constructor[cacheKeyword].methods[name] = newVal;
+                    } else {
                         throw new Error('Cannot set protected static method "' + name + '" of class "' + constructor.prototype.$name + '".');
                     }
                 },
@@ -2788,9 +2977,11 @@ define('Class',[
                 get: function get() {
                     return constructor[cacheKeyword].methods[name];
                 },
-                set: function set() {
-                    if (constructor[$class].locked && !constructor[$class].forceUnlocked) {
-                        throw new Error('Cannot set public static method "' + name + '" of class "' + constructor.$name + '".');
+                set: function set(newVal) {
+                    if (!constructor[$class].locked || constructor[$class].forceUnlocked) {
+                        constructor[cacheKeyword].methods[name] = newVal;
+                    } else {
+                        throw new Error('Cannot set public static method "' + name + '" of class "' + constructor.prototype.$name + '".');
                     }
                 },
                 configurable: false,
@@ -2808,11 +2999,15 @@ define('Class',[
      */
     function protectProperty(name, meta, instance) {
         if (meta.isPrivate) {
-            instance[cacheKeyword].properties[name] = clone(meta.value);
+            if (!meta.isImmutable) {
+                instance[cacheKeyword].properties[name] = clone(meta.value);
+                instance[redefinedCacheKeyword].properties[name] = true; // This is just for the inspect
+            } else {
+                instance[cacheKeyword].properties[name] = meta.value;
+            }
 
             Object.defineProperty(instance, name, {
                 get: function get() {
-
                     var currCaller = caller;
 
                     if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
@@ -2821,12 +3016,12 @@ define('Class',[
 
                     throw new Error('Cannot access private property "' + name + '" of class "' + instance.$name + '".');
                 },
-                set: function set(newValue) {
-
+                set: function set(newVal) {
                     var currCaller = caller;
 
                     if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
-                        instance[cacheKeyword].properties[name] = newValue;
+                        instance[cacheKeyword].properties[name] = newVal;
+                        instance[redefinedCacheKeyword].properties[name] = true;
                     } else {
                         throw new Error('Cannot set private property "' + name + '" of class "' + instance.$name + '".');
                     }
@@ -2835,11 +3030,15 @@ define('Class',[
                 enumerable: false
             });
         } else if (meta.isProtected) {
-            instance[cacheKeyword].properties[name] = clone(meta.value);
+            if (!meta.isImmutable) {
+                instance[cacheKeyword].properties[name] = clone(meta.value);
+                instance[redefinedCacheKeyword].properties[name] = true; // This is just for the inspect
+            } else {
+                instance[cacheKeyword].properties[name] = meta.value;
+            }
 
             Object.defineProperty(instance, name, {
                 get: function get() {
-
                     var currCaller = caller;
 
                     if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || instance instanceof callerClass))) {
@@ -2848,12 +3047,12 @@ define('Class',[
 
                     throw new Error('Cannot access protected property "' + name + '" of class "' + instance.$name + '".');
                 },
-                set: function set(newValue) {
-
+                set: function set(newVal) {
                     var currCaller = caller;
 
                     if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || instance instanceof callerClass))) {
-                        instance[cacheKeyword].properties[name] = newValue;
+                        instance[cacheKeyword].properties[name] = newVal;
+                        instance[redefinedCacheKeyword].properties[name] = true;
                     } else {
                         throw new Error('Cannot set protected property "' + name + '" of class "' + instance.$name + '".');
                     }
@@ -2861,10 +3060,11 @@ define('Class',[
                 configurable: false,
                 enumerable: false
             });
-        } else if (!meta.isPrimitive) {
+        } else if (!meta.isImmutable) {
             instance[name] = clone(instance[name]);
+            instance[redefinedCacheKeyword].properties[name] = true; // This is just for the inspect
         } else {
-            instance[name] = instance.$static.prototype[name];
+            instance[name] = meta.value;
         }
     }
 
@@ -2877,11 +3077,10 @@ define('Class',[
      */
     function protectStaticProperty(name, meta, constructor) {
         if (meta.isPrivate) {
-            constructor[cacheKeyword].properties[name] = !meta.isConst ? clone(meta.value) : meta.value;
+            constructor[cacheKeyword].properties[name] = !meta.isImmutable ? clone(meta.value) : meta.value;
 
             Object.defineProperty(constructor, name, {
                 get: function get() {
-
                     var currCaller = caller;
 
                     if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
@@ -2894,12 +3093,11 @@ define('Class',[
                         function () {
                             throw new Error('Cannot change value of constant property "' + name + '" of class "' + constructor.prototype.$name + '".');
                         } :
-                        function set(newValue) {
-
+                        function set(newVal) {
                             var currCaller = caller;
 
                             if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId) {
-                                constructor[cacheKeyword].properties[name] = newValue;
+                                constructor[cacheKeyword].properties[name] = newVal;
                             } else {
                                 throw new Error('Cannot set private property "' + name + '" of class "' + constructor.prototype.$name + '".');
                             }
@@ -2908,11 +3106,10 @@ define('Class',[
                 enumerable: false
             });
         } else if (meta.isProtected) {
-            constructor[cacheKeyword].properties[name] = !meta.isConst ? clone(meta.value) : meta.value;
+            constructor[cacheKeyword].properties[name] = !meta.isImmutable ? clone(meta.value) : meta.value;
 
             Object.defineProperty(constructor, name, {
                 get: function get() {
-
                     var currCaller = caller;
 
                     if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || constructor.prototype instanceof callerClass))) {
@@ -2925,12 +3122,11 @@ define('Class',[
                         function () {
                             throw new Error('Cannot change value of constant property "' + name + '" of class "' + constructor.prototype.$name + '".');
                         } :
-                        function set(newValue) {
-
+                        function set(newVal) {
                             var currCaller = caller;
 
                             if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || constructor.prototype instanceof callerClass)) {
-                                constructor[cacheKeyword].properties[name] = newValue;
+                                constructor[cacheKeyword].properties[name] = newVal;
                             } else {
                                 throw new Error('Cannot set protected static property "' + name + '" of class "' + constructor.prototype.$name + '".');
                             }
@@ -2965,6 +3161,7 @@ define('Class',[
         var key;
 
         obfuscateProperty(instance, cacheKeyword, { properties: {}, methods: {} });
+        obfuscateProperty(instance, redefinedCacheKeyword, { properties: {}, methods: {} }); // This is for the inspect
 
         for (key in instance.$static[$class].methods) {
             protectMethod(key, instance.$static[$class].methods[key], instance);
@@ -3046,8 +3243,9 @@ define('Class',[
             } else {
                 // Reset some types of the object in order for each instance to have their variables
                 for (x in tmp.properties) {
-                    if (!tmp.properties[x].isPrimitive) {
+                    if (!tmp.properties[x].isImmutable) {
                         this[x] = clone(this[x]);
+                        this[redefinedCacheKeyword].properties[name] = true; // This is just for the inspect
                     }
                 }
             }
@@ -3069,7 +3267,8 @@ define('Class',[
         };
 
         if (!Instance[$class]) {
-            obfuscateProperty(Instance, $class, { methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, interfaces: [], binds: [] });
+            obfuscateProperty(Instance, $class, { simpleConstructor: function () {}, methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, interfaces: [], binds: [] });
+            obfuscateProperty(Instance[$class].simpleConstructor, '$constructor', Instance);
         }
 
         return Instance;
@@ -3205,7 +3404,6 @@ define('Class',[
             if (!value.isPrivate) {
                 constructor[$class].staticProperties[key] = value;
                 constructor[key] = clone(value.value);
-
                 if (value.isProtected) {
                     value.allowed.push(classId);
                 }
@@ -3213,7 +3411,8 @@ define('Class',[
             }
         }
 
-        inheriting = false;
+        // Make inheritance also for the simple constructor (for the inspect)
+        inheritPrototype(constructor[$class].simpleConstructor, parent[$class].simpleConstructor);
 
         // Inherit locked and forceUnlocked
         if (hasOwn(parent[$class], 'locked')) {
@@ -3222,6 +3421,11 @@ define('Class',[
         if (hasOwn(parent[$class], 'forceUnlocked')) {
             constructor[$class].forceUnlocked = parent[$class].forceUnlocked;
         }
+
+        inheriting = false;
+
+        obfuscateProperty(constructor, '$parent', parent);
+        obfuscateProperty(constructor[$class].simpleConstructor, '$parent', parent);
 
         // Inherit implemented interfaces
         constructor[$class].interfaces = [].concat(parent[$class].interfaces);
@@ -3348,7 +3552,6 @@ define('Class',[
             } else {
                 params.initialize = params.initialize || params._initialize || params.__initialize;
             }
-            obfuscateProperty(dejavu, '$parent', parent);
             inheritPrototype(dejavu, parent);
             inheritParent(dejavu, parent);
         } else {
@@ -3397,7 +3600,7 @@ define('Class',[
             obfuscateProperty(dejavu, 'toString', toStringConstructor, true);
         }
 
-        // If we are a concrete class tha3t extends an abstract class, we need to verify the methods existence
+        // If we are a concrete class that extends an abstract class, we need to verify the methods existence
         if (parent && parent[$abstract] && !opts.isAbstract) {
             parent[$abstract].check(dejavu);
         }
@@ -4508,6 +4711,7 @@ define('dejavu',[
     './Interface',
     './FinalClass',
     './instanceOf',
+    './inspect',
     './options'
 ], function (
     Class,
@@ -4515,6 +4719,7 @@ define('dejavu',[
     Interface,
     FinalClass,
     instanceOf,
+    inspect,
     options
 ) {
 
@@ -4527,6 +4732,7 @@ define('dejavu',[
     dejavu.Interface = Interface;
     dejavu.FinalClass = FinalClass;
     dejavu.instanceOf = instanceOf;
+    dejavu.inspect = inspect;
     dejavu.options = options;
 
     dejavu.mode = 'strict';

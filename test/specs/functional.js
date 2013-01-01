@@ -674,9 +674,11 @@ define(global.modules, function (
                         $locked: false,
 
                         test: function () {},
+                        testProp: null,
 
                         $statics: {
-                            testStatic: function () {}
+                            testStatic: function () {},
+                            testStaticProp: null
                         }
                     }),
                         someClass = new SomeClass(),
@@ -692,11 +694,14 @@ define(global.modules, function (
                     expect(someClass.bar).to.equal('foo');
 
                     someClass.test = someFunc;
+                    someClass.testProp = 'foo';
                     expect(someClass.test).to.equal(someFunc);
+                    expect(someClass.testProp).to.equal('foo');
 
-                    SomeClass.someFunc = someFunc;
-                    expect(SomeClass.someFunc).to.equal(someFunc);
-
+                    SomeClass.testStatic = someFunc;
+                    SomeClass.testStaticProp = 'foo';
+                    expect(SomeClass.testStatic).to.equal(someFunc);
+                    expect(SomeClass.testStaticProp).to.equal('foo');
                 });
 
                 it('should lock classes if it\'s true', function () {
