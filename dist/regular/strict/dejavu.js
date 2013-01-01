@@ -1408,6 +1408,34 @@ var isKind = require('./isKind');
 
 });
 
+define('amd-utils/function/bind',['require','exports','module'],function (require, exports, module) {
+
+
+    function slice(arr, offset){
+        return Array.prototype.slice.call(arr, offset || 0);
+    }
+
+    /**
+     * Return a function that will execute in the given context, optionally adding any additional supplied parameters to the beginning of the arguments collection.
+     * @param {Function} fn  Function.
+     * @param {object} context   Execution context.
+     * @param {rest} args    Arguments (0...n arguments).
+     * @return {Function} Wrapped Function.
+     * @version 0.1.0 (2011/02/18)
+     */
+    function bind(fn, context, args){
+        var argsArr = slice(arguments, 2); //curried args
+        return function(){
+            return fn.apply(context, argsArr.concat(slice(arguments)));
+        };
+    }
+
+    module.exports = bind;
+
+
+
+});
+
 define('inspect',[
     './common/randomAccessor',
     './options',
@@ -1416,8 +1444,9 @@ define('inspect',[
     'amd-utils/lang/isArray',
     'amd-utils/lang/isFunction',
     'amd-utils/object/hasOwn',
-    'amd-utils/array/forEach'
-], function (randomAccessor, options, createObject, isObject, isArray, isFunction, hasOwn, forEach) {
+    'amd-utils/array/forEach',
+    'amd-utils/function/bind'
+], function (randomAccessor, options, createObject, isObject, isArray, isFunction, hasOwn, forEach, bind) {
 
     'use strict';
 
@@ -1616,6 +1645,11 @@ define('inspect',[
         forEach(methods, function (method) {
             var prev = console[method];
             if (prev) {
+                // Fix for IE..
+                if (typeof prev === 'object') {
+                    prev = bind(prev, console);
+                }
+
                 console[method] = function () {
                     var args = [],
                         length = arguments.length,
@@ -1633,7 +1667,7 @@ define('inspect',[
 
     // Rewrite some console methods to deliver the inspect automatically
     if (options.rewriteConsole && typeof console !== 'undefined') {
-        rewriteConsole(['log', 'warn', 'error', 'debug', 'dir']);
+        rewriteConsole(['log', 'info', 'warn', 'error', 'debug', 'dir']);
     }
 
     return inspect;
@@ -1852,34 +1886,6 @@ define('common/clone',[
 
     return clone;
 });
-define('amd-utils/function/bind',['require','exports','module'],function (require, exports, module) {
-
-
-    function slice(arr, offset){
-        return Array.prototype.slice.call(arr, offset || 0);
-    }
-
-    /**
-     * Return a function that will execute in the given context, optionally adding any additional supplied parameters to the beginning of the arguments collection.
-     * @param {Function} fn  Function.
-     * @param {object} context   Execution context.
-     * @param {rest} args    Arguments (0...n arguments).
-     * @return {Function} Wrapped Function.
-     * @version 0.1.0 (2011/02/18)
-     */
-    function bind(fn, context, args){
-        var argsArr = slice(arguments, 2); //curried args
-        return function(){
-            return fn.apply(context, argsArr.concat(slice(arguments)));
-        };
-    }
-
-    module.exports = bind;
-
-
-
-});
-
 define('amd-utils/lang/toArray',['require','exports','module','./kindOf'],function (require, exports, module) {
 var kindOf = require('./kindOf');
 

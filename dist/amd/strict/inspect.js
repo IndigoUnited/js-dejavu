@@ -6,8 +6,9 @@ define([
     'amd-utils/lang/isArray',
     'amd-utils/lang/isFunction',
     'amd-utils/object/hasOwn',
-    'amd-utils/array/forEach'
-], function (randomAccessor, options, createObject, isObject, isArray, isFunction, hasOwn, forEach) {
+    'amd-utils/array/forEach',
+    'amd-utils/function/bind'
+], function (randomAccessor, options, createObject, isObject, isArray, isFunction, hasOwn, forEach, bind) {
 
     'use strict';
 
@@ -206,6 +207,11 @@ define([
         forEach(methods, function (method) {
             var prev = console[method];
             if (prev) {
+                // Fix for IE..
+                if (typeof prev === 'object') {
+                    prev = bind(prev, console);
+                }
+
                 console[method] = function () {
                     var args = [],
                         length = arguments.length,
@@ -223,7 +229,7 @@ define([
 
     // Rewrite some console methods to deliver the inspect automatically
     if (options.rewriteConsole && typeof console !== 'undefined') {
-        rewriteConsole(['log', 'warn', 'error', 'debug', 'dir']);
+        rewriteConsole(['log', 'info', 'warn', 'error', 'debug', 'dir']);
     }
 
     return inspect;
