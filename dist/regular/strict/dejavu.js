@@ -1709,10 +1709,6 @@ define('inspect',[
 
     inspect.rewriteConsole = rewriteConsole;
 
-    function inspect(target) {
-        return target;
-    }
-
     return inspect;
 });
 define('common/printWarning',[], function () {
@@ -3502,7 +3498,6 @@ define('Class',[
         inheriting = false;
 
         obfuscateProperty(constructor, '$parent', parent);
-        obfuscateProperty(constructor[$class].simpleConstructor, '$parent', parent);
 
         // Inherit implemented interfaces
         constructor[$class].interfaces = [].concat(parent[$class].interfaces);

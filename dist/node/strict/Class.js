@@ -1519,7 +1519,6 @@ define([
         inheriting = false;
 
         obfuscateProperty(constructor, '$parent', parent);
-        obfuscateProperty(constructor[$class].simpleConstructor, '$parent', parent);
 
         // Inherit implemented interfaces
         constructor[$class].interfaces = [].concat(parent[$class].interfaces);

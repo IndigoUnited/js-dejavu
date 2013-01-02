@@ -1858,7 +1858,6 @@ define([
         inheriting = false;
 
         obfuscateProperty(constructor, '$parent', parent);
-        obfuscateProperty(constructor[$class].simpleConstructor, '$parent', parent);
 //>>includeEnd('strict');
 
         // Inherit implemented interfaces

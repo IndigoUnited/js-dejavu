@@ -272,9 +272,5 @@ define([
 
     inspect.rewriteConsole = rewriteConsole;
 
-    function inspect(target) {
-        return target;
-    }
-
     return inspect;
 });
