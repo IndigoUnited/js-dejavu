@@ -361,6 +361,10 @@ define([
 
         target[name] = metadata;
 
+        if (!isStatic) {
+            constructor[$class].ownMembers[name] = true;
+        }
+
         originalMethod = method;
         method = !isStatic ?
                   wrapMethod(method, constructor, constructor.$parent ? constructor.$parent[$class].methods[name] : null) :
@@ -490,6 +494,9 @@ define([
         }
 
         target[name] = metadata;
+        if (!isStatic) {
+            constructor[$class].ownMembers[name] = true;
+        }
 
         // Add it to the constructor or the prototype only if public
         if (metadata.isPublic) {
@@ -1350,7 +1357,7 @@ define([
         };
 
         if (!Instance[$class]) {
-            obfuscateProperty(Instance, $class, { simpleConstructor: function () {}, methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, interfaces: [], binds: [] });
+            obfuscateProperty(Instance, $class, { simpleConstructor: function () {}, methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, ownMembers: {}, interfaces: [], binds: [] });
             obfuscateProperty(Instance[$class].simpleConstructor, '$constructor', Instance);
         }
 

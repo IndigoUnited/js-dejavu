@@ -1,4 +1,5 @@
 define([
+//>>includeStart('strict', pragmas.strict);
     './common/randomAccessor',
     './options',
     'amd-utils/lang/createObject',
@@ -8,12 +9,27 @@ define([
     'amd-utils/object/hasOwn',
     'amd-utils/array/forEach',
     'amd-utils/function/bind'
-], function (randomAccessor, options, createObject, isObject, isArray, isFunction, hasOwn, forEach, bind) {
+//>>includeEnd('strict');
+], function (
+//>>includeStart('strict', pragmas.strict);
+    randomAccessor,
+    options,
+    createObject,
+    isObject,
+    isArray,
+    isFunction,
+    hasOwn,
+    forEach,
+    bind
+//>>includeEnd('strict');
+) {
 
     'use strict';
 
+//>>includeStart('strict', pragmas.strict);
     var random = randomAccessor('inspectWrapper'),
         $class = '$class_' + random,
+        $wrapped = '$wrapped_' + random,
         cacheKeyword = '$cache_' + random,
         redefinedCacheKeyword = '$redefined_cache_' + random,
         rewrittenConsole = false;
@@ -74,7 +90,7 @@ define([
 
         // Methods
         for (key in target[redefinedCacheKeyword].methods) {
-            obj[key] = methodsCache[key];
+            obj[key] = inspect(methodsCache[key], cache, true);
         }
 
         // Properties
@@ -84,17 +100,18 @@ define([
         }
 
         // Handle undeclared properties
+        methodsCache = def.methods;
+        propertiesCache = def.properties;
         for (key in target) {
-            if (!hasOwn(obj, key) && !hasOwn(propertiesCache, key) && !methodsCache[key]) {
+            if (hasOwn(target, key) && !hasOwn(obj, key) && !propertiesCache[key] && !methodsCache[key]) {
                 obj[key] = inspect(target[key], cache, true);
             }
         }
 
         // Fix the .constructor
-        tmp = obj.constructor;
+        tmp = obj.constructor.$constructor;
         while (tmp) {
-            obj.constructor = inspectConstructor(obj.constructor.$constructor, cache, true);
-            // TODO: fix the prototype
+            inspectConstructor(tmp, cache, true);
             tmp = tmp.$parent;
         }
 
@@ -113,6 +130,7 @@ define([
             def,
             methodsCache,
             propertiesCache,
+            membersCache,
             obj,
             tmp,
             key;
@@ -128,20 +146,42 @@ define([
 
         cache.push({ target: target, inspect: obj });
 
-        // Methods
+        // Constructor methods
         for (key in methodsCache) {
-            obj[key] = methodsCache[key];
+            obj[key] = inspect(methodsCache[key], cache, true);
         }
 
-        // Properties
+        // Constructor properties
         for (key in propertiesCache) {
             tmp = propertiesCache[key];
             obj[key] = inspect(tmp, cache, true);
         }
 
-        // Handle undeclared properties
+        // Handle constructor undeclared properties
+        methodsCache = def.methods;
+        propertiesCache = def.properties;
         for (key in target) {
-            if (!hasOwn(obj, key) && !hasOwn(propertiesCache, key) && !methodsCache[key]) {
+            if (hasOwn(target, key) && !hasOwn(obj, key) && !propertiesCache[key] && !methodsCache[key]) {
+                obj[key] = inspect(target[key], cache, true);
+            }
+        }
+
+        obj = obj.prototype;
+
+        // Prototype members
+        target = target.prototype;
+        membersCache = def.ownMembers;
+        methodsCache = def.methods;
+        propertiesCache = def.properties;
+
+        for (key in membersCache) {
+            tmp = methodsCache[key] ? methodsCache[key].implementation : propertiesCache[key].value;
+            obj[key] = inspect(tmp, cache, true);
+        }
+
+        // Handle undeclared prototype members
+        for (key in target) {
+            if (hasOwn(target, key) && !hasOwn(obj, key) && !membersCache[key]) {
                 obj[key] = inspect(target[key], cache, true);
             }
         }
@@ -194,7 +234,7 @@ define([
                 return inspectConstructor(prop, cache);
             }
 
-            return prop;
+            return prop[$wrapped] || prop;
         }
 
         return prop;
@@ -236,6 +276,15 @@ define([
     }
 
     inspect.rewriteConsole = rewriteConsole;
+//>>includeEnd('strict');
+
+    function inspect(target) {
+        // TODO: Should inspect do something more?
+        //       If the code is not optimized, they will see wrappers when clicking in functions
+        //       they will also see some strange things like $bind and $static.
+        //       But I think it does not compensate to add extra bytes to the code to support it
+        return target;
+    }
 
     return inspect;
 });

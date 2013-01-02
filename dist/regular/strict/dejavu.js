@@ -1445,12 +1445,23 @@ define('inspect',[
     'amd-utils/object/hasOwn',
     'amd-utils/array/forEach',
     'amd-utils/function/bind'
-], function (randomAccessor, options, createObject, isObject, isArray, isFunction, hasOwn, forEach, bind) {
+], function (
+    randomAccessor,
+    options,
+    createObject,
+    isObject,
+    isArray,
+    isFunction,
+    hasOwn,
+    forEach,
+    bind
+) {
 
     'use strict';
 
     var random = randomAccessor('inspectWrapper'),
         $class = '$class_' + random,
+        $wrapped = '$wrapped_' + random,
         cacheKeyword = '$cache_' + random,
         redefinedCacheKeyword = '$redefined_cache_' + random,
         rewrittenConsole = false;
@@ -1511,7 +1522,7 @@ define('inspect',[
 
         // Methods
         for (key in target[redefinedCacheKeyword].methods) {
-            obj[key] = methodsCache[key];
+            obj[key] = inspect(methodsCache[key], cache, true);
         }
 
         // Properties
@@ -1521,16 +1532,18 @@ define('inspect',[
         }
 
         // Handle undeclared properties
+        methodsCache = def.methods;
+        propertiesCache = def.properties;
         for (key in target) {
-            if (!hasOwn(obj, key) && !hasOwn(propertiesCache, key) && !methodsCache[key]) {
+            if (hasOwn(target, key) && !hasOwn(obj, key) && !propertiesCache[key] && !methodsCache[key]) {
                 obj[key] = inspect(target[key], cache, true);
             }
         }
 
         // Fix the .constructor
-        tmp = obj.constructor;
+        tmp = obj.constructor.$constructor;
         while (tmp) {
-            obj.constructor = inspectConstructor(obj.constructor.$constructor, cache, true);
+            inspectConstructor(tmp, cache, true);
             tmp = tmp.$parent;
         }
 
@@ -1549,6 +1562,7 @@ define('inspect',[
             def,
             methodsCache,
             propertiesCache,
+            membersCache,
             obj,
             tmp,
             key;
@@ -1564,20 +1578,42 @@ define('inspect',[
 
         cache.push({ target: target, inspect: obj });
 
-        // Methods
+        // Constructor methods
         for (key in methodsCache) {
-            obj[key] = methodsCache[key];
+            obj[key] = inspect(methodsCache[key], cache, true);
         }
 
-        // Properties
+        // Constructor properties
         for (key in propertiesCache) {
             tmp = propertiesCache[key];
             obj[key] = inspect(tmp, cache, true);
         }
 
-        // Handle undeclared properties
+        // Handle constructor undeclared properties
+        methodsCache = def.methods;
+        propertiesCache = def.properties;
         for (key in target) {
-            if (!hasOwn(obj, key) && !hasOwn(propertiesCache, key) && !methodsCache[key]) {
+            if (hasOwn(target, key) && !hasOwn(obj, key) && !propertiesCache[key] && !methodsCache[key]) {
+                obj[key] = inspect(target[key], cache, true);
+            }
+        }
+
+        obj = obj.prototype;
+
+        // Prototype members
+        target = target.prototype;
+        membersCache = def.ownMembers;
+        methodsCache = def.methods;
+        propertiesCache = def.properties;
+
+        for (key in membersCache) {
+            tmp = methodsCache[key] ? methodsCache[key].implementation : propertiesCache[key].value;
+            obj[key] = inspect(tmp, cache, true);
+        }
+
+        // Handle undeclared prototype members
+        for (key in target) {
+            if (hasOwn(target, key) && !hasOwn(obj, key) && !membersCache[key]) {
                 obj[key] = inspect(target[key], cache, true);
             }
         }
@@ -1630,7 +1666,7 @@ define('inspect',[
                 return inspectConstructor(prop, cache);
             }
 
-            return prop;
+            return prop[$wrapped] || prop;
         }
 
         return prop;
@@ -1672,6 +1708,10 @@ define('inspect',[
     }
 
     inspect.rewriteConsole = rewriteConsole;
+
+    function inspect(target) {
+        return target;
+    }
 
     return inspect;
 });
@@ -2308,6 +2348,10 @@ define('Class',[
 
         target[name] = metadata;
 
+        if (!isStatic) {
+            constructor[$class].ownMembers[name] = true;
+        }
+
         originalMethod = method;
         method = !isStatic ?
                   wrapMethod(method, constructor, constructor.$parent ? constructor.$parent[$class].methods[name] : null) :
@@ -2437,6 +2481,9 @@ define('Class',[
         }
 
         target[name] = metadata;
+        if (!isStatic) {
+            constructor[$class].ownMembers[name] = true;
+        }
 
         // Add it to the constructor or the prototype only if public
         if (metadata.isPublic) {
@@ -3297,7 +3344,7 @@ define('Class',[
         };
 
         if (!Instance[$class]) {
-            obfuscateProperty(Instance, $class, { simpleConstructor: function () {}, methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, interfaces: [], binds: [] });
+            obfuscateProperty(Instance, $class, { simpleConstructor: function () {}, methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, ownMembers: {}, interfaces: [], binds: [] });
             obfuscateProperty(Instance[$class].simpleConstructor, '$constructor', Instance);
         }
 

@@ -4,9 +4,7 @@ define([
     './Interface',
     './FinalClass',
     './instanceOf',
-//>>includeStart('strict', pragmas.strict);
     './inspect',
-//>>includeEnd('strict');
     './options'
 ], function (
     Class,
@@ -27,9 +25,7 @@ define([
     dejavu.Interface = Interface;
     dejavu.FinalClass = FinalClass;
     dejavu.instanceOf = instanceOf;
-//>>includeStart('strict', pragmas.strict);
     dejavu.inspect = inspect;
-//>>includeEnd('strict');
     dejavu.options = options;
 
 //>>includeStart('strict', pragmas.strict);

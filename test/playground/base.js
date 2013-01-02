@@ -6,6 +6,8 @@ define(['dejavu'], function (dejavu) {
     'use strict';
 
     return dejavu.Class.declare({
+        $name: 'Base',
+
         __a: 4,
 
         run: function () {

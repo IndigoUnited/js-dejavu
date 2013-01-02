@@ -2260,6 +2260,19 @@ define('instanceOf',[
 
     return instanceOf;
 });
+define('inspect',[
+], function (
+) {
+
+    
+
+
+    function inspect(target) {
+        return target;
+    }
+
+    return inspect;
+});
 define('options',[], function () {
 
     
@@ -2275,6 +2288,7 @@ define('dejavu',[
     './Interface',
     './FinalClass',
     './instanceOf',
+    './inspect',
     './options'
 ], function (
     Class,
@@ -2295,6 +2309,7 @@ define('dejavu',[
     dejavu.Interface = Interface;
     dejavu.FinalClass = FinalClass;
     dejavu.instanceOf = instanceOf;
+    dejavu.inspect = inspect;
     dejavu.options = options;
 
     dejavu.mode = 'loose';

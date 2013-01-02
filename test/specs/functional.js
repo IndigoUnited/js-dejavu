@@ -1408,6 +1408,10 @@ define(global.modules, function (
                                 method1: function () {},
                                 method2: function () {},
                                 some: 'property',
+                                $statics: {
+                                    staticMethod1: function () {},
+                                    staticProperty1: 'foo'
+                                },
                                 $finals: {
                                     finalProp: 'test',
                                     finalFunc: function () {}
@@ -1453,6 +1457,8 @@ define(global.modules, function (
                     expect(otherImplementation.finalProp).to.equal('test');
                     expect(otherImplementation.finalFunc).to.be.a('function');
                     expect(OtherImplementation.FOO).to.equal('bar');
+                    expect(EvenOtherImplementation.staticMethod1).to.be.a('function');
+                    expect(EvenOtherImplementation.staticProperty1).to.equal('foo');
 
                     expect(evenOtherImplementation.finalProp).to.equal('test');
                     expect(evenOtherImplementation.finalFunc).to.be.a('function');

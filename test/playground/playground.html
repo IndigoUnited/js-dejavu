@@ -14,7 +14,8 @@
                         location: '../../dist/amd/loose',
                         name: 'dejavu'
                     }
-                ]
+                ],
+                urlArgs: + new Date()
             });
         </script>
     </head>
@@ -22,10 +23,12 @@
         <script>
             'use strict';
 
-            require(['andre'], function (Andre) {
+            require(['dejavu', 'andre'], function (dejavu, Andre) {
                 var myAndre = new Andre();
-                console.log(myAndre);
-                myAndre._wtf = 'what';
+
+                //myAndre._wtf = 'what';
+
+                console.dir(dejavu.inspect(myAndre));
                 //delete myAndre.run;
                 //
                 window.myAndre = myAndre;

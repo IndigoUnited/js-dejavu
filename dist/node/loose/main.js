@@ -8,6 +8,7 @@ define([
     './Interface',
     './FinalClass',
     './instanceOf',
+    './inspect',
     './options'
 ], function (
     Class,
@@ -28,6 +29,7 @@ define([
     dejavu.Interface = Interface;
     dejavu.FinalClass = FinalClass;
     dejavu.instanceOf = instanceOf;
+    dejavu.inspect = inspect;
     dejavu.options = options;
 
     dejavu.mode = 'loose';
