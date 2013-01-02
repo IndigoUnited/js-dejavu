@@ -19,7 +19,8 @@ define([
     var random = randomAccessor('inspectWrapper'),
         $class = '$class_' + random,
         cacheKeyword = '$cache_' + random,
-        redefinedCacheKeyword = '$redefined_cache_' + random;
+        redefinedCacheKeyword = '$redefined_cache_' + random,
+        rewrittenConsole = false;
 
     /**
      * Fetches an already inspected target from the cache.
@@ -208,6 +209,10 @@ define([
      * @param {Array} methods The method names to rewrite
      */
     function rewriteConsole(methods) {
+        if (rewrittenConsole) {
+            return;
+        }
+
         forEach(methods, function (method) {
             var prev = console[method];
             if (prev) {
@@ -229,12 +234,11 @@ define([
                 };
             }
         });
+
+        rewrittenConsole = true;
     }
 
-    // Rewrite some console methods to deliver the inspect automatically
-    if (options.rewriteConsole && typeof console !== 'undefined') {
-        rewriteConsole(['log', 'info', 'warn', 'error', 'debug', 'dir']);
-    }
+    inspect.rewriteConsole = rewriteConsole;
 
     return inspect;
 });
