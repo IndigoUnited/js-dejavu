@@ -638,6 +638,19 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     return AbstractClass.declare({ $statics: { some: undefined } }, true);
                 }).to.throwException(/cannot be parsed/);
             });
+            it('should throw an error if initialize is defined inside $abstracts or $finals', function () {
+                expect(function () {
+                    return Class.declare({
+                        $finals: {
+                            initialize: function () {
+                            }
+                        }
+                    }, true);
+                }).to.throwException();
+                expect(function () {
+                    return AbstractClass.declare({}, true);
+                }).to.throwException();
+            });
             it('should throw an error when extending an invalid class', function () {
                 expect(function () {
                     return Class.declare({ $extends: 'wtf' });

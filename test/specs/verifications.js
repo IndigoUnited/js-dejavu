@@ -1327,6 +1327,26 @@ define(global.modules, function (
 
             });
 
+            it('should throw an error if initialize is defined inside $abstracts or $finals', function () {
+
+                expect(function () {
+                    return Class.declare({
+                        $finals: {
+                            initialize: function () {}
+                        }
+                    });
+                }).to.throwException();
+
+                expect(function () {
+                    return AbstractClass.declare({
+                        $abstracts: {
+                            initialize: function () {}
+                        }
+                    });
+                }).to.throwException();
+
+            });
+
             it('should throw an error when extending an invalid class', function () {
 
                 expect(function () {
