@@ -90,7 +90,7 @@ define([
 
         // Properties
         for (key in target[redefinedCacheKeyword].properties) {
-            tmp = propertiesCache[key];
+            tmp = hasOwn(propertiesCache, key) ? propertiesCache[key] : target[key];
             obj[key] = inspect(tmp, cache, true);
         }
 

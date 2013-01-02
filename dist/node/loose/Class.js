@@ -279,11 +279,6 @@ define([
         }
 
         // Save certain keywords in the cache for the loop bellow to work faster
-        if (hasOwn(params, '$borrows')) {
-            cache.$borrows = params.$borrows;
-            delete params.$borrows;
-        }
-
         if (hasOwn(params, '$implements')) {
             cache.$implements = params.$implements;
             delete params.$implements;

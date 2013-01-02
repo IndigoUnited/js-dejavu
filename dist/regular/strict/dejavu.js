@@ -1527,7 +1527,7 @@ define('inspect',[
 
         // Properties
         for (key in target[redefinedCacheKeyword].properties) {
-            tmp = propertiesCache[key];
+            tmp = hasOwn(propertiesCache, key) ? propertiesCache[key] : target[key];
             obj[key] = inspect(tmp, cache, true);
         }
 
@@ -2651,7 +2651,7 @@ define('Class',[
                 combine(constructor[$class].binds, current.$static[$class].binds);
             }
 
-            delete constructor.prototype.$borrows;
+            delete params.$borrows;
         }
     }
 
@@ -2750,11 +2750,6 @@ define('Class',[
         }
 
         // Save certain keywords in the cache for the loop bellow to work faster
-        if (hasOwn(params, '$borrows')) {
-            cache.$borrows = params.$borrows;
-            delete params.$borrows;
-        }
-
         if (hasOwn(params, '$implements')) {
             cache.$implements = params.$implements;
             delete params.$implements;
@@ -3648,6 +3643,8 @@ define('Class',[
             obfuscateProperty(dejavu, $abstract, true, true); // Signal it has abstract
         }
 
+        dejavu.prototype.$name = params.$name;
+        delete params.$name;
         // Parse mixins
         parseBorrows(params, dejavu);
 

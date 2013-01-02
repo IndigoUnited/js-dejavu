@@ -1498,11 +1498,6 @@ define('Class',[
         }
 
         // Save certain keywords in the cache for the loop bellow to work faster
-        if (hasOwn(params, '$borrows')) {
-            cache.$borrows = params.$borrows;
-            delete params.$borrows;
-        }
-
         if (hasOwn(params, '$implements')) {
             cache.$implements = params.$implements;
             delete params.$implements;
@@ -2269,8 +2264,8 @@ define('inspect',[
     function inspect(target) {
         // TODO: Should inspect do something more?
         //       If the code is not optimized, they will see wrappers when clicking in functions
-        //       they will also see some strange things like $bind and $static.
-        //       But I think it does not compensate to add extra bytes to the code to support it
+        //       and also some strange things like $bind and $static.
+        //       But I think it does not compensate the extra bytes to support it
         return target;
     }
 

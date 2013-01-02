@@ -834,7 +834,7 @@ define([
             }
 //>>includeStart('strict', pragmas.strict);
 
-            delete constructor.prototype.$borrows;
+            delete params.$borrows;
 //>>includeEnd('strict');
         }
     }
@@ -981,11 +981,6 @@ define([
         }
 
         // Save certain keywords in the cache for the loop bellow to work faster
-        if (hasOwn(params, '$borrows')) {
-            cache.$borrows = params.$borrows;
-            delete params.$borrows;
-        }
-
         if (hasOwn(params, '$implements')) {
             cache.$implements = params.$implements;
             delete params.$implements;
@@ -2110,6 +2105,8 @@ define([
             obfuscateProperty(dejavu, $abstract, true, true); // Signal it has abstract
         }
 
+        dejavu.prototype.$name = params.$name;
+        delete params.$name;
 //>>includeEnd('strict');
         // Parse mixins
         parseBorrows(params, dejavu);
