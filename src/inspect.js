@@ -94,6 +94,7 @@ define([
         tmp = obj.constructor;
         while (tmp) {
             obj.constructor = inspectConstructor(obj.constructor.$constructor, cache, true);
+            // TODO: fix the prototype
             tmp = tmp.$parent;
         }
 

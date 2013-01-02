@@ -456,13 +456,10 @@ define([
         obfuscateProperty(method, $name, name);
         metadata.implementation = method;
 
-        // Add it to the constructor or the prototype
-        target = isStatic ? constructor : constructor.prototype;
-        target[name] = method;
-
-        // Add also to the simple constructor (for the inspect)
-        if (!isStatic) {
-            constructor[$class].simpleConstructor.prototype[name] = originalMethod;
+        // Add it to the constructor or the prototype only if public
+        if (metadata.isPublic) {
+            target = isStatic ? constructor : constructor.prototype;
+            target[name] = method;
         }
 
         // If the function is specified to be bound, add it to the binds
@@ -581,14 +578,10 @@ define([
 
         target[name] = metadata;
 
-        // If the property is protected/private we delete it from the target because they will be protected later
-        // Add it to the constructor or the prototype
-        target = isStatic ? constructor : constructor.prototype;
-        target[name] = !metadata.isImmutable ? clone(value) : value;
-
-        // Add also to the simple constructor (for the inspect)
-        if (!isStatic) {
-            constructor[$class].simpleConstructor.prototype[name] = inspect(value);
+        // Add it to the constructor or the prototype only if public
+        if (metadata.isPublic) {
+            target = isStatic ? constructor : constructor.prototype;
+            target[name] = value;
         }
 
         if (isFinal) {
@@ -1219,7 +1212,7 @@ define([
                     }
                 },
                 configurable: false,
-                enumerable: false
+                enumerable: true
             });
         } else if (meta.isProtected) {
             Object.defineProperty(instance, name, {
@@ -1248,7 +1241,7 @@ define([
                     }
                 },
                 configurable: false,
-                enumerable: false
+                enumerable: true
             });
         } else {
             Object.defineProperty(instance, name, {
@@ -1264,7 +1257,7 @@ define([
                     }
                 },
                 configurable: false,
-                enumerable: false
+                enumerable: true
             });
         }
     }
@@ -1299,7 +1292,7 @@ define([
                     }
                 },
                 configurable: false,
-                enumerable: false
+                enumerable: true
             });
         } else if (meta.isProtected) {
             Object.defineProperty(constructor, name, {
@@ -1321,7 +1314,7 @@ define([
                     }
                 },
                 configurable: false,
-                enumerable: false
+                enumerable: true
             });
         } else {
             Object.defineProperty(constructor, name, {
@@ -1336,7 +1329,7 @@ define([
                     }
                 },
                 configurable: false,
-                enumerable: false
+                enumerable: true
             });
         }
     }
@@ -1378,7 +1371,7 @@ define([
                     }
                 },
                 configurable: false,
-                enumerable: false
+                enumerable: true
             });
         } else if (meta.isProtected) {
             if (!meta.isImmutable) {
@@ -1409,7 +1402,7 @@ define([
                     }
                 },
                 configurable: false,
-                enumerable: false
+                enumerable: true
             });
         } else if (!meta.isImmutable) {
             instance[name] = clone(instance[name]);
@@ -1454,7 +1447,7 @@ define([
                             }
                         },
                 configurable: false,
-                enumerable: false
+                enumerable: true
             });
         } else if (meta.isProtected) {
             constructor[cacheKeyword].properties[name] = !meta.isImmutable ? clone(meta.value) : meta.value;
@@ -1483,7 +1476,7 @@ define([
                             }
                         },
                 configurable: false,
-                enumerable: false
+                enumerable: true
             });
         } else if (meta.isConst) {
             constructor[cacheKeyword].properties[name] = meta.value;
