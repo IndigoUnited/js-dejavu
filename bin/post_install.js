@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 /*jshint node:true*/
+
 'use strict';
 
 var fs        = require('fs'),
@@ -10,6 +11,9 @@ var fs        = require('fs'),
         locked: false
     },
     target;
+
+// NOTE: There is not tests for this script
+//       Change it with caution
 
 // If module is being installed globably, abort
 if ((new RegExp('^' + process.env.npm_config_prefix)).test(process.cwd())) {

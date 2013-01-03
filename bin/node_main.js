@@ -1,11 +1,11 @@
 /*jshint node:true*/
 'use strict';
 
-var fs         = require('fs'),
-    path       = require('path'),
-    deepMixIn  = require('amd-utils/object/deepMixIn'),
-    rcFile     = path.join(process.cwd(), '/.dejavurc'),
-    exported   = false,
+var fs        = require('fs'),
+    path      = require('path'),
+    deepMixIn = require('amd-utils/object/deepMixIn'),
+    exported  = false,
+    rcFile,
     rc;
 
 function requireLoose() {
@@ -18,12 +18,15 @@ function requireStrict() {
     exported = true;
 }
 
+// Check if there is a RC file in the cwd
+rcFile = path.join(process.cwd(), '.dejavurc');
 try {
-    // Check if RC file exists
     fs.statSync(rcFile);
 } catch (e) {
-    // RC file does not exist, use loose build by default
-    requireLoose();
+    if (e.code === 'ENOENT') {
+        // If not, we require the loose
+        requireLoose();
+    }
 }
 
 if (!exported) {
@@ -40,7 +43,7 @@ if (!exported) {
         }
         delete rc.strict;
 
-        // Parse options
+        // Merge the options
         module.exports.options = deepMixIn(rc);
     // Error parsing RC file
     } catch (err) {
