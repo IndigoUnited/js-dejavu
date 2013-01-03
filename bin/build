@@ -155,7 +155,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                 });
 
                 // Create node.js file
-                fs.writeFileSync(distDir + 'node/node.js', 'module.exports = process.env.STRICT == null || process.env.STRICT === true ? require(\'./strict/main\') : require(\'./loose/main\');');
+                fs.writeFileSync(distDir + 'node/node.js', fs.readFileSync(__dirname + '/node_main.js'));
 
                 // Create regular directories
                 fs.mkdirSync(distDir + 'regular');

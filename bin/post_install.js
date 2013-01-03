@@ -5,11 +5,11 @@
 
 var fs        = require('fs'),
     path      = require('path'),
-    target,
     defaultRC = {
-        mode: 'strict',
+        strict: true,
         locked: false
-    };
+    },
+    target;
 
 // If module is being installed globably, abort
 if ((new RegExp('^' + process.env.npm_config_prefix)).test(process.cwd())) {
@@ -33,7 +33,6 @@ try {
 } catch (err) {
     // RC file does not exist, create the default one
     if (err.code === 'ENOENT') {
-        // save default RC
         fs.writeFileSync(target, JSON.stringify(defaultRC, null, '  '));
     }
 }

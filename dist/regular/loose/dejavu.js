@@ -2280,7 +2280,6 @@ define('options',[], function () {
     
 
     return {
-        locked: true
     };
 });
 

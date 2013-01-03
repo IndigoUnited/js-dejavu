@@ -1,3 +1,7 @@
+/*jshint node:true*/
+
+'use strict';
+
 var dejavu = require('dejavu');
 
 var MyClass = dejavu.Class.declare({
@@ -7,3 +11,4 @@ var MyClass = dejavu.Class.declare({
 });
 
 var instance = new MyClass();
+instance._wtf = 'bla';

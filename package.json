@@ -14,7 +14,7 @@
   "main": "dist/node/node.js",
   "dependencies": {
     "amdefine": "~0.0.4",
-    "amd-utils": "~0.9.0",
+    "amd-utils": "~0.10.0",
     "commander": "~1.1.1",
     "esprima": "~1.0.2",
     "escodegen": "~0.0.15",
