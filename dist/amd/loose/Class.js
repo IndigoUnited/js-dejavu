@@ -214,6 +214,8 @@ define([
                 // Merge the binds
                 combine(constructor[$class].binds, current.$static[$class].binds);
             }
+
+            delete params.$borrows;
         }
     }
 
@@ -321,19 +323,19 @@ define([
     function parseClass(params, constructor) {
         var key,
             value,
-            saved = {},
-            has = {};
+            saved = {};
 
-         // Save constants & finals to parse later
+            delete params.$locked;
+
+        // Check and save constants to parse later
         if (hasOwn(params, '$constants')) {
             saved.$constants = params.$constants;
-            has.$constants = true;
             delete params.$constants;
         }
 
+        // Check and save finals to parse later
         if (hasOwn(params, '$finals')) {
             saved.$finals = params.$finals;
-            has.$finals = true;
             delete params.$finals;
         }
 
@@ -341,7 +343,7 @@ define([
         parseMembers(params, constructor);
 
         // Parse constants
-        if (has.$constants) {
+        if (saved.$constants) {
             for (key in saved.$constants) {
                 value = saved.$constants[key];
 
@@ -351,7 +353,7 @@ define([
         }
 
         // Parse finals
-        if (has.$finals) {
+        if (saved.$finals) {
             parseMembers(saved.$finals, constructor, true);
         }
     }

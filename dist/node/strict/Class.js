@@ -4,6 +4,7 @@ if (typeof define !== 'function') {
 
 define([
     'amd-utils/lang/isString',
+    'amd-utils/lang/isBoolean',
     'amd-utils/array/intersection',
     'amd-utils/array/unique',
     'amd-utils/array/compact',
@@ -40,6 +41,7 @@ define([
     'amd-utils/array/insert'
 ], function ClassWrapper(
     isString,
+    isBoolean,
     intersection,
     unique,
     compact,
@@ -806,11 +808,10 @@ define([
             key,
             value,
             saved = {},
-            has = {},
             unallowed,
             ambiguous;
 
-         // Save constants & finals to parse later
+        // Check and save constants to parse later
         if (hasOwn(params, '$constants')) {
             // Check argument
             if (!isObject(params.$constants)) {
@@ -835,10 +836,10 @@ define([
             }
 
             saved.$constants = params.$constants;
-            has.$constants = true;
             delete params.$constants;
         }
 
+        // Check and save finals to parse later
         if (hasOwn(params, '$finals')) {
             // Check argument
             if (!isObject(params.$finals)) {
@@ -862,7 +863,7 @@ define([
                         throw new Error('There are members defined in class "' + constructor.prototype.$name + '" with the same name but with different modifiers: "' + ambiguous.join('", ') + '".');
                     }
                 }
-                if (has.$constants) {
+                if (saved.$constants) {
                     ambiguous = intersection(keys(params.$finals.$statics), keys(saved.$constants));
                     if (ambiguous.length) {
                         throw new Error('There are members defined in class "' + constructor.prototype.$name + '" with the same name but with different modifiers: "' + ambiguous.join('", ') + '".');
@@ -878,15 +879,24 @@ define([
             }
 
             saved.$finals = params.$finals;
-            has.$finals = true;
             delete params.$finals;
+        }
+
+        // Check and save locked to parse later
+        if (hasOwn(params, '$locked')) {
+            if (!isBoolean(params.$locked)) {
+                throw new Error('$locked of class "' + constructor.prototype.name + '" must be a boolean.');
+            }
+
+            saved.$locked = params.$locked;
+            delete params.$locked;
         }
 
         // Parse members
         parseMembers(params, constructor);
 
         // Parse constants
-        if (has.$constants) {
+        if (saved.$constants) {
             opts.isConst = true;
 
             for (key in saved.$constants) {
@@ -899,8 +909,22 @@ define([
         }
 
         // Parse finals
-        if (has.$finals) {
+        if (saved.$finals) {
             parseMembers(saved.$finals, constructor, true);
+        }
+
+        // Parse locked
+        if (hasOwn(saved, '$locked')) {
+            if (constructor[$class].forceUnlocked && saved.$locked) {
+                throw new Error('Class "' + constructor.prototype.$name + '" cannot be locked because it borrows or extends from a vanilla class.');
+            }
+            if (constructor[$class].locked === false && saved.$locked) {
+                throw new Error('Class "' + constructor.prototype.$name + '" inherits from an unlocked class, therefore its subclasses cannot be locked.');
+            }
+            constructor[$class].locked = !!saved.$locked;
+            delete constructor.prototype.$locked;
+        } else if (!hasOwn(constructor[$class], 'locked')) {
+            constructor[$class].locked = !!options.locked;
         }
     }
 
@@ -1708,20 +1732,6 @@ define([
 
         // Supply .extend() to easily extend a class
         dejavu.extend = extend;
-
-        // Take care of $locked flag
-        if (hasOwn(params, '$locked')) {
-            if (dejavu[$class].forceUnlocked && params.$locked) {
-                throw new Error('Class "' + params.$name + '" cannot be locked because it borrows or extends from a vanilla class.');
-            }
-            if (dejavu[$class].locked === false && params.$locked) {
-                throw new Error('Class "' + params.$name + '" inherits from an unlocked class, therefore its subclasses cannot be locked.');
-            }
-            dejavu[$class].locked = !!params.$locked;
-            delete params.$locked;
-        } else if (!hasOwn(dejavu[$class], 'locked')) {
-            dejavu[$class].locked = !!options.locked;
-        }
 
         // Prevent any properties/methods to be added and deleted
         if (hasDefineProperty) {

@@ -138,19 +138,25 @@ define(global.modules, function (
 
             it('should not have the $statics property', function () {
 
-                return expect(example.$statics).to.be.equal(undefined);
+                expect(example.$statics).to.be.equal(undefined);
+                expect(Example.prototype.$statics).to.be.equal(undefined);
+                expect(Example.$statics).to.be.equal(undefined);
 
             });
 
             it('should not have the $finals property', function () {
 
-                return expect(example.$finals).to.be.equal(undefined);
+                expect(example.$finals).to.be.equal(undefined);
+                expect(Example.prototype.$finals).to.be.equal(undefined);
+                expect(Example.$finals).to.be.equal(undefined);
 
             });
 
             it('should not have the $constants property', function () {
 
-                return expect(example.$constants).to.be.equal(undefined);
+                expect(example.$constants).to.be.equal(undefined);
+                expect(Example.prototype.$constants).to.be.equal(undefined);
+                expect(Example.$constants).to.be.equal(undefined);
 
             });
 
@@ -660,13 +666,22 @@ define(global.modules, function (
 
         });
 
-        if (/strict/.test(global.build) && (Object.seal || Object.freeze)) {
+        describe('$locked', function () {
 
-            describe('$locked', function () {
+            it('should have it removed', function () {
 
-                afterEach(function () {
-                    options.locked = true;
-                });
+                var SomeClass = Class.declare({
+                    $locked: false
+                }),
+                    someClass = new SomeClass();
+
+                expect(someClass.$locked).to.be.equal(undefined);
+                expect(SomeClass.prototype.$locked).to.be.equal(undefined);
+                expect(SomeClass.$locked).to.be.equal(undefined);
+
+            });
+
+            if (/strict/.test(global.build) && (Object.seal || Object.freeze)) {
 
                 it('should not lock classes if it\'s false', function () {
 
@@ -773,7 +788,7 @@ define(global.modules, function (
 
                 });
 
-                it('should throw an error when $force is true but it must be false (due to borrowing or extending from a vanilla class)', function () {
+                it('should throw an error when $locked is true but it must be false (due to borrowing or extending from a vanilla class)', function () {
 
                     var SomeClass = function () {};
 
@@ -832,6 +847,8 @@ define(global.modules, function (
                     someSubClass = new SomeSubClass();
                     otherSubClass = new OtherSubClass();
 
+                    options.locked = false;
+
                     someSubClass.foo = 'bar';
                     someSubClass._foo2 = 'bar';
                     someSubClass.__foo3 = 'bar';
@@ -864,9 +881,9 @@ define(global.modules, function (
 
                 });
 
-            });
+            }
 
-        }
+        });
 
         describe('$bind', function () {
 
@@ -1218,7 +1235,9 @@ define(global.modules, function (
 
             it('should not have the $extends property', function () {
 
-                return expect(cat.$extends).to.be.equal(undefined);
+                expect(cat.$extends).to.be.equal(undefined);
+                expect(Cat.prototype.$extends).to.be.equal(undefined);
+                expect(Cat.$extends).to.be.equal(undefined);
 
             });
 
@@ -1269,7 +1288,9 @@ define(global.modules, function (
                 }),
                     someImplementation = new SomeImplementation();
 
-                return expect(someImplementation.$implements).to.be.equal(undefined);
+                expect(someImplementation.$implements).to.be.equal(undefined);
+                expect(SomeImplementation.prototype.$implements).to.be.equal(undefined);
+                expect(SomeImplementation.$implements).to.be.equal(undefined);
             });
 
         });
@@ -1285,7 +1306,10 @@ define(global.modules, function (
                     }),
                     someImplementation = new SomeImplementation();
 
-                return expect(someImplementation.$abstracts).to.be.equal(undefined);
+                expect(someImplementation.$abstracts).to.be.equal(undefined);
+                expect(SomeImplementation.prototype.$abstracts).to.be.equal(undefined);
+                expect(SomeImplementation.$abstract).to.be.equal(undefined);
+
             });
 
         });
@@ -1364,6 +1388,19 @@ define(global.modules, function (
         });
 
         describe('Defining a Concrete/Abstract Classes that use $borrows (mixins)', function () {
+
+            it('should have it removed', function () {
+
+                var SomeClass = Class.declare({
+                    $borrows: {}
+                }),
+                    someClass = new SomeClass();
+
+                expect(someClass.$borrows).to.be.equal(undefined);
+                expect(SomeClass.prototype.$borrows).to.be.equal(undefined);
+                expect(SomeClass.$borrows).to.be.equal(undefined);
+
+            });
 
             it('should grab the borrowed members to their own', function () {
 

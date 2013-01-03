@@ -96,13 +96,19 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(example.someOther).to.be.equal('property');
             });
             it('should not have the $statics property', function () {
-                return expect(example.$statics).to.be.equal(undefined);
+                expect(example.$statics).to.be.equal(undefined);
+                expect(Example.prototype.$statics).to.be.equal(undefined);
+                expect(Example.$statics).to.be.equal(undefined);
             });
             it('should not have the $finals property', function () {
-                return expect(example.$finals).to.be.equal(undefined);
+                expect(example.$finals).to.be.equal(undefined);
+                expect(Example.prototype.$finals).to.be.equal(undefined);
+                expect(Example.$finals).to.be.equal(undefined);
             });
             it('should not have the $constants property', function () {
-                return expect(example.$constants).to.be.equal(undefined);
+                expect(example.$constants).to.be.equal(undefined);
+                expect(Example.prototype.$constants).to.be.equal(undefined);
+                expect(Example.$constants).to.be.equal(undefined);
             });
             it('should not share properties with other instances', function () {
                 example2.test();
@@ -164,10 +170,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     _initialize: function () {
                         this.status = 'alive';
                     }
-                }, true), PrivatePerson = Class.declare({
-                    __initialize: function () {
-                    }
-                }, true), FreakPerson = Class.declare({ $extends: ProtectedPerson }, true), NerdPerson = Class.declare(PrivatePerson, function ($super, $parent) {
+                }, true), PrivatePerson = Class.declare(function () {
+                    return {
+                        __initialize: function () {
+                        }
+                    };
+                }, true), FreakPerson = Class.declare(ProtectedPerson, function ($super, $parent) {
+                    return {};
+                }, true), NerdPerson = Class.declare(PrivatePerson, function ($super, $parent) {
                     return {};
                 }, true), ComplexProtectedPerson = ProtectedPerson.extend(function ($super, $parent) {
                     return {
@@ -489,11 +499,16 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 SomeClass.setFruitStatic('carrot');
             });
         });
-        if (/strict/.test(global.build) && (Object.seal || Object.freeze)) {
-            describe('$locked', function () {
-                afterEach(function () {
-                    options.locked = true;
-                });
+        describe('$locked', function () {
+            it('should have it removed', function () {
+                var SomeClass = Class.declare(function () {
+                        return {};
+                    }, true), someClass = new SomeClass();
+                expect(someClass.$locked).to.be.equal(undefined);
+                expect(SomeClass.prototype.$locked).to.be.equal(undefined);
+                expect(SomeClass.$locked).to.be.equal(undefined);
+            });
+            if (/strict/.test(global.build) && (Object.seal || Object.freeze)) {
                 it('should not lock classes if it\'s false', function () {
                     var SomeClass = Class.declare(function () {
                             return {
@@ -579,7 +594,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     OtherClass.foo = 'bar';
                     expect(OtherClass.foo).to.equal('bar');
                 });
-                it('should throw an error when $force is true but it must be false (due to borrowing or extending from a vanilla class)', function () {
+                it('should throw an error when $locked is true but it must be false (due to borrowing or extending from a vanilla class)', function () {
                     var SomeClass = function () {
                     };
                     expect(function () {
@@ -622,6 +637,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     }, true);
                     someSubClass = new SomeSubClass();
                     otherSubClass = new OtherSubClass();
+                    options.locked = false;
                     someSubClass.foo = 'bar';
                     someSubClass._foo2 = 'bar';
                     someSubClass.__foo3 = 'bar';
@@ -645,8 +661,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         }, true);
                     }).to.throwException(/cannot be locked/);
                 });
-            });
-        }
+            }
+        });
         describe('$bind', function () {
             var context = {}, SomeClass = Class.declare(function () {
                     return {
@@ -938,7 +954,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(instanceOf(cat, Cat)).to.be.equal(true);
             });
             it('should not have the $extends property', function () {
-                return expect(cat.$extends).to.be.equal(undefined);
+                expect(cat.$extends).to.be.equal(undefined);
+                expect(Cat.prototype.$extends).to.be.equal(undefined);
+                expect(Cat.$extends).to.be.equal(undefined);
             });
             it('should exist 2 pets', function () {
                 expect(Pet.getNrPets()).to.be.equal(2);
@@ -970,7 +988,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         };
                     }, true), someImplementation = new SomeImplementation();
-                return expect(someImplementation.$implements).to.be.equal(undefined);
+                expect(someImplementation.$implements).to.be.equal(undefined);
+                expect(SomeImplementation.prototype.$implements).to.be.equal(undefined);
+                expect(SomeImplementation.$implements).to.be.equal(undefined);
             });
         });
         describe('Instantiation of Concrete Classes that extend Abstract Classes', function () {
@@ -983,7 +1003,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                             }
                         };
                     }, true), someImplementation = new SomeImplementation();
-                return expect(someImplementation.$abstracts).to.be.equal(undefined);
+                expect(someImplementation.$abstracts).to.be.equal(undefined);
+                expect(SomeImplementation.prototype.$abstracts).to.be.equal(undefined);
+                expect(SomeImplementation.$abstract).to.be.equal(undefined);
             });
         });
         if (/strict/.test(global.build)) {
@@ -1032,6 +1054,14 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             });
         });
         describe('Defining a Concrete/Abstract Classes that use $borrows (mixins)', function () {
+            it('should have it removed', function () {
+                var SomeClass = Class.declare(function () {
+                        return { $borrows: {} };
+                    }, true), someClass = new SomeClass();
+                expect(someClass.$borrows).to.be.equal(undefined);
+                expect(SomeClass.prototype.$borrows).to.be.equal(undefined);
+                expect(SomeClass.$borrows).to.be.equal(undefined);
+            });
             it('should grab the borrowed members to their own', function () {
                 var CommonMixin = AbstractClass.declare(function () {
                         return {
