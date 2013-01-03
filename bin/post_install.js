@@ -4,31 +4,36 @@
 'use strict';
 
 var fs        = require('fs'),
-    rcFile    = '.dejavurc',
-    defaultRC = __dirname + '/../dist/node/.dejavurc';
+    path      = require('path'),
+    target,
+    defaultRC = {
+        mode: 'strict',
+        locked: false
+    };
 
-console.log(process.env);
-
-// if it's not possible to figure out the dir of the base package, abort
-if (!process.cwd().match(/node_modules/)) {
-    console.log('Could not figure package base dir: SKIPPING');
+// If module is being installed globably, abort
+if ((new RegExp('^' + process.env.npm_config_prefix)).test(process.cwd())) {
     process.exit();
 }
-else if (process.cwd().match(new RegExp('^' + process.env.npm_config_prefix))) {
-    console.log('Module is being installed globally, could not figure out the base package dir');
+
+target = path.resolve(process.cwd(), '..');
+
+// If the parent directory is not "node_modules", abort
+if (path.basename(target) !== 'node_modules') {
     process.exit();
 }
-// if it's possible, then generate the filename of the rc file
-else {
-    rcFile = process.cwd().split(/node_modules/)[0] + rcFile;
-    console.log('Figured package base dir:', rcFile);
-}
+
+// Otherwise put the RC file in the imediate parent module
+target = path.resolve(target, '../.dejavurc');
+console.log('.dejavurc will be saved in' +  target);
 
 try {
-    // check if RC file exists
-    fs.statSync(rcFile);
-// RC file does not exist, create the default one
+    // Check if RC file exists
+    fs.statSync(target);
 } catch (err) {
-    // copy default file
-    fs.createReadStream(defaultRC).pipe(fs.createWriteStream(rcFile));
+    // RC file does not exist, create the default one
+    if (err.code === 'ENOENT') {
+        // save default RC
+        fs.writeFileSync(target, JSON.stringify(defaultRC, null, '  '));
+    }
 }
