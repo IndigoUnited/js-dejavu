@@ -3,6 +3,7 @@ if (typeof define !== 'function') {
 }
 
 define([
+    './inspect',
     './common/printWarning',
     './common/obfuscateProperty',
     './common/isImmutable',
@@ -22,6 +23,7 @@ define([
     'amd-utils/lang/toArray',
     'amd-utils/array/insert'
 ], function ClassWrapper(
+    inspect,
     printWarning,
     obfuscateProperty,
     isImmutable,

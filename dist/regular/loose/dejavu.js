@@ -398,6 +398,28 @@ var requirejs, require, define;
 
 define("almond", function(){});
 
+define('inspect',[
+], function (
+) {
+
+    
+
+    function inspect(target) {
+        // TODO: Should inspect do something more?
+        //       If the code is not optimized, they will see wrappers when clicking in functions
+        //       and also some strange things like $bind and $static.
+        //       But I think it does not compensate the extra bytes to support it
+        //       If we ever do this, we must adjust the console.inspect bellow
+        return target;
+    }
+
+    inspect.rewriteConsole = function () {};
+
+    // Add inspect method to the console
+    if (typeof console === 'object') {
+        console.inspect = console.inspect || console.log;
+    }
+});
 define('common/printWarning',[], function () {
 
     
@@ -1222,6 +1244,7 @@ var toArray = require('../lang/toArray');
 });
 
 define('Class',[
+    './inspect',
     './common/printWarning',
     './common/obfuscateProperty',
     './common/isImmutable',
@@ -1241,6 +1264,7 @@ define('Class',[
     'amd-utils/lang/toArray',
     'amd-utils/array/insert'
 ], function ClassWrapper(
+    inspect,
     printWarning,
     obfuscateProperty,
     isImmutable,
@@ -2265,48 +2289,13 @@ define('options',[], function () {
     };
 });
 
-define('inspect',[
-], function (
-) {
-
-    
-
-    var prev;
-
-    function inspect(target) {
-        // TODO: Should inspect do something more?
-        //       If the code is not optimized, they will see wrappers when clicking in functions
-        //       and also some strange things like $bind and $static.
-        //       But I think it does not compensate the extra bytes to support it
-        return target;
-    }
-
-    inspect.rewriteConsole = function () {};
-
-    // Add inspect method to the console
-    if (typeof console === 'object') {
-        prev = console.inspect || console.log;
-        console.inspect = function () {
-            var args = [],
-                length = arguments.length,
-                x;
-
-            for (x = 0; x < length; x += 1) {
-                args[x] = inspect(arguments[x]);
-            }
-
-            prev.apply(console, args);
-        };
-    }
-});
 define('dejavu',[
     './Class',
     './AbstractClass',
     './Interface',
     './FinalClass',
     './instanceOf',
-    './options',
-    './inspect'
+    './options'
 ], function (
     Class,
     AbstractClass,

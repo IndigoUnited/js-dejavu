@@ -4,8 +4,7 @@ define([
     './Interface',
     './FinalClass',
     './instanceOf',
-    './options',
-    './inspect'
+    './options'
 ], function (
     Class,
     AbstractClass,

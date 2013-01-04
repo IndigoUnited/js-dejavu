@@ -18,8 +18,8 @@ define([
     './common/randomAccessor',
     './common/hasFreezeBug',
     './options',
-    './inspect',
 //>>includeEnd('strict');
+    './inspect',
     './common/printWarning',
     './common/obfuscateProperty',
     './common/isImmutable',
@@ -60,8 +60,8 @@ define([
     randomAccessor,
     hasFreezeBug,
     options,
-    inspect,
 //>>includeEnd('strict');
+    inspect,
     printWarning,
     obfuscateProperty,
     isImmutable,
