@@ -2257,11 +2257,21 @@ define('instanceOf',[
 
     return instanceOf;
 });
+define('options',[], function () {
+
+    
+
+    return {
+    };
+});
+
 define('inspect',[
 ], function (
 ) {
 
     
+
+    var prev;
 
     function inspect(target) {
         // TODO: Should inspect do something more?
@@ -2273,31 +2283,36 @@ define('inspect',[
 
     inspect.rewriteConsole = function () {};
 
-    return inspect;
+    // Add inspect method to the console
+    if (typeof console === 'object') {
+        prev = console.inspect || console.log;
+        console.inspect = function () {
+            var args = [],
+                length = arguments.length,
+                x;
+
+            for (x = 0; x < length; x += 1) {
+                args[x] = inspect(arguments[x]);
+            }
+
+            prev.apply(console, args);
+        };
+    }
 });
-define('options',[], function () {
-
-    
-
-    return {
-    };
-});
-
 define('dejavu',[
     './Class',
     './AbstractClass',
     './Interface',
     './FinalClass',
     './instanceOf',
-    './inspect',
-    './options'
+    './options',
+    './inspect'
 ], function (
     Class,
     AbstractClass,
     Interface,
     FinalClass,
     instanceOf,
-    inspect,
     options
 ) {
 
@@ -2310,7 +2325,6 @@ define('dejavu',[
     dejavu.Interface = Interface;
     dejavu.FinalClass = FinalClass;
     dejavu.instanceOf = instanceOf;
-    dejavu.inspect = inspect;
     dejavu.options = options;
 
     dejavu.mode = 'loose';

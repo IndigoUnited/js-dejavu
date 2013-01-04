@@ -32,7 +32,8 @@ define([
         $wrapped = '$wrapped_' + random,
         cacheKeyword = '$cache_' + random,
         redefinedCacheKeyword = '$redefined_cache_' + random,
-        rewrittenConsole = false;
+        rewrittenConsole = false,
+        prev;
 
     /**
      * Fetches an already inspected target from the cache.
@@ -246,7 +247,7 @@ define([
      * @param {Array} methods The method names to rewrite
      */
     function rewriteConsole(methods) {
-        if (rewrittenConsole) {
+        if (typeof console !== 'object' || rewrittenConsole) {
             return;
         }
 
@@ -278,6 +279,8 @@ define([
     inspect.rewriteConsole = rewriteConsole;
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
+    var prev;
+
     function inspect(target) {
         // TODO: Should inspect do something more?
         //       If the code is not optimized, they will see wrappers when clicking in functions
@@ -289,5 +292,19 @@ define([
     inspect.rewriteConsole = function () {};
 //>>excludeEnd('strict');
 
-    return inspect;
+    // Add inspect method to the console
+    if (typeof console === 'object') {
+        prev = console.inspect || console.log;
+        console.inspect = function () {
+            var args = [],
+                length = arguments.length,
+                x;
+
+            for (x = 0; x < length; x += 1) {
+                args[x] = inspect(arguments[x]);
+            }
+
+            prev.apply(console, args);
+        };
+    }
 });

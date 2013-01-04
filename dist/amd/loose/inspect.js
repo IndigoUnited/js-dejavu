@@ -4,6 +4,8 @@ define([
 
     'use strict';
 
+    var prev;
+
     function inspect(target) {
         // TODO: Should inspect do something more?
         //       If the code is not optimized, they will see wrappers when clicking in functions
@@ -14,5 +16,19 @@ define([
 
     inspect.rewriteConsole = function () {};
 
-    return inspect;
+    // Add inspect method to the console
+    if (typeof console === 'object') {
+        prev = console.inspect || console.log;
+        console.inspect = function () {
+            var args = [],
+                length = arguments.length,
+                x;
+
+            for (x = 0; x < length; x += 1) {
+                args[x] = inspect(arguments[x]);
+            }
+
+            prev.apply(console, args);
+        };
+    }
 });
