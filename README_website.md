@@ -573,6 +573,13 @@ var filipe = new Engineer('Filipe');
 ```
 
 
+### Debugging
+
+In strict mode, logging instances with `console.log` will print some strange stuff (getters, setters, etc).
+This happens because `dejavu` manages accesses to private/protected members as well as make other stuff work.
+To get around this issue, `dejavu` provides a `console.inspect` method that works just like `console.log` but prints a friendly object representation of the instance.
+
+
 ## Optimizer
 
 `dejavu` bundles an optimizer that makes your code faster and lighter.
