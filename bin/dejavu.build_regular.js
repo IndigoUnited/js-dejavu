@@ -13,7 +13,9 @@
     cjsTranslate: true,
     pragmas: {
         'strict': true,
-        'regular': true
+        'regular': true,
+        'amd': false,
+        'node': false
     },
     optimize: 'none',
     uglify: {

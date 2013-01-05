@@ -11,7 +11,9 @@
     },
     pragmas: {
         'strict': true,
-        'regular': false
+        'regular': false,
+        'node': false,
+        'amd': true
     },
     optimize: 'none',
     uglify: {
