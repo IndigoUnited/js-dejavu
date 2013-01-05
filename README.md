@@ -643,7 +643,9 @@ Then just run `npm run-script build` or `node build`.
 
 ## Testing dejavu
 
-Please take a look at the [test](https://github.com/IndigoUnited/dejavu/tree/master/test) section.
+`dejavu` has more than 250 tests.
+Simply run `npm install` to install all the tools needed.
+Then just run `npm test` to execute them.
 
 
 
