@@ -29,7 +29,7 @@ if (path.basename(target) !== 'node_modules') {
 
 // Otherwise put the RC file in the imediate parent module
 target = path.resolve(target, '../.dejavurc');
-console.log('.dejavurc will be saved in' +  target);
+console.log('Saving runtime configuration in ' +  target);
 
 try {
     // Check if RC file exists
