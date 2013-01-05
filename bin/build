@@ -75,10 +75,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
 
         // Print success or error
         if (error !== null) {
-            if (stderr) {
-                throw new Error(stderr.toString());
-            }
-            throw error;
+            throw new Error(stderr + '\n' + stdout);
         }
 
         console.log(stdout);
