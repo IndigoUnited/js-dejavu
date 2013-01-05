@@ -13,8 +13,6 @@ define([
         return target;
     }
 
-    inspect.rewriteConsole = function () {};
-
     // Add inspect method to the console
     if (typeof console === 'object' && !console.inspect) {
         console.inspect = /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent) ?

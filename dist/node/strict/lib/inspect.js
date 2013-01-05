@@ -257,38 +257,6 @@ define([
         return prop;
     }
 
-    /**
-     * Rewrites console methods, enhancing them with inspect capability
-     *
-     * @param {Array} methods The method names to rewrite
-     */
-    function rewriteConsole(methods) {
-        if (typeof console !== 'object' || rewrittenConsole) {
-            return;
-        }
-
-        forEach(methods, function (method) {
-            var prev = console[method];
-            if (prev) {
-                console[method] = function () {
-                    var args = [],
-                        length = arguments.length,
-                        x;
-
-                    for (x = 0; x < length; x += 1) {
-                        args[x] = inspect(arguments[x]);
-                    }
-
-                    prev.apply(console, args);
-                };
-            }
-        });
-
-        rewrittenConsole = true;
-    }
-
-    inspect.rewriteConsole = rewriteConsole;
-
     // Add inspect method to the console
     if (typeof console === 'object' && (!console.inspect || !console.inspect.dejavu)) {
         prev = console.inspect || console.log;

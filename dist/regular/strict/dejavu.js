@@ -1669,43 +1669,6 @@ define('lib/inspect',[
         return prop;
     }
 
-    /**
-     * Rewrites console methods, enhancing them with inspect capability
-     *
-     * @param {Array} methods The method names to rewrite
-     */
-    function rewriteConsole(methods) {
-        if (typeof console !== 'object' || rewrittenConsole) {
-            return;
-        }
-
-        forEach(methods, function (method) {
-            var prev = console[method];
-            if (prev) {
-                // Fix for IE..
-                if (typeof prev === 'object') {
-                    prev = Function.prototype.call.bind(prev, console);
-                }
-
-                console[method] = function () {
-                    var args = [],
-                        length = arguments.length,
-                        x;
-
-                    for (x = 0; x < length; x += 1) {
-                        args[x] = inspect(arguments[x]);
-                    }
-
-                    prev.apply(console, args);
-                };
-            }
-        });
-
-        rewrittenConsole = true;
-    }
-
-    inspect.rewriteConsole = rewriteConsole;
-
     // Add inspect method to the console
     if (typeof console === 'object' && (!console.inspect || !console.inspect.dejavu)) {
         tmp = /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent);
