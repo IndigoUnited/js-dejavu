@@ -21,7 +21,7 @@ prototypal inheritance, making it a breeze to move into JavaScript.
 however none offers all the functionality that many programmers require.
 
 </p>
-<p>Also, even though being one of the most feature rich OOP libraries out there, it has the best performance overall, rivaling with vanilla in production.
+<p>Also, even though being one of the most feature rich OOP libraries out there, it has the best performance, rivaling with vanilla in production.
 
 
 
@@ -141,17 +141,18 @@ var Person = dejavu.Class.declare({
 // create a new instance of person
 var indigo = new Person(&quot;Marco&quot;);
 console.log(&quot;A new indigo was born,&quot;, indigo.getName());</code></pre>
-<p>In node, the default mode running will be the strict mode unless the STRICT environmen
- variable is set to false.
-Environment variables can be changed system wide or per process like so:
+<p>The installation will create a <code>.dejavurc</code> in your package, where you can enable/disable the strict mode as well as change other dejavu options.
+By default the strict mode is enabled. Still, you want to leverage your package with the loose mode enabled.
+Because dejavu will read <code>.dejavurc</code> only from the process.cwd(), packages that require your package will be running the loose mode unless they also define a <code>.dejavurc</code> (which will only happen if they also depend on dejavu directly).
+
+
 
 </p>
-<pre><code class="lang-js">process.env.STRICT = false;</code></pre>
 <h2>Benchmarks</h2>
-<p>You can run the <a href="http://jsperf.com/oop-benchmark/79">benchmark</a> yourself. Note that the benchmark below compares dejavu with libraries that do not provide many of the features that dejavu does. For more details, please consult the libraries documentation.
+<p>You can run the <a href="http://jsperf.com/oop-benchmark/107">benchmark</a> yourself. Note that the benchmark below compares dejavu with libraries that do not provide many of the features that dejavu does. For more details, please consult the libraries documentation.
 
 </p>
-<p>It is also important to mention that <a href="https://github.com/tnhu/jsface">JSFace</a> does not chain prototypes. This gives JSFace an extra edge in performance in some browsers, like Firefox, but renders the <code>instanceof</code> operator useless, so this is kind of a cheat.
+<p>It is also important to mention that some libraries like <a href="https://github.com/tnhu/jsface">JSFace</a> does not chain prototypes. This gives them an extra edge in performance in some browsers, like Firefox, but renders the <code>instanceof</code> operator useless.
 
 </p>
 <p>{{graph}}
@@ -189,7 +190,7 @@ The optimizer will analyse your code and make some improvements,
 boosting it a bit further.
 
 </p>
-<p>You can check the benchmarks in <a href="http://jsperf.com/oop-benchmark/58">jsperf</a>
+<p>You can check the benchmarks in <a href="http://jsperf.com/oop-benchmark/79">jsperf</a>
 comparing <code>dejavu</code> with other OOP libraries. Note that the loose mode
 is used in this test, simulating a production environment, and both the normal
 and optimized versions are tested.
@@ -556,6 +557,14 @@ var Engineer = dejavu.Class.declare({
 
 var filipe = new Engineer(&#39;Filipe&#39;);
 // Engineer class and filipe instance are unlocked</code></pre>
+<h3>Debugging</h3>
+<p>In strict mode, logging instances with <code>console.log</code> will print some strange stuff (getters, setters, etc).
+This happens because <code>dejavu</code> manages accesses to private/protected members as well as make other stuff work.
+To get around this issue, <code>dejavu</code> provides a <code>console.inspect</code> method that works just like <code>console.log</code> but prints a friendly object representation of the instance.
+
+
+
+</p>
 <h2>Optimizer</h2>
 <p><code>dejavu</code> bundles an optimizer that makes your code faster and lighter.
 
@@ -571,6 +580,8 @@ var filipe = new Engineer(&#39;Filipe&#39;);
 <li>Removes functions from interfaces</li>
 </ul>
 <p>The optimizer is located in the <code>bin</code> folder.
+By default, the optimized code is suitable for the browser.
+If you are optimizing your code for <code>nodejs</code> then pass the --closure option. This will boost the performance when running code in v8.
 
 </p>
 <p>Example usage:
@@ -591,7 +602,8 @@ grunt.initConfig({
     dejavu: {
         optimize: {
             options: {
-                exclude: [/bootstrap(\.min)?\.js$/]
+                exclude: [/bootstrap(\.min)?\.js$/],
+                closure: false  // Set to true if optimizing only for nodejs to get better performance
             },
             files: {
                 &#39;dist/&#39;: &#39;src/**/*.js&#39;

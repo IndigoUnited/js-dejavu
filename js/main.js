@@ -175,15 +175,11 @@ if (!window.siteVersion) {
 // Fetches the perf results and draws the graph
 (function () {
 
-    var testId = 'agt1YS1wcm9maWxlcnINCxIEVGVzdBjEhIETDA',
+    var testId = 'agt1YS1wcm9maWxlcnINCxIEVGVzdBjk7qoTDA',
         cb = '_' + parseInt(Math.random() * 1e9, 10),
         // The blacklist below is due to unstable versions of browsers that should not
         // yet be accounted for
-        browserBlacklist = [
-            /Firefox 1[8-9]\./,
-            /Firefox [2-9][0-9]\./,
-            /Safari 5\.1\.7/ // This graph was wacked, because the results weren't properly submitted
-        ];
+        browserBlacklist = []; // /Firefox 17\./ -> Example of an entry
 
     function browserIsBlacklisted(browser) {
         var i,
