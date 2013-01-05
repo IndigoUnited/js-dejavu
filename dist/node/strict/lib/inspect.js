@@ -31,10 +31,7 @@ define([
         redefinedCacheKeyword = '$redefined_cache_' + random,
         rewrittenConsole = false,
         prev,
-        ret,
-        useDir;
-
-    useDir = true;
+        tmp;
 
     /**
      * Fetches an already inspected target from the cache.
@@ -249,7 +246,7 @@ define([
 
         if (isFunction(prop)) {
             if (prop[$class]) {
-                return prop[$class].inspectConstructor ? 
+                return prop[$class].inspectConstructor ?
                     prop[$class].inspectConstructor(prop, cache) :
                     inspectConstructor(prop, cache);
             }
@@ -294,7 +291,7 @@ define([
 
     // Add inspect method to the console
     if (typeof console === 'object' && (!console.inspect || !console.inspect.dejavu)) {
-        prev = console.inspect || (useDir ? console.dir || console.log : console.log);  // console.dir is better in IE
+        prev = console.inspect || console.log;
 
         console.inspect = function () {
             var args = [],
@@ -310,9 +307,9 @@ define([
         console.inspect.dejavu = true;
     }
 
-    ret = {};
-    ret['instance_' + random] = inspectInstance;
-    ret['constructor_' + random] = inspectConstructor;
+    tmp = {};
+    tmp['instance_' + random] = inspectInstance;
+    tmp['constructor_' + random] = inspectConstructor;
 
-    return ret;
+    return tmp;
 });

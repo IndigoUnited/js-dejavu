@@ -27,10 +27,7 @@ define([
         redefinedCacheKeyword = '$redefined_cache_' + random,
         rewrittenConsole = false,
         prev,
-        ret,
-        useDir;
-
-    useDir = /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent);
+        tmp;
 
     // Function prototype bind shim
     // Can't use amd-utils bind because of IE's
@@ -302,7 +299,8 @@ define([
 
     // Add inspect method to the console
     if (typeof console === 'object' && (!console.inspect || !console.inspect.dejavu)) {
-        prev = console.inspect || (useDir ? console.dir || console.log : console.log);  // console.dir is better in IE
+        tmp = /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent);
+        prev = console.inspect || (tmp ? console.dir || console.log : console.log);  // console.dir is better in IE
 
         // Fix for IE..
         if (typeof prev === 'object') {

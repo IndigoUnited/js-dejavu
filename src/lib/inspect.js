@@ -32,15 +32,7 @@ define([
         redefinedCacheKeyword = '$redefined_cache_' + random,
         rewrittenConsole = false,
         prev,
-        ret,
-        useDir;
-
-//>>includeStart('node', pragmas.node);
-    useDir = true;
-//>>includeEnd('node');
-//>>excludeStart('node', pragmas.node);
-    useDir = /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent);
-//>>excludeEnd('node');
+        tmp;
 
 //>>excludeStart('node', pragmas.node);
     // Function prototype bind shim
@@ -277,7 +269,7 @@ define([
                 return inspectInstance(prop, cache);
 //>>excludeEnd('node');
 //>>includeStart('node', pragmas.node);
-                return prop[$class].inspectConstructor ? 
+                return prop[$class].inspectConstructor ?
                     prop[$class].inspectConstructor(prop, cache) :
                     inspectConstructor(prop, cache);
 //>>includeEnd('node');
@@ -330,15 +322,19 @@ define([
 
     // Add inspect method to the console
     if (typeof console === 'object' && (!console.inspect || !console.inspect.dejavu)) {
-        prev = console.inspect || (useDir ? console.dir || console.log : console.log);  // console.dir is better in IE
-
 //>>excludeStart('node', pragmas.node);
+        tmp = /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent);
+        prev = console.inspect || (tmp ? console.dir || console.log : console.log);  // console.dir is better in IE
+
         // Fix for IE..
         if (typeof prev === 'object') {
             prev = Function.prototype.call.bind(prev, console);
         }
-
 //>>excludeEnd('node');
+//>>includeStart('node', pragmas.node);
+        prev = console.inspect || console.log;
+//>>includeEnd('node');
+
         console.inspect = function () {
             var args = [],
                 length = arguments.length,
@@ -354,11 +350,11 @@ define([
     }
 //>>includeStart('node', pragmas.node);
 
-    ret = {};
-    ret['instance_' + random] = inspectInstance;
-    ret['constructor_' + random] = inspectConstructor;
+    tmp = {};
+    tmp['instance_' + random] = inspectInstance;
+    tmp['constructor_' + random] = inspectConstructor;
 
-    return ret;
+    return tmp;
 //>>includeEnd('node');
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
@@ -376,7 +372,7 @@ define([
     // Add inspect method to the console
     if (typeof console === 'object' && !console.inspect) {
 //>>includeStart('node', pragmas.node);
-        console.inspect = console.dir;
+        console.inspect = console.log;
 //>>includeEnd('node');
 //>>excludeStart('node', pragmas.node);
         console.inspect = /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent) ?

@@ -21,6 +21,6 @@ define([
 
     // Add inspect method to the console
     if (typeof console === 'object' && !console.inspect) {
-        console.inspect = console.dir;
+        console.inspect = console.log;
     }
 });
