@@ -139,8 +139,8 @@ console.log("A new indigo was born,", indigo.getName());
 ```
 
 The installation will create a `.dejavurc` in your package, where you can enable/disable the strict mode as well as change other dejavu options.
-By default the strict mode is enabled. Still, you want to leverage your package with the loose mode enabled.
-Because dejavu will read `.dejavurc` only from the process.cwd(), packages that require your package will be running the loose mode unless they also define a `.dejavurc` (which will only happen if they also depend on dejavu directly).
+By default the strict mode is used. Still, you want to leverage your package with the loose mode.
+Because dejavu reads`.dejavurc` from the process.cwd(), packages that require your package will be running the loose mode unless they also define a `.dejavurc` (which will only happen if they also depend on dejavu directly).
 
 
 
