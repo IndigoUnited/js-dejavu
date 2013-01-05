@@ -20,7 +20,7 @@ prototypal inheritance, making it a breeze to move into JavaScript.
 There are some libraries out there able to shim classical inheritance,
 however none offers all the functionality that many programmers require.
 
-Also, even though being one of the most feature rich OOP libraries out there, it has the best performance, rivaling with vanilla in production.
+Also, even though being one of the most feature rich OOP libraries out there, it has an outstanding performance, rivaling with vanilla in production.
 
 
 
