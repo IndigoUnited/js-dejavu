@@ -166,13 +166,13 @@ perform faster than most libraries, even if you don't run the [optimizer](https:
 The optimizer will analyse your code and make some improvements,
 boosting it a bit further.
 
-You can check the benchmarks in [jsperf](http://jsperf.com/oop-benchmark/79)
+You can check the benchmarks in [jsperf](http://jsperf.com/oop-benchmark/107)
 comparing `dejavu` with other OOP libraries. Note that the loose mode
 is used in this test, simulating a production environment, and both the normal
-and optimized versions are tested. It is also important to mention that
+and optimized versions are tested. It is also important to mention that many libraries like
 [JSFace](https://github.com/tnhu/jsface) does not chain prototypes. This gives
 JSFace an extra edge in performance in some browsers, like Firefox, but renders
-the `instanceof` operator useless, so this is kind of a cheat.
+the `instanceof` operator useless.
 
 
 
@@ -568,6 +568,7 @@ var filipe = new Engineer('Filipe');
 In strict mode, logging instances with `console.log` will print some strange stuff (getters, setters, etc).
 This happens because `dejavu` manages accesses to private/protected members as well as make other stuff work.
 To get around this issue, `dejavu` provides a `console.inspect` method that works just like `console.log` but prints a friendly object representation of the instance.
+
 
 
 ## Optimizer

@@ -144,9 +144,9 @@ Because dejavu will read `.dejavurc` only from the process.cwd(), packages that 
 
 ## Benchmarks
 
-You can run the [benchmark](http://jsperf.com/oop-benchmark/79) yourself. Note that the benchmark below compares dejavu with libraries that do not provide many of the features that dejavu does. For more details, please consult the libraries documentation.
+You can run the [benchmark](http://jsperf.com/oop-benchmark/107) yourself. Note that the benchmark below compares dejavu with libraries that do not provide many of the features that dejavu does. For more details, please consult the libraries documentation.
 
-It is also important to mention that [JSFace](https://github.com/tnhu/jsface) does not chain prototypes. This gives JSFace an extra edge in performance in some browsers, like Firefox, but renders the `instanceof` operator useless, so this is kind of a cheat.
+It is also important to mention that some libraries like [JSFace](https://github.com/tnhu/jsface) does not chain prototypes. This gives them an extra edge in performance in some browsers, like Firefox, but renders the `instanceof` operator useless.
 
 {{graph}}
 
@@ -578,6 +578,7 @@ var filipe = new Engineer('Filipe');
 In strict mode, logging instances with `console.log` will print some strange stuff (getters, setters, etc).
 This happens because `dejavu` manages accesses to private/protected members as well as make other stuff work.
 To get around this issue, `dejavu` provides a `console.inspect` method that works just like `console.log` but prints a friendly object representation of the instance.
+
 
 
 ## Optimizer
