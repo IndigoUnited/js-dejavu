@@ -18,6 +18,7 @@ function requireStrict() {
     exported = true;
 }
 
+// Check if version is cached
 if (process.env._DEJAVU_STRICT != null) {
     if (process.env._DEJAVU_STRICT) {
         requireStrict();
@@ -27,7 +28,7 @@ if (process.env._DEJAVU_STRICT != null) {
 
     // Merge the options
     if (process.env._DEJAVU_OPTIONS) {
-        module.exports.options = deepMixIn(process.env._DEJAVU_OPTIONS);
+        deepMixIn(module.exports.options, process.env._DEJAVU_OPTIONS);
     }
 } else {
     // Check if there is a RC file in the cwd
@@ -38,6 +39,7 @@ if (process.env._DEJAVU_STRICT != null) {
         if (e.code === 'ENOENT') {
             // If not, we require the loose
             requireLoose();
+            process.env._DEJAVU_STRICT = false;
         }
     }
 
@@ -60,7 +62,7 @@ if (process.env._DEJAVU_STRICT != null) {
             process.env._DEJAVU_OPTIONS = rc;
 
             // Merge the options
-            module.exports.options = deepMixIn(rc);
+            deepMixIn(module.exports.options, rc);
         // Error parsing RC file
         } catch (err) {
             throw new Error('Invalid .dejavurc file: ' + err.message);
