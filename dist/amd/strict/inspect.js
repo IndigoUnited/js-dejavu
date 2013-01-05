@@ -1,23 +1,23 @@
 define([
     './common/randomAccessor',
+    './common/hasDefineProperty',
     './options',
     'amd-utils/lang/createObject',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
     'amd-utils/lang/isFunction',
     'amd-utils/object/hasOwn',
-    'amd-utils/array/forEach',
-    'amd-utils/function/bind'
+    'amd-utils/array/forEach'
 ], function (
     randomAccessor,
+    hasDefineProperty,
     options,
     createObject,
     isObject,
     isArray,
     isFunction,
     hasOwn,
-    forEach,
-    bind
+    forEach
 ) {
 
     'use strict';
@@ -28,7 +28,20 @@ define([
         cacheKeyword = '$cache_' + random,
         redefinedCacheKeyword = '$redefined_cache_' + random,
         rewrittenConsole = false,
-        prev;
+        prev,
+        userAgent = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '',
+        isIE = /msie/.test(userAgent) && !/opera/.test(userAgent);
+
+    // Function prototype bind shim
+    // Can't use amd-utils bind because of IE's
+    if (!Function.prototype.bind) {
+        Function.prototype.bind = function (context) {
+            var fn = this, args = Array.prototype.slice.call(arguments, 1);
+            return function () {
+                return fn.apply(context, Array.prototype.concat.apply(args, arguments));
+            };
+        };
+    }
 
     /**
      * Fetches an already inspected target from the cache.
@@ -63,6 +76,13 @@ define([
      * @return {Object} The inspected instance
      */
     function inspectInstance(target, cache) {
+        // If browser has no define property it means it is too old and
+        // in that case we return the target itself.
+        // This could be improved but I think it does not worth the trouble
+        if (!hasDefineProperty) {
+            return target;
+        }
+
         var cached = fetchCache(target, cache),
             def,
             simpleConstructor,
@@ -122,6 +142,13 @@ define([
      * @return {Object} The inspected constructor
      */
     function inspectConstructor(target, cache) {
+        // If browser has no define property it means it is too old and
+        // in that case we return the target itself.
+        // This could be improved but I think it does not worth the trouble
+        if (!hasDefineProperty) {
+            return target;
+        }
+
         var cached = fetchCache(target, cache),
             def,
             methodsCache,
@@ -251,7 +278,7 @@ define([
             if (prev) {
                 // Fix for IE..
                 if (typeof prev === 'object') {
-                    prev = bind(prev, console);
+                    prev = Function.prototype.call.bind(prev, console);
                 }
 
                 console[method] = function () {
@@ -275,7 +302,13 @@ define([
 
     // Add inspect method to the console
     if (typeof console === 'object') {
-        prev = console.inspect || console.log;
+        prev = console.inspect || (isIE ? console.dir || console.log : console.log);  // console.dir is better in IE
+
+        // Fix for IE..
+        if (typeof prev === 'object') {
+            prev = Function.prototype.call.bind(prev, console);
+        }
+
         console.inspect = function () {
             var args = [],
                 length = arguments.length,

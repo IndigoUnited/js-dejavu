@@ -1379,8 +1379,11 @@ define([
         };
 
         if (!Instance[$class]) {
-            obfuscateProperty(Instance, $class, { simpleConstructor: function () {}, methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, ownMembers: {}, interfaces: [], binds: [] });
-            obfuscateProperty(Instance[$class].simpleConstructor, '$constructor', Instance);
+            obfuscateProperty(Instance, $class, { methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, ownMembers: {}, interfaces: [], binds: [] });
+            if (hasDefineProperty) {
+                Instance[$class].simpleConstructor = function () {};
+                obfuscateProperty(Instance[$class].simpleConstructor, '$constructor', Instance);
+            }
         }
 
         return Instance;
@@ -1524,7 +1527,9 @@ define([
         }
 
         // Make inheritance also for the simple constructor (for the inspect)
-        inheritPrototype(constructor[$class].simpleConstructor, parent[$class].simpleConstructor);
+        if (hasDefineProperty) {
+            inheritPrototype(constructor[$class].simpleConstructor, parent[$class].simpleConstructor);
+        }
 
         // Inherit locked and forceUnlocked
         if (hasOwn(parent[$class], 'locked')) {

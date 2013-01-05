@@ -1407,54 +1407,26 @@ var isKind = require('./isKind');
 
 });
 
-define('amd-utils/function/bind',['require','exports','module'],function (require, exports, module) {
-
-
-    function slice(arr, offset){
-        return Array.prototype.slice.call(arr, offset || 0);
-    }
-
-    /**
-     * Return a function that will execute in the given context, optionally adding any additional supplied parameters to the beginning of the arguments collection.
-     * @param {Function} fn  Function.
-     * @param {object} context   Execution context.
-     * @param {rest} args    Arguments (0...n arguments).
-     * @return {Function} Wrapped Function.
-     * @version 0.1.0 (2011/02/18)
-     */
-    function bind(fn, context, args){
-        var argsArr = slice(arguments, 2); //curried args
-        return function(){
-            return fn.apply(context, argsArr.concat(slice(arguments)));
-        };
-    }
-
-    module.exports = bind;
-
-
-
-});
-
 define('inspect',[
     './common/randomAccessor',
+    './common/hasDefineProperty',
     './options',
     'amd-utils/lang/createObject',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
     'amd-utils/lang/isFunction',
     'amd-utils/object/hasOwn',
-    'amd-utils/array/forEach',
-    'amd-utils/function/bind'
+    'amd-utils/array/forEach'
 ], function (
     randomAccessor,
+    hasDefineProperty,
     options,
     createObject,
     isObject,
     isArray,
     isFunction,
     hasOwn,
-    forEach,
-    bind
+    forEach
 ) {
 
     'use strict';
@@ -1465,7 +1437,20 @@ define('inspect',[
         cacheKeyword = '$cache_' + random,
         redefinedCacheKeyword = '$redefined_cache_' + random,
         rewrittenConsole = false,
-        prev;
+        prev,
+        userAgent = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '',
+        isIE = /msie/.test(userAgent) && !/opera/.test(userAgent);
+
+    // Function prototype bind shim
+    // Can't use amd-utils bind because of IE's
+    if (!Function.prototype.bind) {
+        Function.prototype.bind = function (context) {
+            var fn = this, args = Array.prototype.slice.call(arguments, 1);
+            return function () {
+                return fn.apply(context, Array.prototype.concat.apply(args, arguments));
+            };
+        };
+    }
 
     /**
      * Fetches an already inspected target from the cache.
@@ -1500,6 +1485,13 @@ define('inspect',[
      * @return {Object} The inspected instance
      */
     function inspectInstance(target, cache) {
+        // If browser has no define property it means it is too old and
+        // in that case we return the target itself.
+        // This could be improved but I think it does not worth the trouble
+        if (!hasDefineProperty) {
+            return target;
+        }
+
         var cached = fetchCache(target, cache),
             def,
             simpleConstructor,
@@ -1559,6 +1551,13 @@ define('inspect',[
      * @return {Object} The inspected constructor
      */
     function inspectConstructor(target, cache) {
+        // If browser has no define property it means it is too old and
+        // in that case we return the target itself.
+        // This could be improved but I think it does not worth the trouble
+        if (!hasDefineProperty) {
+            return target;
+        }
+
         var cached = fetchCache(target, cache),
             def,
             methodsCache,
@@ -1688,7 +1687,7 @@ define('inspect',[
             if (prev) {
                 // Fix for IE..
                 if (typeof prev === 'object') {
-                    prev = bind(prev, console);
+                    prev = Function.prototype.call.bind(prev, console);
                 }
 
                 console[method] = function () {
@@ -1712,7 +1711,13 @@ define('inspect',[
 
     // Add inspect method to the console
     if (typeof console === 'object') {
-        prev = console.inspect || console.log;
+        prev = console.inspect || (isIE ? console.dir || console.log : console.log);  // console.dir is better in IE
+
+        // Fix for IE..
+        if (typeof prev === 'object') {
+            prev = Function.prototype.call.bind(prev, console);
+        }
+
         console.inspect = function () {
             var args = [],
                 length = arguments.length,
@@ -1940,6 +1945,34 @@ define('common/clone',[
 
     return clone;
 });
+define('amd-utils/function/bind',['require','exports','module'],function (require, exports, module) {
+
+
+    function slice(arr, offset){
+        return Array.prototype.slice.call(arr, offset || 0);
+    }
+
+    /**
+     * Return a function that will execute in the given context, optionally adding any additional supplied parameters to the beginning of the arguments collection.
+     * @param {Function} fn  Function.
+     * @param {object} context   Execution context.
+     * @param {rest} args    Arguments (0...n arguments).
+     * @return {Function} Wrapped Function.
+     * @version 0.1.0 (2011/02/18)
+     */
+    function bind(fn, context, args){
+        var argsArr = slice(arguments, 2); //curried args
+        return function(){
+            return fn.apply(context, argsArr.concat(slice(arguments)));
+        };
+    }
+
+    module.exports = bind;
+
+
+
+});
+
 define('amd-utils/lang/toArray',['require','exports','module','./kindOf'],function (require, exports, module) {
 var kindOf = require('./kindOf');
 
@@ -3373,8 +3406,11 @@ define('Class',[
         };
 
         if (!Instance[$class]) {
-            obfuscateProperty(Instance, $class, { simpleConstructor: function () {}, methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, ownMembers: {}, interfaces: [], binds: [] });
-            obfuscateProperty(Instance[$class].simpleConstructor, '$constructor', Instance);
+            obfuscateProperty(Instance, $class, { methods: {}, properties: {}, staticMethods: {}, staticProperties: {}, ownMembers: {}, interfaces: [], binds: [] });
+            if (hasDefineProperty) {
+                Instance[$class].simpleConstructor = function () {};
+                obfuscateProperty(Instance[$class].simpleConstructor, '$constructor', Instance);
+            }
         }
 
         return Instance;
@@ -3518,7 +3554,9 @@ define('Class',[
         }
 
         // Make inheritance also for the simple constructor (for the inspect)
-        inheritPrototype(constructor[$class].simpleConstructor, parent[$class].simpleConstructor);
+        if (hasDefineProperty) {
+            inheritPrototype(constructor[$class].simpleConstructor, parent[$class].simpleConstructor);
+        }
 
         // Inherit locked and forceUnlocked
         if (hasOwn(parent[$class], 'locked')) {
