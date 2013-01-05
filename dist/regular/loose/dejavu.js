@@ -834,11 +834,11 @@ define('amd-utils/array/indexOf',['require','exports','module'],function (requir
 
     /**
      * Array.indexOf
-     * @version 0.4.0 (2012/10/30)
+     * @version 0.5.0 (2012/12/18)
      */
     function indexOf(arr, item, fromIndex) {
         fromIndex = fromIndex || 0;
-        var n = arr.length >>> 0,
+        var n = arr.length,
             i = fromIndex < 0? n + fromIndex : fromIndex;
         while (i < n) {
             // we iterate over sparse items since there is no way to make it
@@ -1101,14 +1101,14 @@ define('amd-utils/array/forEach',['require','exports','module'],function (requir
 
     /**
      * Array forEach
-     * @version 0.7.0 (2012/10/30)
+     * @version 0.8.0 (2012/12/18)
      */
     function forEach(arr, callback, thisObj) {
         if (arr == null) {
             return;
         }
         var i = -1,
-            n = arr.length >>> 0;
+            n = arr.length;
         while (++i < n) {
             // we iterate over sparse items since there is no way to make it
             // work properly on IE 7-8. see #64
@@ -1174,12 +1174,12 @@ define('amd-utils/array/some',['require','exports','module'],function (require, 
 
     /**
      * Array some
-     * @version 0.4.0 (2012/10/30)
+     * @version 0.5.0 (2012/12/18)
      */
     function some(arr, callback, thisObj) {
         var result = false,
             i = -1,
-            n = arr.length >>> 0;
+            n = arr.length;
         while (++i < n) {
             // we iterate over sparse items since there is no way to make it
             // work properly on IE 7-8. see #64

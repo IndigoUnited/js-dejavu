@@ -463,7 +463,7 @@ define([
         metadata.implementation = method;
 
         // Add it to the constructor or the prototype only if public
-        if (metadata.isPublic) {
+        if (metadata.isPublic || !hasDefineProperty) {
             target = isStatic ? constructor : constructor.prototype;
             target[name] = method;
         }
@@ -588,7 +588,7 @@ define([
         }
 
         // Add it to the constructor or the prototype only if public
-        if (metadata.isPublic) {
+        if (metadata.isPublic || !hasDefineProperty) {
             target = isStatic ? constructor : constructor.prototype;
             target[name] = value;
         }
@@ -1620,7 +1620,6 @@ define([
                 for (x in tmp.properties) {
                     if (!tmp.properties[x].isImmutable) {
                         this[x] = clone(this[x]);
-                        this[redefinedCacheKeyword].properties[name] = true; // This is just for the inspect
                     }
                 }
             }
