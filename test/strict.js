@@ -2,7 +2,8 @@ if (!global.evaluated) {
     require('./util/adapter.js');
 }
 
-var path = 'amd/strict';
+var path = (!(typeof window !== 'undefined' && window.navigator && window.document)) ? 'node/strict' : 'amd/strict';
+
 global.modules = [
     path + '/Class',
     path + '/AbstractClass',
@@ -10,7 +11,7 @@ global.modules = [
     path + '/FinalClass',
     path + '/instanceOf',
     path + '/options',
-    path + '/common/hasDefineProperty',
+    path + '/lib/hasDefineProperty',
     'specs/cases/Emitter'
 ];
 global.build = 'amd/strict';

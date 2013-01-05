@@ -1,6 +1,3 @@
-/*jslint browser:true, devel:true, nomen:true*/
-/*globals define*/
-
 /**
  * EventsEmitter abstract class.
  *
@@ -9,36 +6,38 @@
  *
  * @author André Cruz <andremiguelcruz@msn.com>
  */
-define([
-    'amd/strict/AbstractClass',
-    'amd/strict/Interface',
-    'amd-utils/lang/toArray'
-], function (AbstractClass, Interface, toArray) {
+(function () {
 
     'use strict';
 
-    var SubscriberInterface = Interface.declare({
-        addListener: function () {},
-        removeListener: function () {}
-    }),
-        Dummy = AbstractClass.declare({
-            $implements: SubscriberInterface
+    var modules = global.modules.slice(0, 3);
+    modules.push('amd-utils/lang/toArray');
+
+    define(modules, function (Class, AbstractClass, Interface, toArray) {
+
+        var SubscriberInterface = Interface.declare({
+            addListener: function () {},
+            removeListener: function () {}
         }),
-        EventsEmitter = AbstractClass.declare({
-            $extends: Dummy,
+            Dummy = AbstractClass.declare({
+                $implements: SubscriberInterface
+            }),
+            EventsEmitter = AbstractClass.declare({
+                $extends: Dummy,
 
-            addListener: function (name, fn, context) {},
-            removeListener: function (name, fn) {}
-        }),
-        DirectEventsEmitter = AbstractClass.declare({
-            $implements: SubscriberInterface,
+                addListener: function (name, fn, context) {},
+                removeListener: function (name, fn) {}
+            }),
+            DirectEventsEmitter = AbstractClass.declare({
+                $implements: SubscriberInterface,
 
-            addListener: function (name, fn, context) {},
-            removeListener: function (name, fn) {}
-        });
+                addListener: function (name, fn, context) {},
+                removeListener: function (name, fn) {}
+            });
 
-    return {
-        EventsEmitter: EventsEmitter,
-        DirectEventsEmitter: DirectEventsEmitter
-    };
-});
+        return {
+            EventsEmitter: EventsEmitter,
+            DirectEventsEmitter: DirectEventsEmitter
+        };
+    });
+}());

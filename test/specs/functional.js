@@ -1,5 +1,3 @@
-/*jshint strict:false*/
-
 define(global.modules, function (
     Class,
     AbstractClass,

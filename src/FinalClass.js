@@ -5,8 +5,8 @@
 define([
     './Class'
 //>>includeStart('strict', pragmas.strict);
-    , './common/randomAccessor'
-    , './common/checkObjectPrototype'
+    , './lib/randomAccessor'
+    , './lib/checkObjectPrototype'
 //>>includeEnd('strict');
 ], function FinalClassWrapper(
     Class

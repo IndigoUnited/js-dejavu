@@ -8,21 +8,21 @@ define([
     'amd-utils/array/remove',
     'amd-utils/object/keys',
     'amd-utils/object/size',
-    './common/functionMeta',
-    './common/propertyMeta',
-    './common/isFunctionCompatible',
-    './common/checkKeywords',
-    './common/testKeywords',
-    './common/hasDefineProperty',
-    './common/checkObjectPrototype',
-    './common/randomAccessor',
-    './common/hasFreezeBug',
+    './lib/functionMeta',
+    './lib/propertyMeta',
+    './lib/isFunctionCompatible',
+    './lib/checkKeywords',
+    './lib/testKeywords',
+    './lib/hasDefineProperty',
+    './lib/checkObjectPrototype',
+    './lib/randomAccessor',
+    './lib/hasFreezeBug',
     './options',
 //>>includeEnd('strict');
-    './inspect',
-    './common/printWarning',
-    './common/obfuscateProperty',
-    './common/isImmutable',
+    './lib/inspect',
+    './lib/printWarning',
+    './lib/obfuscateProperty',
+    './lib/isImmutable',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
@@ -32,8 +32,8 @@ define([
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
     'amd-utils/array/contains',
-    './common/mixIn',
-    './common/clone',
+    './lib/mixIn',
+    './lib/clone',
 //>>excludeStart('strict', pragmas.strict);
     'amd-utils/array/append',
 //>>excludeEnd('strict');
@@ -102,8 +102,6 @@ define([
         cacheKeyword = '$cache_' + random,
         redefinedCacheKeyword = '$redefined_cache_' + random,
         inheriting,
-        descriptor,
-        tmp,
         nextId = 0,
         caller,
         callerClass,
@@ -1662,6 +1660,10 @@ define([
                 Instance[$class].simpleConstructor = function () {};
                 obfuscateProperty(Instance[$class].simpleConstructor, '$constructor', Instance);
             }
+//>>includeStart('node', pragmas.node);
+            obfuscateProperty(Instance[$class], 'inspectInstance', inspect['instance_' + random]);
+            obfuscateProperty(Instance[$class], 'inspectConstructor', inspect['constructor_' + random]);
+//>>includeEnd('node');
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
             obfuscateProperty(Instance, $class, { staticMethods: [], staticProperties: {}, properties: [], interfaces: [], binds: [] });
@@ -2138,6 +2140,7 @@ define([
 
         dejavu.prototype.$name = params.$name;
         delete params.$name;
+
 //>>includeEnd('strict');
         // Parse mixins
         parseBorrows(params, dejavu);
@@ -2272,74 +2275,50 @@ define([
     obfuscateProperty(Class, '$create', createClass);
 
     // Add custom bound function to supply binds
-    tmp = true;
-    if (Function.prototype.$bound) {
-        if (!Function.prototype.$bound.dejavu) {
-            printWarning('Function.prototype.$bound is already defined and will be overwritten.');
-            if (Object.getOwnPropertyDescriptor) {
-                descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bound');
-                if (!descriptor.writable || !descriptor.configurable) {
-                    printWarning('Could not overwrite Function.prototype.$bound.');
-                    tmp = false;
-                }
-            }
-        } else {
-            tmp = false;
-        }
-    }
-
-    if (tmp) {
-        obfuscateProperty(Function.prototype, '$bound', function () {
-            this[$bound] = true;
-
-            return this;
-        });
-        Function.prototype.$bound.dejavu = true;
-    }
-
-    // Add custom bind function to supply binds
-    tmp = true;
-    if (Function.prototype.$bind) {
-        if (!Function.prototype.$bind.dejavu) {
-            printWarning('Function.prototype.$bind is already defined and will be overwritten.');
-            if (Object.getOwnPropertyDescriptor) {
-                descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bind');
-                if (!descriptor.writable || !descriptor.configurable) {
-                    printWarning('Could not overwrite Function.prototype.$bind.');
-                    tmp = false;
-                }
-            }
-        } else {
-            tmp = false;
-        }
-    }
-
-    if (tmp) {
-        obfuscateProperty(Function.prototype, '$bind', function (context) {
-            if (!arguments.length) {
+    if (!Function.prototype.$bound || !Function.prototype.$bound.dejavu) {
+        try {
+            obfuscateProperty(Function.prototype, '$bound', function () {
                 this[$bound] = true;
 
                 return this;
-            }
+            });
+            Function.prototype.$bound.dejavu = true;
+        } catch (e) {
+            printWarning('Could not set Function.prototype.$bound.');
+        }
+    }
 
-            var args = toArray(arguments);
-            args.splice(0, 1, this);
+    // Add custom bind function to supply binds
+    if (!Function.prototype.$bind || !Function.prototype.$bind.dejavu) {
+        try {
+            obfuscateProperty(Function.prototype, '$bind', function (context) {
+                if (!arguments.length) {
+                    this[$bound] = true;
+
+                    return this;
+                }
+
+                var args = toArray(arguments);
+                args.splice(0, 1, this);
 
 //>>includeStart('node', pragmas.node);
-            if (context.$bind) {
-                return context.$bind.apply(context, args);
-            }
+                if (context.$bind) {
+                    return context.$bind.apply(context, args);
+                }
 
 //>>includeEnd('node');
 //>>includeStart('strict', pragmas.strict);
-            if (isFunction(context)) {
-                return doBindStatic.apply(context, args);
-            }
+                if (isFunction(context)) {
+                    return doBindStatic.apply(context, args);
+                }
 
 //>>includeEnd('strict');
-            return doBind.apply(context, args);
-        });
-        Function.prototype.$bind.dejavu = true;
+                return doBind.apply(context, args);
+            });
+            Function.prototype.$bind.dejavu = true;
+        } catch (e) {
+            printWarning('Could not set Function.prototype.$bind.');
+        }
     }
 
     return Class;

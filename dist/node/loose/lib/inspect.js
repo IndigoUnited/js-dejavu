@@ -8,9 +8,6 @@ define([
 
     'use strict';
 
-    var userAgent = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '',
-        isIE = /msie/.test(userAgent) && !/opera/.test(userAgent);
-
     function inspect(target) {
         // TODO: Should inspect do something more?
         //       If the code is not optimized, they will see wrappers when clicking in functions
@@ -24,6 +21,6 @@ define([
 
     // Add inspect method to the console
     if (typeof console === 'object' && !console.inspect) {
-        console.inspect = isIE ? console.dir || console.log : console.log;  // console.dir is better in IE
+        console.inspect = console.dir;
     }
 });

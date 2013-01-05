@@ -1,6 +1,6 @@
 define([
 //>>includeStart('strict', pragmas.strict);
-    './common/randomAccessor'
+    './lib/randomAccessor'
 //>>includeEnd('strict');
 ], function instanceOfWrapper(
 //>>includeStart('strict', pragmas.strict);

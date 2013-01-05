@@ -7,20 +7,20 @@ define([
     'amd-utils/array/remove',
     'amd-utils/object/keys',
     'amd-utils/object/size',
-    './common/functionMeta',
-    './common/propertyMeta',
-    './common/isFunctionCompatible',
-    './common/checkKeywords',
-    './common/testKeywords',
-    './common/hasDefineProperty',
-    './common/checkObjectPrototype',
-    './common/randomAccessor',
-    './common/hasFreezeBug',
+    './lib/functionMeta',
+    './lib/propertyMeta',
+    './lib/isFunctionCompatible',
+    './lib/checkKeywords',
+    './lib/testKeywords',
+    './lib/hasDefineProperty',
+    './lib/checkObjectPrototype',
+    './lib/randomAccessor',
+    './lib/hasFreezeBug',
     './options',
-    './inspect',
-    './common/printWarning',
-    './common/obfuscateProperty',
-    './common/isImmutable',
+    './lib/inspect',
+    './lib/printWarning',
+    './lib/obfuscateProperty',
+    './lib/isImmutable',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
@@ -30,8 +30,8 @@ define([
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
     'amd-utils/array/contains',
-    './common/mixIn',
-    './common/clone',
+    './lib/mixIn',
+    './lib/clone',
     'amd-utils/function/bind',
     'amd-utils/lang/toArray',
     'amd-utils/array/insert'
@@ -91,8 +91,6 @@ define([
         cacheKeyword = '$cache_' + random,
         redefinedCacheKeyword = '$redefined_cache_' + random,
         inheriting,
-        descriptor,
-        tmp,
         nextId = 0,
         caller,
         callerClass,
@@ -1690,6 +1688,7 @@ define([
 
         dejavu.prototype.$name = params.$name;
         delete params.$name;
+
         // Parse mixins
         parseBorrows(params, dejavu);
 
@@ -1796,66 +1795,42 @@ define([
     obfuscateProperty(Class, '$create', createClass);
 
     // Add custom bound function to supply binds
-    tmp = true;
-    if (Function.prototype.$bound) {
-        if (!Function.prototype.$bound.dejavu) {
-            printWarning('Function.prototype.$bound is already defined and will be overwritten.');
-            if (Object.getOwnPropertyDescriptor) {
-                descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bound');
-                if (!descriptor.writable || !descriptor.configurable) {
-                    printWarning('Could not overwrite Function.prototype.$bound.');
-                    tmp = false;
-                }
-            }
-        } else {
-            tmp = false;
-        }
-    }
-
-    if (tmp) {
-        obfuscateProperty(Function.prototype, '$bound', function () {
-            this[$bound] = true;
-
-            return this;
-        });
-        Function.prototype.$bound.dejavu = true;
-    }
-
-    // Add custom bind function to supply binds
-    tmp = true;
-    if (Function.prototype.$bind) {
-        if (!Function.prototype.$bind.dejavu) {
-            printWarning('Function.prototype.$bind is already defined and will be overwritten.');
-            if (Object.getOwnPropertyDescriptor) {
-                descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bind');
-                if (!descriptor.writable || !descriptor.configurable) {
-                    printWarning('Could not overwrite Function.prototype.$bind.');
-                    tmp = false;
-                }
-            }
-        } else {
-            tmp = false;
-        }
-    }
-
-    if (tmp) {
-        obfuscateProperty(Function.prototype, '$bind', function (context) {
-            if (!arguments.length) {
+    if (!Function.prototype.$bound || !Function.prototype.$bound.dejavu) {
+        try {
+            obfuscateProperty(Function.prototype, '$bound', function () {
                 this[$bound] = true;
 
                 return this;
-            }
+            });
+            Function.prototype.$bound.dejavu = true;
+        } catch (e) {
+            printWarning('Could not set Function.prototype.$bound.');
+        }
+    }
 
-            var args = toArray(arguments);
-            args.splice(0, 1, this);
+    // Add custom bind function to supply binds
+    if (!Function.prototype.$bind || !Function.prototype.$bind.dejavu) {
+        try {
+            obfuscateProperty(Function.prototype, '$bind', function (context) {
+                if (!arguments.length) {
+                    this[$bound] = true;
 
-            if (isFunction(context)) {
-                return doBindStatic.apply(context, args);
-            }
+                    return this;
+                }
 
-            return doBind.apply(context, args);
-        });
-        Function.prototype.$bind.dejavu = true;
+                var args = toArray(arguments);
+                args.splice(0, 1, this);
+
+                if (isFunction(context)) {
+                    return doBindStatic.apply(context, args);
+                }
+
+                return doBind.apply(context, args);
+            });
+            Function.prototype.$bind.dejavu = true;
+        } catch (e) {
+            printWarning('Could not set Function.prototype.$bind.');
+        }
     }
 
     return Class;

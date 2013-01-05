@@ -1,4 +1,4 @@
-/*jshint strict:false, regexp:false*/
+/*jshint regexp:false*/
 
 define(global.modules, function (
     Class,

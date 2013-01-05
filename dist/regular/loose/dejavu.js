@@ -398,14 +398,11 @@ var requirejs, require, define;
 
 define("almond", function(){});
 
-define('inspect',[
+define('lib/inspect',[
 ], function (
 ) {
 
     
-
-    var userAgent = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '',
-        isIE = /msie/.test(userAgent) && !/opera/.test(userAgent);
 
     function inspect(target) {
         // TODO: Should inspect do something more?
@@ -420,10 +417,12 @@ define('inspect',[
 
     // Add inspect method to the console
     if (typeof console === 'object' && !console.inspect) {
-        console.inspect = isIE ? console.dir || console.log : console.log;  // console.dir is better in IE
+        console.inspect = /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent) ?
+            console.dir || console.log :  // console.dir is better in IE
+            console.log;
     }
 });
-define('common/printWarning',[], function () {
+define('lib/printWarning',[], function () {
 
     
 
@@ -494,7 +493,7 @@ var isKind = require('./isKind');
 
 });
 
-define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFunction) {
+define('lib/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFunction) {
 
     
 
@@ -521,7 +520,7 @@ define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFun
 
     return hasDefineProperty();
 });
-define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefineProperty) {
+define('lib/obfuscateProperty',['./hasDefineProperty'], function (hasDefineProperty) {
 
     
 
@@ -590,7 +589,7 @@ var isKind = require('./isKind');
 
 });
 
-define('common/isImmutable',[
+define('lib/isImmutable',[
     'amd-utils/lang/isNumber',
     'amd-utils/lang/isString',
     'amd-utils/lang/isBoolean'
@@ -837,11 +836,11 @@ define('amd-utils/array/indexOf',['require','exports','module'],function (requir
 
     /**
      * Array.indexOf
-     * @version 0.5.0 (2012/12/18)
+     * @version 0.4.0 (2012/10/30)
      */
     function indexOf(arr, item, fromIndex) {
         fromIndex = fromIndex || 0;
-        var n = arr.length,
+        var n = arr.length >>> 0,
             i = fromIndex < 0? n + fromIndex : fromIndex;
         while (i < n) {
             // we iterate over sparse items since there is no way to make it
@@ -899,7 +898,7 @@ var indexOf = require('./indexOf');
 
 });
 
-define('common/mixIn',[], function () {
+define('lib/mixIn',[], function () {
 
     
 
@@ -932,7 +931,7 @@ define('common/mixIn',[], function () {
     return mixIn;
 });
 
-define('common/clone',[
+define('lib/clone',[
     'amd-utils/object/forOwn',
     'amd-utils/lang/kindOf',
     'amd-utils/lang/createObject'
@@ -1104,14 +1103,14 @@ define('amd-utils/array/forEach',['require','exports','module'],function (requir
 
     /**
      * Array forEach
-     * @version 0.8.0 (2012/12/18)
+     * @version 0.7.0 (2012/10/30)
      */
     function forEach(arr, callback, thisObj) {
         if (arr == null) {
             return;
         }
         var i = -1,
-            n = arr.length;
+            n = arr.length >>> 0;
         while (++i < n) {
             // we iterate over sparse items since there is no way to make it
             // work properly on IE 7-8. see #64
@@ -1177,12 +1176,12 @@ define('amd-utils/array/some',['require','exports','module'],function (require, 
 
     /**
      * Array some
-     * @version 0.5.0 (2012/12/18)
+     * @version 0.4.0 (2012/10/30)
      */
     function some(arr, callback, thisObj) {
         var result = false,
             i = -1,
-            n = arr.length;
+            n = arr.length >>> 0;
         while (++i < n) {
             // we iterate over sparse items since there is no way to make it
             // work properly on IE 7-8. see #64
@@ -1247,10 +1246,10 @@ var toArray = require('../lang/toArray');
 });
 
 define('Class',[
-    './inspect',
-    './common/printWarning',
-    './common/obfuscateProperty',
-    './common/isImmutable',
+    './lib/inspect',
+    './lib/printWarning',
+    './lib/obfuscateProperty',
+    './lib/isImmutable',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
@@ -1260,8 +1259,8 @@ define('Class',[
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
     'amd-utils/array/contains',
-    './common/mixIn',
-    './common/clone',
+    './lib/mixIn',
+    './lib/clone',
     'amd-utils/array/append',
     'amd-utils/function/bind',
     'amd-utils/lang/toArray',
@@ -1942,62 +1941,38 @@ define('Class',[
     obfuscateProperty(Class, '$create', createClass);
 
     // Add custom bound function to supply binds
-    tmp = true;
-    if (Function.prototype.$bound) {
-        if (!Function.prototype.$bound.dejavu) {
-            printWarning('Function.prototype.$bound is already defined and will be overwritten.');
-            if (Object.getOwnPropertyDescriptor) {
-                descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bound');
-                if (!descriptor.writable || !descriptor.configurable) {
-                    printWarning('Could not overwrite Function.prototype.$bound.');
-                    tmp = false;
-                }
-            }
-        } else {
-            tmp = false;
-        }
-    }
-
-    if (tmp) {
-        obfuscateProperty(Function.prototype, '$bound', function () {
-            this[$bound] = true;
-
-            return this;
-        });
-        Function.prototype.$bound.dejavu = true;
-    }
-
-    // Add custom bind function to supply binds
-    tmp = true;
-    if (Function.prototype.$bind) {
-        if (!Function.prototype.$bind.dejavu) {
-            printWarning('Function.prototype.$bind is already defined and will be overwritten.');
-            if (Object.getOwnPropertyDescriptor) {
-                descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bind');
-                if (!descriptor.writable || !descriptor.configurable) {
-                    printWarning('Could not overwrite Function.prototype.$bind.');
-                    tmp = false;
-                }
-            }
-        } else {
-            tmp = false;
-        }
-    }
-
-    if (tmp) {
-        obfuscateProperty(Function.prototype, '$bind', function (context) {
-            if (!arguments.length) {
+    if (!Function.prototype.$bound || !Function.prototype.$bound.dejavu) {
+        try {
+            obfuscateProperty(Function.prototype, '$bound', function () {
                 this[$bound] = true;
 
                 return this;
-            }
+            });
+            Function.prototype.$bound.dejavu = true;
+        } catch (e) {
+            printWarning('Could not set Function.prototype.$bound.');
+        }
+    }
 
-            var args = toArray(arguments);
-            args.splice(0, 1, this);
+    // Add custom bind function to supply binds
+    if (!Function.prototype.$bind || !Function.prototype.$bind.dejavu) {
+        try {
+            obfuscateProperty(Function.prototype, '$bind', function (context) {
+                if (!arguments.length) {
+                    this[$bound] = true;
 
-            return doBind.apply(context, args);
-        });
-        Function.prototype.$bind.dejavu = true;
+                    return this;
+                }
+
+                var args = toArray(arguments);
+                args.splice(0, 1, this);
+
+                return doBind.apply(context, args);
+            });
+            Function.prototype.$bind.dejavu = true;
+        } catch (e) {
+            printWarning('Could not set Function.prototype.$bind.');
+        }
     }
 
     return Class;

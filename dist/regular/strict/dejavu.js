@@ -468,11 +468,11 @@ define('amd-utils/array/indexOf',['require','exports','module'],function (requir
 
     /**
      * Array.indexOf
-     * @version 0.5.0 (2012/12/18)
+     * @version 0.4.0 (2012/10/30)
      */
     function indexOf(arr, item, fromIndex) {
         fromIndex = fromIndex || 0;
-        var n = arr.length,
+        var n = arr.length >>> 0,
             i = fromIndex < 0? n + fromIndex : fromIndex;
         while (i < n) {
             // we iterate over sparse items since there is no way to make it
@@ -495,14 +495,14 @@ define('amd-utils/array/forEach',['require','exports','module'],function (requir
 
     /**
      * Array forEach
-     * @version 0.8.0 (2012/12/18)
+     * @version 0.7.0 (2012/10/30)
      */
     function forEach(arr, callback, thisObj) {
         if (arr == null) {
             return;
         }
         var i = -1,
-            n = arr.length;
+            n = arr.length >>> 0;
         while (++i < n) {
             // we iterate over sparse items since there is no way to make it
             // work properly on IE 7-8. see #64
@@ -568,12 +568,12 @@ define('amd-utils/array/every',['require','exports','module'],function (require,
 
     /**
      * Array every
-     * @version 0.5.0 (2012/12/18)
+     * @version 0.4.0 (2012/10/30)
      */
     function every(arr, callback, thisObj) {
         var result = true,
             i = -1,
-            n = arr.length;
+            n = arr.length >>> 0;
         while (++i < n) {
             // we iterate over sparse items since there is no way to make it
             // work properly on IE 7-8. see #64
@@ -821,7 +821,7 @@ var forOwn = require('./forOwn');
 
 /*jshint regexp:false*/
 
-define('common/functionMeta',[], function () {
+define('lib/functionMeta',[], function () {
 
     'use strict';
 
@@ -904,7 +904,7 @@ var isKind = require('./isKind');
 
 });
 
-define('common/isImmutable',[
+define('lib/isImmutable',[
     'amd-utils/lang/isNumber',
     'amd-utils/lang/isString',
     'amd-utils/lang/isBoolean'
@@ -930,7 +930,7 @@ define('common/isImmutable',[
     return isImmutable;
 });
 
-define('common/propertyMeta',['./isImmutable'], function (isImmutable) {
+define('lib/propertyMeta',['./isImmutable'], function (isImmutable) {
 
     'use strict';
 
@@ -971,7 +971,7 @@ define('common/propertyMeta',['./isImmutable'], function (isImmutable) {
 
     return propertyMeta;
 });
-define('common/isFunctionCompatible',[], function () {
+define('lib/isFunctionCompatible',[], function () {
 
     'use strict';
 
@@ -1012,7 +1012,7 @@ define('amd-utils/array/append',['require','exports','module'],function (require
 
 });
 
-define('common/checkKeywords',[
+define('lib/checkKeywords',[
     'amd-utils/object/hasOwn',
     'amd-utils/array/append'
 ], function (
@@ -1056,12 +1056,12 @@ define('amd-utils/array/some',['require','exports','module'],function (require, 
 
     /**
      * Array some
-     * @version 0.5.0 (2012/12/18)
+     * @version 0.4.0 (2012/10/30)
      */
     function some(arr, callback, thisObj) {
         var result = false,
             i = -1,
-            n = arr.length;
+            n = arr.length >>> 0;
         while (++i < n) {
             // we iterate over sparse items since there is no way to make it
             // work properly on IE 7-8. see #64
@@ -1105,7 +1105,7 @@ var contains = require('./contains');
 
 });
 
-define('common/testKeywords',[
+define('lib/testKeywords',[
     'amd-utils/array/difference',
     'amd-utils/object/hasOwn'
 ], function (
@@ -1157,7 +1157,7 @@ var isKind = require('./isKind');
 
 });
 
-define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFunction) {
+define('lib/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFunction) {
 
     'use strict';
 
@@ -1184,7 +1184,7 @@ define('common/hasDefineProperty',['amd-utils/lang/isFunction'], function (isFun
 
     return hasDefineProperty();
 });
-define('common/isObjectPrototypeSpoiled',[], function () {
+define('lib/isObjectPrototypeSpoiled',[], function () {
 
     'use strict';
 
@@ -1209,7 +1209,7 @@ define('common/isObjectPrototypeSpoiled',[], function () {
     return isObjectPrototypeSpoiled;
 });
 
-define('common/checkObjectPrototype',[
+define('lib/checkObjectPrototype',[
     './isObjectPrototypeSpoiled',
     'amd-utils/lang/isFunction'
 ], function (
@@ -1239,7 +1239,7 @@ define('common/checkObjectPrototype',[
 
 /*global process*/
 
-define('common/randomAccessor',['amd-utils/array/contains'], function (contains) {
+define('lib/randomAccessor',['amd-utils/array/contains'], function (contains) {
 
     'use strict';
 
@@ -1275,7 +1275,7 @@ define('common/randomAccessor',['amd-utils/array/contains'], function (contains)
     return randomAccessor;
 });
 
-define('common/hasFreezeBug',['amd-utils/lang/isFunction'], function (isFunction) {
+define('lib/hasFreezeBug',['amd-utils/lang/isFunction'], function (isFunction) {
 
     'use strict';
 
@@ -1407,10 +1407,9 @@ var isKind = require('./isKind');
 
 });
 
-define('inspect',[
-    './common/randomAccessor',
-    './common/hasDefineProperty',
-    './options',
+define('lib/inspect',[
+    './randomAccessor',
+    './hasDefineProperty',
     'amd-utils/lang/createObject',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
@@ -1420,7 +1419,6 @@ define('inspect',[
 ], function (
     randomAccessor,
     hasDefineProperty,
-    options,
     createObject,
     isObject,
     isArray,
@@ -1438,8 +1436,10 @@ define('inspect',[
         redefinedCacheKeyword = '$redefined_cache_' + random,
         rewrittenConsole = false,
         prev,
-        userAgent = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '',
-        isIE = /msie/.test(userAgent) && !/opera/.test(userAgent);
+        ret,
+        useDir;
+
+    useDir = /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent);
 
     // Function prototype bind shim
     // Can't use amd-utils bind because of IE's
@@ -1663,7 +1663,7 @@ define('inspect',[
 
         if (isFunction(prop)) {
             if (prop[$class]) {
-                return inspectConstructor(prop, cache);
+                return inspectInstance(prop, cache);
             }
 
             return prop[$wrapped] || prop;
@@ -1710,8 +1710,8 @@ define('inspect',[
     inspect.rewriteConsole = rewriteConsole;
 
     // Add inspect method to the console
-    if (typeof console === 'object') {
-        prev = console.inspect || (isIE ? console.dir || console.log : console.log);  // console.dir is better in IE
+    if (typeof console === 'object' && (!console.inspect || !console.inspect.dejavu)) {
+        prev = console.inspect || (useDir ? console.dir || console.log : console.log);  // console.dir is better in IE
 
         // Fix for IE..
         if (typeof prev === 'object') {
@@ -1727,11 +1727,12 @@ define('inspect',[
                 args[x] = inspect(arguments[x]);
             }
 
-            prev.apply(console, args);
+            return prev.apply(console, args);
         };
+        console.inspect.dejavu = true;
     }
 });
-define('common/printWarning',[], function () {
+define('lib/printWarning',[], function () {
 
     'use strict';
 
@@ -1750,7 +1751,7 @@ define('common/printWarning',[], function () {
     return printWarning;
 });
 
-define('common/obfuscateProperty',['./hasDefineProperty'], function (hasDefineProperty) {
+define('lib/obfuscateProperty',['./hasDefineProperty'], function (hasDefineProperty) {
 
     'use strict';
 
@@ -1831,7 +1832,7 @@ var indexOf = require('./indexOf');
 
 });
 
-define('common/mixIn',[], function () {
+define('lib/mixIn',[], function () {
 
     'use strict';
 
@@ -1864,7 +1865,7 @@ define('common/mixIn',[], function () {
     return mixIn;
 });
 
-define('common/clone',[
+define('lib/clone',[
     'amd-utils/object/forOwn',
     'amd-utils/lang/kindOf',
     'amd-utils/lang/createObject'
@@ -2038,20 +2039,20 @@ define('Class',[
     'amd-utils/array/remove',
     'amd-utils/object/keys',
     'amd-utils/object/size',
-    './common/functionMeta',
-    './common/propertyMeta',
-    './common/isFunctionCompatible',
-    './common/checkKeywords',
-    './common/testKeywords',
-    './common/hasDefineProperty',
-    './common/checkObjectPrototype',
-    './common/randomAccessor',
-    './common/hasFreezeBug',
+    './lib/functionMeta',
+    './lib/propertyMeta',
+    './lib/isFunctionCompatible',
+    './lib/checkKeywords',
+    './lib/testKeywords',
+    './lib/hasDefineProperty',
+    './lib/checkObjectPrototype',
+    './lib/randomAccessor',
+    './lib/hasFreezeBug',
     './options',
-    './inspect',
-    './common/printWarning',
-    './common/obfuscateProperty',
-    './common/isImmutable',
+    './lib/inspect',
+    './lib/printWarning',
+    './lib/obfuscateProperty',
+    './lib/isImmutable',
     'amd-utils/lang/isFunction',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
@@ -2061,8 +2062,8 @@ define('Class',[
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
     'amd-utils/array/contains',
-    './common/mixIn',
-    './common/clone',
+    './lib/mixIn',
+    './lib/clone',
     'amd-utils/function/bind',
     'amd-utils/lang/toArray',
     'amd-utils/array/insert'
@@ -2122,8 +2123,6 @@ define('Class',[
         cacheKeyword = '$cache_' + random,
         redefinedCacheKeyword = '$redefined_cache_' + random,
         inheriting,
-        descriptor,
-        tmp,
         nextId = 0,
         caller,
         callerClass,
@@ -3721,6 +3720,7 @@ define('Class',[
 
         dejavu.prototype.$name = params.$name;
         delete params.$name;
+
         // Parse mixins
         parseBorrows(params, dejavu);
 
@@ -3827,66 +3827,42 @@ define('Class',[
     obfuscateProperty(Class, '$create', createClass);
 
     // Add custom bound function to supply binds
-    tmp = true;
-    if (Function.prototype.$bound) {
-        if (!Function.prototype.$bound.dejavu) {
-            printWarning('Function.prototype.$bound is already defined and will be overwritten.');
-            if (Object.getOwnPropertyDescriptor) {
-                descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bound');
-                if (!descriptor.writable || !descriptor.configurable) {
-                    printWarning('Could not overwrite Function.prototype.$bound.');
-                    tmp = false;
-                }
-            }
-        } else {
-            tmp = false;
-        }
-    }
-
-    if (tmp) {
-        obfuscateProperty(Function.prototype, '$bound', function () {
-            this[$bound] = true;
-
-            return this;
-        });
-        Function.prototype.$bound.dejavu = true;
-    }
-
-    // Add custom bind function to supply binds
-    tmp = true;
-    if (Function.prototype.$bind) {
-        if (!Function.prototype.$bind.dejavu) {
-            printWarning('Function.prototype.$bind is already defined and will be overwritten.');
-            if (Object.getOwnPropertyDescriptor) {
-                descriptor = Object.getOwnPropertyDescriptor(Function.prototype, '$bind');
-                if (!descriptor.writable || !descriptor.configurable) {
-                    printWarning('Could not overwrite Function.prototype.$bind.');
-                    tmp = false;
-                }
-            }
-        } else {
-            tmp = false;
-        }
-    }
-
-    if (tmp) {
-        obfuscateProperty(Function.prototype, '$bind', function (context) {
-            if (!arguments.length) {
+    if (!Function.prototype.$bound || !Function.prototype.$bound.dejavu) {
+        try {
+            obfuscateProperty(Function.prototype, '$bound', function () {
                 this[$bound] = true;
 
                 return this;
-            }
+            });
+            Function.prototype.$bound.dejavu = true;
+        } catch (e) {
+            printWarning('Could not set Function.prototype.$bound.');
+        }
+    }
 
-            var args = toArray(arguments);
-            args.splice(0, 1, this);
+    // Add custom bind function to supply binds
+    if (!Function.prototype.$bind || !Function.prototype.$bind.dejavu) {
+        try {
+            obfuscateProperty(Function.prototype, '$bind', function (context) {
+                if (!arguments.length) {
+                    this[$bound] = true;
 
-            if (isFunction(context)) {
-                return doBindStatic.apply(context, args);
-            }
+                    return this;
+                }
 
-            return doBind.apply(context, args);
-        });
-        Function.prototype.$bind.dejavu = true;
+                var args = toArray(arguments);
+                args.splice(0, 1, this);
+
+                if (isFunction(context)) {
+                    return doBindStatic.apply(context, args);
+                }
+
+                return doBind.apply(context, args);
+            });
+            Function.prototype.$bind.dejavu = true;
+        } catch (e) {
+            printWarning('Could not set Function.prototype.$bind.');
+        }
     }
 
     return Class;
@@ -3894,7 +3870,7 @@ define('Class',[
 
 /*jshint regexp:false*/
 
-define('common/isFunctionEmpty',[], function () {
+define('lib/isFunctionEmpty',[], function () {
 
     'use strict';
 
@@ -3918,15 +3894,15 @@ define('AbstractClass',[
     'amd-utils/lang/isString',
     'amd-utils/lang/toArray',
     'amd-utils/function/bind',
-    './common/functionMeta',
-    './common/isFunctionEmpty',
-    './common/isFunctionCompatible',
-    './common/checkKeywords',
-    './common/testKeywords',
-    './common/checkObjectPrototype',
-    './common/hasDefineProperty',
-    './common/randomAccessor',
-    './common/mixIn',
+    './lib/functionMeta',
+    './lib/isFunctionEmpty',
+    './lib/isFunctionCompatible',
+    './lib/checkKeywords',
+    './lib/testKeywords',
+    './lib/checkObjectPrototype',
+    './lib/hasDefineProperty',
+    './lib/randomAccessor',
+    './lib/mixIn',
     'amd-utils/object/hasOwn',
     'amd-utils/array/insert',
     './Class'
@@ -4291,17 +4267,17 @@ define('Interface',[
     'amd-utils/array/unique',
     'amd-utils/array/compact',
     'amd-utils/object/keys',
-    './common/checkKeywords',
-    './common/testKeywords',
-    './common/functionMeta',
-    './common/isFunctionEmpty',
-    './common/isFunctionCompatible',
-    './common/checkObjectPrototype',
-    './common/obfuscateProperty',
-    './common/randomAccessor',
-    './common/isImmutable',
-    './common/hasDefineProperty',
-    './common/mixIn',
+    './lib/checkKeywords',
+    './lib/testKeywords',
+    './lib/functionMeta',
+    './lib/isFunctionEmpty',
+    './lib/isFunctionCompatible',
+    './lib/checkObjectPrototype',
+    './lib/obfuscateProperty',
+    './lib/randomAccessor',
+    './lib/isImmutable',
+    './lib/hasDefineProperty',
+    './lib/mixIn',
     'amd-utils/lang/isFunction',
     'amd-utils/object/hasOwn',
     'amd-utils/lang/toArray'
@@ -4710,8 +4686,8 @@ define('Interface',[
 
 define('FinalClass',[
     './Class'
-    , './common/randomAccessor'
-    , './common/checkObjectPrototype'
+    , './lib/randomAccessor'
+    , './lib/checkObjectPrototype'
 ], function FinalClassWrapper(
     Class
     , randomAccessor
@@ -4758,7 +4734,7 @@ define('FinalClass',[
 });
 
 define('instanceOf',[
-    './common/randomAccessor'
+    './lib/randomAccessor'
 ], function instanceOfWrapper(
     randomAccessor
 ) {

@@ -3,7 +3,7 @@ if (typeof define !== 'function') {
 }
 
 define([
-    './common/randomAccessor'
+    './lib/randomAccessor'
 ], function instanceOfWrapper(
     randomAccessor
 ) {

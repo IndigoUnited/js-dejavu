@@ -2,8 +2,8 @@ var paths = {
     'domReady': '../node_modules/domReady/domReady',
     'amd/strict': '../dist/amd/strict',
     'amd/loose': '../dist/amd/loose',
-    'test/amd/strict': 'amd/strict',
-    'test/amd/loose': 'amd/loose'
+    'node/strict': '../dist/node/strict',
+    'node/loose': '../dist/node/loose'
 },
     requirejs;
 

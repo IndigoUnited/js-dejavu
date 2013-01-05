@@ -2,8 +2,8 @@
 
 define([
     './Class'
-    , './common/randomAccessor'
-    , './common/checkObjectPrototype'
+    , './lib/randomAccessor'
+    , './lib/checkObjectPrototype'
 ], function FinalClassWrapper(
     Class
     , randomAccessor

@@ -1,31 +1,30 @@
-if (typeof define !== 'function') {
-    var define = require('amdefine')(module);
-}
-
 define([
-    './common/randomAccessor',
-    './common/hasDefineProperty',
-    './options',
+//>>includeStart('strict', pragmas.strict);
+    './randomAccessor',
+    './hasDefineProperty',
     'amd-utils/lang/createObject',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
     'amd-utils/lang/isFunction',
     'amd-utils/object/hasOwn',
     'amd-utils/array/forEach'
+//>>includeEnd('strict');
 ], function (
+//>>includeStart('strict', pragmas.strict);
     randomAccessor,
     hasDefineProperty,
-    options,
     createObject,
     isObject,
     isArray,
     isFunction,
     hasOwn,
     forEach
+//>>includeEnd('strict');
 ) {
 
     'use strict';
 
+//>>includeStart('strict', pragmas.strict);
     var random = randomAccessor('inspectWrapper'),
         $class = '$class_' + random,
         $wrapped = '$wrapped_' + random,
@@ -33,9 +32,17 @@ define([
         redefinedCacheKeyword = '$redefined_cache_' + random,
         rewrittenConsole = false,
         prev,
-        userAgent = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '',
-        isIE = /msie/.test(userAgent) && !/opera/.test(userAgent);
+        ret,
+        useDir;
 
+//>>includeStart('node', pragmas.node);
+    useDir = true;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
+    useDir = /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent);
+//>>excludeEnd('node');
+
+//>>excludeStart('node', pragmas.node);
     // Function prototype bind shim
     // Can't use amd-utils bind because of IE's
     if (!Function.prototype.bind) {
@@ -47,6 +54,7 @@ define([
         };
     }
 
+//>>excludeEnd('node');
     /**
      * Fetches an already inspected target from the cache.
      * Returns null if not in the cache.
@@ -235,7 +243,14 @@ define([
 
         if (isObject(prop)) {
             if (prop.$static) {
+//>>excludeStart('node', pragmas.node);
                 return inspectInstance(prop, cache);
+//>>excludeEnd('node');
+//>>includeStart('node', pragmas.node);
+                return prop.$static[$class].inspectInstance ?
+                    prop.$static[$class].inspectInstance(prop, cache) :
+                    inspectInstance(prop, cache);
+//>>includeEnd('node');
             }
 
             ret = clone ? {} : prop;
@@ -258,7 +273,14 @@ define([
 
         if (isFunction(prop)) {
             if (prop[$class]) {
-                return inspectConstructor(prop, cache);
+//>>excludeStart('node', pragmas.node);
+                return inspectInstance(prop, cache);
+//>>excludeEnd('node');
+//>>includeStart('node', pragmas.node);
+                return prop[$class].inspectConstructor ? 
+                    prop[$class].inspectConstructor(prop, cache) :
+                    inspectConstructor(prop, cache);
+//>>includeEnd('node');
             }
 
             return prop[$wrapped] || prop;
@@ -280,11 +302,13 @@ define([
         forEach(methods, function (method) {
             var prev = console[method];
             if (prev) {
+//>>excludeStart('node', pragmas.node);
                 // Fix for IE..
                 if (typeof prev === 'object') {
                     prev = Function.prototype.call.bind(prev, console);
                 }
 
+//>>excludeEnd('node');
                 console[method] = function () {
                     var args = [],
                         length = arguments.length,
@@ -305,14 +329,16 @@ define([
     inspect.rewriteConsole = rewriteConsole;
 
     // Add inspect method to the console
-    if (typeof console === 'object') {
-        prev = console.inspect || (isIE ? console.dir || console.log : console.log);  // console.dir is better in IE
+    if (typeof console === 'object' && (!console.inspect || !console.inspect.dejavu)) {
+        prev = console.inspect || (useDir ? console.dir || console.log : console.log);  // console.dir is better in IE
 
+//>>excludeStart('node', pragmas.node);
         // Fix for IE..
         if (typeof prev === 'object') {
             prev = Function.prototype.call.bind(prev, console);
         }
 
+//>>excludeEnd('node');
         console.inspect = function () {
             var args = [],
                 length = arguments.length,
@@ -322,7 +348,41 @@ define([
                 args[x] = inspect(arguments[x]);
             }
 
-            prev.apply(console, args);
+            return prev.apply(console, args);
         };
+        console.inspect.dejavu = true;
     }
+//>>includeStart('node', pragmas.node);
+
+    ret = {};
+    ret['instance_' + random] = inspectInstance;
+    ret['constructor_' + random] = inspectConstructor;
+
+    return ret;
+//>>includeEnd('node');
+//>>includeEnd('strict');
+//>>excludeStart('strict', pragmas.strict);
+    function inspect(target) {
+        // TODO: Should inspect do something more?
+        //       If the code is not optimized, they will see wrappers when clicking in functions
+        //       and also some strange things like $bind and $static.
+        //       But I think it does not compensate the extra bytes to support it
+        //       If we ever do this, we must adjust the console.inspect bellow
+        return target;
+    }
+
+    inspect.rewriteConsole = function () {};
+
+    // Add inspect method to the console
+    if (typeof console === 'object' && !console.inspect) {
+//>>includeStart('node', pragmas.node);
+        console.inspect = console.dir;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
+        console.inspect = /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent) ?
+            console.dir || console.log :  // console.dir is better in IE
+            console.log;
+//>>excludeEnd('node');
+    }
+//>>excludeEnd('strict');
 });

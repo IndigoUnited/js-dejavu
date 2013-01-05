@@ -1,7 +1,10 @@
+if (typeof define !== 'function') {
+    var define = require('amdefine')(module);
+}
+
 define([
-    './common/randomAccessor',
-    './common/hasDefineProperty',
-    './options',
+    './randomAccessor',
+    './hasDefineProperty',
     'amd-utils/lang/createObject',
     'amd-utils/lang/isObject',
     'amd-utils/lang/isArray',
@@ -11,7 +14,6 @@ define([
 ], function (
     randomAccessor,
     hasDefineProperty,
-    options,
     createObject,
     isObject,
     isArray,
@@ -29,19 +31,10 @@ define([
         redefinedCacheKeyword = '$redefined_cache_' + random,
         rewrittenConsole = false,
         prev,
-        userAgent = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '',
-        isIE = /msie/.test(userAgent) && !/opera/.test(userAgent);
+        ret,
+        useDir;
 
-    // Function prototype bind shim
-    // Can't use amd-utils bind because of IE's
-    if (!Function.prototype.bind) {
-        Function.prototype.bind = function (context) {
-            var fn = this, args = Array.prototype.slice.call(arguments, 1);
-            return function () {
-                return fn.apply(context, Array.prototype.concat.apply(args, arguments));
-            };
-        };
-    }
+    useDir = true;
 
     /**
      * Fetches an already inspected target from the cache.
@@ -231,7 +224,9 @@ define([
 
         if (isObject(prop)) {
             if (prop.$static) {
-                return inspectInstance(prop, cache);
+                return prop.$static[$class].inspectInstance ?
+                    prop.$static[$class].inspectInstance(prop, cache) :
+                    inspectInstance(prop, cache);
             }
 
             ret = clone ? {} : prop;
@@ -254,7 +249,9 @@ define([
 
         if (isFunction(prop)) {
             if (prop[$class]) {
-                return inspectConstructor(prop, cache);
+                return prop[$class].inspectConstructor ? 
+                    prop[$class].inspectConstructor(prop, cache) :
+                    inspectConstructor(prop, cache);
             }
 
             return prop[$wrapped] || prop;
@@ -276,11 +273,6 @@ define([
         forEach(methods, function (method) {
             var prev = console[method];
             if (prev) {
-                // Fix for IE..
-                if (typeof prev === 'object') {
-                    prev = Function.prototype.call.bind(prev, console);
-                }
-
                 console[method] = function () {
                     var args = [],
                         length = arguments.length,
@@ -301,13 +293,8 @@ define([
     inspect.rewriteConsole = rewriteConsole;
 
     // Add inspect method to the console
-    if (typeof console === 'object') {
-        prev = console.inspect || (isIE ? console.dir || console.log : console.log);  // console.dir is better in IE
-
-        // Fix for IE..
-        if (typeof prev === 'object') {
-            prev = Function.prototype.call.bind(prev, console);
-        }
+    if (typeof console === 'object' && (!console.inspect || !console.inspect.dejavu)) {
+        prev = console.inspect || (useDir ? console.dir || console.log : console.log);  // console.dir is better in IE
 
         console.inspect = function () {
             var args = [],
@@ -318,7 +305,14 @@ define([
                 args[x] = inspect(arguments[x]);
             }
 
-            prev.apply(console, args);
+            return prev.apply(console, args);
         };
+        console.inspect.dejavu = true;
     }
+
+    ret = {};
+    ret['instance_' + random] = inspectInstance;
+    ret['constructor_' + random] = inspectConstructor;
+
+    return ret;
 });

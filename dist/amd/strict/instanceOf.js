@@ -1,5 +1,5 @@
 define([
-    './common/randomAccessor'
+    './lib/randomAccessor'
 ], function instanceOfWrapper(
     randomAccessor
 ) {

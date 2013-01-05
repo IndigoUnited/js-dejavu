@@ -2,7 +2,7 @@ if (!global.evaluated) {
     require('./util/adapter.js');
 }
 
-var path = 'amd/loose';
+var path = (!(typeof window !== 'undefined' && window.navigator && window.document)) ? 'node/loose' : 'amd/loose';
 
 global.modules = [
     path + '/Class',
