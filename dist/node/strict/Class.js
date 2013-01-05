@@ -1827,6 +1827,10 @@ define([
                 var args = toArray(arguments);
                 args.splice(0, 1, this);
 
+                if (context.$bind) {
+                    return context.$bind.apply(context, args);
+                }
+
                 if (isFunction(context)) {
                     return doBindStatic.apply(context, args);
                 }

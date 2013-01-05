@@ -724,6 +724,10 @@ define([
                 var args = toArray(arguments);
                 args.splice(0, 1, this);
 
+                if (context.$bind) {
+                    return context.$bind.apply(context, args);
+                }
+
                 return doBind.apply(context, args);
             });
             Function.prototype.$bind.dejavu = true;
