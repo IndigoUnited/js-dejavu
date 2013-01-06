@@ -27,7 +27,7 @@ if (process.env._DEJAVU_STRICT != null) {
     }
 
     // Merge the options
-    if (process.env._DEJAVU_OPTIONS) {
+    if (process.env._DEJAVU_OPTIONS && module.exports.options) {
         deepMixIn(module.exports.options, process.env._DEJAVU_OPTIONS);
     }
 } else {
@@ -62,7 +62,9 @@ if (process.env._DEJAVU_STRICT != null) {
             process.env._DEJAVU_OPTIONS = rc;
 
             // Merge the options
-            deepMixIn(module.exports.options, rc);
+            if (module.exports.options) {
+                deepMixIn(module.exports.options, rc);
+            }
         // Error parsing RC file
         } catch (err) {
             throw new Error('Invalid .dejavurc file: ' + err.message);
