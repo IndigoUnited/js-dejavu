@@ -6,7 +6,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
     });
     describe('Functional:', function () {
         describe('Instantiation of a simple Class', function () {
-            var SomeClass = Class.declare({}, true), Example = Class.declare({
+            var SomeClass = Class.declare({
+                    arr: [
+                        'foo',
+                        'bar'
+                    ],
+                    obj: { foo: 'bar' }
+                }, true), Example = Class.declare({
                     $extends: SomeClass,
                     some: 'property',
                     someOther: null,
@@ -125,8 +131,18 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(example.someInstance).to.not.be.equal(example2.someInstance);
                 expect(instanceOf(example.someInstance, SomeClass)).to.be.equal(true);
                 expect(instanceOf(example2.someInstance, SomeClass)).to.be.equal(true);
+                example.someInstance.arr.push('baz');
+                expect(example2.someInstance.arr.length).to.be.equal(2);
+                example.someInstance.obj.foo = 'bez';
+                expect(example2.someInstance.obj.foo).to.be.equal('bar');
+                expect(instanceOf(example.someInstance, SomeClass)).to.be.equal(true);
+                expect(instanceOf(example2.someInstance, SomeClass)).to.be.equal(true);
                 expect(example.otherClass).to.be.equal(example2.otherClass);
                 expect(example.otherInstance).to.not.be.equal(example2.otherInstance);
+                example.otherInstance.arr.push('baz');
+                expect(example2.otherInstance.arr.length).to.be.equal(2);
+                example.otherInstance.obj.foo = 'bez';
+                expect(example2.otherInstance.obj.foo).to.be.equal('bar');
                 expect(instanceOf(example.otherInstance, SomeClass)).to.be.equal(true);
                 expect(instanceOf(example2.otherInstance, SomeClass)).to.be.equal(true);
                 expect(example.someRegExp).to.not.be.equal(example2.someRegExp);
@@ -165,11 +181,15 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     initialize: function () {
                         this.status = 'alive';
                     }
-                }, true), AndreAbstract = AbstractClass.declare({ $extends: PersonAbstract }, true), SuperAndre2 = Class.declare({ $extends: AndreAbstract }, true), ProtectedPerson = Class.declare({
-                    status: null,
-                    _initialize: function () {
-                        this.status = 'alive';
-                    }
+                }, true), AndreAbstract = AbstractClass.declare({ $extends: PersonAbstract }, true), SuperAndre2 = Class.declare(AndreAbstract, function ($super, $parent) {
+                    return {};
+                }, true), ProtectedPerson = Class.declare(function () {
+                    return {
+                        status: null,
+                        _initialize: function () {
+                            this.status = 'alive';
+                        }
+                    };
                 }, true), PrivatePerson = Class.declare(function () {
                     return {
                         __initialize: function () {
