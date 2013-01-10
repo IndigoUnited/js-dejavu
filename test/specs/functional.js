@@ -1170,34 +1170,36 @@ define(global.modules, function (
 
         describe('Instantiation of inheritance Cat -> Pet', function () {
 
-            var Pet = Class.declare({
-                $name: 'Pet',
-                name: 'Pet',
-                position: 0,
-                initialize: function () {
-                    this.$self.nrPets += 1;
-                    this.$self.dummy = 'dummy';
-                },
-                walk: function () {
-                    this.position += 1;
-                },
-                getName: function () {
-                    return this.name;
-                },
-                getPosition: function () {
-                    return this.position;
-                },
-                $statics: {
-                    nrPets: 0,
-                    dummy: 'test',
-                    getNrPets: function () {
-                        return this.nrPets;
+            var someObj = {},
+                Pet = Class.declare({
+                    $name: 'Pet',
+                    name: 'Pet',
+                    position: 0,
+                    initialize: function () {
+                        this.$self.nrPets += 1;
+                        this.$self.dummy = 'dummy';
                     },
-                    getMaxAge: function () {
-                        return 50;
+                    walk: function () {
+                        this.position += 1;
+                    },
+                    getName: function () {
+                        return this.name;
+                    },
+                    getPosition: function () {
+                        return this.position;
+                    },
+                    $statics: {
+                        nrPets: 0,
+                        dummy: 'test',
+                        obj: someObj,
+                        getNrPets: function () {
+                            return this.nrPets;
+                        },
+                        getMaxAge: function () {
+                            return 50;
+                        }
                     }
-                }
-            }),
+                }),
                 Cat,
                 pet = new Pet(),
                 cat;
@@ -1265,7 +1267,8 @@ define(global.modules, function (
 
                 expect(Cat.getNrPets).to.be.a('function');
                 expect(Cat.dummy).to.be.equal('test');
-                return expect(Cat.nrPets).to.be.ok;
+                expect(Cat.nrPets).to.be.equal(0);
+                expect(Cat.obj === someObj).to.be.equal(true);
 
             });
 

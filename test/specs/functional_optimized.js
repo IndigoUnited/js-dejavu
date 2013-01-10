@@ -895,7 +895,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             });
         });
         describe('Instantiation of inheritance Cat -> Pet', function () {
-            var Pet = Class.declare(function ($self) {
+            var someObj = {}, Pet = Class.declare(function ($self) {
                     return {
                         name: 'Pet',
                         position: 0,
@@ -915,6 +915,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         $statics: {
                             nrPets: 0,
                             dummy: 'test',
+                            obj: someObj,
                             getNrPets: function () {
                                 return this.nrPets;
                             },
@@ -968,7 +969,8 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             it('should have inherited the static members correctly', function () {
                 expect(Cat.getNrPets).to.be.a('function');
                 expect(Cat.dummy).to.be.equal('test');
-                return expect(Cat.nrPets).to.be.ok;
+                expect(Cat.nrPets).to.be.equal(0);
+                expect(Cat.obj === someObj).to.be.equal(true);
             });
             it('should not have inherited already defined static methods', function () {
                 expect(Pet.getMaxAge()).to.be.equal(50);
