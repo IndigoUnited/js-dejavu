@@ -12,8 +12,8 @@ define([
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
     'amd-utils/array/contains',
+    'amd-utils/lang/clone',
     './lib/mixIn',
-    './lib/clone',
     'amd-utils/array/append',
     'amd-utils/function/bind',
     'amd-utils/lang/toArray',
@@ -32,8 +32,8 @@ define([
     hasOwn,
     combine,
     contains,
-    mixIn,
     clone,
+    mixIn,
     append,
     bind,
     toArray,
@@ -210,7 +210,7 @@ define([
                     value = current.$static[$class].staticProperties[key];
 
                     constructor[$class].staticProperties[key] = value;
-                    constructor[key] = clone(value);
+                    constructor[key] = value;
                 }
 
                 // Merge the binds
@@ -478,7 +478,7 @@ define([
 
             if (key.substr(0, 2) !== '__') {
                 constructor[$class].staticProperties[key] = value;
-                constructor[key] = clone(value);
+                constructor[key] = value;
             }
         }
 

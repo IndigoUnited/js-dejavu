@@ -34,8 +34,8 @@ define([
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
     'amd-utils/array/contains',
+    'amd-utils/lang/clone',
     './lib/mixIn',
-    './lib/clone',
     'amd-utils/function/bind',
     'amd-utils/lang/toArray',
     'amd-utils/array/insert'
@@ -71,8 +71,8 @@ define([
     hasOwn,
     combine,
     contains,
-    mixIn,
     clone,
+    mixIn,
     bind,
     toArray,
     insert
@@ -1187,9 +1187,9 @@ define([
      * @param {Function} constructor The constructor that will have the property
      */
     function protectStaticProperty(name, meta, constructor) {
-        if (meta.isPrivate) {
-            constructor[cacheKeyword].properties[name] = !meta.isImmutable ? clone(meta.value) : meta.value;
+        constructor[cacheKeyword].properties[name] = meta.value;
 
+        if (meta.isPrivate) {
             Object.defineProperty(constructor, name, {
                 get: function get() {
                     var currCaller = caller;
@@ -1217,8 +1217,6 @@ define([
                 enumerable: true
             });
         } else if (meta.isProtected) {
-            constructor[cacheKeyword].properties[name] = !meta.isImmutable ? clone(meta.value) : meta.value;
-
             Object.defineProperty(constructor, name, {
                 get: function get() {
                     var currCaller = caller;
@@ -1246,8 +1244,6 @@ define([
                 enumerable: true
             });
         } else if (meta.isConst) {
-            constructor[cacheKeyword].properties[name] = meta.value;
-
             Object.defineProperty(constructor, name, {
                 get: function () {
                     return constructor[cacheKeyword].properties[name];
@@ -1505,7 +1501,7 @@ define([
 
             if (!value.isPrivate) {
                 constructor[$class].staticMethods[key] = value;
-                constructor[key] = parent[key];
+                constructor[key] = value.implementation;
 
                 if (value.isProtected) {
                     value.allowed.push(classId);
@@ -1518,7 +1514,7 @@ define([
 
             if (!value.isPrivate) {
                 constructor[$class].staticProperties[key] = value;
-                constructor[key] = clone(value.value);
+                constructor[key] = value.value;
                 if (value.isProtected) {
                     value.allowed.push(classId);
                 }

@@ -12,18 +12,16 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         'bar'
                     ],
                     obj: { foo: 'bar' }
-                }, true), Example = Class.declare({
+                }, true), someObj = {}, someInstance = new SomeClass(), Example = Class.declare({
                     $extends: SomeClass,
                     some: 'property',
                     someOther: null,
                     someDate: new Date(),
                     someClass: SomeClass,
-                    someInstance: new SomeClass(),
                     someRegExp: /some/gi,
                     options: {
                         option1: 'property',
-                        option2: { foo: 'bar' },
-                        option3: new SomeClass()
+                        option2: { foo: 'bar' }
                     },
                     someArray: ['some'],
                     initialize: function () {
@@ -58,14 +56,15 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     },
                     $finals: {
                         foo: 'bar',
-                        otherClass: SomeClass,
-                        otherInstance: new SomeClass()
+                        otherClass: SomeClass
                     },
                     $constants: { SOME_CONST: 'const' },
                     $statics: {
                         staticMethod: function () {
                         },
-                        staticSome: 'property'
+                        staticSome: 'property',
+                        staticInstance: someInstance,
+                        staticObj: someObj
                     }
                 }, true), example = new Example(), example2 = new Example();
             it('should return a valid instance', function () {
@@ -128,28 +127,13 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(example.someArray.length).to.be.equal(1);
                 expect(example.someDate).to.not.be.equal(example2.someDate);
                 expect(example.someClass).to.be.equal(example2.someClass);
-                expect(example.someInstance).to.not.be.equal(example2.someInstance);
-                expect(instanceOf(example.someInstance, SomeClass)).to.be.equal(true);
-                expect(instanceOf(example2.someInstance, SomeClass)).to.be.equal(true);
-                example.someInstance.arr.push('baz');
-                expect(example2.someInstance.arr.length).to.be.equal(2);
-                example.someInstance.obj.foo = 'bez';
-                expect(example2.someInstance.obj.foo).to.be.equal('bar');
-                expect(instanceOf(example.someInstance, SomeClass)).to.be.equal(true);
-                expect(instanceOf(example2.someInstance, SomeClass)).to.be.equal(true);
                 expect(example.otherClass).to.be.equal(example2.otherClass);
-                expect(example.otherInstance).to.not.be.equal(example2.otherInstance);
-                example.otherInstance.arr.push('baz');
-                expect(example2.otherInstance.arr.length).to.be.equal(2);
-                example.otherInstance.obj.foo = 'bez';
-                expect(example2.otherInstance.obj.foo).to.be.equal('bar');
-                expect(instanceOf(example.otherInstance, SomeClass)).to.be.equal(true);
-                expect(instanceOf(example2.otherInstance, SomeClass)).to.be.equal(true);
                 expect(example.someRegExp).to.not.be.equal(example2.someRegExp);
                 expect(example.someRegExp.toString()).to.be.equal(example2.someRegExp.toString());
-                expect(example.options.option3).to.not.be.equal(example2.options.option3);
-                expect(instanceOf(example.options.option3, SomeClass)).to.be.equal(true);
-                expect(instanceOf(example2.options.option3, SomeClass)).to.be.equal(true);
+            });
+            it('should not clone static properties', function () {
+                expect(Example.staticInstance === someInstance).to.be.equal(true);
+                expect(Example.staticObj === someObj).to.be.equal(true);
             });
             it('should have bound the methods into the instance context', function () {
                 example.method1.call(this);
@@ -181,23 +165,15 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     initialize: function () {
                         this.status = 'alive';
                     }
-                }, true), AndreAbstract = AbstractClass.declare({ $extends: PersonAbstract }, true), SuperAndre2 = Class.declare(AndreAbstract, function ($super, $parent) {
-                    return {};
-                }, true), ProtectedPerson = Class.declare(function () {
-                    return {
-                        status: null,
-                        _initialize: function () {
-                            this.status = 'alive';
-                        }
-                    };
-                }, true), PrivatePerson = Class.declare(function () {
-                    return {
-                        __initialize: function () {
-                        }
-                    };
-                }, true), FreakPerson = Class.declare(ProtectedPerson, function ($super, $parent) {
-                    return {};
-                }, true), NerdPerson = Class.declare(PrivatePerson, function ($super, $parent) {
+                }, true), AndreAbstract = AbstractClass.declare({ $extends: PersonAbstract }, true), SuperAndre2 = Class.declare({ $extends: AndreAbstract }, true), ProtectedPerson = Class.declare({
+                    status: null,
+                    _initialize: function () {
+                        this.status = 'alive';
+                    }
+                }, true), PrivatePerson = Class.declare({
+                    __initialize: function () {
+                    }
+                }, true), FreakPerson = Class.declare({ $extends: ProtectedPerson }, true), NerdPerson = Class.declare(PrivatePerson, function ($super, $parent) {
                     return {};
                 }, true), ComplexProtectedPerson = ProtectedPerson.extend(function ($super, $parent) {
                     return {

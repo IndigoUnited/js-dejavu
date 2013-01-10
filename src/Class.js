@@ -32,8 +32,8 @@ define([
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
     'amd-utils/array/contains',
+    'amd-utils/lang/clone',
     './lib/mixIn',
-    './lib/clone',
 //>>excludeStart('strict', pragmas.strict);
     'amd-utils/array/append',
 //>>excludeEnd('strict');
@@ -74,8 +74,8 @@ define([
     hasOwn,
     combine,
     contains,
-    mixIn,
     clone,
+    mixIn,
 //>>excludeStart('strict', pragmas.strict);
     append,
 //>>excludeEnd('strict');
@@ -825,7 +825,7 @@ define([
                     value = current.$static[$class].staticProperties[key];
 
                     constructor[$class].staticProperties[key] = value;
-                    constructor[key] = clone(value);
+                    constructor[key] = value;
                 }
 //>>excludeEnd('strict');
 
@@ -1447,9 +1447,9 @@ define([
      * @param {Function} constructor The constructor that will have the property
      */
     function protectStaticProperty(name, meta, constructor) {
-        if (meta.isPrivate) {
-            constructor[cacheKeyword].properties[name] = !meta.isImmutable ? clone(meta.value) : meta.value;
+        constructor[cacheKeyword].properties[name] = meta.value;
 
+        if (meta.isPrivate) {
             Object.defineProperty(constructor, name, {
                 get: function get() {
                     var currCaller = caller;
@@ -1477,8 +1477,6 @@ define([
                 enumerable: true
             });
         } else if (meta.isProtected) {
-            constructor[cacheKeyword].properties[name] = !meta.isImmutable ? clone(meta.value) : meta.value;
-
             Object.defineProperty(constructor, name, {
                 get: function get() {
                     var currCaller = caller;
@@ -1506,8 +1504,6 @@ define([
                 enumerable: true
             });
         } else if (meta.isConst) {
-            constructor[cacheKeyword].properties[name] = meta.value;
-
             Object.defineProperty(constructor, name, {
                 get: function () {
                     return constructor[cacheKeyword].properties[name];
@@ -1815,7 +1811,7 @@ define([
 
             if (key.substr(0, 2) !== '__') {
                 constructor[$class].staticProperties[key] = value;
-                constructor[key] = clone(value);
+                constructor[key] = value;
             }
         }
 
@@ -1849,7 +1845,7 @@ define([
 
             if (!value.isPrivate) {
                 constructor[$class].staticMethods[key] = value;
-                constructor[key] = parent[key];
+                constructor[key] = value.implementation;
 
                 if (value.isProtected) {
                     value.allowed.push(classId);
@@ -1862,7 +1858,7 @@ define([
 
             if (!value.isPrivate) {
                 constructor[$class].staticProperties[key] = value;
-                constructor[key] = clone(value.value);
+                constructor[key] = value.value;
                 if (value.isProtected) {
                     value.allowed.push(classId);
                 }

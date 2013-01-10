@@ -896,6 +896,75 @@ var indexOf = require('./indexOf');
 
 });
 
+define('amd-utils/lang/clone',['require','exports','module','../object/forOwn','./kindOf'],function (require, exports, module) {
+var forOwn = require('../object/forOwn');
+var kindOf = require('./kindOf');
+
+    /**
+     * Clone native types.
+     * @version 0.1.0 (2012/07/13)
+     */
+    function clone(val){
+        var result;
+        switch ( kindOf(val) ) {
+            case 'Object':
+                result = cloneObject(val);
+                break;
+            case 'Array':
+                result = deepCloneArray(val);
+                break;
+            case 'RegExp':
+                result = cloneRegExp(val);
+                break;
+            case 'Date':
+                result = cloneDate(val);
+                break;
+            default:
+                result = val;
+        }
+        return result;
+    }
+
+    function cloneObject(source) {
+        var out = {};
+        forOwn(source, copyProperty, out);
+        return out;
+    }
+
+    function copyProperty(val, key){
+        this[key] = clone(val);
+    }
+
+    function cloneRegExp(r){
+        var flags = '';
+        flags += r.multiline? 'm' : '';
+        flags += r.global? 'g' : '';
+        flags += r.ignoreCase? 'i' : '';
+        return new RegExp(r.source, flags);
+    }
+
+    function cloneDate(date){
+        return new Date( date.getTime() );
+    }
+
+    function deepCloneArray(arr){
+        var out = [],
+            i = -1,
+            n = arr.length,
+            val;
+        while (++i < n) {
+            out[i] = clone(arr[i]);
+        }
+        return out;
+    }
+
+    module.exports = clone;
+
+
+
+
+});
+
 define('lib/mixIn',[], function () {
 
     
@@ -929,87 +998,6 @@ define('lib/mixIn',[], function () {
     return mixIn;
 });
 
-define('lib/clone',[
-    'amd-utils/object/forOwn',
-    'amd-utils/lang/kindOf',
-    'amd-utils/lang/createObject'
-], function (forOwn, kindOf, createObject) {
-
-    
-
-    /**
-     * Modified version of amd-utils's clone.
-     * Works with instances.
-     *
-     * @param {Mixed} val The val to clone
-     *
-     * @return {Mixed} The cloned value
-     */
-    function clone(val) {
-        var result;
-
-        switch (kindOf(val)) {
-        case 'Object':
-            if (val.constructor !== Object) {
-                result = createObject(val);
-            } else {
-                result = cloneObject(val);
-            }
-            break;
-        case 'Array':
-            result = deepCloneArray(val);
-            break;
-        case 'RegExp':
-            result = cloneRegExp(val);
-            break;
-        case 'Date':
-            result = cloneDate(val);
-            break;
-        default:
-            result = val;
-        }
-        return result;
-    }
-
-    function cloneObject(source) {
-        var out = {};
-        forOwn(source, copyProperty, out);
-        return out;
-    }
-
-    function copyProperty(val, key) {
-        /*jshint validthis:true*/
-        this[key] = clone(val);
-    }
-
-    function cloneRegExp(r) {
-        var flags = '';
-
-        flags += r.multiline ? 'm' : '';
-        flags += r.global ? 'g' : '';
-        flags += r.ignoreCase ? 'i' : '';
-
-        return new RegExp(r.source, flags);
-    }
-
-    function cloneDate(date) {
-        return new Date(date.getTime());
-    }
-
-    function deepCloneArray(arr) {
-        var out = [],
-            i = 0,
-            n = arr.length;
-
-        while (i < n) {
-            out[i] = clone(arr[i]);
-            i += 1;
-        }
-        return out;
-    }
-
-    return clone;
-});
 define('amd-utils/array/append',['require','exports','module'],function (require, exports, module) {
 
 
@@ -1257,8 +1245,8 @@ define('Class',[
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
     'amd-utils/array/contains',
+    'amd-utils/lang/clone',
     './lib/mixIn',
-    './lib/clone',
     'amd-utils/array/append',
     'amd-utils/function/bind',
     'amd-utils/lang/toArray',
@@ -1277,8 +1265,8 @@ define('Class',[
     hasOwn,
     combine,
     contains,
-    mixIn,
     clone,
+    mixIn,
     append,
     bind,
     toArray,
@@ -1455,7 +1443,7 @@ define('Class',[
                     value = current.$static[$class].staticProperties[key];
 
                     constructor[$class].staticProperties[key] = value;
-                    constructor[key] = clone(value);
+                    constructor[key] = value;
                 }
 
                 // Merge the binds
@@ -1723,7 +1711,7 @@ define('Class',[
 
             if (key.substr(0, 2) !== '__') {
                 constructor[$class].staticProperties[key] = value;
-                constructor[key] = clone(value);
+                constructor[key] = value;
             }
         }
 

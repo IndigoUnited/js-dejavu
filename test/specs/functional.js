@@ -28,6 +28,8 @@ define(global.modules, function (
                     foo: 'bar'
                 }
             }),
+                someObj = {},
+                someInstance = new SomeClass(),
                 Example = Class.declare({
                     $extends: SomeClass,
 
@@ -35,14 +37,12 @@ define(global.modules, function (
                     someOther: null,
                     someDate: new Date(),
                     someClass: SomeClass,
-                    someInstance: new SomeClass(),
                     someRegExp: /some/ig,
                     options: {
                         option1: 'property',
                         option2: {
                             foo: 'bar'
-                        },
-                        option3: new SomeClass()
+                        }
                     },
                     someArray: ['some'],
                     initialize: function () {
@@ -77,15 +77,16 @@ define(global.modules, function (
                     },
                     $finals: {
                         foo: 'bar',
-                        otherClass: SomeClass,
-                        otherInstance: new SomeClass()
+                        otherClass: SomeClass
                     },
                     $constants: {
                         SOME_CONST: 'const'
                     },
                     $statics: {
                         staticMethod: function () {},
-                        staticSome: 'property'
+                        staticSome: 'property',
+                        staticInstance: someInstance,
+                        staticObj: someObj
                     }
                 }),
                 example = new Example(),
@@ -178,31 +179,17 @@ define(global.modules, function (
                 expect(example.someDate).to.not.be.equal(example2.someDate);
 
                 expect(example.someClass).to.be.equal(example2.someClass);
-                expect(example.someInstance).to.not.be.equal(example2.someInstance);
-                expect(instanceOf(example.someInstance, SomeClass)).to.be.equal(true);
-                expect(instanceOf(example2.someInstance, SomeClass)).to.be.equal(true);
-                example.someInstance.arr.push('baz');
-                expect(example2.someInstance.arr.length).to.be.equal(2);
-                example.someInstance.obj.foo = 'bez';
-                expect(example2.someInstance.obj.foo).to.be.equal('bar');
-                expect(instanceOf(example.someInstance, SomeClass)).to.be.equal(true);
-                expect(instanceOf(example2.someInstance, SomeClass)).to.be.equal(true);
-
                 expect(example.otherClass).to.be.equal(example2.otherClass);
-                expect(example.otherInstance).to.not.be.equal(example2.otherInstance);
-                example.otherInstance.arr.push('baz');
-                expect(example2.otherInstance.arr.length).to.be.equal(2);
-                example.otherInstance.obj.foo = 'bez';
-                expect(example2.otherInstance.obj.foo).to.be.equal('bar');
-                expect(instanceOf(example.otherInstance, SomeClass)).to.be.equal(true);
-                expect(instanceOf(example2.otherInstance, SomeClass)).to.be.equal(true);
 
                 expect(example.someRegExp).to.not.be.equal(example2.someRegExp);
                 expect(example.someRegExp.toString()).to.be.equal(example2.someRegExp.toString());
 
-                expect(example.options.option3).to.not.be.equal(example2.options.option3);
-                expect(instanceOf(example.options.option3, SomeClass)).to.be.equal(true);
-                expect(instanceOf(example2.options.option3, SomeClass)).to.be.equal(true);
+            });
+
+            it('should not clone static properties', function () {
+
+                expect(Example.staticInstance === someInstance).to.be.equal(true);
+                expect(Example.staticObj === someObj).to.be.equal(true);
 
             });
 

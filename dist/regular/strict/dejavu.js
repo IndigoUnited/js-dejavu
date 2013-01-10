@@ -1793,6 +1793,75 @@ var indexOf = require('./indexOf');
 
 });
 
+define('amd-utils/lang/clone',['require','exports','module','../object/forOwn','./kindOf'],function (require, exports, module) {
+var forOwn = require('../object/forOwn');
+var kindOf = require('./kindOf');
+
+    /**
+     * Clone native types.
+     * @version 0.1.0 (2012/07/13)
+     */
+    function clone(val){
+        var result;
+        switch ( kindOf(val) ) {
+            case 'Object':
+                result = cloneObject(val);
+                break;
+            case 'Array':
+                result = deepCloneArray(val);
+                break;
+            case 'RegExp':
+                result = cloneRegExp(val);
+                break;
+            case 'Date':
+                result = cloneDate(val);
+                break;
+            default:
+                result = val;
+        }
+        return result;
+    }
+
+    function cloneObject(source) {
+        var out = {};
+        forOwn(source, copyProperty, out);
+        return out;
+    }
+
+    function copyProperty(val, key){
+        this[key] = clone(val);
+    }
+
+    function cloneRegExp(r){
+        var flags = '';
+        flags += r.multiline? 'm' : '';
+        flags += r.global? 'g' : '';
+        flags += r.ignoreCase? 'i' : '';
+        return new RegExp(r.source, flags);
+    }
+
+    function cloneDate(date){
+        return new Date( date.getTime() );
+    }
+
+    function deepCloneArray(arr){
+        var out = [],
+            i = -1,
+            n = arr.length,
+            val;
+        while (++i < n) {
+            out[i] = clone(arr[i]);
+        }
+        return out;
+    }
+
+    module.exports = clone;
+
+
+
+
+});
+
 define('lib/mixIn',[], function () {
 
     'use strict';
@@ -1826,87 +1895,6 @@ define('lib/mixIn',[], function () {
     return mixIn;
 });
 
-define('lib/clone',[
-    'amd-utils/object/forOwn',
-    'amd-utils/lang/kindOf',
-    'amd-utils/lang/createObject'
-], function (forOwn, kindOf, createObject) {
-
-    'use strict';
-
-    /**
-     * Modified version of amd-utils's clone.
-     * Works with instances.
-     *
-     * @param {Mixed} val The val to clone
-     *
-     * @return {Mixed} The cloned value
-     */
-    function clone(val) {
-        var result;
-
-        switch (kindOf(val)) {
-        case 'Object':
-            if (val.constructor !== Object) {
-                result = createObject(val);
-            } else {
-                result = cloneObject(val);
-            }
-            break;
-        case 'Array':
-            result = deepCloneArray(val);
-            break;
-        case 'RegExp':
-            result = cloneRegExp(val);
-            break;
-        case 'Date':
-            result = cloneDate(val);
-            break;
-        default:
-            result = val;
-        }
-        return result;
-    }
-
-    function cloneObject(source) {
-        var out = {};
-        forOwn(source, copyProperty, out);
-        return out;
-    }
-
-    function copyProperty(val, key) {
-        /*jshint validthis:true*/
-        this[key] = clone(val);
-    }
-
-    function cloneRegExp(r) {
-        var flags = '';
-
-        flags += r.multiline ? 'm' : '';
-        flags += r.global ? 'g' : '';
-        flags += r.ignoreCase ? 'i' : '';
-
-        return new RegExp(r.source, flags);
-    }
-
-    function cloneDate(date) {
-        return new Date(date.getTime());
-    }
-
-    function deepCloneArray(arr) {
-        var out = [],
-            i = 0,
-            n = arr.length;
-
-        while (i < n) {
-            out[i] = clone(arr[i]);
-            i += 1;
-        }
-        return out;
-    }
-
-    return clone;
-});
 define('amd-utils/function/bind',['require','exports','module'],function (require, exports, module) {
 
 
@@ -2023,8 +2011,8 @@ define('Class',[
     'amd-utils/object/hasOwn',
     'amd-utils/array/combine',
     'amd-utils/array/contains',
+    'amd-utils/lang/clone',
     './lib/mixIn',
-    './lib/clone',
     'amd-utils/function/bind',
     'amd-utils/lang/toArray',
     'amd-utils/array/insert'
@@ -2060,8 +2048,8 @@ define('Class',[
     hasOwn,
     combine,
     contains,
-    mixIn,
     clone,
+    mixIn,
     bind,
     toArray,
     insert
@@ -3176,9 +3164,9 @@ define('Class',[
      * @param {Function} constructor The constructor that will have the property
      */
     function protectStaticProperty(name, meta, constructor) {
-        if (meta.isPrivate) {
-            constructor[cacheKeyword].properties[name] = !meta.isImmutable ? clone(meta.value) : meta.value;
+        constructor[cacheKeyword].properties[name] = meta.value;
 
+        if (meta.isPrivate) {
             Object.defineProperty(constructor, name, {
                 get: function get() {
                     var currCaller = caller;
@@ -3206,8 +3194,6 @@ define('Class',[
                 enumerable: true
             });
         } else if (meta.isProtected) {
-            constructor[cacheKeyword].properties[name] = !meta.isImmutable ? clone(meta.value) : meta.value;
-
             Object.defineProperty(constructor, name, {
                 get: function get() {
                     var currCaller = caller;
@@ -3235,8 +3221,6 @@ define('Class',[
                 enumerable: true
             });
         } else if (meta.isConst) {
-            constructor[cacheKeyword].properties[name] = meta.value;
-
             Object.defineProperty(constructor, name, {
                 get: function () {
                     return constructor[cacheKeyword].properties[name];
@@ -3492,7 +3476,7 @@ define('Class',[
 
             if (!value.isPrivate) {
                 constructor[$class].staticMethods[key] = value;
-                constructor[key] = parent[key];
+                constructor[key] = value.implementation;
 
                 if (value.isProtected) {
                     value.allowed.push(classId);
@@ -3505,7 +3489,7 @@ define('Class',[
 
             if (!value.isPrivate) {
                 constructor[$class].staticProperties[key] = value;
-                constructor[key] = clone(value.value);
+                constructor[key] = value.value;
                 if (value.isProtected) {
                     value.allowed.push(classId);
                 }
