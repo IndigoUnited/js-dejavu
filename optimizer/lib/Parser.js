@@ -44,24 +44,24 @@ Parser.prototype.forEachUsage = function (ast, callback) {
             // Obvious usage
             if (curr.callee.property.name === 'declare') {
                 if (objectName === 'Interface') {
-                    callback({ type: 'interface', ast: curr });
+                    callback(null, { type: 'interface', ast: curr });
                 } else if (objectName === 'AbstractClass') {
-                    callback({ type: 'abstract', ast: curr });
+                    callback(null, { type: 'abstract', ast: curr });
                 } else if (objectName === 'Class' || objectName === 'FinalClass') {
-                    callback({ type: 'concrete', ast: curr });
+                    callback(null, { type: 'concrete', ast: curr });
                 }
             // Usage with extend
             } else if (curr.callee.property.name === 'extend') {
                 props = curr['arguments'][0].properties;
 
                 if (this._isInterface(props)) {
-                    callback({ type: 'interface', ast: curr });
+                    callback(null, { type: 'interface', ast: curr });
                 } else if (this._isAbstractClass(props)) {
-                    callback({ type: 'abstract', ast: curr });
+                    callback(null, { type: 'abstract', ast: curr });
                 } else if (this._isClass(props)) {
-                    callback({ type: 'concrete', ast: curr });
+                    callback(null, { type: 'concrete', ast: curr });
                 } else {
-                    process.stderr.write('Not enough metadata to optimize usage at line ' + curr.loc.start.line + ', column ' + curr.loc.start.column + ' (add a $name property?)\n');
+                    callback(new Error('Not enough metadata to optimize usage at line ' + curr.loc.start.line + ', column ' + curr.loc.start.column + ' (add a $name property?)\n'));
                 }
             }
         }

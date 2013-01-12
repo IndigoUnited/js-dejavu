@@ -1,16 +1,12 @@
 #!/usr/bin/env node
 
-/*jshint node:true, regexp:false*/
+/*jshint node:true*/
 
 'use strict';
 
 var fs = require('fs'),
     program = require('commander'),
-    esprima = require('esprima'),
-    escodegen = require('escodegen'),
-    Parser = require('./lib/Parser'),
-    Optimizer = require('./lib/Optimizer'),
-    OptimizerClosure = require('./lib/OptimizerClosure');
+    optimizer = require('../optimizer');
 
 ////////////////////////////////////////////////////
 
@@ -22,43 +18,13 @@ program
 
 ////////////////////////////////////////////////////
 
-var esprimaOpts = {
-    comment: true,
-    loc: true,
-    range: true
-};
-var escodegenOpts = {
-    comment: true
-};
-
 var len = fs.fstatSync(process.stdin.fd).size,
-    contents = len > 0 ? fs.readSync(process.stdin.fd, len)[0] : '',
-    ast,
-    output;
+    contents = len > 0 ? fs.readSync(process.stdin.fd, len)[0] : '';
 
-// Read and get an ast
-ast = esprima.parse(contents, esprimaOpts);
+optimizer(contents, { closure: program.closure }, function (errors, contents) {
+    errors.forEach(function (err) {
+        process.stderr.write(err.message);
+    });
 
-var parser = new Parser();
-var optimizer = new Optimizer({ escodegen: escodegenOpts });
-var optimizerClosure = new OptimizerClosure({ escodegen: escodegenOpts });
-
-// Optimize it
-parser.forEachUsage(ast, function (obj) {
-    var slice = contents.substr(obj.ast.range[0], obj.ast.range[1]);
-
-    // Use to closure optimizer if the user wants to use it
-    // or if the default one can't be used
-    if (program.closure || !optimizer.canOptimize(slice)) {
-        optimizerClosure.optimize(obj);
-    } else {
-        optimizer.optimize(obj);
-    }
+    process.stdout.write(contents);
 });
-
-// Generate the source
-output = escodegen.generate(ast, escodegenOpts);
-
-// Output contents
-process.stdout.write(output);
-//process.stdout.write(JSON.stringify(ast, null, '    '));
