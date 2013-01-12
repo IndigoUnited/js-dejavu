@@ -1,4 +1,4 @@
-/*jshint node:true*/
+/*jshint node:true, latedef:false*/
 
 'use strict';
 
@@ -71,7 +71,11 @@ module.exports = {
                                     errors.forEach(function (err) {
                                         ctx.log.warnln(err.message);
                                     });
-                                    fs.writeFile(file, contents, next);
+
+                                    var relative = relativePath(file, pattern);
+                                    async.forEach(dsts, function (dst) {
+                                        fs.writeFile(path.join(dst, relative), contents, next);
+                                    });
                                 });
                             });
                         }, next);
@@ -81,3 +85,31 @@ module.exports = {
         }
     ]
 };
+
+/**
+ * Gets the relative path of a file relative to the pattern.
+ * For instance:
+ *   file = /a/b.js
+ *   pattern = /a/*
+ *
+ * Should return b.js
+ *
+ * @param {String} file    The file
+ * @param {String} pattern The pattern
+ *
+ * @return {String} The relative path
+ */
+function relativePath(file, pattern) {
+    var length = file.length,
+        x;
+
+    pattern = path.normalize(pattern);
+
+    for (x = 0; x < length; x += 1) {
+        if (file[x] !== pattern[x]) {
+            return file.substr(x);
+        }
+    }
+
+    return path.basename(file);
+}
