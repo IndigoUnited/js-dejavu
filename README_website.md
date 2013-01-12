@@ -583,6 +583,8 @@ To get around this issue, `dejavu` provides a `console.inspect` method that work
 
 ## Optimizer
 
+## Optimizer
+
 `dejavu` bundles an optimizer that makes your code faster and lighter.
 
 It specifically:
@@ -594,33 +596,34 @@ It specifically:
 - Removes functions from interfaces
 
 The optimizer is located in the `bin` folder.
-By default, the optimized code is suitable for the browser.
 If you are optimizing your code for `nodejs` then pass the --closure option. This will boost the performance when running code in v8.
+Please look at the jsperf results to see the difference in the different browsers.
 
 Example usage:
 
 `node optimizer < file_in.js > file_out.js`
 
-`dejavu` also comes with a grunt task.
+You can also use the optimizer programatically, please check `bin/optimizer` for an example.
 
-Below is a sample usage copied from a grunt file:
+`dejavu` also comes with a automaton task.
+
+Below is a sample usage:
 
 ```js
-grunt.loadNpmTasks('dejavu');
+var dejavuOptimizer = require('dejavu/tasks/optimizer.autofile');
 
-grunt.initConfig({
-    dejavu: {
-        optimize: {
+module.exports = {
+    tasks: [
+        {
+            task: dejavuOptimizer,
             options: {
-                exclude: [/bootstrap(\.min)?\.js$/],
-                closure: false  // Set to true if optimizing only for nodejs to get better performance
-            },
-            files: {
-                'dist/': 'src/**/*.js'
+                files: {
+                    'src/myfile.js': 'dst/myfile.opt.js'
+                }
             }
         }
-    }
-});
+    ]
+}
 ```
 
 

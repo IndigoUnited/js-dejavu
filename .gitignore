@@ -56,3 +56,4 @@ npm-debug.*
 # Project specific #
 ######################
 /tmp
+/dejavu_readme.md

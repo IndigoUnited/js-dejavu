@@ -18,7 +18,9 @@
     "commander": "~1.1.1",
     "esprima": "~1.0.2",
     "escodegen": "~0.0.15",
-    "inherits": "~1.0.0"
+    "inherits": "~1.0.0",
+    "glob": "~3.1.14",
+    "async": "~0.1.22"
   },
   "devDependencies": {
     "almond": "~0.2.1",
