@@ -1,6 +1,6 @@
 define([
     './isObjectPrototypeSpoiled',
-    'amd-utils/lang/isFunction'
+    'mout/lang/isFunction'
 ], function (
     isObjectPrototypeSpoiled,
     isFunction

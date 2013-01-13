@@ -3,11 +3,11 @@ if (typeof define !== 'function') {
 }
 
 define([
-    'amd-utils/lang/isObject',
-    'amd-utils/lang/isFunction',
-    'amd-utils/lang/isString',
-    'amd-utils/lang/toArray',
-    'amd-utils/function/bind',
+    'mout/lang/isObject',
+    'mout/lang/isFunction',
+    'mout/lang/isString',
+    'mout/lang/toArray',
+    'mout/function/bind',
     './lib/functionMeta',
     './lib/isFunctionEmpty',
     './lib/isFunctionCompatible',
@@ -17,8 +17,8 @@ define([
     './lib/hasDefineProperty',
     './lib/randomAccessor',
     './lib/mixIn',
-    'amd-utils/object/hasOwn',
-    'amd-utils/array/insert',
+    'mout/object/hasOwn',
+    'mout/array/insert',
     './Class'
 ], function AbstractClassWrapper(
     isObject,

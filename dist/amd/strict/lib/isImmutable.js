@@ -1,7 +1,7 @@
 define([
-    'amd-utils/lang/isNumber',
-    'amd-utils/lang/isString',
-    'amd-utils/lang/isBoolean'
+    'mout/lang/isNumber',
+    'mout/lang/isString',
+    'mout/lang/isBoolean'
 ], function (
     isNumber,
     isString,

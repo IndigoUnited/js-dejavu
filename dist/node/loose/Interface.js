@@ -3,9 +3,9 @@ if (typeof define !== 'function') {
 }
 
 define([
-    'amd-utils/lang/isFunction',
-    'amd-utils/object/hasOwn',
-    'amd-utils/lang/toArray'
+    'mout/lang/isFunction',
+    'mout/object/hasOwn',
+    'mout/lang/toArray'
 ], function InterfaceWrapper(
     isFunction,
     hasOwn,

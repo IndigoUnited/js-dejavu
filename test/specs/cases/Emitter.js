@@ -11,7 +11,7 @@
     'use strict';
 
     var modules = global.modules.slice(0, 3);
-    modules.push('amd-utils/lang/toArray');
+    modules.push('mout/lang/toArray');
 
     define(modules, function (Class, AbstractClass, Interface, toArray) {
 

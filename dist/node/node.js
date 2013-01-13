@@ -3,7 +3,7 @@
 
 var fs        = require('fs'),
     path      = require('path'),
-    deepMixIn = require('amd-utils/object/deepMixIn'),
+    deepMixIn = require('mout/object/deepMixIn'),
     exported  = false,
     rcFile,
     rc;

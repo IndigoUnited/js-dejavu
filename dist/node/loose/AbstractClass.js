@@ -3,8 +3,8 @@ if (typeof define !== 'function') {
 }
 
 define([
-    'amd-utils/object/hasOwn',
-    'amd-utils/array/insert',
+    'mout/object/hasOwn',
+    'mout/array/insert',
     './Class'
 ], function AbstractClassWrapper(
     hasOwn,

@@ -3,8 +3,8 @@ if (typeof define !== 'function') {
 }
 
 define([
-    'amd-utils/array/difference',
-    'amd-utils/object/hasOwn'
+    'mout/array/difference',
+    'mout/object/hasOwn'
 ], function (
     difference,
     hasOwn

@@ -6,7 +6,7 @@ var fs = require('fs');
 var glob = require('glob');
 var async = require('async');
 var path  = require('path');
-var utils = require('amd-utils');
+var utils = require('mout');
 var optimizer = require('../optimizer');
 
 module.exports = {

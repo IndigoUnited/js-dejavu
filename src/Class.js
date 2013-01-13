@@ -1,13 +1,13 @@
 define([
 //>>includeStart('strict', pragmas.strict);
-    'amd-utils/lang/isString',
-    'amd-utils/lang/isBoolean',
-    'amd-utils/array/intersection',
-    'amd-utils/array/unique',
-    'amd-utils/array/compact',
-    'amd-utils/array/remove',
-    'amd-utils/object/keys',
-    'amd-utils/object/size',
+    'mout/lang/isString',
+    'mout/lang/isBoolean',
+    'mout/array/intersection',
+    'mout/array/unique',
+    'mout/array/compact',
+    'mout/array/remove',
+    'mout/object/keys',
+    'mout/object/size',
     './lib/functionMeta',
     './lib/propertyMeta',
     './lib/isFunctionCompatible',
@@ -23,23 +23,23 @@ define([
     './lib/printWarning',
     './lib/obfuscateProperty',
     './lib/isImmutable',
-    'amd-utils/lang/isFunction',
-    'amd-utils/lang/isObject',
-    'amd-utils/lang/isArray',
-    'amd-utils/lang/isDate',
-    'amd-utils/lang/isRegExp',
-    'amd-utils/lang/createObject',
-    'amd-utils/object/hasOwn',
-    'amd-utils/array/combine',
-    'amd-utils/array/contains',
-    'amd-utils/lang/clone',
+    'mout/lang/isFunction',
+    'mout/lang/isObject',
+    'mout/lang/isArray',
+    'mout/lang/isDate',
+    'mout/lang/isRegExp',
+    'mout/lang/createObject',
+    'mout/object/hasOwn',
+    'mout/array/combine',
+    'mout/array/contains',
+    'mout/lang/deepClone',
     './lib/mixIn',
 //>>excludeStart('strict', pragmas.strict);
-    'amd-utils/array/append',
+    'mout/array/append',
 //>>excludeEnd('strict');
-    'amd-utils/function/bind',
-    'amd-utils/lang/toArray',
-    'amd-utils/array/insert'
+    'mout/function/bind',
+    'mout/lang/toArray',
+    'mout/array/insert'
 ], function ClassWrapper(
 //>>includeStart('strict', pragmas.strict);
     isString,
@@ -74,7 +74,7 @@ define([
     hasOwn,
     combine,
     contains,
-    clone,
+    deepClone,
     mixIn,
 //>>excludeStart('strict', pragmas.strict);
     append,
@@ -122,7 +122,7 @@ define([
 //>>excludeEnd('strict');
 
     /**
-     * Function that does exactly the same as the amd-utils counterpart,
+     * Function that does exactly the same as the mout counterpart,
      * but is faster in firefox due to a bug:
      * https://bugzilla.mozilla.org/show_bug.cgi?id=816439
      */
@@ -1371,7 +1371,7 @@ define([
     function protectProperty(name, meta, instance) {
         if (meta.isPrivate) {
             if (!meta.isImmutable) {
-                instance[cacheKeyword].properties[name] = clone(meta.value);
+                instance[cacheKeyword].properties[name] = deepClone(meta.value);
                 instance[redefinedCacheKeyword].properties[name] = true; // This is just for the inspect
             } else {
                 instance[cacheKeyword].properties[name] = meta.value;
@@ -1402,7 +1402,7 @@ define([
             });
         } else if (meta.isProtected) {
             if (!meta.isImmutable) {
-                instance[cacheKeyword].properties[name] = clone(meta.value);
+                instance[cacheKeyword].properties[name] = deepClone(meta.value);
                 instance[redefinedCacheKeyword].properties[name] = true; // This is just for the inspect
             } else {
                 instance[cacheKeyword].properties[name] = meta.value;
@@ -1432,7 +1432,7 @@ define([
                 enumerable: true
             });
         } else if (!meta.isImmutable) {
-            instance[name] = clone(instance[name]);
+            instance[name] = deepClone(instance[name]);
             instance[redefinedCacheKeyword].properties[name] = true; // This is just for the inspect
         } else {
             instance[name] = meta.value;
@@ -1613,7 +1613,7 @@ define([
                 // Reset some types of the object in order for each instance to have their variables
                 for (x in tmp.properties) {
                     if (!tmp.properties[x].isImmutable) {
-                        this[x] = clone(this[x]);
+                        this[x] = deepClone(this[x]);
                     }
                 }
             }
@@ -1623,7 +1623,7 @@ define([
 
             // Reset some types of the object in order for each instance to have their variables
             for (x = tmp.properties.length - 1; x >= 0; x -= 1) {
-                this[tmp.properties[x]] = clone(this[tmp.properties[x]]);
+                this[tmp.properties[x]] = deepClone(this[tmp.properties[x]]);
             }
 
             if (!tmp.efficient) {

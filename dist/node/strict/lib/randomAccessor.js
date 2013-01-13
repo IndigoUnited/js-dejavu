@@ -4,7 +4,7 @@ if (typeof define !== 'function') {
 
 /*global process*/
 
-define(['amd-utils/array/contains'], function (contains) {
+define(['mout/array/contains'], function (contains) {
 
     'use strict';
 

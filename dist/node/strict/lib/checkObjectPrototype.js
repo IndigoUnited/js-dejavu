@@ -4,7 +4,7 @@ if (typeof define !== 'function') {
 
 define([
     './isObjectPrototypeSpoiled',
-    'amd-utils/lang/isFunction'
+    'mout/lang/isFunction'
 ], function (
     isObjectPrototypeSpoiled,
     isFunction

@@ -2,7 +2,7 @@ if (typeof define !== 'function') {
     var define = require('amdefine')(module);
 }
 
-define(['amd-utils/lang/isFunction'], function (isFunction) {
+define(['mout/lang/isFunction'], function (isFunction) {
 
     'use strict';
 

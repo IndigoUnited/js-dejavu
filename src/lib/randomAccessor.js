@@ -1,7 +1,7 @@
 //>>includeStart('strict', pragmas.strict);
 /*global process*/
 
-define(['amd-utils/array/contains'], function (contains) {
+define(['mout/array/contains'], function (contains) {
 
     'use strict';
 

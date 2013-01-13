@@ -8,7 +8,7 @@
     dir: '../tmp',
     paths : {
         'almond': '../node_modules/almond/almond',
-        'amd-utils': '../node_modules/amd-utils'
+        'mout': '../node_modules/mout'
     },
     cjsTranslate: true,
     pragmas: {

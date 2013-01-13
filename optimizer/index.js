@@ -2,7 +2,7 @@
 
 'use strict';
 
-var utils = require('amd-utils'),
+var utils = require('mout'),
     Parser = require('./lib/Parser'),
     Optimizer = require('./lib/Optimizer'),
     OptimizerClosure = require('./lib/OptimizerClosure'),

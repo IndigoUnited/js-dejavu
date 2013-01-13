@@ -2,12 +2,12 @@ define([
 //>>includeStart('strict', pragmas.strict);
     './randomAccessor',
     './hasDefineProperty',
-    'amd-utils/lang/createObject',
-    'amd-utils/lang/isObject',
-    'amd-utils/lang/isArray',
-    'amd-utils/lang/isFunction',
-    'amd-utils/object/hasOwn',
-    'amd-utils/array/forEach'
+    'mout/lang/createObject',
+    'mout/lang/isObject',
+    'mout/lang/isArray',
+    'mout/lang/isFunction',
+    'mout/object/hasOwn',
+    'mout/array/forEach'
 //>>includeEnd('strict');
 ], function (
 //>>includeStart('strict', pragmas.strict);
@@ -36,7 +36,7 @@ define([
 
 //>>excludeStart('node', pragmas.node);
     // Function prototype bind shim
-    // Can't use amd-utils bind because of IE's
+    // Can't use mout bind because of IE's
     if (!Function.prototype.bind) {
         Function.prototype.bind = function (context) {
             var fn = this, args = Array.prototype.slice.call(arguments, 1);

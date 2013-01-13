@@ -1,12 +1,12 @@
 define([
-    'amd-utils/lang/isObject',
-    'amd-utils/lang/isArray',
-    'amd-utils/lang/isString',
-    'amd-utils/function/bind',
-    'amd-utils/array/intersection',
-    'amd-utils/array/unique',
-    'amd-utils/array/compact',
-    'amd-utils/object/keys',
+    'mout/lang/isObject',
+    'mout/lang/isArray',
+    'mout/lang/isString',
+    'mout/function/bind',
+    'mout/array/intersection',
+    'mout/array/unique',
+    'mout/array/compact',
+    'mout/object/keys',
     './lib/checkKeywords',
     './lib/testKeywords',
     './lib/functionMeta',
@@ -18,9 +18,9 @@ define([
     './lib/isImmutable',
     './lib/hasDefineProperty',
     './lib/mixIn',
-    'amd-utils/lang/isFunction',
-    'amd-utils/object/hasOwn',
-    'amd-utils/lang/toArray'
+    'mout/lang/isFunction',
+    'mout/object/hasOwn',
+    'mout/lang/toArray'
 ], function InterfaceWrapper(
     isObject,
     isArray,

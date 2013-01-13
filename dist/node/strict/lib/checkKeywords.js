@@ -3,8 +3,8 @@ if (typeof define !== 'function') {
 }
 
 define([
-    'amd-utils/object/hasOwn',
-    'amd-utils/array/append'
+    'mout/object/hasOwn',
+    'mout/array/append'
 ], function (
     hasOwn,
     append

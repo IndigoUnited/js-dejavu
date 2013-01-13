@@ -3,7 +3,7 @@ define([], function () {
     'use strict';
 
     /**
-     * This method does exactly the same as the amd-utils counterpart but
+     * This method does exactly the same as the mout counterpart but
      * does not perform hasOwn for each key in the objects.
      * This is only done because the object prototype is sealed and to get an extra performance.
      *

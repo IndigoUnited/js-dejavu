@@ -1,5 +1,5 @@
 //>>includeStart('strict', pragmas.strict);
-define(['amd-utils/lang/isFunction'], function (isFunction) {
+define(['mout/lang/isFunction'], function (isFunction) {
 
     'use strict';
 
