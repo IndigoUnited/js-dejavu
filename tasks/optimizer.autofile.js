@@ -62,12 +62,12 @@ module.exports = {
                         async.forEachLimit(files, 30, function (file, next) {
                             ctx.log.debugln('Optimizing file: ', file);
 
-                            var contents = fs.readFile(file, function (err) {
+                            fs.readFile(file, function (err, contents) {
                                 if (err) {
                                     return next(err);
                                 }
 
-                                optimizer(contents, optimizerOpts, function (errors, contents) {
+                                optimizer(contents.toString(), optimizerOpts, function (errors, contents) {
                                     errors.forEach(function (err) {
                                         ctx.log.warnln(err.message);
                                     });
