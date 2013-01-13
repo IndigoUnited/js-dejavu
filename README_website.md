@@ -424,7 +424,7 @@ The easy way to set it up is to define a path for dejavu in your loader config l
    paths: {
        // You can switch to the loose mode anytime
        'dejavu': '/path/to/dejavu/dist/strict/main',
-       'amd-utils': '../vendor/amd-utils/src'
+       'mout': '../vendor/mout/src'
    }
 }
 ```
@@ -460,7 +460,7 @@ In order to achieve this, you must configure your loader like so:
 {
     // your loader config
     paths: {
-           'amd-utils': '../vendor/amd-utils/src'
+           'mout': '../vendor/mout/src'
     },
     packages: [
         {
@@ -641,8 +641,8 @@ module.exports = {
 
 ## Dependencies
 
-dejavu depends on [amd-utils](https://github.com/millermedeiros/amd-utils).
-If you use the regular build, you don't need to worry because all functions used from amd-utils are bundled for you.
+dejavu depends on [mout](https://github.com/mout/mout).
+If you use the regular build, you don't need to worry because all functions used from mout are bundled for you.
 If you use the AMD build, learn [how](https://github.com/IndigoUnited/dejavu#taking-it-to-another-level) to setup your loader.
 If you use dejavu on `node`, `npm` will take care of fetching everything for you.
 
