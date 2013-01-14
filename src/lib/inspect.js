@@ -284,7 +284,7 @@ define([
     // Add inspect method to the console
     if (typeof console === 'object' && (!console.inspect || !console.inspect.dejavu)) {
 //>>excludeStart('node', pragmas.node);
-        tmp = /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent);
+        tmp = typeof navigator !== 'undefined' && /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent);
         prev = console.inspect || (tmp ? console.dir || console.log : console.log);  // console.dir is better in IE
 
         // Fix for IE..
@@ -330,14 +330,9 @@ define([
 
     // Add inspect method to the console
     if (typeof console === 'object' && !console.inspect) {
-//>>includeStart('node', pragmas.node);
-        console.inspect = console.log;
-//>>includeEnd('node');
-//>>excludeStart('node', pragmas.node);
-        console.inspect = /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent) ?
+        console.inspect = typeof navigator !== 'undefined' && /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent) ?
             console.dir || console.log :  // console.dir is better in IE
             console.log;
-//>>excludeEnd('node');
     }
 //>>excludeEnd('strict');
 });

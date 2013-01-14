@@ -262,7 +262,7 @@ define([
 
     // Add inspect method to the console
     if (typeof console === 'object' && (!console.inspect || !console.inspect.dejavu)) {
-        tmp = /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent);
+        tmp = typeof navigator !== 'undefined' && /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent);
         prev = console.inspect || (tmp ? console.dir || console.log : console.log);  // console.dir is better in IE
 
         // Fix for IE..
