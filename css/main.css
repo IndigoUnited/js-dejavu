@@ -103,6 +103,12 @@ body {
     font-size: 15px;
     font-family: 'Source Sans Pro', sans-serif;
     font-weight: 300;
+    min-width: 1100px;
+    position: relative;
+}
+
+body.phone {
+    min-width: 710px;
 }
 
 a, a:visited, a:active {
