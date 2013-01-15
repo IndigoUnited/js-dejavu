@@ -626,16 +626,6 @@ module.exports = {
 * Node.js and Rhino
 
 
-## Works on
-
-* IE (6+)
-* Chrome (4+)
-* Safari (3+)
-* Firefox (3.6+)
-* Opera (9+)
-* Node.js and Rhino
-
-
 
 ## Dependencies
 

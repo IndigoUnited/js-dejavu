@@ -583,8 +583,6 @@ To get around this issue, `dejavu` provides a `console.inspect` method that work
 
 ## Optimizer
 
-## Optimizer
-
 `dejavu` bundles an optimizer that makes your code faster and lighter.
 
 It specifically:
