@@ -1,10 +1,7 @@
 {
   "name": "dejavu",
   "version": "0.0.0",
-  "siteVersion": 34,
-  "scripts": {
-    "preinstall": "npm install -g grunt"
-  },
+  "siteVersion": 35,
   "devDependencies": {
     "marked": "~0.2.5",
     "grunt-contrib-requirejs": "~0.3.3",

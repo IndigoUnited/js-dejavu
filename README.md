@@ -2,6 +2,8 @@ dejavu website
 
 ---
 
+Grunt must be installed.
+
 # Developing #
 - Run `npm install`
 - Run `grunt glue` to build the sprites (follow the [setup](http://glue.readthedocs.org/en/latest/installation.html) to install glue)

@@ -429,7 +429,7 @@ The easy way to set it up is to define a path for dejavu in your loader config l
    paths: {
        // You can switch to the loose mode anytime
        &#39;dejavu&#39;: &#39;/path/to/dejavu/dist/strict/main&#39;,
-       &#39;amd-utils&#39;: &#39;../vendor/amd-utils/src&#39;
+       &#39;mout&#39;: &#39;../vendor/mout/src&#39;
    }
 }</code></pre>
 <p>Then require it and use it:
@@ -462,7 +462,7 @@ In order to achieve this, you must configure your loader like so:
 <pre><code class="lang-js">{
     // your loader config
     paths: {
-           &#39;amd-utils&#39;: &#39;../vendor/amd-utils/src&#39;
+           &#39;mout&#39;: &#39;../vendor/mout/src&#39;
     },
     packages: [
         {
@@ -524,110 +524,4 @@ which means all the other modules are not loaded.
 UnlockedIndigo.prototype.talk = function () {
     console.log(&#39;... now is running&#39;);
 };</code></pre>
-<p>Members can be added, replaced and deleted from the instance:
-
-</p>
-<pre><code class="lang-js">var filipe     = new UnlockedIndigo();
-filipe.friends = [&#39;Marco&#39;,&#39;Andre&#39;];
-filipe.talk    = function () {
-    console.log(&#39;I am talking about dejavu!&#39;);
-};</code></pre>
-<h4>By setting the global option:</h4>
-<p>This will change the default behaviour, but classes can still override it with the $locked flag.
-
-</p>
-<pre><code class="lang-js">dejavu.options.locked = false;</code></pre>
-<p>Note that once a class is unlocked, its subclasses cannot be locked.
-Also, although undeclared members are allowed, they will not have their access controlled (they are interpreted as public).
-
-
-
-</p>
-<h3>Vanilla classes</h3>
-<p><code>dejavu</code> allows you to extend or borrow vanilla classes. In this case, constructors and instances are forcibly UNLOCKED.
-
-</p>
-<pre><code class="lang-js">function Person(name) {
-    this.name = name;
-};
-
-var Engineer = dejavu.Class.declare({
-    $extends: Person
-});
-
-var filipe = new Engineer(&#39;Filipe&#39;);
-// Engineer class and filipe instance are unlocked</code></pre>
-<h3>Debugging</h3>
-<p>In strict mode, logging instances with <code>console.log</code> will print some strange stuff (getters, setters, etc).
-This happens because <code>dejavu</code> manages accesses to private/protected members as well as make other stuff work.
-To get around this issue, <code>dejavu</code> provides a <code>console.inspect</code> method that works just like <code>console.log</code> but prints a friendly object representation of the instance.
-
-
-
-</p>
-<h2>Optimizer</h2>
-<p><code>dejavu</code> bundles an optimizer that makes your code faster and lighter.
-
-</p>
-<p>It specifically:
-
-</p>
-<ul>
-<li>Improves $super and $self usage</li>
-<li>Removes all $name and $locked properties because they are not used in the loose version</li>
-<li>Removes the need for wrappers, improving performance by a great margin</li>
-<li>Removes abstract functions from abstract classes</li>
-<li>Removes functions from interfaces</li>
-</ul>
-<p>The optimizer is located in the <code>bin</code> folder.
-By default, the optimized code is suitable for the browser.
-If you are optimizing your code for <code>nodejs</code> then pass the --closure option. This will boost the performance when running code in v8.
-
-</p>
-<p>Example usage:
-
-</p>
-<p><code>node optimizer &lt; file_in.js &gt; file_out.js</code>
-
-</p>
-<p><code>dejavu</code> also comes with a grunt task.
-
-</p>
-<p>Below is a sample usage copied from a grunt file:
-
-</p>
-<pre><code class="lang-js">grunt.loadNpmTasks(&#39;dejavu&#39;);
-
-grunt.initConfig({
-    dejavu: {
-        optimize: {
-            options: {
-                exclude: [/bootstrap(\.min)?\.js$/],
-                closure: false  // Set to true if optimizing only for nodejs to get better performance
-            },
-            files: {
-                &#39;dist/&#39;: &#39;src/**/*.js&#39;
-            }
-        }
-    }
-});</code></pre>
-<h2>Works on</h2>
-<ul>
-<li>IE (6+)</li>
-<li>Chrome (4+)</li>
-<li>Safari (3+)</li>
-<li>Firefox (3.6+)</li>
-<li>Opera (9+)</li>
-<li>Node.js and Rhino</li>
-</ul>
-<h2>Dependencies</h2>
-<p>dejavu depends on <a href="https://github.com/millermedeiros/amd-utils">amd-utils</a>.
-If you use the regular build, you don&#39;t need to worry because all functions used from amd-utils are bundled for you.
-If you use the AMD build, learn <a href="https://github.com/IndigoUnited/dejavu#taking-it-to-another-level">how</a> to setup your loader.
-If you use dejavu on <code>node</code>, <code>npm</code> will take care of fetching everything for you.
-
-
-
-</p>
-<h2>License</h2>
-<p>Released under the <a href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>.</p>
+<p>Members can be adde</p>
