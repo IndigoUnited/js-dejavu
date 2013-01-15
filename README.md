@@ -18,4 +18,4 @@ Grunt must be installed.
 - Open `index.html` to test things out
 
 # Deploy #
-Copy `img`, `dist`, `tmpl`, `index.html`, `.htaccess`, `.favicon` to the web root folder.
+Copy `img`, `dist`, `tmpl`, `index.html`, `.htaccess`, `favicon.ico` to the web root folder.
