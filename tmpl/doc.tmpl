@@ -21,7 +21,7 @@ prototypal inheritance, making it a breeze to move into JavaScript.
 however none offers all the functionality that many programmers require.
 
 </p>
-<p>Also, even though being one of the most feature rich OOP libraries out there, it has the best performance overall, rivaling with vanilla in production.
+<p>Also, even though being one of the most feature rich OOP libraries out there, it has an outstanding performance, rivaling with vanilla in production.
 
 
 
@@ -141,17 +141,18 @@ var Person = dejavu.Class.declare({
 // create a new instance of person
 var indigo = new Person(&quot;Marco&quot;);
 console.log(&quot;A new indigo was born,&quot;, indigo.getName());</code></pre>
-<p>In node, the default mode running will be the strict mode unless the STRICT environmen
- variable is set to false.
-Environment variables can be changed system wide or per process like so:
+<p>The installation will create a <code>.dejavurc</code> in your package, where you can enable/disable the strict mode as well as change other dejavu options.
+By default the strict mode is used. Still, you want to leverage your package with the loose mode.
+Because dejavu reads<code>.dejavurc</code> from the process.cwd(), packages that require your package will be running the loose mode unless they also define a <code>.dejavurc</code> (which will only happen if they also depend on dejavu directly).
+
+
 
 </p>
-<pre><code class="lang-js">process.env.STRICT = false;</code></pre>
 <h2>Benchmarks</h2>
-<p>You can run the <a href="http://jsperf.com/oop-benchmark/79">benchmark</a> yourself. Note that the benchmark below compares dejavu with libraries that do not provide many of the features that dejavu does. For more details, please consult the libraries documentation.
+<p>You can run the <a href="http://jsperf.com/oop-benchmark/107">benchmark</a> yourself. Note that the benchmark below compares dejavu with libraries that do not provide many of the features that dejavu does. For more details, please consult the libraries documentation.
 
 </p>
-<p>It is also important to mention that <a href="https://github.com/tnhu/jsface">JSFace</a> does not chain prototypes. This gives JSFace an extra edge in performance in some browsers, like Firefox, but renders the <code>instanceof</code> operator useless, so this is kind of a cheat.
+<p>It is also important to mention that some libraries like <a href="https://github.com/tnhu/jsface">JSFace</a> does not chain prototypes. This gives them an extra edge in performance in some browsers, like Firefox, but renders the <code>instanceof</code> operator useless.
 
 </p>
 <p>{{graph}}
@@ -189,7 +190,7 @@ The optimizer will analyse your code and make some improvements,
 boosting it a bit further.
 
 </p>
-<p>You can check the benchmarks in <a href="http://jsperf.com/oop-benchmark/58">jsperf</a>
+<p>You can check the benchmarks in <a href="http://jsperf.com/oop-benchmark/79">jsperf</a>
 comparing <code>dejavu</code> with other OOP libraries. Note that the loose mode
 is used in this test, simulating a production environment, and both the normal
 and optimized versions are tested.
@@ -428,7 +429,7 @@ The easy way to set it up is to define a path for dejavu in your loader config l
    paths: {
        // You can switch to the loose mode anytime
        &#39;dejavu&#39;: &#39;/path/to/dejavu/dist/strict/main&#39;,
-       &#39;amd-utils&#39;: &#39;../vendor/amd-utils/src&#39;
+       &#39;mout&#39;: &#39;../vendor/mout/src&#39;
    }
 }</code></pre>
 <p>Then require it and use it:
@@ -461,7 +462,7 @@ In order to achieve this, you must configure your loader like so:
 <pre><code class="lang-js">{
     // your loader config
     paths: {
-           &#39;amd-utils&#39;: &#39;../vendor/amd-utils/src&#39;
+           &#39;mout&#39;: &#39;../vendor/mout/src&#39;
     },
     packages: [
         {
@@ -556,6 +557,14 @@ var Engineer = dejavu.Class.declare({
 
 var filipe = new Engineer(&#39;Filipe&#39;);
 // Engineer class and filipe instance are unlocked</code></pre>
+<h3>Debugging</h3>
+<p>In strict mode, logging instances with <code>console.log</code> will print some strange stuff (getters, setters, etc).
+This happens because <code>dejavu</code> manages accesses to private/protected members as well as make other stuff work.
+To get around this issue, <code>dejavu</code> provides a <code>console.inspect</code> method that works just like <code>console.log</code> but prints a friendly object representation of the instance.
+
+
+
+</p>
 <h2>Optimizer</h2>
 <p><code>dejavu</code> bundles an optimizer that makes your code faster and lighter.
 
@@ -571,6 +580,8 @@ var filipe = new Engineer(&#39;Filipe&#39;);
 <li>Removes functions from interfaces</li>
 </ul>
 <p>The optimizer is located in the <code>bin</code> folder.
+If you are optimizing your code for <code>nodejs</code> then pass the --closure option. This will boost the performance when running code in v8.
+Please look at the jsperf results to see the difference in the different browsers.
 
 </p>
 <p>Example usage:
@@ -579,26 +590,29 @@ var filipe = new Engineer(&#39;Filipe&#39;);
 <p><code>node optimizer &lt; file_in.js &gt; file_out.js</code>
 
 </p>
-<p><code>dejavu</code> also comes with a grunt task.
+<p>You can also use the optimizer programatically, please check <code>bin/optimizer</code> for an example.
 
 </p>
-<p>Below is a sample usage copied from a grunt file:
+<p><code>dejavu</code> also comes with a automaton task.
 
 </p>
-<pre><code class="lang-js">grunt.loadNpmTasks(&#39;dejavu&#39;);
+<p>Below is a sample usage:
 
-grunt.initConfig({
-    dejavu: {
-        optimize: {
+</p>
+<pre><code class="lang-js">var dejavuOptimizer = require(&#39;dejavu/tasks/optimizer.autofile&#39;);
+
+module.exports = {
+    tasks: [
+        {
+            task: dejavuOptimizer,
             options: {
-                exclude: [/bootstrap(\.min)?\.js$/]
-            },
-            files: {
-                &#39;dist/&#39;: &#39;src/**/*.js&#39;
+                files: {
+                    &#39;src/myfile.js&#39;: &#39;dst/myfile.opt.js&#39;
+                }
             }
         }
-    }
-});</code></pre>
+    ]
+}</code></pre>
 <h2>Works on</h2>
 <ul>
 <li>IE (6+)</li>
@@ -609,8 +623,8 @@ grunt.initConfig({
 <li>Node.js and Rhino</li>
 </ul>
 <h2>Dependencies</h2>
-<p>dejavu depends on <a href="https://github.com/millermedeiros/amd-utils">amd-utils</a>.
-If you use the regular build, you don&#39;t need to worry because all functions used from amd-utils are bundled for you.
+<p>dejavu depends on <a href="https://github.com/mout/mout">mout</a>.
+If you use the regular build, you don&#39;t need to worry because all functions used from mout are bundled for you.
 If you use the AMD build, learn <a href="https://github.com/IndigoUnited/dejavu#taking-it-to-another-level">how</a> to setup your loader.
 If you use dejavu on <code>node</code>, <code>npm</code> will take care of fetching everything for you.
 

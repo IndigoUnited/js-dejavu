@@ -2,6 +2,8 @@ dejavu website
 
 ---
 
+Grunt must be installed.
+
 # Developing #
 - Run `npm install`
 - Run `grunt glue` to build the sprites (follow the [setup](http://glue.readthedocs.org/en/latest/installation.html) to install glue)
@@ -16,4 +18,4 @@ dejavu website
 - Open `index.html` to test things out
 
 # Deploy #
-Copy `img`, `dist`, `tmpl`, `index.html`, `.htaccess`, `.favicon` to the web root folder.
+Copy `img`, `dist`, `tmpl`, `index.html`, `.htaccess`, `favicon.ico` to the web root folder.
