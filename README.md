@@ -376,7 +376,7 @@ var Indigo = dejavu.Class.declare({
 
     _logThought: function () {
         console.log(this._name, 'is thinking about', this._subject);
-    }//.bound() would be equivalent to the binding in the constructor
+    }//.$bound() would be equivalent to the binding in the constructor
 });
 
 var indigo = new Indigo('André');
