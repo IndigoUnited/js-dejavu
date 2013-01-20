@@ -35,6 +35,9 @@
     "test": "mocha -R spec test/strict && mocha -R spec test/loose",
     "postinstall": "node bin/post_install.js"
   },
+  "bugs": {
+    "url" : "http://github.com/IndigoUnited/dejavu/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/IndigoUnited/dejavu.git"
