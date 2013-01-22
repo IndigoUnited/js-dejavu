@@ -444,42 +444,39 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             });
         });
         describe('$static', function () {
-            var SomeClass = Class.declare(function () {
-                    return {
-                        initialize: function () {
-                            this.$static._fruit = 'orange';
+            var SomeClass = Class.declare({
+                    initialize: function () {
+                        this.$static._fruit = 'orange';
+                    },
+                    getFruit: function () {
+                        return this.$static.getFruitStatic();
+                    },
+                    $statics: {
+                        _fruit: 'potato',
+                        getFruitStatic: function () {
+                            return this._fruit;
                         },
-                        getFruit: function () {
-                            return this.$static.getFruitStatic();
+                        setFruitStatic: function (fruit) {
+                            this._fruit = fruit;
                         },
-                        $statics: {
-                            _fruit: 'potato',
-                            getFruitStatic: function () {
-                                return this._fruit;
-                            },
-                            setFruitStatic: function (fruit) {
-                                this._fruit = fruit;
-                            },
-                            setFruitStatic2: function (fruit) {
-                                this._fruit = fruit;
-                            }
+                        setFruitStatic2: function (fruit) {
+                            this._fruit = fruit;
                         }
-                    };
-                }, true), OtherClass = Class.declare(SomeClass, function ($super, $parent) {
-                    return {
-                        initialize: function () {
-                            $super.initialize.call(this);
-                        },
-                        getFruit: function () {
-                            return this.$static.getFruitStatic();
-                        },
-                        $statics: {
-                            _fruit: 'potato',
-                            getFruitStatic: function () {
-                                return this._fruit;
-                            }
+                    }
+                }, true), OtherClass = Class.declare({
+                    $extends: SomeClass,
+                    initialize: function () {
+                        SomeClass.prototype.initialize.call(this);
+                    },
+                    getFruit: function () {
+                        return this.$static.getFruitStatic();
+                    },
+                    $statics: {
+                        _fruit: 'potato',
+                        getFruitStatic: function () {
+                            return this._fruit;
                         }
-                    };
+                    }
                 }, true);
             it('should give access the static layer of itself (using late binding)', function () {
                 expect(new SomeClass().getFruit()).to.be.equal('orange');
@@ -658,6 +655,84 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     }).to.throwException(/cannot be locked/);
                 });
             }
+        });
+        describe('$member', function () {
+            var SomeClass = Class.declare(function () {
+                    return {
+                        otherSimpleMethod: function () {
+                            var that = this, func = this.$bind(function () {
+                                    return that._protectedProperty;
+                                });
+                            return func;
+                        },
+                        someMethod: function () {
+                            var that = this, func = function () {
+                                    that._protectedProperty = 'dummy';
+                                    that.__privateProperty = 'dummy', that._protectedMethod();
+                                    that.__privateMethod();
+                                }.$member();
+                            func();
+                        },
+                        getProtectedProperty: function () {
+                            return this._protectedProperty;
+                        },
+                        getPrivateProperty: function () {
+                            return this.__privateProperty;
+                        },
+                        _protectedProperty: 'some',
+                        __privateProperty: 'other',
+                        _protectedMethod: function () {
+                        },
+                        __privateMethod: function () {
+                        },
+                        $statics: {
+                            otherSimpleMethodStatic: function () {
+                                var that = this, func = this.$member(function () {
+                                        return that._protectedPropertyStatic;
+                                    });
+                                return func;
+                            },
+                            someMethodStatic: function () {
+                                var that = this, func = function () {
+                                        that._protectedPropertyStatic = 'dummy';
+                                        that.__privatePropertyStatic = 'dummy', that._protectedMethodStatic();
+                                        that.__privateMethodStatic();
+                                    }.$member();
+                                func();
+                            },
+                            getProtectedPropertyStatic: function () {
+                                return this._protectedPropertyStatic;
+                            },
+                            getPrivatePropertyStatic: function () {
+                                return this.__privatePropertyStatic;
+                            },
+                            _protectedPropertyStatic: 'some',
+                            __privatePropertyStatic: 'other',
+                            _protectedMethodStatic: function () {
+                            },
+                            __privateMethodStatic: function () {
+                            }
+                        }
+                    };
+                }, true), someClass = new SomeClass();
+            it('should have access to private/protected members', function () {
+                expect(function () {
+                    someClass.someMethod();
+                }).to.not.throwException();
+                expect(function () {
+                    someClass.otherSimpleMethod()();
+                }).to.not.throwException();
+                expect(someClass.getProtectedProperty()).to.equal('dummy');
+                expect(someClass.getPrivateProperty()).to.equal('dummy');
+                expect(function () {
+                    SomeClass.someMethodStatic();
+                }).to.not.throwException();
+                expect(function () {
+                    SomeClass.otherSimpleMethodStatic();
+                }).to.not.throwException();
+                expect(SomeClass.getProtectedPropertyStatic()).to.equal('dummy');
+                expect(SomeClass.getPrivatePropertyStatic()).to.equal('dummy');
+            });
         });
         describe('$bind', function () {
             var context = {}, SomeClass = Class.declare(function () {

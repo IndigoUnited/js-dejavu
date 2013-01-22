@@ -1647,6 +1647,16 @@ define('Class',[
     }
 
     /**
+     * Marks a function as part of the class.
+     *
+     * @param {Function} func The function
+     */
+    function doMember(func) {
+        /*jshint validthis:true*/
+        return this;
+    }
+
+    /**
      * Bind.
      * Works for anonymous functions also.
      *
@@ -1851,9 +1861,11 @@ define('Class',[
         obfuscateProperty(dejavu, '$static', dejavu);
         obfuscateProperty(dejavu, '$self', null, true);
         obfuscateProperty(dejavu, '$super', null, true);
+        obfuscateProperty(dejavu, '$member', doMember);
         obfuscateProperty(dejavu, '$bind', doBind);
         if (!dejavu.$parent) {
             obfuscateProperty(dejavu.prototype, '$bind', doBind);
+            obfuscateProperty(dejavu.prototype, '$member', doMember);
         }
 
         // Handle interfaces
@@ -1953,6 +1965,16 @@ define('Class',[
             Function.prototype.$bind.dejavu = true;
         } catch (e) {
             printWarning('Could not set Function.prototype.$bind.');
+        }
+    }
+
+    // Add custom member function to supply marking a function as part of the class
+    if (!Function.prototype.$member || !Function.prototype.$member.dejavu) {
+        try {
+            obfuscateProperty(Function.prototype, '$member', doMember);
+            Function.prototype.$member.dejavu = true;
+        } catch (e) {
+            printWarning('Could not set Function.prototype.$member.');
         }
     }
 

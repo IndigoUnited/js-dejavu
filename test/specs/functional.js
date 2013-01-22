@@ -885,6 +885,101 @@ define(global.modules, function (
 
         });
 
+        describe('$member', function () {
+
+            var SomeClass = Class.declare({
+                    otherSimpleMethod: function () {
+                        var that = this,
+                            func = this.$bind(function () {
+                                return that._protectedProperty;
+                            });
+
+                        return func;
+                    },
+                    someMethod: function () {
+                        var that = this,
+                            func = function () {
+                                that._protectedProperty = 'dummy';
+                                that.__privateProperty = 'dummy',
+                                that._protectedMethod();
+                                that.__privateMethod();
+                            }.$member();
+
+                        func();
+                    },
+                    getProtectedProperty: function () {
+                        return this._protectedProperty;
+                    },
+                    getPrivateProperty: function () {
+                        return this.__privateProperty;
+                    },
+                    _protectedProperty: 'some',
+                    __privateProperty: 'other',
+                    _protectedMethod: function () {},
+                    __privateMethod: function () {},
+
+                    $statics: {
+                        otherSimpleMethodStatic: function () {
+                            var that = this,
+                                func = this.$member(function () {
+                                    return that._protectedPropertyStatic;
+                                });
+
+                            return func;
+                        },
+                        someMethodStatic: function () {
+                            var that = this,
+                                func = function () {
+                                    that._protectedPropertyStatic = 'dummy';
+                                    that.__privatePropertyStatic = 'dummy',
+                                    that._protectedMethodStatic();
+                                    that.__privateMethodStatic();
+                                }.$member();
+
+                            func();
+                        },
+                        getProtectedPropertyStatic: function () {
+                            return this._protectedPropertyStatic;
+                        },
+                        getPrivatePropertyStatic: function () {
+                            return this.__privatePropertyStatic;
+                        },
+                        _protectedPropertyStatic: 'some',
+                        __privatePropertyStatic: 'other',
+                        _protectedMethodStatic: function () {},
+                        __privateMethodStatic: function () {}
+                    }
+                }),
+                someClass = new SomeClass();
+
+
+            it('should have access to private/protected members', function () {
+
+                expect(function () {
+                    someClass.someMethod();
+                }).to.not.throwException();
+
+                expect(function () {
+                    someClass.otherSimpleMethod()();
+                }).to.not.throwException();
+
+                expect(someClass.getProtectedProperty()).to.equal('dummy');
+                expect(someClass.getPrivateProperty()).to.equal('dummy');
+
+                expect(function () {
+                    SomeClass.someMethodStatic();
+                }).to.not.throwException();
+
+                expect(function () {
+                    SomeClass.otherSimpleMethodStatic();
+                }).to.not.throwException();
+
+                expect(SomeClass.getProtectedPropertyStatic()).to.equal('dummy');
+                expect(SomeClass.getPrivatePropertyStatic()).to.equal('dummy');
+            });
+
+        });
+
         describe('$bind', function () {
 
             var context = {},

@@ -1380,6 +1380,19 @@ define([
     }
 
     /**
+     * Marks a function as part of the class.
+     *
+     * @param {Function} func The function
+     */
+    function doMember(func) {
+        /*jshint validthis:true*/
+        func = func || this;
+        func[$anonymous] = true;
+
+        return this;
+    }
+
+    /**
      * Default implementation of the super function.
      */
     function defaultSuper() {
@@ -1696,9 +1709,11 @@ define([
         obfuscateProperty(dejavu, '$static', dejavu);
         obfuscateProperty(dejavu, '$self', null, true);
         obfuscateProperty(dejavu, '$super', null, true);
+        obfuscateProperty(dejavu, '$member', doMember);
         obfuscateProperty(dejavu, '$bind', doBindStatic);
         if (!dejavu.$parent) {
             obfuscateProperty(dejavu.prototype, '$bind', doBind);
+            obfuscateProperty(dejavu.prototype, '$member', doMember);
         }
 
         // Add toString() if not defined yet
@@ -1826,6 +1841,16 @@ define([
             Function.prototype.$bind.dejavu = true;
         } catch (e) {
             printWarning('Could not set Function.prototype.$bind.');
+        }
+    }
+
+    // Add custom member function to supply marking a function as part of the class
+    if (!Function.prototype.$member || !Function.prototype.$member.dejavu) {
+        try {
+            obfuscateProperty(Function.prototype, '$member', doMember);
+            Function.prototype.$member.dejavu = true;
+        } catch (e) {
+            printWarning('Could not set Function.prototype.$member.');
         }
     }
 
