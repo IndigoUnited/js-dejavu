@@ -50,7 +50,7 @@ module.exports = {
                         }
 
                         var files = matches.filter(function (match) {
-                            return !utils.string.endsWith(match, '/');
+                            return !/[\/\\]$/.test(match);
                         });
 
                         if (!files.length) {
