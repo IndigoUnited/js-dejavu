@@ -187,7 +187,7 @@ define([
             method = method[$wrapped];
         }
 
-        var parent = parentMeta ? parentMeta.implementation : parentMeta,
+        var parent = parentMeta ? parentMeta.implementation : defaultSuper,
             classId = constructor[$class].id,
             wrapper;
 
@@ -1387,16 +1387,34 @@ define([
     function doMember(func) {
         /*jshint validthis:true*/
         func = func || this;
+
+        // Check if it is a named func already
+        if (func[$name]) {
+            return func;
+        }
+
+        // Check if outside the instance/class
+        if (!callerClass) {
+            throw new Error('Attempting to mark a function as a member outside an instance/class.');
+        }
+
+        // Check if already marked as anonymous
+        if (func[$anonymous]) {
+            throw new Error('Function is already marked as an member.');
+        }
+
+        func[$anonymous] = true;
+        func = wrapMethod(func, callerClass);
         func[$anonymous] = true;
 
-        return this;
+        return func;
     }
 
     /**
      * Default implementation of the super function.
      */
     function defaultSuper() {
-        throw new Error('Trying to call $super when there is not parent function.');
+        throw new Error('Trying to call $super when there is no parent function.');
     }
 
     /**
@@ -1416,7 +1434,7 @@ define([
 
         if (!func[$wrapped] && this.$static && this.$static[$class]) {
             func[$anonymous] = true;
-            func = wrapMethod(func, this.$self || this.$static, callerClassId);
+            func = wrapMethod(func, this.$self || this.$static);
             args[0] = func;
             isAnonymous = true;
         }
@@ -1447,7 +1465,7 @@ define([
 
         if (!func[$wrapped] && this.$static && this.$static[$class]) {
             func[$anonymous] = true;
-            func = wrapStaticMethod(func, this.$self || this.$static, callerClassId);
+            func = wrapStaticMethod(func, this.$self || this.$static);
             args[0] = func;
             isAnonymous = true;
         }
@@ -1823,12 +1841,6 @@ define([
     if (!Function.prototype.$bind || !Function.prototype.$bind.dejavu) {
         try {
             obfuscateProperty(Function.prototype, '$bind', function (context) {
-                if (!arguments.length) {
-                    this[$bound] = true;
-
-                    return this;
-                }
-
                 var args = toArray(arguments);
                 args.splice(0, 1, this);
 
@@ -1847,7 +1859,9 @@ define([
     // Add custom member function to supply marking a function as part of the class
     if (!Function.prototype.$member || !Function.prototype.$member.dejavu) {
         try {
-            obfuscateProperty(Function.prototype, '$member', doMember);
+            obfuscateProperty(Function.prototype, '$member', function () {
+                return doMember(this);
+            });
             Function.prototype.$member.dejavu = true;
         } catch (e) {
             printWarning('Could not set Function.prototype.$member.');

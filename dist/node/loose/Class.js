@@ -429,7 +429,9 @@ define([
      */
     function doMember(func) {
         /*jshint validthis:true*/
-        return this;
+        func = func || this;
+
+        return func;
     }
 
     /**
@@ -727,12 +729,6 @@ define([
     if (!Function.prototype.$bind || !Function.prototype.$bind.dejavu) {
         try {
             obfuscateProperty(Function.prototype, '$bind', function (context) {
-                if (!arguments.length) {
-                    this[$bound] = true;
-
-                    return this;
-                }
-
                 var args = toArray(arguments);
                 args.splice(0, 1, this);
 
@@ -751,7 +747,9 @@ define([
     // Add custom member function to supply marking a function as part of the class
     if (!Function.prototype.$member || !Function.prototype.$member.dejavu) {
         try {
-            obfuscateProperty(Function.prototype, '$member', doMember);
+            obfuscateProperty(Function.prototype, '$member', function () {
+                return doMember(this);
+            });
             Function.prototype.$member.dejavu = true;
         } catch (e) {
             printWarning('Could not set Function.prototype.$member.');

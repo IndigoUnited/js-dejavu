@@ -890,7 +890,7 @@ define(global.modules, function (
             var SomeClass = Class.declare({
                     otherSimpleMethod: function () {
                         var that = this,
-                            func = this.$bind(function () {
+                            func = this.$member(function () {
                                 return that._protectedProperty;
                             });
 
@@ -952,6 +952,30 @@ define(global.modules, function (
                 }),
                 someClass = new SomeClass();
 
+            if (/strict/.test(global.build)) {
+                it('should throw error if called outside an instance/class', function () {
+
+                    expect(function () {
+                        return function () {}.$member();
+                    }).to.throwException(/outside an/);
+
+                });
+
+                it('should throw error if the marked twice', function () {
+
+                    expect(function () {
+                        var SomeClass = Class.declare({
+                            bla: function () {
+                                return function () {}.$member().$member();
+                            }
+                        }),
+                            someClass = new SomeClass();
+
+                        someClass.bla();
+                    }).to.throwException(/already marked/);
+
+                });
+            }
 
             it('should have access to private/protected members', function () {
 
@@ -971,7 +995,7 @@ define(global.modules, function (
                 }).to.not.throwException();
 
                 expect(function () {
-                    SomeClass.otherSimpleMethodStatic();
+                    SomeClass.otherSimpleMethodStatic()();
                 }).to.not.throwException();
 
                 expect(SomeClass.getProtectedPropertyStatic()).to.equal('dummy');
@@ -1239,7 +1263,7 @@ define(global.modules, function (
                 }).to.not.throwException();
 
                 expect(function () {
-                    SomeClass.otherSimpleMethodStatic();
+                    SomeClass.otherSimpleMethodStatic()();
                 }).to.not.throwException();
 
                 expect(SomeClass.getProtectedPropertyStatic()).to.equal('dummy');

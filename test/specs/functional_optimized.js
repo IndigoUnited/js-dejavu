@@ -494,9 +494,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
         });
         describe('$locked', function () {
             it('should have it removed', function () {
-                var SomeClass = Class.declare(function () {
-                        return {};
-                    }, true), someClass = new SomeClass();
+                var SomeClass = Class.declare({}, true), someClass = new SomeClass();
                 expect(someClass.$locked).to.be.equal(undefined);
                 expect(SomeClass.prototype.$locked).to.be.equal(undefined);
                 expect(SomeClass.$locked).to.be.equal(undefined);
@@ -660,7 +658,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             var SomeClass = Class.declare(function () {
                     return {
                         otherSimpleMethod: function () {
-                            var that = this, func = this.$bind(function () {
+                            var that = this, func = this.$member(function () {
                                     return that._protectedProperty;
                                 });
                             return func;
@@ -715,6 +713,27 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         }
                     };
                 }, true), someClass = new SomeClass();
+            if (/strict/.test(global.build)) {
+                it('should throw error if called outside an instance/class', function () {
+                    expect(function () {
+                        return function () {
+                        }.$member();
+                    }).to.throwException(/outside an/);
+                });
+                it('should throw error if the marked twice', function () {
+                    expect(function () {
+                        var SomeClass = Class.declare(function () {
+                                return {
+                                    bla: function () {
+                                        return function () {
+                                        }.$member().$member();
+                                    }
+                                };
+                            }, true), someClass = new SomeClass();
+                        someClass.bla();
+                    }).to.throwException(/already marked/);
+                });
+            }
             it('should have access to private/protected members', function () {
                 expect(function () {
                     someClass.someMethod();
@@ -728,7 +747,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     SomeClass.someMethodStatic();
                 }).to.not.throwException();
                 expect(function () {
-                    SomeClass.otherSimpleMethodStatic();
+                    SomeClass.otherSimpleMethodStatic()();
                 }).to.not.throwException();
                 expect(SomeClass.getProtectedPropertyStatic()).to.equal('dummy');
                 expect(SomeClass.getPrivatePropertyStatic()).to.equal('dummy');
@@ -953,7 +972,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     SomeClass.someMethodStatic();
                 }).to.not.throwException();
                 expect(function () {
-                    SomeClass.otherSimpleMethodStatic();
+                    SomeClass.otherSimpleMethodStatic()();
                 }).to.not.throwException();
                 expect(SomeClass.getProtectedPropertyStatic()).to.equal('dummy');
                 expect(SomeClass.getPrivatePropertyStatic()).to.equal('dummy');
