@@ -178,7 +178,36 @@ a:hover {
     top: 125px;
 }
 
+#header .social {
+    position: absolute;
+    right: 0;
+    bottom: 10px;
+    background: #49006A;
+    border-radius: 5px;
+    padding: 5px;
+    height: 20px;
+    width: 221px;
+}
+
+#header .social .facebook,
+#header .social .twitter,
+#header .social iframe,
+#header .social .fb-like,
+#header .social .fb-like span {
+    float: left;
+    height: 20px;
+}
+
+#header .social .facebook {
+    margin-left: 5px;
+}
+
+#header .social .twitter iframe {
+    width: 141px !important;
+}
+
 #content {
+    margin-top: 20px;
     min-height: 300px;
 }
 

@@ -179,7 +179,7 @@ if (!window.siteVersion) {
         cb = '_' + parseInt(Math.random() * 1e9, 10),
         // The blacklist below is due to unstable versions of browsers that should not
         // yet be accounted for
-        browserBlacklist = []; // /Firefox 17\./ -> Example of an entry
+        browserBlacklist = [/iPhone 6\.0\.2/]; // /Firefox 17\./ -> Example of an entry
 
     function browserIsBlacklisted(browser) {
         var i,
@@ -297,20 +297,26 @@ if (!window.siteVersion) {
     window[cb] = function (response) {
         var results = response.results,
             key,
+            name,
+            version,
             split,
-            mobile = ['android', 'ipad', 'iphone'],
-            browserVersions = {},
+            mobile = ['android', 'ipad', 'iphone', 'webos touchpad'],
             newResults = {};
 
         // Parse non-mobile browsers
         // Only keep the most recent browser in the results
         for (key in results) {
             split = key.split(' ');
-            // Skip mobile and blacklisted browsers
-            if ($.inArray(split[0].toLowerCase(), mobile) !== -1 || browserIsBlacklisted(key)) {
+            name = split.slice(0, split.length - 1).join(' ');
+            version = split[split.length - 1];
+            version = version ? parseFloat(version) : version;
+
+            // Include mobile, but exclude blacklisted browsers
+            if ($.inArray(name.toLowerCase(), mobile) !== -1 || browserIsBlacklisted(key)) {
                 continue;
             }
-            newResults[key] = results[key];
+
+            newResults[name + ' ' + version] = results[key];
         }
 
         // Draw the chart
@@ -319,14 +325,18 @@ if (!window.siteVersion) {
         // Parse mobile browsers
         // Only keep the most recent browser in the results
         newResults = {};
-        browserVersions = {};
         for (key in results) {
             split = key.split(' ');
+            name = split.slice(0, split.length - 1).join(' ');
+            version = split[split.length - 1];
+            version = version ? parseFloat(version) : version;
+
             // Include mobile, but exclude blacklisted browsers
-            if ($.inArray(split[0].toLowerCase(), mobile) === -1 || browserIsBlacklisted(key)) {
+            if ($.inArray(name.toLowerCase(), mobile) === -1 || browserIsBlacklisted(key)) {
                 continue;
             }
-            newResults[key] = results[key];
+
+            newResults[name + ' ' + version] = results[key];
         }
 
         // Draw the chart
