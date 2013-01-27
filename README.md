@@ -406,21 +406,27 @@ console.log((indigo instanceof Indigo) ?
 
 Front-end devs are encouraged to program using the AMD paradigm because of its obvious benefits.
 Since dejavu is built on it, it will integrate seamlessly with your AMD loader.
-The easy way to set it up is to define a path for dejavu in your loader config like so:
 
 ```js
 {
-   // your loader config
-   paths: {
-       // You can switch to the loose mode anytime
-       'dejavu': '/path/to/dejavu/dist/strict/main',
-       'mout': '../vendor/mout/src'
-   }
+    // your loader config
+    paths: {
+           'mout': '../vendor/mout/src'
+    },
+    packages: [
+        {
+            name: 'dejavu',
+            // You can switch to the loose mode anytime
+            location: '/path/to/dejavu/dist/strict'
+        }
+    ]
 }
 ```
-Then require it and use it:
+
+With this setup, you can require the dejavu object or specific parts of it:
 
 ```js
+// Load dejavu completely
 define(['dejavu'], function (dejavu) {
 
     // the dejavu variable is an object that contains:
@@ -440,31 +446,9 @@ define(['dejavu'], function (dejavu) {
 
     return Person;
 });
-```
 
-If you just want to require specific parts of `dejavu`, you can do so.
-In order to achieve this, you must configure your loader like so:
-
-
-```js
-{
-    // your loader config
-    paths: {
-           'mout': '../vendor/mout/src'
-    },
-    packages: [
-        {
-            name: 'dejavu',
-            // You can switch to the loose mode anytime
-            location: '/path/to/dejavu/dist/strict'
-        }
-    ]
-}
-```
-
-With this setup, you can still require the dejavu object like shown above or require specific parts of it:
-
-```js
+// In this case, only the `Class` module of `dejavu` is included,
+// which means all the other modules are not loaded.
 define(['dejavu/Class'], function (Class) {
 
     // Example usage
@@ -477,10 +461,6 @@ define(['dejavu/Class'], function (Class) {
     return MyClass;
 });
 ```
-
-As you can see, in this case, only the `Class` module of `dejavu` is included,
-which means all the other modules are not loaded.
-
 
 
 
