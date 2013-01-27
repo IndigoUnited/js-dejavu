@@ -8,7 +8,7 @@ var fs        = require('fs'),
     path      = require('path'),
     defaultRC = {
         strict: true,
-        locked: false
+        locked: true
     },
     target;
 
