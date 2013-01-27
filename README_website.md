@@ -462,7 +462,7 @@ define(['dejavu'], function (dejavu) {
 define(['dejavu/Class'], function (Class) {
 
     // Example usage
-    var Person = dejavu.Class.declare({
+    var Person = Class.declare({
         initialize: function () {
             // ...
         }

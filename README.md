@@ -9,7 +9,8 @@ before? That's the feeling you get when using `dejavu`.
 If you are a developer coming from a language like PHP, Java, ActionScript 3.0,
 and others, it's likely that you are already familiar with Object Oriented
 Programming. However, JavaScript uses prototypal inheritance which, although
-powerful and flexible, can be difficult to understand, and specially to maintain
+powerful and flexible, can be difficult to unde
+rstand, and specially to maintain
 in large projects.
 
 `dejavu` is a library that delivers classical inheritance on top of JavaScript
@@ -452,7 +453,7 @@ define(['dejavu'], function (dejavu) {
 define(['dejavu/Class'], function (Class) {
 
     // Example usage
-    var Person = dejavu.Class.declare({
+    var Person = Class.declare({
         initialize: function () {
             // ...
         }
