@@ -421,21 +421,26 @@ console.log((indigo instanceof Indigo) ?
 <h2>Taking it to another level</h2>
 <p>Front-end devs are encouraged to program using the AMD paradigm because of its obvious benefits.
 Since dejavu is built on it, it will integrate seamlessly with your AMD loader.
-The easy way to set it up is to define a path for dejavu in your loader config like so:
 
 </p>
 <pre><code class="lang-js">{
-   // your loader config
-   paths: {
-       // You can switch to the loose mode anytime
-       &#39;dejavu&#39;: &#39;/path/to/dejavu/dist/strict/main&#39;,
-       &#39;mout&#39;: &#39;../vendor/mout/src&#39;
-   }
+    // your loader config
+    paths: {
+           &#39;mout&#39;: &#39;../vendor/mout/src&#39;
+    },
+    packages: [
+        {
+            name: &#39;dejavu&#39;,
+            // You can switch to the loose mode anytime
+            location: &#39;/path/to/dejavu/dist/strict&#39;
+        }
+    ]
 }</code></pre>
-<p>Then require it and use it:
+<p>With this setup, you can require the dejavu object or specific parts of it:
 
 </p>
-<pre><code class="lang-js">define([&#39;dejavu&#39;], function (dejavu) {
+<pre><code class="lang-js">// Load dejavu completely
+define([&#39;dejavu&#39;], function (dejavu) {
 
     // the dejavu variable is an object that contains:
     // Class
@@ -453,29 +458,11 @@ The easy way to set it up is to define a path for dejavu in your loader config l
     });
 
     return Person;
-});</code></pre>
-<p>If you just want to require specific parts of <code>dejavu</code>, you can do so.
-In order to achieve this, you must configure your loader like so:
+});
 
-
-</p>
-<pre><code class="lang-js">{
-    // your loader config
-    paths: {
-           &#39;mout&#39;: &#39;../vendor/mout/src&#39;
-    },
-    packages: [
-        {
-            name: &#39;dejavu&#39;,
-            // You can switch to the loose mode anytime
-            location: &#39;/path/to/dejavu/dist/strict&#39;
-        }
-    ]
-}</code></pre>
-<p>With this setup, you can still require the dejavu object like shown above or require specific parts of it:
-
-</p>
-<pre><code class="lang-js">define([&#39;dejavu/Class&#39;], function (Class) {
+// In this case, only the `Class` module of `dejavu` is included,
+// which means all the other modules are not loaded.
+define([&#39;dejavu/Class&#39;], function (Class) {
 
     // Example usage
     var Person = dejavu.Class.declare({
@@ -486,13 +473,6 @@ In order to achieve this, you must configure your loader like so:
 
     return MyClass;
 });</code></pre>
-<p>As you can see, in this case, only the <code>Class</code> module of <code>dejavu</code> is included,
-which means all the other modules are not loaded.
-
-
-
-
-</p>
 <h2>Additional details</h2>
 <h3>Classes/instances are locked</h3>
 <p>By default, constructors and instances are locked. This means that no one can monkey patch your code.
