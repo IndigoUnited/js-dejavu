@@ -2035,7 +2035,6 @@ define([
             parent,
             isEfficient = !!constructor;
 
-        delete params.$name;
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
         var dejavu,

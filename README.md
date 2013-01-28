@@ -558,11 +558,11 @@ To get around this issue, `dejavu` provides a `console.inspect` method that work
 
 It specifically:
 
-- Improves $super and $self usage
-- Removes all $name and $locked properties because they are not used in the loose version
+- Improves `$super()`, `$self` and `$static` usage
 - Removes the need for wrappers, improving performance by a great margin
 - Removes abstract functions from abstract classes
 - Removes functions from interfaces
+- Removes all `$locked` and `$member()` because they are not used in the loose version
 
 The optimizer is located in the `bin` folder.
 If you are optimizing your code for `nodejs` then pass the --closure option. This will boost the performance when running code in v8.

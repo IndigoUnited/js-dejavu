@@ -147,8 +147,8 @@ Optimizer.prototype.optimizeClass = function (ast) {
     }
 
     // Step 3
-    // Remove $name and $locked
-    this._removeProperties(args[0].properties, ['$name', '$locked']);
+    // Remove $locked
+    this._removeProperties(args[0].properties, ['$locked']);
 };
 
 /**
