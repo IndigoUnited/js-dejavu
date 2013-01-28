@@ -1,3 +1,4 @@
+//>>includeStart('strict', pragmas.strict);
 define(['./isImmutable'], function (isImmutable) {
 
     'use strict';
@@ -39,3 +40,4 @@ define(['./isImmutable'], function (isImmutable) {
 
     return propertyMeta;
 });
+//>>includeEnd('strict');
