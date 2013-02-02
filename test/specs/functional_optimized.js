@@ -160,12 +160,24 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     initialize: function () {
                         this.status = 'alive';
                     }
-                }, true), Andre = Class.declare({ $extends: Person }, true), SuperAndre = Class.declare({ $extends: Andre }, true), PersonAbstract = AbstractClass.declare({
+                }, true), Andre = Class.declare({
+                    $extends: Person,
+                    $name: 'Andr\xe9'
+                }, true), SuperAndre = Class.declare({
+                    $extends: Andre,
+                    $name: 'SuperAndre'
+                }, true), PersonAbstract = AbstractClass.declare({
                     status: null,
                     initialize: function () {
                         this.status = 'alive';
                     }
-                }, true), AndreAbstract = AbstractClass.declare({ $extends: PersonAbstract }, true), SuperAndre2 = Class.declare({ $extends: AndreAbstract }, true), ProtectedPerson = Class.declare({
+                }, true), AndreAbstract = AbstractClass.declare({
+                    $extends: PersonAbstract,
+                    $name: 'Andr\xe9'
+                }, true), SuperAndre2 = Class.declare({
+                    $extends: AndreAbstract,
+                    $name: 'SuperAndre'
+                }, true), ProtectedPerson = Class.declare({
                     status: null,
                     _initialize: function () {
                         this.status = 'alive';
@@ -668,7 +680,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                     that._protectedProperty = 'dummy';
                                     that.__privateProperty = 'dummy', that._protectedMethod();
                                     that.__privateMethod();
-                                }.$member();
+                                };
                             func();
                         },
                         getProtectedProperty: function () {
@@ -695,7 +707,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                         that._protectedPropertyStatic = 'dummy';
                                         that.__privatePropertyStatic = 'dummy', that._protectedMethodStatic();
                                         that.__privateMethodStatic();
-                                    }.$member();
+                                    };
                                 func();
                             },
                             getProtectedPropertyStatic: function () {
@@ -726,7 +738,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                                 return {
                                     bla: function () {
                                         return function () {
-                                        }.$member().$member();
+                                        };
                                     }
                                 };
                             }, true), someClass = new SomeClass();

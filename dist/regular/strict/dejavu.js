@@ -1,6 +1,6 @@
 (function() {
 /**
- * almond 0.2.3 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
+ * almond 0.2.4 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/almond for details
  */
@@ -358,9 +358,15 @@ var requirejs, require, define;
         if (forceSync) {
             main(undef, deps, callback, relName);
         } else {
+            //Using a non-zero value because of concern for what old browsers
+            //do, and latest browsers "upgrade" to 4 if lower value is used:
+            //http://www.whatwg.org/specs/web-apps/current-work/multipage/timers.html#dom-windowtimers-settimeout:
+            //If want a value immediately, use require('id') instead -- something
+            //that works in almond on the global level, but not guaranteed and
+            //unlikely to work in other AMD implementations.
             setTimeout(function () {
                 main(undef, deps, callback, relName);
-            }, 15);
+            }, 4);
         }
 
         return req;
@@ -400,7 +406,6 @@ define("almond", function(){});
 
 define('mout/lang/kindOf',['require','exports','module'],function (require, exports, module) {
 
-
     var _rKind = /^\[object (.*)\]$/,
         _toString = Object.prototype.toString,
         UNDEF;
@@ -422,8 +427,7 @@ define('mout/lang/kindOf',['require','exports','module'],function (require, expo
 
 });
 
-define('mout/lang/isKind',['require','exports','module','./kindOf'],function (require, exports, module) {
-var kindOf = require('./kindOf');
+define('mout/lang/isKind',['require','exports','module','./kindOf'],function (require, exports, module) {var kindOf = require('./kindOf');
     /**
      * Check if value is from a specific "kind".
      */
@@ -435,8 +439,7 @@ var kindOf = require('./kindOf');
 
 });
 
-define('mout/lang/isString',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('mout/lang/isString',['require','exports','module','./isKind'],function (require, exports, module) {var isKind = require('./isKind');
     /**
      */
     function isString(val) {
@@ -447,8 +450,7 @@ var isKind = require('./isKind');
 
 });
 
-define('mout/lang/isBoolean',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('mout/lang/isBoolean',['require','exports','module','./isKind'],function (require, exports, module) {var isKind = require('./isKind');
     /**
      */
     function isBoolean(val) {
@@ -460,7 +462,6 @@ var isKind = require('./isKind');
 });
 
 define('mout/array/indexOf',['require','exports','module'],function (require, exports, module) {
-
 
     /**
      * Array.indexOf
@@ -487,7 +488,6 @@ define('mout/array/indexOf',['require','exports','module'],function (require, ex
 
 define('mout/array/forEach',['require','exports','module'],function (require, exports, module) {
 
-
     /**
      * Array forEach
      */
@@ -512,8 +512,7 @@ define('mout/array/forEach',['require','exports','module'],function (require, ex
 
 });
 
-define('mout/array/filter',['require','exports','module','./forEach'],function (require, exports, module) {
-var forEach = require('./forEach');
+define('mout/array/filter',['require','exports','module','./forEach'],function (require, exports, module) {var forEach = require('./forEach');
 
     /**
      * Array filter
@@ -534,8 +533,7 @@ var forEach = require('./forEach');
 
 });
 
-define('mout/array/unique',['require','exports','module','./indexOf','./filter'],function (require, exports, module) {
-var indexOf = require('./indexOf');
+define('mout/array/unique',['require','exports','module','./indexOf','./filter'],function (require, exports, module) {var indexOf = require('./indexOf');
 var filter = require('./filter');
 
     /**
@@ -556,7 +554,6 @@ var filter = require('./filter');
 });
 
 define('mout/array/every',['require','exports','module'],function (require, exports, module) {
-
 
     /**
      * Array every
@@ -581,8 +578,7 @@ define('mout/array/every',['require','exports','module'],function (require, expo
 
 });
 
-define('mout/array/contains',['require','exports','module','./indexOf'],function (require, exports, module) {
-var indexOf = require('./indexOf');
+define('mout/array/contains',['require','exports','module','./indexOf'],function (require, exports, module) {var indexOf = require('./indexOf');
 
     /**
      * If array contains values.
@@ -595,8 +591,7 @@ var indexOf = require('./indexOf');
 
 });
 
-define('mout/array/intersection',['require','exports','module','./unique','./filter','./every','./contains'],function (require, exports, module) {
-var unique = require('./unique');
+define('mout/array/intersection',['require','exports','module','./unique','./filter','./every','./contains'],function (require, exports, module) {var unique = require('./unique');
 var filter = require('./filter');
 var every = require('./every');
 var contains = require('./contains');
@@ -622,8 +617,7 @@ var contains = require('./contains');
 
 });
 
-define('mout/array/compact',['require','exports','module','./filter'],function (require, exports, module) {
-var filter = require('./filter');
+define('mout/array/compact',['require','exports','module','./filter'],function (require, exports, module) {var filter = require('./filter');
 
     /**
      * Remove all null/undefined items from array.
@@ -639,8 +633,7 @@ var filter = require('./filter');
 
 });
 
-define('mout/array/remove',['require','exports','module','./indexOf'],function (require, exports, module) {
-var indexOf = require('./indexOf');
+define('mout/array/remove',['require','exports','module','./indexOf'],function (require, exports, module) {var indexOf = require('./indexOf');
 
     /**
      * Remove a single item from the array.
@@ -658,7 +651,6 @@ var indexOf = require('./indexOf');
 
 define('mout/object/hasOwn',['require','exports','module'],function (require, exports, module) {
 
-
     /**
      * Safer Object.hasOwnProperty
      */
@@ -673,7 +665,6 @@ define('mout/object/hasOwn',['require','exports','module'],function (require, ex
 });
 
 define('mout/object/forIn',['require','exports','module'],function (require, exports, module) {
-
 
     var _hasDontEnumBug,
         _dontEnums;
@@ -738,8 +729,7 @@ define('mout/object/forIn',['require','exports','module'],function (require, exp
 
 });
 
-define('mout/object/forOwn',['require','exports','module','./hasOwn','./forIn'],function (require, exports, module) {
-var hasOwn = require('./hasOwn');
+define('mout/object/forOwn',['require','exports','module','./hasOwn','./forIn'],function (require, exports, module) {var hasOwn = require('./hasOwn');
 var forIn = require('./forIn');
 
     /**
@@ -761,8 +751,7 @@ var forIn = require('./forIn');
 
 });
 
-define('mout/object/keys',['require','exports','module','./forOwn'],function (require, exports, module) {
-var forOwn = require('./forOwn');
+define('mout/object/keys',['require','exports','module','./forOwn'],function (require, exports, module) {var forOwn = require('./forOwn');
 
     /**
      * Get object keys
@@ -781,8 +770,7 @@ var forOwn = require('./forOwn');
 
 });
 
-define('mout/object/size',['require','exports','module','./forOwn'],function (require, exports, module) {
-var forOwn = require('./forOwn');
+define('mout/object/size',['require','exports','module','./forOwn'],function (require, exports, module) {var forOwn = require('./forOwn');
 
     /**
      * Get object size
@@ -873,8 +861,7 @@ define('lib/functionMeta',[], function () {
     return functionMeta;
 });
 
-define('mout/lang/isNumber',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('mout/lang/isNumber',['require','exports','module','./isKind'],function (require, exports, module) {var isKind = require('./isKind');
     /**
      */
     function isNumber(val) {
@@ -952,6 +939,7 @@ define('lib/propertyMeta',['./isImmutable'], function (isImmutable) {
 
     return propertyMeta;
 });
+
 define('lib/isFunctionCompatible',[], function () {
 
     'use strict';
@@ -972,7 +960,6 @@ define('lib/isFunctionCompatible',[], function () {
 });
 
 define('mout/array/append',['require','exports','module'],function (require, exports, module) {
-
 
     /**
      * Appends an array to the end of another.
@@ -1033,7 +1020,6 @@ define('lib/checkKeywords',[
 
 define('mout/array/some',['require','exports','module'],function (require, exports, module) {
 
-
     /**
      * Array some
      */
@@ -1057,8 +1043,7 @@ define('mout/array/some',['require','exports','module'],function (require, expor
 
 });
 
-define('mout/array/difference',['require','exports','module','./unique','./filter','./some','./contains'],function (require, exports, module) {
-var unique = require('./unique');
+define('mout/array/difference',['require','exports','module','./unique','./filter','./some','./contains'],function (require, exports, module) {var unique = require('./unique');
 var filter = require('./filter');
 var some = require('./some');
 var contains = require('./contains');
@@ -1122,8 +1107,7 @@ define('lib/testKeywords',[
     return testKeywords;
 });
 
-define('mout/lang/isFunction',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('mout/lang/isFunction',['require','exports','module','./isKind'],function (require, exports, module) {var isKind = require('./isKind');
     /**
      */
     function isFunction(val) {
@@ -1302,8 +1286,7 @@ define('options',[], function () {
     };
 });
 
-define('mout/object/mixIn',['require','exports','module','./forOwn'],function (require, exports, module) {
-var forOwn = require('./forOwn');
+define('mout/object/mixIn',['require','exports','module','./forOwn'],function (require, exports, module) {var forOwn = require('./forOwn');
 
     /**
     * Combine properties from all the objects into first one.
@@ -1334,8 +1317,7 @@ var forOwn = require('./forOwn');
 
 });
 
-define('mout/lang/createObject',['require','exports','module','../object/mixIn'],function (require, exports, module) {
-var mixIn = require('../object/mixIn');
+define('mout/lang/createObject',['require','exports','module','../object/mixIn'],function (require, exports, module) {var mixIn = require('../object/mixIn');
 
     /**
      * Create Object using prototypal inheritance and setting custom properties.
@@ -1356,8 +1338,7 @@ var mixIn = require('../object/mixIn');
 
 });
 
-define('mout/lang/isObject',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('mout/lang/isObject',['require','exports','module','./isKind'],function (require, exports, module) {var isKind = require('./isKind');
     /**
      */
     function isObject(val) {
@@ -1368,8 +1349,7 @@ var isKind = require('./isKind');
 
 });
 
-define('mout/lang/isArray',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('mout/lang/isArray',['require','exports','module','./isKind'],function (require, exports, module) {var isKind = require('./isKind');
     /**
      */
     var isArray = Array.isArray || function (val) {
@@ -1715,8 +1695,7 @@ define('lib/obfuscateProperty',['./hasDefineProperty'], function (hasDefinePrope
     return obfuscateProperty;
 });
 
-define('mout/lang/isDate',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('mout/lang/isDate',['require','exports','module','./isKind'],function (require, exports, module) {var isKind = require('./isKind');
     /**
      */
     function isDate(val) {
@@ -1727,8 +1706,7 @@ var isKind = require('./isKind');
 
 });
 
-define('mout/lang/isRegExp',['require','exports','module','./isKind'],function (require, exports, module) {
-var isKind = require('./isKind');
+define('mout/lang/isRegExp',['require','exports','module','./isKind'],function (require, exports, module) {var isKind = require('./isKind');
     /**
      */
     function isRegExp(val) {
@@ -1739,8 +1717,7 @@ var isKind = require('./isKind');
 
 });
 
-define('mout/array/combine',['require','exports','module','./indexOf'],function (require, exports, module) {
-var indexOf = require('./indexOf');
+define('mout/array/combine',['require','exports','module','./indexOf'],function (require, exports, module) {var indexOf = require('./indexOf');
 
     /**
      * Combines an array with all the items of another.
@@ -1765,7 +1742,6 @@ var indexOf = require('./indexOf');
 
 define('mout/lang/isPlainObject',['require','exports','module'],function (require, exports, module) {
 
-
     /**
      * Checks if the value is created by the `Object` constructor.
      */
@@ -1781,8 +1757,7 @@ define('mout/lang/isPlainObject',['require','exports','module'],function (requir
 
 });
 
-define('mout/lang/deepClone',['require','exports','module','../object/forOwn','./kindOf','./isPlainObject'],function (require, exports, module) {
-var forOwn = require('../object/forOwn');
+define('mout/lang/deepClone',['require','exports','module','../object/forOwn','./kindOf','./isPlainObject'],function (require, exports, module) {var forOwn = require('../object/forOwn');
 var kindOf = require('./kindOf');
 var isPlainObject = require('./isPlainObject');
 
@@ -1889,7 +1864,6 @@ define('lib/mixIn',[], function () {
 
 define('mout/function/bind',['require','exports','module'],function (require, exports, module) {
 
-
     function slice(arr, offset){
         return Array.prototype.slice.call(arr, offset || 0);
     }
@@ -1914,8 +1888,7 @@ define('mout/function/bind',['require','exports','module'],function (require, ex
 
 });
 
-define('mout/lang/toArray',['require','exports','module','./kindOf'],function (require, exports, module) {
-var kindOf = require('./kindOf');
+define('mout/lang/toArray',['require','exports','module','./kindOf'],function (require, exports, module) {var kindOf = require('./kindOf');
 
     var _win = this;
 
@@ -1949,8 +1922,7 @@ var kindOf = require('./kindOf');
 
 });
 
-define('mout/array/insert',['require','exports','module','./difference','../lang/toArray'],function (require, exports, module) {
-var difference = require('./difference');
+define('mout/array/insert',['require','exports','module','./difference','../lang/toArray'],function (require, exports, module) {var difference = require('./difference');
 var toArray = require('../lang/toArray');
 
     /**

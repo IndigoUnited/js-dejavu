@@ -595,7 +595,6 @@ define([
             parent,
             isEfficient = !!constructor;
 
-        delete params.$name;
 
         if (hasOwn(params, '$extends')) {
             parent = params.$extends;

@@ -432,28 +432,28 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             });
             it('should throw an error when using an invalid name', function () {
                 expect(function () {
-                    return Class.declare({}, true);
+                    return Class.declare({ $name: undefined }, true);
                 }).to.throwException(/must be a string/);
                 expect(function () {
-                    return Class.declare({}, true);
+                    return Class.declare({ $name: null }, true);
                 }).to.throwException(/must be a string/);
                 expect(function () {
-                    return Class.declare({}, true);
+                    return Class.declare({ $name: 'Some $name' }, true);
                 }).to.throwException(/spaces/);
                 expect(function () {
-                    return Class.declare({}, true);
+                    return Class.declare({ $name: 'SomeName' }, true);
                 }).to.not.throwException();
                 expect(function () {
-                    return AbstractClass.declare({}, true);
+                    return AbstractClass.declare({ $name: undefined }, true);
                 }).to.throwException(/must be a string/);
                 expect(function () {
-                    return AbstractClass.declare({}, true);
+                    return AbstractClass.declare({ $name: null }, true);
                 }).to.throwException(/must be a string/);
                 expect(function () {
-                    return AbstractClass.declare({}, true);
+                    return AbstractClass.declare({ $name: 'Some $name' }, true);
                 }).to.throwException(/spaces/);
                 expect(function () {
-                    return AbstractClass.declare({}, true);
+                    return AbstractClass.declare({ $name: 'SomeName' }, true);
                 }).to.not.throwException();
             });
             it('should throw an error when using an invalid initialize', function () {

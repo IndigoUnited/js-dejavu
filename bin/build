@@ -7,51 +7,18 @@
 var cp = require('child_process'),
     fs = require('fs'),
     wrench = require('wrench'),
+    rimraf = require('rimraf'),
     tests,
     command,
     distDir = __dirname + '/../dist/',
     testDir = __dirname + '/../test/',
-    mochaBin,
+    mochaBin = __dirname + '/../node_modules/.bin/mocha',
     currentDistDir,
     currentBuild,
     files;
 
-/**
- * Removes all files from a folder.
- *
- * @param {String} [dir="dist"] The folder, default to the dist folder
- */
-function emptyDir(dir) {
-
-    dir = !!dir ? dir : distDir;
-
-    try {
-        files = fs.readdirSync(dir);
-    } catch (e) {
-        return;
-    }
-
-    files.forEach(function (file) {
-        if (fs.statSync(dir + file).isDirectory()) {
-            emptyDir(dir + file + '/');
-            fs.rmdirSync(dir + file);
-        } else {
-            fs.unlinkSync(dir + file);
-        }
-    });
-}
-
-// Find mocha binary
-// We use statSync instead of existsSync because it is in path package in older node versions and in fs package in earlier ones
-try {
-    mochaBin = __dirname + '/../node_modules/.bin/mocha';
-    fs.statSync(mochaBin);
-} catch (e) {
-    mochaBin = 'mocha';
-}
-
 // Clear directory
-emptyDir(distDir);
+rimraf.sync(distDir);
 
 // Build amd strict
 currentBuild = 'amd';
@@ -164,7 +131,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                 command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/dejavu.build_' + currentBuild + '.js';
                 currentDistDir = __dirname + '/../tmp/';
 
-                emptyDir(currentDistDir);
+                rimraf.sync(currentDistDir);
 
                 cp.exec(command + ' dir="' + currentDistDir + '" optimize=none pragmas.strict=false', function (error, stdout, stderr) {
 
@@ -179,7 +146,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                     fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/loose/dejavu.js');
 
                     // Build regular loose (minified)
-                    emptyDir(currentDistDir);
+                    rimraf.sync(currentDistDir);
 
                     cp.exec(command + ' dir="' + currentDistDir + '" optimize=uglify pragmas.strict=false', function (error, stdout, stderr) {
 
@@ -193,7 +160,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                         // Move concatenated file
                         fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/loose/dejavu.min.js');
 
-                        emptyDir(currentDistDir);
+                        rimraf.sync(currentDistDir);
 
                         // Build regular strict
                         cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
@@ -208,8 +175,7 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
                             // Move concatenated file
                             fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/strict/dejavu.js');
 
-                            emptyDir(currentDistDir);
-                            fs.rmdirSync(currentDistDir);
+                            rimraf.sync(currentDistDir);
 
                             // Generate optimized test files
                             tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/functional.js" > "' + testDir + 'specs/functional_optimized.js"', function (error, stdout, stderr) {

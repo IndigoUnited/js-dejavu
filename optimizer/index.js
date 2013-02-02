@@ -24,7 +24,8 @@ module.exports = function (contents, options, callback) {
         range: true
     });
     utils.object.mixIn(options.escodegenOpts, {
-        comment: true
+        comment: true,
+        escapeless: true
     });
 
     var ast = esprima.parse(contents, options.esprimaOpts),

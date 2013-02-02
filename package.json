@@ -28,7 +28,8 @@
     "wrench": "~1.4.3",
     "expect.js": "~0.2.0",
     "domReady": "git://github.com/requirejs/domReady.git",
-    "requirejs": "~2.1.2"
+    "requirejs": "~2.1.2",
+    "rimraf": "~2.1.2"
   },
   "scripts": {
     "build": "node build",
@@ -36,7 +37,7 @@
     "postinstall": "node bin/post_install.js"
   },
   "bugs": {
-    "url" : "http://github.com/IndigoUnited/dejavu/issues"
+    "url": "https://github.com/IndigoUnited/dejavu/issues/"
   },
   "repository": {
     "type": "git",
@@ -48,8 +49,5 @@
       "url": "http://www.opensource.org/licenses/mit-license.php"
     }
   ],
-  "bugs": {
-    "url": "https://github.com/IndigoUnited/dejavu/issues/"
-  },
   "engine": "node >= 0.8.x"
 }
