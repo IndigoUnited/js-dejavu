@@ -201,8 +201,7 @@ var Person = Class.declare({
         this.__pinCode = pinCode;
 
         // note that we're binding to the current instance in this case.
-        // also note that if this function is to be used only as a callback, you can
-        // use $bound(), which will be more efficient
+        // more on binding below
         setTimeout(this._logName.$bind(this), 1000);
     },
 
@@ -467,7 +466,40 @@ define(['dejavu/Class'], function (Class) {
 
 ## Additional details
 
-###  Classes/instances are locked ###
+### Binding and anonymous members
+
+You will eventually run into a situation where you want to declare a callback that accesses class members. On traditional JavaScript, you would just `.bind(this)`, and everything would be ok, because there is no restriction on visibility. Since `dejavu` enforces this, you will need to mark that callback as a member of the class, using something like the following:
+
+```js
+// ...
+setTimeout(function () {
+    this._someProperty = 'protected properties on callbacks';
+}.$member().bind(this), 1000);
+// ...
+```
+
+If this is too verbose for you, you can just `.$bind(this)`, which is equivalent to `.$member().bind(this)`.
+
+Finally, when defining a method directly on the class declaration that you know will always be used using the class context, you can bind it right there like so:
+
+```js
+var MyClass = dejavu.Class.declare({
+    $name: 'MyClass',
+    
+    doSomething: function () {
+        // notice I'm not binding on every execution of
+        // doSomething(), which is more efficient, because
+        // the method is $bound() below
+        setTimeout(this._someMethod, 1000);
+    },
+    
+    _someMethod: function () {
+        console.log('method efficiently bound');
+    }.$bound()
+});
+```
+
+### Classes/instances are locked
 
 By default, constructors and instances are locked. This means that no one can monkey patch your code.
 
