@@ -3,6 +3,6 @@
   "version": "0.3.0",
   "main": "src/",
   "dependencies": {
-    "mout": "~0.2.0"
+    "mout": "~0.3.0"
   }
 }
