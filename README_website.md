@@ -208,8 +208,8 @@ var Person = Class.declare({
         this._name = name;
         this.__pinCode = pinCode;
 
-        // note that we're binding to the current instance in this case.
-        // more on binding below
+        // note that we're binding to the current instance with `$bind`.
+        // this will be explained with great detail later on
         setTimeout(this._logName.$bind(this), 1000);
     },
 
@@ -238,7 +238,6 @@ This example illustrates the usage of:
 - member visibility
 - statics, abstracts, abstract statics, finals, final statics and constants
 - `$extends` vs `$borrows`
-- binding (`$bind()` vs `$bound()`)
 
 In this case, and keep in mind that this is just for illustration purposes, we'll create three interfaces, that are implemented by an abstract class, that is then extended by a concrete class.
 
@@ -365,12 +364,7 @@ var Indigo = dejavu.Class.declare({
 
         this.setName(name);
 
-        // note that we're binding the context to the current
-        // instance. If, like in this case, the callback
-        // function is to be used only as a callback, you
-        // can just do .$bound(), upon declaring the function
-        // which is equivalent to .$bind(this), but more efficient
-        setInterval(this._logThought.$bind(this), 1000);
+        this._logThought(this);
     },
 
     beAwesome: function () {
@@ -385,7 +379,7 @@ var Indigo = dejavu.Class.declare({
 
     _logThought: function () {
         console.log(this._name, 'is thinking about', this._subject);
-    }//.$bound() would be equivalent to the binding in the constructor
+    }
 });
 
 var indigo = new Indigo('André');
@@ -477,31 +471,38 @@ define(['dejavu/Class'], function (Class) {
 
 ### Binding and anonymous members
 
-You will eventually run into a situation where you want to declare a callback that accesses class members. On traditional JavaScript, you would just `.bind(this)`, and everything would be ok, because there is no restriction on visibility. Since `dejavu` enforces this, you will need to mark that callback as a member of the class, using something like the following:
+You will eventually run into a situation where you want to declare a callback that accesses class members. On traditional JavaScript, you would just `var that = this` or `.bind(this)`, and everything would be ok, because there is no restriction on visibility. Since `dejavu` enforces this, you will need to mark that callback as a member of the class, using something like the following:
+
+```js
+// ...
+var that = this;
+setTimeout(function () {
+    that._someProperty = 'protected properties on callbacks';
+}.$member(), 1000);
+```
 
 ```js
 // ...
 setTimeout(function () {
     this._someProperty = 'protected properties on callbacks';
 }.$member().bind(this), 1000);
-// ...
 ```
 
-If this is too verbose for you, you can just `.$bind(this)`, which is equivalent to `.$member().bind(this)`.
+If the `$member().bind(this)` is too verbose for you, you can just `.$bind(this)`, which is equivalent.
 
 Finally, when defining a method directly on the class declaration that you know will always be used using the class context, you can bind it right there like so:
 
 ```js
 var MyClass = dejavu.Class.declare({
     $name: 'MyClass',
-    
+
     doSomething: function () {
         // notice that _someMethod is $bound() below,
         // which is more efficient than $bind()ing on
         // every execution of doSomething()
         setTimeout(this._someMethod, 1000);
     },
-    
+
     _someMethod: function () {
         console.log('method efficiently bound');
     }.$bound()
