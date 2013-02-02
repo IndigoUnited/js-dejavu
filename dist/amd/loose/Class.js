@@ -47,9 +47,7 @@ define([
         $class = '$class',
         $interface = '$interface',
         $bound = '$bound_dejavu',
-        $wrapped = '$wrapped_dejavu',
-        tmp,
-        descriptor;
+        $wrapped = '$wrapped_dejavu';
 
     /**
      * Function that does exactly the same as the mout counterpart,
@@ -327,7 +325,7 @@ define([
             value,
             saved = {};
 
-            delete params.$locked;
+        delete params.$locked;
 
         // Check and save constants to parse later
         if (hasOwn(params, '$constants')) {

@@ -1367,8 +1367,7 @@ define('lib/inspect',[
     'mout/lang/isObject',
     'mout/lang/isArray',
     'mout/lang/isFunction',
-    'mout/object/hasOwn',
-    'mout/array/forEach'
+    'mout/object/hasOwn'
 ], function (
     randomAccessor,
     hasDefineProperty,
@@ -1376,8 +1375,7 @@ define('lib/inspect',[
     isObject,
     isArray,
     isFunction,
-    hasOwn,
-    forEach
+    hasOwn
 ) {
 
     'use strict';
@@ -1387,7 +1385,6 @@ define('lib/inspect',[
         $wrapped = '$wrapped_' + random,
         cacheKeyword = '$cache_' + random,
         redefinedCacheKeyword = '$redefined_cache_' + random,
-        rewrittenConsole = false,
         prev,
         tmp;
 
@@ -1659,7 +1656,6 @@ define('lib/printWarning',[], function () {
         if (typeof console !== 'undefined') {
             console.warn(message);
         }
-
     }
 
     return printWarning;
@@ -1757,32 +1753,75 @@ define('mout/lang/isPlainObject',['require','exports','module'],function (requir
 
 });
 
-define('mout/lang/deepClone',['require','exports','module','../object/forOwn','./kindOf','./isPlainObject'],function (require, exports, module) {var forOwn = require('../object/forOwn');
-var kindOf = require('./kindOf');
+define('mout/lang/clone',['require','exports','module','./kindOf','./isPlainObject','../object/mixIn'],function (require, exports, module) {var kindOf = require('./kindOf');
 var isPlainObject = require('./isPlainObject');
+var mixIn = require('../object/mixIn');
 
     /**
      * Clone native types.
      */
+    function clone(val){
+        switch (kindOf(val)) {
+            case 'Object':
+                return cloneObject(val);
+            case 'Array':
+                return cloneArray(val);
+            case 'RegExp':
+                return cloneRegExp(val);
+            case 'Date':
+                return cloneDate(val);
+            default:
+                return val;
+        }
+    }
+
+    function cloneObject(source) {
+        if (isPlainObject(source)) {
+            return mixIn({}, source);
+        } else {
+            return source;
+        }
+    }
+
+    function cloneRegExp(r) {
+        var flags = '';
+        flags += r.multiline ? 'm' : '';
+        flags += r.global ? 'g' : '';
+        flags += r.ignorecase ? 'i' : '';
+        return new RegExp(r.source, flags);
+    }
+
+    function cloneDate(date) {
+        return new Date(+date);
+    }
+
+    function cloneArray(arr) {
+        return arr.slice();
+    }
+
+    module.exports = clone;
+
+
+
+});
+
+define('mout/lang/deepClone',['require','exports','module','./clone','../object/forOwn','./kindOf','./isPlainObject'],function (require, exports, module) {var clone = require('./clone');
+var forOwn = require('../object/forOwn');
+var kindOf = require('./kindOf');
+var isPlainObject = require('./isPlainObject');
+
+    /**
+     * Recursively clone native types.
+     */
     function deepClone(val, instanceClone) {
-        var result;
         switch ( kindOf(val) ) {
             case 'Object':
-                result = cloneObject(val, instanceClone);
-                break;
+                return cloneObject(val, instanceClone);
             case 'Array':
-                result = cloneArray(val, instanceClone);
-                break;
-            case 'RegExp':
-                result = cloneRegExp(val);
-                break;
-            case 'Date':
-                result = cloneDate(val);
-                break;
+                return cloneArray(val, instanceClone);
             default:
-                result = val;
+                return clone(val);
         }
-        return result;
     }
 
     function cloneObject(source, instanceClone) {
@@ -1797,18 +1836,6 @@ var isPlainObject = require('./isPlainObject');
         } else {
             return source;
         }
-    }
-
-    function cloneRegExp(r) {
-        var flags = '';
-        flags += r.multiline? 'm' : '';
-        flags += r.global? 'g' : '';
-        flags += r.ignoreCase? 'i' : '';
-        return new RegExp(r.source, flags);
-    }
-
-    function cloneDate(date) {
-        return new Date( date.getTime() );
     }
 
     function cloneArray(arr, instanceClone) {
@@ -1836,7 +1863,9 @@ define('lib/mixIn',[], function () {
     /**
      * This method does exactly the same as the mout counterpart but
      * does not perform hasOwn for each key in the objects.
-     * This is only done because the object prototype is sealed and to get an extra performance.
+     * This is only done because the object prototype is guaranteed to be sealed.
+     * There is other ones that could be also optimized, but this is the most used
+     * one in the loose version.
      *
      * @param {object}    target  Target Object
      * @param {...object} objects Objects to be combined (0...n objects)

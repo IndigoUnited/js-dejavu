@@ -15,7 +15,6 @@ define([], function () {
         if (typeof console !== 'undefined') {
             console.warn(message);
         }
-
     }
 
     return printWarning;

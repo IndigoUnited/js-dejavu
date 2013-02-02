@@ -9,8 +9,7 @@ define([
     'mout/lang/isObject',
     'mout/lang/isArray',
     'mout/lang/isFunction',
-    'mout/object/hasOwn',
-    'mout/array/forEach'
+    'mout/object/hasOwn'
 ], function (
     randomAccessor,
     hasDefineProperty,
@@ -18,8 +17,7 @@ define([
     isObject,
     isArray,
     isFunction,
-    hasOwn,
-    forEach
+    hasOwn
 ) {
 
     'use strict';
@@ -29,7 +27,6 @@ define([
         $wrapped = '$wrapped_' + random,
         cacheKeyword = '$cache_' + random,
         redefinedCacheKeyword = '$redefined_cache_' + random,
-        rewrittenConsole = false,
         prev,
         tmp;
 

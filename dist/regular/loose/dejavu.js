@@ -410,14 +410,11 @@ define('lib/inspect',[
 
     
 
-    function inspect(target) {
-        // TODO: Should inspect do something more?
-        //       If the code is not optimized, they will see wrappers when clicking in functions
-        //       and also some strange things like $bind and $static.
-        //       But I think it does not compensate the extra bytes to support it
-        //       If we ever do this, we must adjust the console.inspect bellow
-        return target;
-    }
+    // TODO: Should inspect do something more?
+    //       If the code is not optimized, they will see wrappers when clicking in functions
+    //       and also some strange things like $bind and $static.
+    //       But I think it does not compensate the extra bytes to support it
+    //       If we ever do this, we must adjust the console.inspect bellow
 
     // Add inspect method to the console
     if (typeof console === 'object' && !console.inspect) {
@@ -439,7 +436,6 @@ define('lib/printWarning',[], function () {
         if (typeof console !== 'undefined') {
             console.warn(message);
         }
-
     }
 
     return printWarning;
@@ -883,32 +879,75 @@ define('mout/lang/isPlainObject',['require','exports','module'],function (requir
 
 });
 
-define('mout/lang/deepClone',['require','exports','module','../object/forOwn','./kindOf','./isPlainObject'],function (require, exports, module) {var forOwn = require('../object/forOwn');
-var kindOf = require('./kindOf');
+define('mout/lang/clone',['require','exports','module','./kindOf','./isPlainObject','../object/mixIn'],function (require, exports, module) {var kindOf = require('./kindOf');
 var isPlainObject = require('./isPlainObject');
+var mixIn = require('../object/mixIn');
 
     /**
      * Clone native types.
      */
+    function clone(val){
+        switch (kindOf(val)) {
+            case 'Object':
+                return cloneObject(val);
+            case 'Array':
+                return cloneArray(val);
+            case 'RegExp':
+                return cloneRegExp(val);
+            case 'Date':
+                return cloneDate(val);
+            default:
+                return val;
+        }
+    }
+
+    function cloneObject(source) {
+        if (isPlainObject(source)) {
+            return mixIn({}, source);
+        } else {
+            return source;
+        }
+    }
+
+    function cloneRegExp(r) {
+        var flags = '';
+        flags += r.multiline ? 'm' : '';
+        flags += r.global ? 'g' : '';
+        flags += r.ignorecase ? 'i' : '';
+        return new RegExp(r.source, flags);
+    }
+
+    function cloneDate(date) {
+        return new Date(+date);
+    }
+
+    function cloneArray(arr) {
+        return arr.slice();
+    }
+
+    module.exports = clone;
+
+
+
+});
+
+define('mout/lang/deepClone',['require','exports','module','./clone','../object/forOwn','./kindOf','./isPlainObject'],function (require, exports, module) {var clone = require('./clone');
+var forOwn = require('../object/forOwn');
+var kindOf = require('./kindOf');
+var isPlainObject = require('./isPlainObject');
+
+    /**
+     * Recursively clone native types.
+     */
     function deepClone(val, instanceClone) {
-        var result;
         switch ( kindOf(val) ) {
             case 'Object':
-                result = cloneObject(val, instanceClone);
-                break;
+                return cloneObject(val, instanceClone);
             case 'Array':
-                result = cloneArray(val, instanceClone);
-                break;
-            case 'RegExp':
-                result = cloneRegExp(val);
-                break;
-            case 'Date':
-                result = cloneDate(val);
-                break;
+                return cloneArray(val, instanceClone);
             default:
-                result = val;
+                return clone(val);
         }
-        return result;
     }
 
     function cloneObject(source, instanceClone) {
@@ -923,18 +962,6 @@ var isPlainObject = require('./isPlainObject');
         } else {
             return source;
         }
-    }
-
-    function cloneRegExp(r) {
-        var flags = '';
-        flags += r.multiline? 'm' : '';
-        flags += r.global? 'g' : '';
-        flags += r.ignoreCase? 'i' : '';
-        return new RegExp(r.source, flags);
-    }
-
-    function cloneDate(date) {
-        return new Date( date.getTime() );
     }
 
     function cloneArray(arr, instanceClone) {
@@ -962,7 +989,9 @@ define('lib/mixIn',[], function () {
     /**
      * This method does exactly the same as the mout counterpart but
      * does not perform hasOwn for each key in the objects.
-     * This is only done because the object prototype is sealed and to get an extra performance.
+     * This is only done because the object prototype is guaranteed to be sealed.
+     * There is other ones that could be also optimized, but this is the most used
+     * one in the loose version.
      *
      * @param {object}    target  Target Object
      * @param {...object} objects Objects to be combined (0...n objects)
@@ -1252,9 +1281,7 @@ define('Class',[
         $class = '$class',
         $interface = '$interface',
         $bound = '$bound_dejavu',
-        $wrapped = '$wrapped_dejavu',
-        tmp,
-        descriptor;
+        $wrapped = '$wrapped_dejavu';
 
     /**
      * Function that does exactly the same as the mout counterpart,
@@ -1532,7 +1559,7 @@ define('Class',[
             value,
             saved = {};
 
-            delete params.$locked;
+        delete params.$locked;
 
         // Check and save constants to parse later
         if (hasOwn(params, '$constants')) {

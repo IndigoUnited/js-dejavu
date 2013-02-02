@@ -9,7 +9,9 @@ define([], function () {
     /**
      * This method does exactly the same as the mout counterpart but
      * does not perform hasOwn for each key in the objects.
-     * This is only done because the object prototype is sealed and to get an extra performance.
+     * This is only done because the object prototype is guaranteed to be sealed.
+     * There is other ones that could be also optimized, but this is the most used
+     * one in the loose version.
      *
      * @param {object}    target  Target Object
      * @param {...object} objects Objects to be combined (0...n objects)
