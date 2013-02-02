@@ -282,6 +282,9 @@ Optimizer.prototype._replaceSpecial = function (funcName, ast, isStatic) {
         code = code.replace(/(this|that|_this|self)((?:\r|\n|\s)*)?\.((?:\r|\n|\s)*)?\$static/g, '$1$2$3');
     }
 
+    // Remove member
+    code = code.replace(/\.\$member\(\)/g, '');
+
     code = code.replace(/function\s*\(/, 'function x(');
 
     if (ast.value) {

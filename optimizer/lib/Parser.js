@@ -83,7 +83,7 @@ Parser.prototype.forEachUsage = function (ast, callback) {
 /**
  * Checks if the passed asts (members) are part of an interface.
  *
- * @param  {Array} asts The asts
+ * @param {Array} asts The asts
  *
  * @return {Boolean} True if it is, false otherwise
  */
@@ -119,7 +119,7 @@ Parser.prototype._isInterface = function (asts) {
 /**
  * Checks if the passed asts (members) are part of an abstract class.
  *
- * @param  {Array} asts The asts
+ * @param {Array} asts The asts
  *
  * @return {Boolean} True if it is, false otherwise
  */
@@ -142,7 +142,7 @@ Parser.prototype._isAbstractClass = function (asts) {
 /**
  * Checks if the passed asts (members) are part of a concrete class.
  *
- * @param  {Array} asts The asts
+ * @param {Array} asts The asts
  *
  * @return {Boolean} True if it is, false otherwise
  */

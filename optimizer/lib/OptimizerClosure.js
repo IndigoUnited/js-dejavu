@@ -169,6 +169,9 @@ OptimizerClosure.prototype._replaceSpecial = function (funcName, ast, isStatic) 
         process.stderr.write('The optimization might have broken the behavior at line ' + ast.value.loc.start.line + ', column ' + ast.value.loc.start.column + '\n');
     }
 
+    // Remove member
+    code = code.replace(/\.\$member\(\)/g, '');
+
     code = code.replace(/function\s*\(/, 'function x(');
 
     if (ast.value) {
