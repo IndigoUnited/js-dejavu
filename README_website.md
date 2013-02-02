@@ -496,9 +496,9 @@ var MyClass = dejavu.Class.declare({
     $name: 'MyClass',
     
     doSomething: function () {
-        // notice I'm not binding on every execution of
-        // doSomething(), which is more efficient, because
-        // the method is $bound() below
+        // notice that _someMethod is $bound() below,
+        // which is more efficient than $bind()ing on
+        // every execution of doSomething()
         setTimeout(this._someMethod, 1000);
     },
     
