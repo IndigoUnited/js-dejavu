@@ -26,7 +26,7 @@ Optimizer.prototype.canOptimize = function (target) {
         target = escodegen.generate(target, this._escodegenOpts);
     }
 
-    return !(/(this|that|_this|self)[\n\r\s]*\.[\n\r\s]*\$self/g).test(target);
+    return !(/((_*this|_*that|_*thus|_*self))((?:\r|\n|\s)*)\.((?:\r|\n|\s)*)\$self/g).test(target);
 };
 
 /**
@@ -271,15 +271,15 @@ Optimizer.prototype._replaceSpecial = function (funcName, ast, isStatic) {
 
     // Super replacement
     if (!isStatic) {
-        code = code.replace(/(this|that|_this|self)((?:\r|\n|\s)*)\.((?:\r|\n|\s)*)\$super\(/g, currParent + '$2.prototype.$3' + funcName + '.call($1, ');
+        code = code.replace(/(_*this|_*that|_*thus|_*self)((?:\r|\n|\s)*)\.((?:\r|\n|\s)*)\$super\(/g, currParent + '$2.prototype.$3' + funcName + '.call($1, ');
     } else {
-        code = code.replace(/(this|that|_this|self)((?:\r|\n|\s)*)\.((?:\r|\n|\s)*)\$super\(/g, currParent + '$2.$3' + funcName + '.call($1, ');
+        code = code.replace(/(_*this|_*that|_*thus|_*self)((?:\r|\n|\s)*)\.((?:\r|\n|\s)*)\$super\(/g, currParent + '$2.$3' + funcName + '.call($1, ');
     }
-    code = code.replace(/(this|that|_this|self), \)/g, '$1)');
+    code = code.replace(/(_*this|_*that|_*thus|_*self), \)/g, '$1)');
 
     // If on static context, this.$static can be optimized to just this
     if (isStatic) {
-        code = code.replace(/(this|that|_this|self)((?:\r|\n|\s)*)?\.((?:\r|\n|\s)*)?\$static/g, '$1$2$3');
+        code = code.replace(/(_*this|_*that|_*thus|_*self)((?:\r|\n|\s)*)?\.((?:\r|\n|\s)*)?\$static/g, '$1$2$3');
     }
 
     // Remove member

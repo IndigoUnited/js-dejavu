@@ -41,7 +41,7 @@ module.exports = function (contents, options, callback) {
             return errors.push(err);
         }
 
-        var slice = contents.substr(obj.ast.range[0], obj.ast.range[1]);
+        var slice = contents.slice(obj.ast.range[0], obj.ast.range[1]);
 
         // Use the closure optimizer if the user wants to use it
         // or if the default one can't be used

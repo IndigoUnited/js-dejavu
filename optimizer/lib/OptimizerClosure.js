@@ -151,18 +151,18 @@ OptimizerClosure.prototype._replaceSpecial = function (funcName, ast, isStatic) 
     }
 
     // Super replacement
-    code = code.replace(/(this|that|_this|self)((?:\r|\n|\s)*)?\.((?:\r|\n|\s)*)\$super\(/g, '$super$2.$3' + funcName + '.call($1, ')
-               .replace(/(this|that|_this|self), \)/g, '$1)');
+    code = code.replace(/(_*this|_*that|_*thus|_*self)((?:\r|\n|\s)*)?\.((?:\r|\n|\s)*)\$super\(/g, '$super$2.$3' + funcName + '.call($1, ')
+               .replace(/(_*this|_*that|_*thus|_*self), \)/g, '$1)');
 
     // If on static context, $super is actually $parent
     // Also this.$static can be replaced by this because is faster
     if (isStatic) {
         code = code.replace(/\$super/g, '$parent');
-        code = code.replace(/(this|that|_this|self)((?:\r|\n|\s)*)?\.((?:\r|\n|\s)*)?\$static/g, '$1$2$3');
+        code = code.replace(/(_*this|_*that|_*thus|_*self)((?:\r|\n|\s)*)?\.((?:\r|\n|\s)*)?\$static/g, '$1$2$3');
     }
 
     // Self replacement
-    code = code.replace(/(this|that|_this|self)((?:\r|\n|\s)*)?\.((?:\r|\n|\s)*)?\$self?/g, selfReplacer);
+    code = code.replace(/(_*this|_*that|_*thus|_*self)((?:\r|\n|\s)*)?\.((?:\r|\n|\s)*)?\$self?/g, selfReplacer);
 
     // Test if something went wrong
     if (/\.(\r|\n|\s)*\$super/g.test(code) || /\.(\r|\n|\s)*\$self/g.test(code) || (isStatic && /\.(\r|\n|\s)*\$static/g.test(code))) {
