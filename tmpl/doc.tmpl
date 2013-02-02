@@ -1,31 +1,17 @@
 <h2>dejavu</h2>
 <p>Have you ever had the feeling that you&#39;re seeing something you&#39;ve already seen
-before? That&#39;s the feeling you get when using <code>dejavu</code>.
-
-</p>
+before? That&#39;s the feeling you get when using <code>dejavu</code>.</p>
 <p>If you are a developer coming from a language like PHP, Java, ActionScript 3.0,
 and others, it&#39;s likely that you are already familiar with Object Oriented
 Programming. However, JavaScript uses prototypal inheritance which, although
 powerful and flexible, can be difficult to understand, and specially to maintain
-in large projects.
-
-</p>
+in large projects.</p>
 <p><code>dejavu</code> is a library that delivers classical inheritance on top of JavaScript
-prototypal inheritance, making it a breeze to move into JavaScript.
-
-
-
-</p>
+prototypal inheritance, making it a breeze to move into JavaScript.</p>
 <h2>Why another?</h2>
 <p>There are some libraries out there able to shim classical inheritance,
-however none offers all the functionality that many programmers require.
-
-</p>
-<p>Also, even though being one of the most feature rich OOP libraries out there, it has an outstanding performance, rivaling with vanilla in production.
-
-
-
-</p>
+however none offers all the functionality that many programmers require.</p>
+<p>Also, even though being one of the most feature rich OOP libraries out there, it has an outstanding performance, rivaling with vanilla in production.</p>
 <h2>Features</h2>
 <ul>
 <li>Classes (concrete, abstract and final)</li>
@@ -57,26 +43,14 @@ using the <code>dejavu</code> in strict mode, otherwise some code might fail sil
 This can happen because <code>dejavu</code> uses <code>Object.freeze</code> and <code>Object.seal</code> to lock
 classes and instances, guaranteeing that no one changes the behaviour of your
 classes by replacing methods, etc, and possibly breaking your code, making it
-really hard to pin point what&#39;s wrong. Although this is the default behaviour, it can be changed.
-
-</p>
-<p>You will read more on it later in this document.
-
-</p>
-<p><strong>Do not confuse &#39;use strict&#39; with the dejavu strict mode.</strong>
-
-
-
-</p>
+really hard to pin point what&#39;s wrong. Although this is the default behaviour, it can be changed.</p>
+<p>You will read more on it later in this document.</p>
+<p><strong>Do not confuse &#39;use strict&#39; with the dejavu strict mode.</strong></p>
 <h2>Getting started</h2>
 <p>The quickest way to start using <code>dejavu</code> in your project, is by simply including
-<code>dist/regular/strict/dejavu.js</code> (note that this is in <strong>strict</strong> mode).
-
-</p>
+<code>dist/regular/strict/dejavu.js</code> (note that this is in <strong>strict</strong> mode).</p>
 <p>If you&#39;re developing a <strong>client-side</strong> app, simply put the file in some folder,
-and include it in the HTML:
-
-</p>
+and include it in the HTML:</p>
 <pre><code class="lang-html">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
     &lt;head&gt;
@@ -114,9 +88,7 @@ and include it in the HTML:
     &lt;/body&gt;
 &lt;/html&gt;</code></pre>
 <p>This will make a <code>dejavu</code> global available for you.
-If you&#39;re developing in <strong>Node.js</strong>, install it with <code>npm install dejavu</code> and use it like so:
-
-</p>
+If you&#39;re developing in <strong>Node.js</strong>, install it with <code>npm install dejavu</code> and use it like so:</p>
 <pre><code class="lang-js">var dejavu = require(&#39;dejavu&#39;);
 
 // declare the &quot;Person&quot; class
@@ -143,66 +115,36 @@ var indigo = new Person(&quot;Marco&quot;);
 console.log(&quot;A new indigo was born,&quot;, indigo.getName());</code></pre>
 <p>The installation will create a <code>.dejavurc</code> in your package, where you can enable/disable the strict mode as well as change other dejavu options.
 By default the strict mode is used. Still, you want to leverage your package with the loose mode.
-Because dejavu reads<code>.dejavurc</code> from the process.cwd(), packages that require your package will be running the loose mode unless they also define a <code>.dejavurc</code> (which will only happen if they also depend on dejavu directly).
-
-
-
-</p>
+Because dejavu reads<code>.dejavurc</code> from the process.cwd(), packages that require your package will be running the loose mode unless they also define a <code>.dejavurc</code> (which will only happen if they also depend on dejavu directly).</p>
 <h2>Benchmarks</h2>
-<p>You can run the <a href="http://jsperf.com/oop-benchmark/107">benchmark</a> yourself. Note that the benchmark below compares dejavu with libraries that do not provide many of the features that dejavu does. For more details, please consult the libraries documentation.
-
-</p>
-<p>It is also important to mention that some libraries like <a href="https://github.com/tnhu/jsface">JSFace</a> does not chain prototypes. This gives them an extra edge in performance in some browsers, like Firefox, but renders the <code>instanceof</code> operator useless.
-
-</p>
-<p>{{graph}}
-
-</p>
+<p>You can run the <a href="http://jsperf.com/oop-benchmark/107">benchmark</a> yourself. Note that the benchmark below compares dejavu with libraries that do not provide many of the features that dejavu does. For more details, please consult the libraries documentation.</p>
+<p>It is also important to mention that some libraries like <a href="https://github.com/tnhu/jsface">JSFace</a> does not chain prototypes. This gives them an extra edge in performance in some browsers, like Firefox, but renders the <code>instanceof</code> operator useless.</p>
+<p>{{graph}}</p>
 <h3>Mobile</h3>
-<p>{{graph_mobile}}
-
-
-
-</p>
+<p>{{graph_mobile}}</p>
 <h2>Performance</h2>
 <p>Since all those nice features and common rules of classic OOP degrade
 performance, <code>dejavu</code> has two separates modes, for different stages in the
-development.
-
-</p>
+development.</p>
 <p>The <code>strict</code> mode is suitable for <strong>development</strong>, and will do all sorts of
-checks, throwing an error when you try to do something considered illegal.
-
-</p>
-<p><strong>Note that if your project works in strict mode, it will work in loose mode.</strong>
-
-</p>
+checks, throwing an error when you try to do something considered illegal.</p>
+<p><strong>Note that if your project works in strict mode, it will work in loose mode.</strong></p>
 <p>As for the <code>loose</code> mode, there is no overhead associated with checks, thus
 making it suitable for <strong>production</strong>, since it will be more efficient and
-have a <strong>lower memory footprint and filesize</strong>.
-
-</p>
+have a <strong>lower memory footprint and filesize</strong>.</p>
 <p>Finally, in order to achieve that extra edge, that puts <code>dejavu</code> next to vanilla
 JS in terms of performance, you should run the optimizer that is bundled with
 the library. Note that this step is completely optional, and <code>dejavu</code> will still
 perform faster than most libraries, even if you don&#39;t run the <a href="https://github.com/IndigoUnited/dejavu##optimizer">optimizer</a>.
 The optimizer will analyse your code and make some improvements,
-boosting it a bit further.
-
-</p>
+boosting it a bit further.</p>
 <p>You can check the benchmarks in <a href="http://jsperf.com/oop-benchmark/79">jsperf</a>
 comparing <code>dejavu</code> with other OOP libraries. Note that the loose mode
 is used in this test, simulating a production environment, and both the normal
-and optimized versions are tested.
-
-
-
-</p>
+and optimized versions are tested.</p>
 <h2>Syntax</h2>
 <h3>Overview</h3>
-<p>Here&#39;s an overview of what most developers look for in an OOP library. You can find complete examples further down.
-
-</p>
+<p>Here&#39;s an overview of what most developers look for in an OOP library. You can find complete examples further down.</p>
 <pre><code class="lang-js">var Person = Class.declare({
     // although not mandatory, it&#39;s really useful to identify
     // the class name, which simplifies debugging
@@ -219,9 +161,8 @@ and optimized versions are tested.
         this._name = name;
         this.__pinCode = pinCode;
 
-        // note that we&#39;re binding to the current instance in this case.
-        // also note that if this function is to be used only as a
-        // callback, you can use $bound(), which will be more efficient
+        // note that we&#39;re binding to the current instance with `$bind`.
+        // this will be explained with great detail later on
         setTimeout(this._logName.$bind(this), 1000);
     },
 
@@ -236,12 +177,8 @@ and optimized versions are tested.
     }
 });</code></pre>
 <h3>Complete example</h3>
-<p>For those looking for something more, here&#39;s a more complete usage of <code>dejavu</code>.
-
-</p>
-<p>This example illustrates the usage of:
-
-</p>
+<p>For those looking for something more, here&#39;s a more complete usage of <code>dejavu</code>.</p>
+<p>This example illustrates the usage of:</p>
 <ul>
 <li><code>$name</code> meta attribute</li>
 <li><code>this.$self</code> vs <code>this.$static</code></li>
@@ -250,12 +187,8 @@ and optimized versions are tested.
 <li>member visibility</li>
 <li>statics, abstracts, abstract statics, finals, final statics and constants</li>
 <li><code>$extends</code> vs <code>$borrows</code></li>
-<li>binding (<code>$bind()</code> vs <code>$bound()</code>)</li>
 </ul>
-<p>In this case, and keep in mind that this is just for illustration purposes, we&#39;ll create three interfaces, that are implemented by an abstract class, that is then extended by a concrete class.
-
-
-</p>
+<p>In this case, and keep in mind that this is just for illustration purposes, we&#39;ll create three interfaces, that are implemented by an abstract class, that is then extended by a concrete class.</p>
 <pre><code class="lang-js">var dejavu = require(&#39;dejavu&#39;);
 
 // ------------ AN INTERFACE ------------
@@ -377,12 +310,7 @@ var Indigo = dejavu.Class.declare({
 
         this.setName(name);
 
-        // note that we&#39;re binding the context to the current
-        // instance. If, like in this case, the callback
-        // function is to be used only as a callback, you
-        // can just do .$bound(), upon declaring the function
-        // which is equivalent to .$bind(this), but more efficient
-        setInterval(this._logThought.$bind(this), 1000);
+        this._logThought(this);
     },
 
     beAwesome: function () {
@@ -397,7 +325,7 @@ var Indigo = dejavu.Class.declare({
 
     _logThought: function () {
         console.log(this._name, &#39;is thinking about&#39;, this._subject);
-    }//.$bound() would be equivalent to the binding in the constructor
+    }
 });
 
 var indigo = new Indigo(&#39;André&#39;);
@@ -420,9 +348,7 @@ console.log((indigo instanceof Indigo) ?
 );</code></pre>
 <h2>Taking it to another level</h2>
 <p>Front-end devs are encouraged to program using the AMD paradigm because of its obvious benefits.
-Since dejavu is built on it, it will integrate seamlessly with your AMD loader.
-
-</p>
+Since dejavu is built on it, it will integrate seamlessly with your AMD loader.</p>
 <pre><code class="lang-js">{
     // your loader config
     paths: {
@@ -436,9 +362,7 @@ Since dejavu is built on it, it will integrate seamlessly with your AMD loader.
         }
     ]
 }</code></pre>
-<p>With this setup, you can require the dejavu object or specific parts of it:
-
-</p>
+<p>With this setup, you can require the dejavu object or specific parts of it:</p>
 <pre><code class="lang-js">// Load dejavu completely
 define([&#39;dejavu&#39;], function (dejavu) {
 
@@ -474,13 +398,36 @@ define([&#39;dejavu/Class&#39;], function (Class) {
     return MyClass;
 });</code></pre>
 <h2>Additional details</h2>
+<h3>Binding and anonymous members</h3>
+<p>You will eventually run into a situation where you want to declare a callback that accesses class members. On traditional JavaScript, you would just <code>var that = this</code> or <code>.bind(this)</code>, and everything would be ok, because there is no restriction on visibility. Since <code>dejavu</code> enforces this, you will need to mark that callback as a member of the class, using something like the following:</p>
+<pre><code class="lang-js">// ...
+var that = this;
+setTimeout(function () {
+    that._someProperty = &#39;protected properties on callbacks&#39;;
+}.$member(), 1000);</code></pre>
+<pre><code class="lang-js">// ...
+setTimeout(function () {
+    this._someProperty = &#39;protected properties on callbacks&#39;;
+}.$member().bind(this), 1000);</code></pre>
+<p>If the <code>$member().bind(this)</code> is too verbose for you, you can just <code>.$bind(this)</code>, which is equivalent.</p>
+<p>Finally, when defining a method directly on the class declaration that you know will always be used using the class context, you can bind it right there like so:</p>
+<pre><code class="lang-js">var MyClass = dejavu.Class.declare({
+    $name: &#39;MyClass&#39;,
+
+    doSomething: function () {
+        // notice that _someMethod is $bound() below,
+        // which is more efficient than $bind()ing on
+        // every execution of doSomething()
+        setTimeout(this._someMethod, 1000);
+    },
+
+    _someMethod: function () {
+        console.log(&#39;method efficiently bound&#39;);
+    }.$bound()
+});</code></pre>
 <h3>Classes/instances are locked</h3>
-<p>By default, constructors and instances are locked. This means that no one can monkey patch your code.
-
-</p>
-<p>This behaviour can be changed in two ways:
-
-</p>
+<p>By default, constructors and instances are locked. This means that no one can monkey patch your code.</p>
+<p>This behaviour can be changed in two ways:</p>
 <h4>With the $locked flag:</h4>
 <pre><code class="lang-js">var UnlockedIndigo = Class.declare({
     $name: &#39;UnlockedIndigo&#39;,
@@ -497,36 +444,24 @@ define([&#39;dejavu/Class&#39;], function (Class) {
         console.log(&#39;An indigo is talking!&#39;);
     }
 });</code></pre>
-<p>Members can be added, replaced and deleted from the prototype:
-
-</p>
+<p>Members can be added, replaced and deleted from the prototype:</p>
 <pre><code class="lang-js">UnlockedIndigo.prototype.age = 20;
 UnlockedIndigo.prototype.talk = function () {
     console.log(&#39;... now is running&#39;);
 };</code></pre>
-<p>Members can be added, replaced and deleted from the instance:
-
-</p>
+<p>Members can be added, replaced and deleted from the instance:</p>
 <pre><code class="lang-js">var filipe     = new UnlockedIndigo();
 filipe.friends = [&#39;Marco&#39;,&#39;Andre&#39;];
 filipe.talk    = function () {
     console.log(&#39;I am talking about dejavu!&#39;);
 };</code></pre>
 <h4>By setting the global option:</h4>
-<p>This will change the default behaviour, but classes can still override it with the $locked flag.
-
-</p>
+<p>This will change the default behaviour, but classes can still override it with the $locked flag.</p>
 <pre><code class="lang-js">dejavu.options.locked = false;</code></pre>
 <p>Note that once a class is unlocked, its subclasses cannot be locked.
-Also, although undeclared members are allowed, they will not have their access controlled (they are interpreted as public).
-
-
-
-</p>
+Also, although undeclared members are allowed, they will not have their access controlled (they are interpreted as public).</p>
 <h3>Vanilla classes</h3>
-<p><code>dejavu</code> allows you to extend or borrow vanilla classes. In this case, constructors and instances are forcibly UNLOCKED.
-
-</p>
+<p><code>dejavu</code> allows you to extend or borrow vanilla classes. In this case, constructors and instances are forcibly UNLOCKED.</p>
 <pre><code class="lang-js">function Person(name) {
     this.name = name;
 };
@@ -540,18 +475,10 @@ var filipe = new Engineer(&#39;Filipe&#39;);
 <h3>Debugging</h3>
 <p>In strict mode, logging instances with <code>console.log</code> will print some strange stuff (getters, setters, etc).
 This happens because <code>dejavu</code> manages accesses to private/protected members as well as make other stuff work.
-To get around this issue, <code>dejavu</code> provides a <code>console.inspect</code> method that works just like <code>console.log</code> but prints a friendly object representation of the instance.
-
-
-
-</p>
+To get around this issue, <code>dejavu</code> provides a <code>console.inspect</code> method that works just like <code>console.log</code> but prints a friendly object representation of the instance.</p>
 <h2>Optimizer</h2>
-<p><code>dejavu</code> bundles an optimizer that makes your code faster and lighter.
-
-</p>
-<p>It specifically:
-
-</p>
+<p><code>dejavu</code> bundles an optimizer that makes your code faster and lighter.</p>
+<p>It specifically:</p>
 <ul>
 <li>Improves $super and $self usage</li>
 <li>Removes all $name and $locked properties because they are not used in the loose version</li>
@@ -561,24 +488,12 @@ To get around this issue, <code>dejavu</code> provides a <code>console.inspect</
 </ul>
 <p>The optimizer is located in the <code>bin</code> folder.
 If you are optimizing your code for <code>nodejs</code> then pass the --closure option. This will boost the performance when running code in v8.
-Please look at the jsperf results to see the difference in the different browsers.
-
-</p>
-<p>Example usage:
-
-</p>
-<p><code>node optimizer &lt; file_in.js &gt; file_out.js</code>
-
-</p>
-<p>You can also use the optimizer programatically, please check <code>bin/optimizer</code> for an example.
-
-</p>
-<p><code>dejavu</code> also comes with a automaton task.
-
-</p>
-<p>Below is a sample usage:
-
-</p>
+Please look at the jsperf results to see the difference in the different browsers.</p>
+<p>Example usage:</p>
+<p><code>node optimizer &lt; file_in.js &gt; file_out.js</code></p>
+<p>You can also use the optimizer programatically, please check <code>bin/optimizer</code> for an example.</p>
+<p><code>dejavu</code> also comes with a automaton task.</p>
+<p>Below is a sample usage:</p>
 <pre><code class="lang-js">var dejavuOptimizer = require(&#39;dejavu/tasks/optimizer.autofile&#39;);
 
 module.exports = {
@@ -606,10 +521,6 @@ module.exports = {
 <p>dejavu depends on <a href="https://github.com/mout/mout">mout</a>.
 If you use the regular build, you don&#39;t need to worry because all functions used from mout are bundled for you.
 If you use the AMD build, learn <a href="https://github.com/IndigoUnited/dejavu#taking-it-to-another-level">how</a> to setup your loader.
-If you use dejavu on <code>node</code>, <code>npm</code> will take care of fetching everything for you.
-
-
-
-</p>
+If you use dejavu on <code>node</code>, <code>npm</code> will take care of fetching everything for you.</p>
 <h2>License</h2>
 <p>Released under the <a href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>.</p>

@@ -1,7 +1,7 @@
 {
   "name": "dejavu",
   "version": "0.0.0",
-  "siteVersion": 42,
+  "siteVersion": 43,
   "devDependencies": {
     "marked": "~0.2.5",
     "grunt-contrib-requirejs": "~0.3.3",
