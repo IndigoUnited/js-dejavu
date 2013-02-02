@@ -116,9 +116,7 @@ define([
         $class = '$class',
         $interface = '$interface',
         $bound = '$bound_dejavu',
-        $wrapped = '$wrapped_dejavu',
-        tmp,
-        descriptor;
+        $wrapped = '$wrapped_dejavu';
 //>>excludeEnd('strict');
 
     /**
@@ -1045,7 +1043,7 @@ define([
             value,
             saved = {};
 
-            delete params.$locked;
+        delete params.$locked;
 //>>excludeEnd('strict');
 
         // Check and save constants to parse later

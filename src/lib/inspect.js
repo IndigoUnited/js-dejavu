@@ -6,8 +6,7 @@ define([
     'mout/lang/isObject',
     'mout/lang/isArray',
     'mout/lang/isFunction',
-    'mout/object/hasOwn',
-    'mout/array/forEach'
+    'mout/object/hasOwn'
 //>>includeEnd('strict');
 ], function (
 //>>includeStart('strict', pragmas.strict);
@@ -17,8 +16,7 @@ define([
     isObject,
     isArray,
     isFunction,
-    hasOwn,
-    forEach
+    hasOwn
 //>>includeEnd('strict');
 ) {
 
@@ -30,7 +28,6 @@ define([
         $wrapped = '$wrapped_' + random,
         cacheKeyword = '$cache_' + random,
         redefinedCacheKeyword = '$redefined_cache_' + random,
-        rewrittenConsole = false,
         prev,
         tmp;
 
@@ -319,14 +316,11 @@ define([
 //>>includeEnd('node');
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-    function inspect(target) {
-        // TODO: Should inspect do something more?
-        //       If the code is not optimized, they will see wrappers when clicking in functions
-        //       and also some strange things like $bind and $static.
-        //       But I think it does not compensate the extra bytes to support it
-        //       If we ever do this, we must adjust the console.inspect bellow
-        return target;
-    }
+    // TODO: Should inspect do something more?
+    //       If the code is not optimized, they will see wrappers when clicking in functions
+    //       and also some strange things like $bind and $static.
+    //       But I think it does not compensate the extra bytes to support it
+    //       If we ever do this, we must adjust the console.inspect bellow
 
     // Add inspect method to the console
     if (typeof console === 'object' && !console.inspect) {
