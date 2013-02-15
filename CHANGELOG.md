@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.2 - 2013-02-15
+- Fix rare bug in when using `$bind` with `null` values
+
 ## 0.3.1 - 2013-02-02
 - Fix bug in the optimizer, not guessing when to use the non-closure when correctly
 - Other minor optimizer tweaks
