@@ -1676,7 +1676,7 @@ define('Class',[
         var args = toArray(arguments),
             bound;
 
-        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+        if (this && !func[$wrapped] && this.$static && this.$static[$class]) {
             func = wrapMethod(func, this.$self || this.$static);
         }
 

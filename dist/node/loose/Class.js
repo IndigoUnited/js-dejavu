@@ -446,7 +446,7 @@ define([
         var args = toArray(arguments),
             bound;
 
-        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+        if (this && !func[$wrapped] && this.$static && this.$static[$class]) {
             func = wrapMethod(func, this.$self || this.$static);
         }
 
@@ -729,7 +729,7 @@ define([
                 var args = toArray(arguments);
                 args.splice(0, 1, this);
 
-                if (context.$bind) {
+                if (context && context.$bind) {
                     return context.$bind.apply(context, args);
                 }
 

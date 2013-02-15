@@ -1438,7 +1438,7 @@ define([
             bound,
             isAnonymous;
 
-        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+        if (this && !func[$wrapped] && this.$static && this.$static[$class]) {
             func[$anonymous] = true;
             func = wrapMethod(func, this.$self || this.$static);
             args[0] = func;
@@ -1850,7 +1850,7 @@ define([
                 var args = toArray(arguments);
                 args.splice(0, 1, this);
 
-                if (context.$bind) {
+                if (context && context.$bind) {
                     return context.$bind.apply(context, args);
                 }
 

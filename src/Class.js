@@ -1715,7 +1715,7 @@ define([
         var args = toArray(arguments),
             bound;
 
-        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+        if (this && !func[$wrapped] && this.$static && this.$static[$class]) {
             func = wrapMethod(func, this.$self || this.$static);
         }
 
@@ -1748,7 +1748,7 @@ define([
             bound,
             isAnonymous;
 
-        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+        if (this && !func[$wrapped] && this.$static && this.$static[$class]) {
             func[$anonymous] = true;
             func = wrapMethod(func, this.$self || this.$static);
             args[0] = func;
@@ -2325,7 +2325,7 @@ define([
                 args.splice(0, 1, this);
 
 //>>includeStart('node', pragmas.node);
-                if (context.$bind) {
+                if (context && context.$bind) {
                     return context.$bind.apply(context, args);
                 }
 

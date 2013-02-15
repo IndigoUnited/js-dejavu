@@ -3403,7 +3403,7 @@ define('Class',[
             bound,
             isAnonymous;
 
-        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+        if (this && !func[$wrapped] && this.$static && this.$static[$class]) {
             func[$anonymous] = true;
             func = wrapMethod(func, this.$self || this.$static);
             args[0] = func;

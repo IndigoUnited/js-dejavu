@@ -1498,6 +1498,14 @@ define(global.modules, function (
 
             });
 
+            it('should work outside classes (with null context)', function () {
+
+                expect(function () {
+                    return function () {}.$bind(null);
+                }).to.not.throwException();
+
+            });
+
             it('should work with named functions', function () {
 
                 expect(function () {
