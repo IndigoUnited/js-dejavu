@@ -20,7 +20,11 @@ if ((new RegExp('^' + process.env.npm_config_prefix)).test(process.cwd())) {
     process.exit();
 }
 
-target = path.resolve(process.cwd(), '..');
+try {
+    target = path.resolve(process.cwd(), '..');
+} catch (e) {
+    console.log('Could not store runtime configuration, please add .dejavurc manually if necessary');
+}
 
 // If the parent directory is not "node_modules", abort
 if (path.basename(target) !== 'node_modules') {
