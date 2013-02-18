@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.3 - 2013-02-18
+- Fix postinstall script in some rare cases
+
 ## 0.3.2 - 2013-02-15
 - Fix rare bug in when using `$bind` with `null` values
 
