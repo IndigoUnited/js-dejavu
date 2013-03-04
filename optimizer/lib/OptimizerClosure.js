@@ -152,7 +152,8 @@ OptimizerClosure.prototype._replaceSpecial = function (funcName, ast, isStatic) 
 
     // Super replacement
     code = code.replace(/(_*this|_*that|_*thus|_*self)((?:\r|\n|\s)*)?\.((?:\r|\n|\s)*)\$super\(/g, '$super$2.$3' + funcName + '.call($1, ')
-               .replace(/(_*this|_*that|_*thus|_*self), \)/g, '$1)');
+               .replace(/(_*this|_*that|_*thus|_*self), \)/g, '$1)')
+               .replace(/(_*this|_*that|_*thus|_*self)((?:\r|\n|\s)*)?\.((?:\r|\n|\s)*)\$super\./g, '$super$2.$3' + funcName + '.');
 
     // If on static context, $super is actually $parent
     // Also this.$static can be replaced by this because is faster

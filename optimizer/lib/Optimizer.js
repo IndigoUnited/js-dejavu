@@ -271,9 +271,11 @@ Optimizer.prototype._replaceSpecial = function (funcName, ast, isStatic) {
 
     // Super replacement
     if (!isStatic) {
-        code = code.replace(/(_*this|_*that|_*thus|_*self)((?:\r|\n|\s)*)\.((?:\r|\n|\s)*)\$super\(/g, currParent + '$2.prototype.$3' + funcName + '.call($1, ');
+        code = code.replace(/(_*this|_*that|_*thus|_*self)((?:\r|\n|\s)*)\.((?:\r|\n|\s)*)\$super\(/g, currParent + '$2.prototype.$3' + funcName + '.call($1, ')
+                   .replace(/(_*this|_*that|_*thus|_*self)((?:\r|\n|\s)*)\.((?:\r|\n|\s)*)\$super\./g, currParent + '$2.prototype.$3' + funcName + '.');
     } else {
-        code = code.replace(/(_*this|_*that|_*thus|_*self)((?:\r|\n|\s)*)\.((?:\r|\n|\s)*)\$super\(/g, currParent + '$2.$3' + funcName + '.call($1, ');
+        code = code.replace(/(_*this|_*that|_*thus|_*self)((?:\r|\n|\s)*)\.((?:\r|\n|\s)*)\$super\(/g, currParent + '$2.$3' + funcName + '.call($1, ')
+                   .replace(/(_*this|_*that|_*thus|_*self)((?:\r|\n|\s)*)\.((?:\r|\n|\s)*)\$super\./g, currParent + '$2.$3' + funcName + '.');
     }
     code = code.replace(/(_*this|_*that|_*thus|_*self), \)/g, '$1)');
 
