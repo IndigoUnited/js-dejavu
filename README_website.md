@@ -616,25 +616,39 @@ Example usage:
 
 You can also use the optimizer programatically, please check `bin/optimizer` for an example.
 
-`dejavu` also comes with a automaton task.
+`dejavu` also comes with an `automaton` and `grunt` task.
 
-Below is a sample usage:
+Sample usage of automaton:
 
 ```js
 var dejavuOptimizer = require('dejavu/tasks/optimizer.autofile');
 
-module.exports = {
-    tasks: [
-        {
-            task: dejavuOptimizer,
-            options: {
-                files: {
-                    'src/myfile.js': 'dst/myfile.opt.js'
-                }
+module.exports = function (task) {
+    task.do(dejavuOptimizer, {
+        description: 'Optimize myfile',
+        options: {
+            files: {
+                'src/myfile.js': 'dst/myfile.opt.js'
             }
         }
-    ]
+    });
 }
+```
+
+Sample usage of grunt:
+
+```js
+grunt.loadNpmTasks('dejavu');
+
+grunt.initConfig({
+    dejavuopt: {
+        test: {
+            files: {
+                'src/myfile.js': 'dst/myfile.opt.js'
+            }
+        }
+    }
+});
 ```
 
 
