@@ -9,6 +9,8 @@ var path  = require('path');
 var utils = require('mout');
 var optimizer = require('../optimizer');
 
+// TODO: don't change to the new automaton syntax for now, otherwise it will conflict with grunt
+//       only do it when we automaton has compatibility with node-task
 module.exports = {
     id          : 'dejavu-optimizer',
     author      : 'Indigo United',
