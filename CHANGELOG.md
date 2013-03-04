@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.4 - 2013-03-04
+- Fix optimizer error when using this.$super.apply or .call
+
 ## 0.3.3 - 2013-02-18
 - Fix postinstall script in some rare cases
 
