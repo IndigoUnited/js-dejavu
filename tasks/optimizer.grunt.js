@@ -30,7 +30,7 @@ module.exports = function (grunt) {
             });
         });
 
-        // Paralelize in bulks of 30 files
+        // Parallelize in bulks of 30 files
         async.forEachLimit(files, 30, function (file, next) {
             grunt.log.debug('Optimizing file: ' + file.src);
 
@@ -42,6 +42,7 @@ module.exports = function (grunt) {
 
                 // Optimize it
                 optimizer(contents.toString(), options, function (errors, contents) {
+                    // Print any non-destructive errors
                     errors.forEach(function (err) {
                         grunt.log.writeln(err.message);
                     });
@@ -53,7 +54,7 @@ module.exports = function (grunt) {
         }, function (err) {
             if (err) {
                 grunt.log.error(err.message);
-                return done(true);
+                return done(false);
             }
 
             done();
