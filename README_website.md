@@ -642,9 +642,9 @@ grunt.loadNpmTasks('dejavu');
 
 grunt.initConfig({
     dejavuopt: {
-        test: {
+        sometarget: {
             files: {
-                'src/myfile.js': 'dst/myfile.opt.js'
+                'dst/myfile.opt.js': 'src/myfile.js'
             }
         }
     }
