@@ -5,7 +5,7 @@
 var Optimizer = require('./Optimizer'),
     esprima = require('esprima'),
     escodegen = require('escodegen'),
-    inherits = require('inherits'),
+    util = require('util'),
     Syntax = esprima.Syntax,
     OptimizerClosure;
 
@@ -17,6 +17,8 @@ var Optimizer = require('./Optimizer'),
 OptimizerClosure = function (opts) {
     Optimizer.call(this, opts);
 };
+
+util.inherits(OptimizerClosure, Optimizer);
 
 /**
  * Checks if this optimizer can optimize a target.
@@ -186,7 +188,5 @@ OptimizerClosure.prototype._replaceSpecial = function (funcName, ast, isStatic) 
 
     return canBeOptimized;
 };
-
-inherits(OptimizerClosure, Optimizer);
 
 module.exports = OptimizerClosure;

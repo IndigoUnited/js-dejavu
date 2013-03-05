@@ -18,18 +18,18 @@
     "commander": "~1.1.1",
     "esprima": "~1.0.2",
     "escodegen": "~0.0.15",
-    "inherits": "~1.0.0",
     "glob": "~3.1.14",
-    "async": "~0.1.22"
+    "async": "~0.2.6"
   },
   "devDependencies": {
     "almond": "~0.2.1",
-    "mocha": "~1.7.1",
-    "wrench": "~1.4.3",
+    "mocha": "~1.8.1",
     "expect.js": "~0.2.0",
     "domReady": "git://github.com/requirejs/domReady.git",
     "requirejs": "~2.1.2",
-    "rimraf": "~2.1.2"
+    "rimraf": "~2.1.2",
+    "glob": "~3.1.21",
+    "async": "~0.2.6"
   },
   "scripts": {
     "build": "node build",

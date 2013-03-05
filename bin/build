@@ -6,72 +6,39 @@
 
 var cp = require('child_process'),
     fs = require('fs'),
-    wrench = require('wrench'),
+    glob = require('glob'),
     rimraf = require('rimraf'),
-    tests,
-    command,
+    async = require('async'),
     distDir = __dirname + '/../dist/',
-    testDir = __dirname + '/../test/',
     mochaBin = __dirname + '/../node_modules/.bin/mocha',
-    currentDistDir,
-    currentBuild,
-    files;
+    exitCode = 0;
+
+function deleteEmptyFiles(dir) {
+    var files = glob.sync(dir + '**/*');
+    files.forEach(function (file) {
+        if (fs.statSync(file).isFile()) {
+            var content = fs.readFileSync(file);
+            if ((/^\s*$/).test(content.toString())) {
+                fs.unlinkSync(file);
+            }
+        }
+    });
+}
 
 // Clear directory
 rimraf.sync(distDir);
 
-// Build amd strict
-currentBuild = 'amd';
-command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/dejavu.build_' + currentBuild + '.js';
-currentDistDir = distDir + 'amd/strict/';
+// Do every single step in series
+// We use async to avoid too many nesting
+async.series({
+    'amd-strict': function (next) {
+        // Build amd strict
+        var command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/assets/dejavu.build_amd.js',
+            currentDistDir = distDir + 'amd/strict/';
 
-cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
-    // Print success or error
-    if (error !== null) {
-        throw new Error(stderr + '\n' + stdout);
-    }
-
-    console.log(stdout);
-
-    fs.unlinkSync(currentDistDir + 'build.txt');
-    fs.unlinkSync(currentDistDir + 'dejavu.js');
-
-    // Build amd loose
-    currentDistDir = distDir + 'amd/loose/';
-    cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=false useStrict=true', function (error, stdout, stderr) {
-
-        // Print success or error
-        if (error !== null) {
-            throw new Error(stderr + '\n' + stdout);
-        }
-
-        console.log(stdout);
-
-        fs.unlinkSync(currentDistDir + 'build.txt');
-        fs.unlinkSync(currentDistDir + 'dejavu.js');
-
-        // Delete empty files
-        files = wrench.readdirSyncRecursive(currentDistDir);
-        files.forEach(function (file) {
-            file = currentDistDir + file;
-
-            if (fs.statSync(file).isFile()) {
-                var content = fs.readFileSync(file);
-                if ((/^\s*$/).test(content.toString())) {
-                    fs.unlinkSync(file);
-                }
-            }
-        });
-
-        // Build node strict
-        currentBuild = 'node';
-        command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/dejavu.build_amd.js';
-        currentDistDir = distDir + 'node/strict/';
-
-        cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true pragmas.node=true useStrict=true', function (error, stdout, stderr) {
-            // Print success or error
-            if (error !== null) {
-                throw new Error(stderr + '\n' + stdout);
+        cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
+            if (error) {
+                return next(new Error(stderr + '\n' + stdout));
             }
 
             console.log(stdout);
@@ -79,169 +46,198 @@ cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=t
             fs.unlinkSync(currentDistDir + 'build.txt');
             fs.unlinkSync(currentDistDir + 'dejavu.js');
 
-            // Build node loose
-            currentDistDir = distDir + 'node/loose/';
-            cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=false pragmas.node=true useStrict=true', function (error, stdout, stderr) {
+            next();
+        });
+    },
+    'amd-loose': function (next) {
+        // Build amd loose
+        var command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/assets/dejavu.build_amd.js',
+            currentDistDir = distDir + 'amd/loose/';
 
-                // Print success or error
-                if (error !== null) {
-                    throw new Error(stderr + '\n' + stdout);
+        cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=false useStrict=true', function (error, stdout, stderr) {
+            if (error) {
+                return next(new Error(stderr + '\n' + stdout));
+            }
+
+            console.log(stdout);
+
+            fs.unlinkSync(currentDistDir + 'build.txt');
+            fs.unlinkSync(currentDistDir + 'dejavu.js');
+
+            // Delete empty files
+            deleteEmptyFiles(currentDistDir);
+
+            next();
+        });
+    },
+    'node-strict': function (next) {
+        // Build node strict
+        var command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/assets/dejavu.build_amd.js',
+            currentDistDir = distDir + 'node/strict/';
+
+        cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true pragmas.node=true useStrict=true', function (error, stdout, stderr) {
+            if (error) {
+                return next(new Error(stderr + '\n' + stdout));
+            }
+
+            console.log(stdout);
+
+            fs.unlinkSync(currentDistDir + 'build.txt');
+            fs.unlinkSync(currentDistDir + 'dejavu.js');
+
+            next();
+        });
+    },
+    'node-loose': function (next) {
+        // Build node loose
+        var command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/assets/dejavu.build_amd.js',
+            currentDistDir = distDir + 'node/loose/';
+
+        cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=false pragmas.node=true useStrict=true', function (error, stdout, stderr) {
+            if (error) {
+                return next(new Error(stderr + '\n' + stdout));
+            }
+
+            console.log(stdout);
+
+            fs.unlinkSync(currentDistDir + 'build.txt');
+            fs.unlinkSync(currentDistDir + 'dejavu.js');
+
+            // Delete empty files
+            deleteEmptyFiles(currentDistDir);
+
+            next();
+        });
+    },
+    'setup-node': function (next) {
+        // Foreach file in the node build add the amdefine header
+        var files = glob.sync(distDir + 'node/**/*');
+        files.forEach(function (file) {
+            if (fs.statSync(file).isFile()) {
+                var content = fs.readFileSync(file);
+                content = 'if (typeof define !== \'function\') {\n    var define = require(\'amdefine\')(module);\n}\n\n' + content;
+                fs.writeFileSync(file, content);
+            }
+        });
+
+        // Create node.js file
+        fs.writeFileSync(distDir + 'node/node.js', fs.readFileSync(__dirname + '/assets/node_main.js'));
+
+        next();
+    },
+    'regular-strict': function (next) {
+        // Create regular directories
+        fs.mkdirSync(distDir + 'regular');
+        fs.mkdirSync(distDir + 'regular/loose');
+        fs.mkdirSync(distDir + 'regular/strict');
+
+        var command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/assets/dejavu.build_regular.js',
+            currentDistDir = __dirname + '/../tmp/';
+
+        // Cleanup tmp folder
+        rimraf.sync(currentDistDir);
+
+        // Build regular strict
+        cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
+            if (error) {
+                return next(new Error(stderr + '\n' + stdout));
+            }
+
+            console.log(stdout);
+
+            // Move concatenated file
+            fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/strict/dejavu.js');
+
+            // Cleanup tmp folder
+            rimraf.sync(currentDistDir);
+
+            next();
+        });
+    },
+    'regular-loose': function (next) {
+        var command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/assets/dejavu.build_regular.js',
+            currentDistDir = __dirname + '/../tmp/';
+
+        // Cleanup tmp folder
+        rimraf.sync(currentDistDir);
+
+        // Build regular loose
+        cp.exec(command + ' dir="' + currentDistDir + '" optimize=none pragmas.strict=false', function (error, stdout, stderr) {
+            if (error) {
+                return next(new Error(stderr + '\n' + stdout));
+            }
+
+            console.log(stdout);
+
+            // Move concatenated file
+            fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/loose/dejavu.js');
+
+            // Cleanup tmp folder
+            rimraf.sync(currentDistDir);
+
+            next();
+        });
+    },
+    'generate-optimized-tests': function (next) {
+        var testDir = __dirname + '/../test/';
+
+        async.forEach(['functional', 'verifications'], function (name, next) {
+            cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/' + name + '.js" > "' + testDir + 'specs/' + name + '_optimized.js"', function (error, stdout, stderr) {
+                if (error !== null && stderr) {
+                    return next(new Error(stderr.toString()));
                 }
 
-                console.log(stdout);
+                return next(error);
+            });
+        }, next);
+    },
+    'run-tests': function (next) {
+        var tests,
+            command;
 
-                fs.unlinkSync(currentDistDir + 'build.txt');
-                fs.unlinkSync(currentDistDir + 'dejavu.js');
+        // Change cwd to root dir
+        process.chdir(__dirname + '/..');
 
-                // Delete empty files
-                files = wrench.readdirSyncRecursive(currentDistDir);
-                files.forEach(function (file) {
-                    file = currentDistDir + file;
+        // Run strict tests
+        command = mochaBin + ' -R spec test/strict.js';
 
-                    if (fs.statSync(file).isFile()) {
-                        var content = fs.readFileSync(file);
-                        if ((/^\s*$/).test(content.toString())) {
-                            fs.unlinkSync(file);
-                        }
-                    }
-                });
+        console.log('Running strict tests..');
+        console.log('-------------------------------------------------');
 
-                // Foreach file in the node build add the amdefine header
-                files = wrench.readdirSyncRecursive(distDir + 'node');
-                files.forEach(function (file) {
-                    file = distDir + 'node/' + file;
+        if (process.platform === 'win32') {
+            tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
+        } else {
+            tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
+        }
+        tests.on('exit', function (code) {
+            if (code !== 0 && exitCode === 0) {
+                exitCode = code;
+            }
 
-                    if (fs.statSync(file).isFile()) {
-                        var content = fs.readFileSync(file);
-                        content = 'if (typeof define !== \'function\') {\n    var define = require(\'amdefine\')(module);\n}\n\n' + content;
-                        fs.writeFileSync(file, content);
-                    }
-                });
+            // Run loose tests
+            command = mochaBin + ' -R spec test/loose.js';
 
-                // Create node.js file
-                fs.writeFileSync(distDir + 'node/node.js', fs.readFileSync(__dirname + '/node_main.js'));
+            console.log('Running loose tests..');
+            console.log('-------------------------------------------------');
 
-                // Create regular directories
-                fs.mkdirSync(distDir + 'regular');
-                fs.mkdirSync(distDir + 'regular/loose');
-                fs.mkdirSync(distDir + 'regular/strict');
+            if (process.platform === 'win32') {
+                tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
+            } else {
+                tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
+            }
+            tests.on('exit', function (code) {
+                if (code !== 0 && exitCode === 0) {
+                    exitCode = code;
+                }
 
-                // Build regular loose
-                currentBuild = 'regular';
-                command = 'node "' + __dirname + '/../node_modules/requirejs/bin/r.js" -o ' + __dirname + '/dejavu.build_' + currentBuild + '.js';
-                currentDistDir = __dirname + '/../tmp/';
-
-                rimraf.sync(currentDistDir);
-
-                cp.exec(command + ' dir="' + currentDistDir + '" optimize=none pragmas.strict=false', function (error, stdout, stderr) {
-
-                    // Print success or error
-                    if (error !== null) {
-                        throw new Error(stderr + '\n' + stdout);
-                    }
-
-                    console.log(stdout);
-
-                    // Move concatenated file
-                    fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/loose/dejavu.js');
-
-                    // Build regular loose (minified)
-                    rimraf.sync(currentDistDir);
-
-                    cp.exec(command + ' dir="' + currentDistDir + '" optimize=uglify pragmas.strict=false', function (error, stdout, stderr) {
-
-                        // Print success or error
-                        if (error !== null) {
-                            throw new Error(stderr + '\n' + stdout);
-                        }
-
-                        console.log(stdout);
-
-                        // Move concatenated file
-                        fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/loose/dejavu.min.js');
-
-                        rimraf.sync(currentDistDir);
-
-                        // Build regular strict
-                        cp.exec(command + ' dir="' + currentDistDir + '" pragmas.strict=true useStrict=true', function (error, stdout, stderr) {
-
-                            // Print success or error
-                            if (error !== null) {
-                                throw new Error(stderr + '\n' + stdout);
-                            }
-
-                            console.log(stdout);
-
-                            // Move concatenated file
-                            fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/strict/dejavu.js');
-
-                            rimraf.sync(currentDistDir);
-
-                            // Generate optimized test files
-                            tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/functional.js" > "' + testDir + 'specs/functional_optimized.js"', function (error, stdout, stderr) {
-                                if (error !== null) {
-                                    if (stderr) {
-                                        throw new Error(stderr.toString());
-                                    }
-                                    throw error;
-                                }
-
-                                tests = cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/verifications.js" > "' + testDir + 'specs/verifications_optimized.js"', function (error, stdout, stderr) {
-                                    if (error !== null) {
-                                        if (stderr) {
-                                            throw new Error(stderr.toString());
-                                        }
-                                        throw error;
-                                    }
-
-                                    // Run tests
-                                    process.chdir(__dirname + '/..');
-
-                                    command = mochaBin + ' -R spec test/strict.js';
-
-                                    console.log('Running strict tests..');
-                                    console.log('-------------------------------------------------');
-
-                                    if (process.platform === 'win32') {
-                                        tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
-                                    } else {
-                                        tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
-                                    }
-                                    tests.on('exit', function (code) {
-
-                                        var exitCode;
-
-                                        if (code !== 0) {
-                                            exitCode = 1;
-                                        } else {
-                                            exitCode = 0;
-                                        }
-
-                                        command = mochaBin + ' -R spec test/loose.js';
-
-                                        console.log('Running loose tests..');
-                                        console.log('-------------------------------------------------');
-
-                                        if (process.platform === 'win32') {
-                                            tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
-                                        } else {
-                                            tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
-                                        }
-                                        tests.on('exit', function (code) {
-
-                                            if (code !== 0) {
-                                                process.exit(1);
-                                            } else {
-                                                process.exit(exitCode);
-                                            }
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
+                next();
             });
         });
-    });
+    }
+}, function (err) {
+    if (err) {
+        throw err;
+    }
+
+    process.exit(exitCode);
 });

@@ -1,6 +1,6 @@
 (function() {
 /**
- * almond 0.2.4 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
+ * almond 0.2.5 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/almond for details
  */
@@ -378,6 +378,9 @@ var requirejs, require, define;
      */
     req.config = function (cfg) {
         config = cfg;
+        if (config.deps) {
+            req(config.deps, config.callback);
+        }
         return req;
     };
 
