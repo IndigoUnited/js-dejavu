@@ -33,6 +33,7 @@ module.exports = function (contents, options, callback) {
         optimizer = new Optimizer({ escodegen: options.escodegenOpts }),
         optimizerClosure = new OptimizerClosure({ escodegen: options.escodegenOpts }),
         errors = [],
+        foundUsage = false,
         output;
 
     // Find usages
@@ -42,6 +43,7 @@ module.exports = function (contents, options, callback) {
         }
 
         var slice = contents.slice(obj.ast.range[0], obj.ast.range[1]);
+        foundUsage = true;
 
         // Use the closure optimizer if the user wants to use it
         // or if the default one can't be used
@@ -52,8 +54,13 @@ module.exports = function (contents, options, callback) {
         }
     });
 
-    // Generate the source
-    output = escodegen.generate(ast, options.escodegenOpts);
+    // Only generate the if some dejavu usage was actually found
+    if (foundUsage) {
+        // Generate the source
+        output = escodegen.generate(ast, options.escodegenOpts);
+    } else {
+        output = contents;
+    }
 
     callback(errors, output);
 };
