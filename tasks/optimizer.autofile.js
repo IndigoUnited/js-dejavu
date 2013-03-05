@@ -64,16 +64,20 @@ module.exports = {
                         async.forEachLimit(files, 30, function (file, next) {
                             ctx.log.debugln('Optimizing file: ', file);
 
+                            // Read source file
                             fs.readFile(file, function (err, contents) {
                                 if (err) {
                                     return next(err);
                                 }
 
+                                // Optimize it
                                 optimizer(contents.toString(), optimizerOpts, function (errors, contents) {
+                                    // Print any non-destructive errors
                                     errors.forEach(function (err) {
                                         ctx.log.warnln(err.message);
                                     });
 
+                                    // Save new contents
                                     var relative = relativePath(file, pattern);
                                     async.forEach(dsts, function (dst) {
                                         fs.writeFile(path.join(dst, relative), contents, next);
