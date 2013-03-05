@@ -607,7 +607,7 @@ It specifically:
 - Removes functions from interfaces
 
 The optimizer is located in the `bin` folder.
-If you are optimizing your code for `nodejs` then pass the --closure option. This will boost the performance when running code in v8.
+If you are optimizing your code for `nodejs` then pass the `--closure` option. This will boost the performance when running code in v8.
 Please look at the jsperf results to see the difference in the different browsers.
 
 Example usage:
@@ -627,6 +627,7 @@ module.exports = function (task) {
     task.do(dejavuOptimizer, {
         description: 'Optimize myfile',
         options: {
+            closure: true, // defaults to false
             files: {
                 'src/myfile.js': 'dst/myfile.opt.js'
             }
@@ -643,6 +644,7 @@ grunt.loadNpmTasks('dejavu');
 grunt.initConfig({
     dejavuopt: {
         sometarget: {
+            closure: true, // defaults to false
             files: {
                 'dst/myfile.opt.js': 'src/myfile.js'
             }
