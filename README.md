@@ -2,7 +2,7 @@ dejavu website
 
 ---
 
-Grunt must be installed.
+Grunt must be installed ( `npm install -g grunt-cli`)
 
 # Developing #
 - Run `npm install`

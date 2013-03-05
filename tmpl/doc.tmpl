@@ -487,27 +487,39 @@ To get around this issue, <code>dejavu</code> provides a <code>console.inspect</
 <li>Removes functions from interfaces</li>
 </ul>
 <p>The optimizer is located in the <code>bin</code> folder.
-If you are optimizing your code for <code>nodejs</code> then pass the --closure option. This will boost the performance when running code in v8.
+If you are optimizing your code for <code>nodejs</code> then pass the <code>--closure</code> option. This will boost the performance when running code in v8.
 Please look at the jsperf results to see the difference in the different browsers.</p>
 <p>Example usage:</p>
 <p><code>node optimizer &lt; file_in.js &gt; file_out.js</code></p>
 <p>You can also use the optimizer programatically, please check <code>bin/optimizer</code> for an example.</p>
-<p><code>dejavu</code> also comes with a automaton task.</p>
-<p>Below is a sample usage:</p>
+<p><code>dejavu</code> also comes with an <code>automaton</code> and <code>grunt</code> task.</p>
+<p>Sample usage of automaton:</p>
 <pre><code class="lang-js">var dejavuOptimizer = require(&#39;dejavu/tasks/optimizer.autofile&#39;);
 
-module.exports = {
-    tasks: [
-        {
-            task: dejavuOptimizer,
-            options: {
-                files: {
-                    &#39;src/myfile.js&#39;: &#39;dst/myfile.opt.js&#39;
-                }
+module.exports = function (task) {
+    task.do(dejavuOptimizer, {
+        description: &#39;Optimize myfile&#39;,
+        options: {
+            closure: true, // defaults to false
+            files: {
+                &#39;src/myfile.js&#39;: &#39;dst/myfile.opt.js&#39;
             }
         }
-    ]
+    });
 }</code></pre>
+<p>Sample usage of grunt:</p>
+<pre><code class="lang-js">grunt.loadNpmTasks(&#39;dejavu&#39;);
+
+grunt.initConfig({
+    dejavuopt: {
+        sometarget: {
+            closure: true, // defaults to false
+            files: {
+                &#39;dst/myfile.opt.js&#39;: &#39;src/myfile.js&#39;
+            }
+        }
+    }
+});</code></pre>
 <h2>Works on</h2>
 <ul>
 <li>IE (6+)</li>
