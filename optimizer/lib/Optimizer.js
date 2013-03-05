@@ -118,6 +118,11 @@ Optimizer.prototype.optimizeClass = function (ast) {
         canBeOptimized,
         parent;
 
+    // Do not optimize if the class is already optimized
+    if (args.length && args[args.length - 1].value === true) {
+        return;
+    }
+
     if (type === 'extend') {
         parent = escodegen.generate(ast.callee.object, this._escodegenOpts);
     } else {

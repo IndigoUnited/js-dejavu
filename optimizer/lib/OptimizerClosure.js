@@ -43,6 +43,11 @@ OptimizerClosure.prototype.optimizeClass = function (ast) {
         canBeOptimized,
         hasParent;
 
+    // Do not optimize if the class is already optimized
+    if (args.length && args[args.length - 1].value === true) {
+        return;
+    }
+
     // Step 1
     // Convert the object to a return function with the magical $ params
     funcExpression = {
