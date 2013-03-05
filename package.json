@@ -19,7 +19,8 @@
     "esprima": "~1.0.2",
     "escodegen": "~0.0.15",
     "glob": "~3.1.14",
-    "async": "~0.2.6"
+    "async": "~0.2.6",
+    "mkdirp": "~0.3.5"
   },
   "devDependencies": {
     "almond": "~0.2.1",

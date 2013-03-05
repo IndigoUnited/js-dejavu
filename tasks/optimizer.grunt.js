@@ -3,6 +3,8 @@
 'use strict';
 
 var fs        = require('fs');
+var path      = require('path');
+var mkdirp    = require('mkdirp');
 var async     = require('async');
 var optimizer = require('../optimizer');
 
@@ -47,8 +49,15 @@ module.exports = function (grunt) {
                         grunt.log.writeln(err.message);
                     });
 
-                    // Save new contents
-                    fs.writeFile(file.dest, contents, next);
+                    // Ensure the dest directory is created
+                    mkdirp(path.dirname(file.dest), function (err) {
+                        if (err) {
+                            return next(err);
+                        }
+
+                        // Finally save
+                        fs.writeFile(file.dest, contents, next);
+                    });
                 });
             });
         }, function (err) {

@@ -6,7 +6,9 @@ var fs = require('fs');
 var glob = require('glob');
 var async = require('async');
 var path  = require('path');
+var mkdirp = require('mkdirp');
 var utils = require('mout');
+
 var optimizer = require('../optimizer');
 
 // TODO: don't change to the new automaton syntax for now, otherwise it will conflict with grunt
@@ -77,11 +79,21 @@ module.exports = {
                                         ctx.log.warnln(err.message);
                                     });
 
-                                    // Save new contents
+                                    // Save new contents for each dest
                                     var relative = relativePath(file, pattern);
-                                    async.forEach(dsts, function (dst) {
-                                        fs.writeFile(path.join(dst, relative), contents, next);
-                                    });
+                                    async.forEach(dsts, function (dst, next) {
+                                        var dstFilePath = path.join(dst, relative);
+
+                                        // Ensure the dest directory is created
+                                        mkdirp(path.dirname(dstFilePath), function (err) {
+                                            if (err) {
+                                                return next(err);
+                                            }
+
+                                            // Finally save
+                                            fs.writeFile(dstFilePath, contents, next);
+                                        });
+                                    }, next);
                                 });
                             });
                         }, next);
