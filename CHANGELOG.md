@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.5 - 2013-03-05
+- Add grunt task for the optimizer
+- Small improvements to the optimizer
+
 ## 0.3.4 - 2013-03-04
 - Fix optimizer error when using this.$super.apply or .call
 
