@@ -66,7 +66,7 @@ Parser.prototype.forEachUsage = function (ast, callback) {
             }
         }
 
-        if (Object.prototype.toString.call(curr) === '[object Array]') {
+        if (Array.isArray(curr)) {
             for (x = curr.length - 1; x >= 0; x -= 1) {
                 queue.push(curr[x]);
             }
