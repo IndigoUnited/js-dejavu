@@ -12,7 +12,7 @@ global.modules = [
     path + '/instanceOf',
     path + '/options',
     path + '/lib/hasDefineProperty',
-    'specs/cases/Emitter'
+    'assets/cases/Emitter'
 ];
 global.build = 'amd/strict';
 
