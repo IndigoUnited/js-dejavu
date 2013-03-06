@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.6 - 2013-03-06
+- Remove micro-optimization in non-optimized classes in loose version (it was giving some problems)
+
 ## 0.3.5 - 2013-03-05
 - Add grunt task for the optimizer
 - Small improvements to the optimizer
