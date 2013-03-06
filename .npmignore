@@ -65,3 +65,4 @@ npm-debug.*
 /bin/dejavu.*
 /bin/node_*
 /dejavu_readme.md
+/build

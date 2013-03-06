@@ -4,67 +4,49 @@
 var fs        = require('fs'),
     path      = require('path'),
     deepMixIn = require('mout/object/deepMixIn'),
-    exported  = false,
-    rcFile,
-    rc;
+    rcFile;
 
-function requireLoose() {
-    module.exports = require('./loose/main');
-    exported = true;
-}
+process._dejavu = process._dejavu || {};
 
-function requireStrict() {
-    module.exports = require('./strict/main');
-    exported = true;
-}
+function load() {
+    var rc = process._dejavu.rc || {};
 
-// Check if version is cached
-if (process.env._DEJAVU_STRICT != null) {
-    if (process.env._DEJAVU_STRICT) {
-        requireStrict();
+    // Include build accordingly
+    if (rc.strict) {
+        module.exports = require('./strict/main');
     } else {
-        requireLoose();
+        module.exports = require('./loose/main');
     }
 
     // Merge the options
-    if (process.env._DEJAVU_OPTIONS && module.exports.options) {
-        deepMixIn(module.exports.options, process.env._DEJAVU_OPTIONS);
+    if (module.exports.options) {
+        deepMixIn(module.exports.options, rc);
     }
+}
+
+// Check if version is cached
+if (process._dejavu.rc) {
+    load();
 } else {
     // Check if there is a RC file in the cwd
     rcFile = path.join(process.cwd(), '.dejavurc');
     try {
         fs.statSync(rcFile);
     } catch (e) {
-        if (e.code === 'ENOENT') {
-            // If not, we require the loose
-            requireLoose();
-            process.env._DEJAVU_STRICT = false;
-        }
+        rcFile = null;
     }
 
-    if (!exported) {
+    // If something went wrong while reading the rc file (or if no rc file was found), we require the loose
+    if (!rcFile) {
+        process._dejavu.rc = { strict: false };
+        load();
+    } else {
         // Try to parse the RC file
         try {
             // Read RC file
-            rc = JSON.parse(fs.readFileSync(rcFile));
+            process._dejavu.rc = JSON.parse(fs.readFileSync(rcFile));
 
-            // Include build accordingly
-            if (rc.strict) {
-                requireStrict(rc);
-                process.env._DEJAVU_STRICT = true;
-            } else {
-                requireLoose(rc);
-                process.env._DEJAVU_STRICT = false;
-            }
-
-            delete rc.strict;
-            process.env._DEJAVU_OPTIONS = rc;
-
-            // Merge the options
-            if (module.exports.options) {
-                deepMixIn(module.exports.options, rc);
-            }
+            load();
         // Error parsing RC file
         } catch (err) {
             throw new Error('Invalid .dejavurc file: ' + err.message);
