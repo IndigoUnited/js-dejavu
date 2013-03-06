@@ -2,7 +2,7 @@ if (!global.evaluated) {
     require('./util/adapter.js');
 }
 
-var path = (!(typeof window !== 'undefined' && window.navigator && window.document)) ? 'node/strict' : 'amd/strict';
+var path = 'amd/strict';
 
 global.modules = [
     path + '/Class',

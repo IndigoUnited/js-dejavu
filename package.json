@@ -30,11 +30,12 @@
     "requirejs": "~2.1.2",
     "rimraf": "~2.1.2",
     "glob": "~3.1.21",
-    "async": "~0.2.6"
+    "async": "~0.2.6",
+    "fstream": "~0.1.22"
   },
   "scripts": {
     "build": "node build",
-    "test": "mocha -R spec test/strict && mocha -R spec test/loose && mocha -R spec test/node_load",
+    "test": "mocha -R spec test/strict && mocha -R spec test/loose && mocha -R spec test/node_load && mocha -R spec test/node_misc",
     "postinstall": "node bin/post_install.js"
   },
   "bugs": {

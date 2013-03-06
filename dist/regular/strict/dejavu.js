@@ -2066,9 +2066,7 @@ define('Class',[
         redefinedCacheKeyword = '$redefined_cache_' + random,
         inheriting,
         nextId = 0,
-        caller,
-        callerClass,
-        callerClassId,
+        caller = null,
         toStringInstance,
         toStringConstructor,
         glob = typeof window !== 'undefined' && window.navigator && window.document ? window : global;
@@ -2101,7 +2099,6 @@ define('Class',[
         }
 
         var parent,
-            classId = constructor[$class].id,
             wrapper;
 
         if (parentMeta) {
@@ -2114,24 +2111,24 @@ define('Class',[
             var that = this == null || this === glob ? {} : this,
                 _super = that.$super,
                 _self = that.$self,
-                prevCaller = caller,
-                prevCallerClass = callerClass,
-                prevCallerClassId = callerClassId,
+                prevCaller,
                 ret;
 
-            caller = method;
-            callerClassId = classId;
+            prevCaller = caller;
+            caller = {
+                method: method,
+                constructor: constructor,
+                constructorId: constructor[$class].id
+            };
             that.$super = parent;
-            that.$self = callerClass = constructor;
+            that.$self = constructor;
 
             try {
                 ret = method.apply(this, arguments);
             } finally {
-                caller = prevCaller;
-                callerClassId = prevCallerClassId;
                 that.$super = _super;
                 that.$self = _self;
-                callerClass = prevCallerClass;
+                caller = prevCaller;
             }
 
             return ret;
@@ -2162,31 +2159,30 @@ define('Class',[
         }
 
         var parent = parentMeta ? parentMeta.implementation : defaultSuper,
-            classId = constructor[$class].id,
             wrapper;
 
         wrapper = function () {
             var that = this == null || this === glob ? {} : this,
                 _super = that.$super,
                 _self = that.$self,
-                prevCaller = caller,
-                prevCallerClassId = callerClassId,
-                prevCallerClass = callerClass,
+                prevCaller,
                 ret;
 
-            caller = method;
-            callerClassId = classId;
+            prevCaller = caller;
+            caller = {
+                method: method,
+                constructor: constructor,
+                constructorId: constructor[$class].id
+            };
             that.$super = parent;
-            that.$self = callerClass = constructor;
+            that.$self = constructor;
 
             try {
                 ret = method.apply(this, arguments);
             } finally {
-                caller = prevCaller;
-                callerClassId = prevCallerClassId;
                 that.$super = _super;
                 that.$self = _self;
-                callerClass = prevCallerClass;
+                caller = prevCaller;
             }
 
             return ret;
@@ -2927,10 +2923,12 @@ define('Class',[
             Object.defineProperty(instance, name, {
                 get: function get() {
                     var method = instance[cacheKeyword].methods[name],
-                        currCaller = caller,
-                        isConstructor = name === 'initialize';
+                        isConstructor = name === 'initialize',
+                        currCaller;
 
-                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
+                    currCaller = caller;
+
+                    if (instance.$initializing || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId)) {
                         return method;
                     }
 
@@ -2955,10 +2953,12 @@ define('Class',[
             Object.defineProperty(instance, name, {
                 get: function get() {
                     var method = instance[cacheKeyword].methods[name],
-                        currCaller = caller,
-                        isConstructor = name === 'initialize';
+                        isConstructor = name === 'initialize',
+                        currCaller;
 
-                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || instance instanceof callerClass))) {
+                    currCaller = caller;
+
+                    if (instance.$initializing || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || instance instanceof currCaller.constructor))) {
                         return method;
                     }
 
@@ -3013,9 +3013,11 @@ define('Class',[
             Object.defineProperty(constructor, name, {
                 get: function get() {
                     var method = constructor[cacheKeyword].methods[name],
-                        currCaller = caller;
+                        currCaller;
 
-                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
+                    currCaller = caller;
+
+                    if (inheriting || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId)) {
                         return method;
                     }
 
@@ -3035,9 +3037,11 @@ define('Class',[
             Object.defineProperty(constructor, name, {
                 get: function get() {
                     var method = constructor[cacheKeyword].methods[name],
-                        currCaller = caller;
+                        currCaller;
 
-                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || constructor.prototype instanceof callerClass))) {
+                    currCaller = caller;
+
+                    if (inheriting || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || constructor.prototype instanceof currCaller.constructor))) {
                         return method;
                     }
 
@@ -3091,7 +3095,7 @@ define('Class',[
                 get: function get() {
                     var currCaller = caller;
 
-                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
+                    if (instance.$initializing || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId)) {
                         return instance[cacheKeyword].properties[name];
                     }
 
@@ -3100,7 +3104,7 @@ define('Class',[
                 set: function set(newVal) {
                     var currCaller = caller;
 
-                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
+                    if (instance.$initializing || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId)) {
                         instance[cacheKeyword].properties[name] = newVal;
                         instance[redefinedCacheKeyword].properties[name] = true;
                     } else {
@@ -3122,7 +3126,7 @@ define('Class',[
                 get: function get() {
                     var currCaller = caller;
 
-                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || instance instanceof callerClass))) {
+                    if (instance.$initializing || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || instance instanceof currCaller.constructor))) {
                         return instance[cacheKeyword].properties[name];
                     }
 
@@ -3131,7 +3135,7 @@ define('Class',[
                 set: function set(newVal) {
                     var currCaller = caller;
 
-                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || instance instanceof callerClass))) {
+                    if (instance.$initializing || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || instance instanceof currCaller.constructor))) {
                         instance[cacheKeyword].properties[name] = newVal;
                         instance[redefinedCacheKeyword].properties[name] = true;
                     } else {
@@ -3164,7 +3168,7 @@ define('Class',[
                 get: function get() {
                     var currCaller = caller;
 
-                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
+                    if (inheriting || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId)) {
                         return constructor[cacheKeyword].properties[name];
                     }
 
@@ -3177,7 +3181,7 @@ define('Class',[
                         function set(newVal) {
                             var currCaller = caller;
 
-                            if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId) {
+                            if (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId) {
                                 constructor[cacheKeyword].properties[name] = newVal;
                             } else {
                                 throw new Error('Cannot set private property "' + name + '" of class "' + constructor.prototype.$name + '".');
@@ -3191,7 +3195,7 @@ define('Class',[
                 get: function get() {
                     var currCaller = caller;
 
-                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || constructor.prototype instanceof callerClass))) {
+                    if (inheriting || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || constructor.prototype instanceof currCaller.constructor))) {
                         return constructor[cacheKeyword].properties[name];
                     }
 
@@ -3204,7 +3208,7 @@ define('Class',[
                         function set(newVal) {
                             var currCaller = caller;
 
-                            if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || constructor.prototype instanceof callerClass)) {
+                            if (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || constructor.prototype instanceof currCaller.constructor)) {
                                 constructor[cacheKeyword].properties[name] = newVal;
                             } else {
                                 throw new Error('Cannot set protected static property "' + name + '" of class "' + constructor.prototype.$name + '".');
@@ -3368,7 +3372,7 @@ define('Class',[
         }
 
         // Check if outside the instance/class
-        if (!callerClass) {
+        if (!caller) {
             throw new Error('Attempting to mark a function as a member outside an instance/class.');
         }
 
@@ -3378,7 +3382,7 @@ define('Class',[
         }
 
         func[$anonymous] = true;
-        func = wrapMethod(func, callerClass);
+        func = wrapMethod(func, caller.constructor);
         func[$anonymous] = true;
 
         return func;

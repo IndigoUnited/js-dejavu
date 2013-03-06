@@ -57,3 +57,5 @@ npm-debug.*
 ######################
 /tmp
 /dejavu_readme.md
+/tests/assets/module_a/node_modules
+/tests/assets/module_b/node_modules

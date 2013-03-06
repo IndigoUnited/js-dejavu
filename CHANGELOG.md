@@ -1,17 +1,23 @@
 # Changelog
 
+TODO: think of a way to run node functional/verifications tests!
+
+## 0.3.7
+- Fix `.dejavurc` strict value not being correctly interpreted in some edge cases (only affects `node` users)
+- Fix an important bug when a class extends another one of a different `node` package in `strict` mode (only affects `node` users)
+
 ## 0.3.6 - 2013-03-06
 - Remove micro-optimization in non-optimized classes in loose version (it was giving some problems)
 
 ## 0.3.5 - 2013-03-05
-- Add grunt task for the optimizer
+- Add `grunt` task for the optimizer
 - Small improvements to the optimizer
 
 ## 0.3.4 - 2013-03-04
-- Fix optimizer error when using this.$super.apply or .call
+- Fix optimizer error when using `this.$super.apply` or `.call`
 
 ## 0.3.3 - 2013-02-18
-- Fix postinstall script in some rare cases
+- Fix `postinstall` script in some rare cases
 
 ## 0.3.2 - 2013-02-15
 - Fix rare bug in when using `$bind` with `null` values

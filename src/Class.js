@@ -102,10 +102,10 @@ define([
         cacheKeyword = '$cache_' + random,
         redefinedCacheKeyword = '$redefined_cache_' + random,
         inheriting,
+//>>excludeStart('node', pragmas.node);
         nextId = 0,
-        caller,
-        callerClass,
-        callerClassId,
+        caller = null,
+//>>excludeEnd('node');
         toStringInstance,
         toStringConstructor,
         glob = typeof window !== 'undefined' && window.navigator && window.document ? window : global;
@@ -193,7 +193,6 @@ define([
         }
 
         var parent,
-            classId = constructor[$class].id,
             wrapper;
 
         if (parentMeta) {
@@ -206,24 +205,39 @@ define([
             var that = this == null || this === glob ? {} : this,
                 _super = that.$super,
                 _self = that.$self,
-                prevCaller = caller,
-                prevCallerClass = callerClass,
-                prevCallerClassId = callerClassId,
+                prevCaller,
                 ret;
 
-            caller = method;
-            callerClassId = classId;
+//>>includeStart('node', pragmas.node);
+            prevCaller = process._dejavu.caller;
+            process._dejavu.caller = {
+                method: method,
+                constructor: constructor,
+                constructorId: constructor[$class].id
+            };
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
+            prevCaller = caller;
+            caller = {
+                method: method,
+                constructor: constructor,
+                constructorId: constructor[$class].id
+            };
+//>>excludeEnd('node');
             that.$super = parent;
-            that.$self = callerClass = constructor;
+            that.$self = constructor;
 
             try {
                 ret = method.apply(this, arguments);
             } finally {
-                caller = prevCaller;
-                callerClassId = prevCallerClassId;
                 that.$super = _super;
                 that.$self = _self;
-                callerClass = prevCallerClass;
+//>>includeStart('node', pragmas.node);
+                process._dejavu.caller = prevCaller;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
+                caller = prevCaller;
+//>>excludeEnd('node');
             }
 
             return ret;
@@ -254,31 +268,45 @@ define([
         }
 
         var parent = parentMeta ? parentMeta.implementation : defaultSuper,
-            classId = constructor[$class].id,
             wrapper;
 
         wrapper = function () {
             var that = this == null || this === glob ? {} : this,
                 _super = that.$super,
                 _self = that.$self,
-                prevCaller = caller,
-                prevCallerClassId = callerClassId,
-                prevCallerClass = callerClass,
+                prevCaller,
                 ret;
 
-            caller = method;
-            callerClassId = classId;
+//>>includeStart('node', pragmas.node);
+            prevCaller = process._dejavu.caller;
+            process._dejavu.caller = {
+                method: method,
+                constructor: constructor,
+                constructorId: constructor[$class].id
+            };
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
+            prevCaller = caller;
+            caller = {
+                method: method,
+                constructor: constructor,
+                constructorId: constructor[$class].id
+            };
+//>>excludeEnd('node');
             that.$super = parent;
-            that.$self = callerClass = constructor;
+            that.$self = constructor;
 
             try {
                 ret = method.apply(this, arguments);
             } finally {
-                caller = prevCaller;
-                callerClassId = prevCallerClassId;
                 that.$super = _super;
                 that.$self = _self;
-                callerClass = prevCallerClass;
+//>>includeStart('node', pragmas.node);
+                process._dejavu.caller = prevCaller;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
+                caller = prevCaller;
+//>>excludeEnd('node');
             }
 
             return ret;
@@ -1196,10 +1224,17 @@ define([
             Object.defineProperty(instance, name, {
                 get: function get() {
                     var method = instance[cacheKeyword].methods[name],
-                        currCaller = caller,
-                        isConstructor = name === 'initialize';
+                        isConstructor = name === 'initialize',
+                        currCaller;
 
-                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
+//>>includeStart('node', pragmas.node);
+                    currCaller = process._dejavu.caller;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
+                    currCaller = caller;
+//>>excludeEnd('node');
+
+                    if (instance.$initializing || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId)) {
                         return method;
                     }
 
@@ -1224,10 +1259,17 @@ define([
             Object.defineProperty(instance, name, {
                 get: function get() {
                     var method = instance[cacheKeyword].methods[name],
-                        currCaller = caller,
-                        isConstructor = name === 'initialize';
+                        isConstructor = name === 'initialize',
+                        currCaller;
 
-                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || instance instanceof callerClass))) {
+//>>includeStart('node', pragmas.node);
+                    currCaller = process._dejavu.caller;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
+                    currCaller = caller;
+//>>excludeEnd('node');
+
+                    if (instance.$initializing || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || instance instanceof currCaller.constructor))) {
                         return method;
                     }
 
@@ -1282,9 +1324,16 @@ define([
             Object.defineProperty(constructor, name, {
                 get: function get() {
                     var method = constructor[cacheKeyword].methods[name],
-                        currCaller = caller;
+                        currCaller;
 
-                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
+//>>includeStart('node', pragmas.node);
+                    currCaller = process._dejavu.caller;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
+                    currCaller = caller;
+//>>excludeEnd('node');
+
+                    if (inheriting || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId)) {
                         return method;
                     }
 
@@ -1304,9 +1353,16 @@ define([
             Object.defineProperty(constructor, name, {
                 get: function get() {
                     var method = constructor[cacheKeyword].methods[name],
-                        currCaller = caller;
+                        currCaller;
 
-                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || constructor.prototype instanceof callerClass))) {
+//>>includeStart('node', pragmas.node);
+                    currCaller = process._dejavu.caller;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
+                    currCaller = caller;
+//>>excludeEnd('node');
+
+                    if (inheriting || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || constructor.prototype instanceof currCaller.constructor))) {
                         return method;
                     }
 
@@ -1358,18 +1414,28 @@ define([
 
             Object.defineProperty(instance, name, {
                 get: function get() {
+//>>includeStart('node', pragmas.node);
+                    var currCaller = process._dejavu.caller;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
                     var currCaller = caller;
+//>>excludeEnd('node');
 
-                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
+                    if (instance.$initializing || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId)) {
                         return instance[cacheKeyword].properties[name];
                     }
 
                     throw new Error('Cannot access private property "' + name + '" of class "' + instance.$name + '".');
                 },
                 set: function set(newVal) {
+//>>includeStart('node', pragmas.node);
+                    var currCaller = process._dejavu.caller;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
                     var currCaller = caller;
+//>>excludeEnd('node');
 
-                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
+                    if (instance.$initializing || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId)) {
                         instance[cacheKeyword].properties[name] = newVal;
                         instance[redefinedCacheKeyword].properties[name] = true;
                     } else {
@@ -1389,18 +1455,28 @@ define([
 
             Object.defineProperty(instance, name, {
                 get: function get() {
+//>>includeStart('node', pragmas.node);
+                    var currCaller = process._dejavu.caller;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
                     var currCaller = caller;
+//>>excludeEnd('node');
 
-                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || instance instanceof callerClass))) {
+                    if (instance.$initializing || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || instance instanceof currCaller.constructor))) {
                         return instance[cacheKeyword].properties[name];
                     }
 
                     throw new Error('Cannot access protected property "' + name + '" of class "' + instance.$name + '".');
                 },
                 set: function set(newVal) {
+//>>includeStart('node', pragmas.node);
+                    var currCaller = process._dejavu.caller;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
                     var currCaller = caller;
+//>>excludeEnd('node');
 
-                    if (instance.$initializing || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || instance instanceof callerClass))) {
+                    if (instance.$initializing || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || instance instanceof currCaller.constructor))) {
                         instance[cacheKeyword].properties[name] = newVal;
                         instance[redefinedCacheKeyword].properties[name] = true;
                     } else {
@@ -1431,9 +1507,14 @@ define([
         if (meta.isPrivate) {
             Object.defineProperty(constructor, name, {
                 get: function get() {
+//>>includeStart('node', pragmas.node);
+                    var currCaller = process._dejavu.caller;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
                     var currCaller = caller;
+//>>excludeEnd('node');
 
-                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId)) {
+                    if (inheriting || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId)) {
                         return constructor[cacheKeyword].properties[name];
                     }
 
@@ -1444,9 +1525,14 @@ define([
                             throw new Error('Cannot change value of constant property "' + name + '" of class "' + constructor.prototype.$name + '".');
                         } :
                         function set(newVal) {
+//>>includeStart('node', pragmas.node);
+                            var currCaller = process._dejavu.caller;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
                             var currCaller = caller;
+//>>excludeEnd('node');
 
-                            if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && meta.allowed === callerClassId) {
+                            if (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId) {
                                 constructor[cacheKeyword].properties[name] = newVal;
                             } else {
                                 throw new Error('Cannot set private property "' + name + '" of class "' + constructor.prototype.$name + '".');
@@ -1458,9 +1544,14 @@ define([
         } else if (meta.isProtected) {
             Object.defineProperty(constructor, name, {
                 get: function get() {
+//>>includeStart('node', pragmas.node);
+                    var currCaller = process._dejavu.caller;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
                     var currCaller = caller;
+//>>excludeEnd('node');
 
-                    if (inheriting || (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || constructor.prototype instanceof callerClass))) {
+                    if (inheriting || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || constructor.prototype instanceof currCaller.constructor))) {
                         return constructor[cacheKeyword].properties[name];
                     }
 
@@ -1471,9 +1562,14 @@ define([
                             throw new Error('Cannot change value of constant property "' + name + '" of class "' + constructor.prototype.$name + '".');
                         } :
                         function set(newVal) {
+//>>includeStart('node', pragmas.node);
+                            var currCaller = process._dejavu.caller;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
                             var currCaller = caller;
+//>>excludeEnd('node');
 
-                            if (currCaller && (currCaller[$name] || currCaller[$anonymous]) && (contains(meta.allowed, callerClassId) || constructor.prototype instanceof callerClass)) {
+                            if (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || constructor.prototype instanceof currCaller.constructor)) {
                                 constructor[cacheKeyword].properties[name] = newVal;
                             } else {
                                 throw new Error('Cannot set protected static property "' + name + '" of class "' + constructor.prototype.$name + '".');
@@ -1664,7 +1760,7 @@ define([
         }
 
         // Check if outside the instance/class
-        if (!callerClass) {
+        if (!caller) {
             throw new Error('Attempting to mark a function as a member outside an instance/class.');
         }
 
@@ -1674,7 +1770,7 @@ define([
         }
 
         func[$anonymous] = true;
-        func = wrapMethod(func, callerClass);
+        func = wrapMethod(func, caller.constructor);
         func[$anonymous] = true;
 
 //>>includeEnd('strict');
@@ -2085,7 +2181,12 @@ define([
             }
 
             dejavu = createConstructor(constructor, opts.isAbstract);
+//>>includeStart('node', pragmas.node);
+            dejavu[$class].id = process._dejavu.nextId += 1;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
             dejavu[$class].id = nextId += 1;
+//>>excludeEnd('node');
 
             if (opts.isVanilla) {
                 params.initialize = function () { dejavu.apply(this, arguments); };
@@ -2116,7 +2217,12 @@ define([
         } else {
 //>>includeStart('strict', pragmas.strict);
             dejavu = createConstructor(constructor, opts.isAbstract);
+//>>includeStart('node', pragmas.node);
+            dejavu[$class].id = process._dejavu.nextId += 1;
+//>>includeEnd('node');
+//>>excludeStart('node', pragmas.node);
             dejavu[$class].id = nextId += 1;
+//>>excludeEnd('node');
 
             if (opts.isVanilla) {
                 params.initialize = function () { dejavu.apply(this, arguments); };

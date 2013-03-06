@@ -6,7 +6,12 @@ var fs        = require('fs'),
     deepMixIn = require('mout/object/deepMixIn'),
     rcFile;
 
-process._dejavu = process._dejavu || {};
+// The _dejavu object should ALWAYS be backwards compatible!
+// Avoid changing this!
+process._dejavu = process._dejavu || {
+    caller: {},
+    nextId: 0
+};
 
 function load() {
     var rc = process._dejavu.rc || {};
@@ -45,7 +50,6 @@ if (process._dejavu.rc) {
         try {
             // Read RC file
             process._dejavu.rc = JSON.parse(fs.readFileSync(rcFile));
-
             load();
         // Error parsing RC file
         } catch (err) {
