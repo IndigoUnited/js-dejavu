@@ -2,7 +2,7 @@ if (!global.evaluated) {
     require('./util/adapter.js');
 }
 
-var path = 'amd/strict';
+var path = global.browser || process.argv.indexOf('--node') === -1 ? 'amd/strict' : 'node/strict';
 
 global.modules = [
     path + '/Class',
@@ -14,7 +14,9 @@ global.modules = [
     path + '/lib/hasDefineProperty',
     'assets/cases/Emitter'
 ];
-global.build = 'amd/strict';
+global.build = path;
+
+console.log(path);
 
 // As of requirejs 2.1 requirejs is also async in node
 // But if we call it directly by id it has sync behavior

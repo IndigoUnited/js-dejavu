@@ -19,6 +19,15 @@ if (!(typeof window !== 'undefined' && window.navigator && window.document)) { /
     global.browser = false;
     global.expect = require('expect.js');
 
+    // Define process._dejavu for node tests to work correctly
+    if (!process._dejavu) {
+        process._dejavu = {
+            rc: {},
+            nextId: 0,
+            caller: null
+        };
+    }
+
     // Change working directory due to some issues related with requirejs
     process.chdir(__dirname + '/..');
 } else {

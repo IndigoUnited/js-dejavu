@@ -195,48 +195,45 @@ async.series({
         // Change cwd to root dir
         process.chdir(__dirname + '/..');
 
+        function runTest(opts, next) {
+            opts = opts || {};
+
+            var command = mochaBin + ' -R spec test/' + (opts.strict ? 'strict' : 'loose') + '.js' + (opts.node ? ' --node' : ''),
+                tests;
+
+            console.log('Running ' + (opts.node ? 'node' : 'amd') + ' ' + (opts.strict ? 'strict' : 'loose') + ' tests..');
+            console.log('-------------------------------------------------');
+
+            if (process.platform === 'win32') {
+                tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
+            } else {
+                tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
+            }
+            tests.on('exit', function (code) {
+                if (code) {
+                    process.exit(1);
+                }
+
+                next();
+            });
+        }
+
         async.series({
-            'strict': function (next) {
-                // Run strict tests
-                var command = mochaBin + ' -R spec test/strict.js',
-                    tests;
-
-                console.log('Running strict tests..');
-                console.log('-------------------------------------------------');
-
-                if (process.platform === 'win32') {
-                    tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
-                } else {
-                    tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
-                }
-                tests.on('exit', function (code) {
-                    if (code !== 0 && exitCode === 0) {
-                        exitCode = code;
-                    }
-
-                    next();
-                });
+            'amd-strict': function (next) {
+                // Run amd strict tests
+                runTest({ strict: true}, next);
             },
-            'loose': function (next) {
-                // Run loose tests
-                var command = mochaBin + ' -R spec test/loose.js',
-                    tests;
-
-                console.log('Running loose tests..');
-                console.log('-------------------------------------------------');
-
-                if (process.platform === 'win32') {
-                    tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
-                } else {
-                    tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
-                }
-                tests.on('exit', function (code) {
-                    if (code !== 0 && exitCode === 0) {
-                        exitCode = code;
-                    }
-
-                    next();
-                });
+            'amd-loose': function (next) {
+                // Run amd loose tests
+                runTest({}, next);
+            },
+            'node-strict': function (next) {
+                // Run node strict tests
+                runTest({ strict: true, node: true}, next);
+            },
+            'node-loose': function (next) {
+                // Run amd loose tests
+                runTest({ node: true}, next);
             },
             'node': function (next) {
                 // Run node tests
@@ -252,8 +249,8 @@ async.series({
                     tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
                 }
                 tests.on('exit', function (code) {
-                    if (code !== 0 && exitCode === 0) {
-                        exitCode = code;
+                    if (code) {
+                        process.exit(1);
                     }
 
                     next();

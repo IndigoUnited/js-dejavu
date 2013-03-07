@@ -1402,6 +1402,8 @@ define([
             return func;
         }
 
+        var caller = process._dejavu.caller;
+
         // Check if outside the instance/class
         if (!caller) {
             throw new Error('Attempting to mark a function as a member outside an instance/class.');

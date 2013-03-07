@@ -1,10 +1,9 @@
 # Changelog
 
-TODO: think of a way to run node functional/verifications tests!
-
-## 0.3.7
+## 0.3.7 - 2013-03-07
 - Fix `.dejavurc` strict value not being correctly interpreted in some edge cases (only affects `node` users)
 - Fix an important bug when a class extends another one of a different `node` package in `strict` mode (only affects `node` users)
+- Refactor tests and make them run in all environments
 
 ## 0.3.6 - 2013-03-06
 - Remove micro-optimization in non-optimized classes in loose version (it was giving some problems)
