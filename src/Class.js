@@ -101,7 +101,6 @@ define([
         $wrapped = '$wrapped_' + random,
         cacheKeyword = '$cache_' + random,
         redefinedCacheKeyword = '$redefined_cache_' + random,
-        inheriting,
 //>>excludeStart('node', pragmas.node);
         nextId = 0,
         caller = null,
@@ -1333,7 +1332,7 @@ define([
                     currCaller = caller;
 //>>excludeEnd('node');
 
-                    if (inheriting || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId)) {
+                    if (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId) {
                         return method;
                     }
 
@@ -1362,7 +1361,7 @@ define([
                     currCaller = caller;
 //>>excludeEnd('node');
 
-                    if (inheriting || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || constructor.prototype instanceof currCaller.constructor))) {
+                    if (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || constructor.prototype instanceof currCaller.constructor)) {
                         return method;
                     }
 
@@ -1514,7 +1513,7 @@ define([
                     var currCaller = caller;
 //>>excludeEnd('node');
 
-                    if (inheriting || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId)) {
+                    if (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && meta.allowed === currCaller.constructorId) {
                         return constructor[cacheKeyword].properties[name];
                     }
 
@@ -1551,7 +1550,7 @@ define([
                     var currCaller = caller;
 //>>excludeEnd('node');
 
-                    if (inheriting || (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || constructor.prototype instanceof currCaller.constructor))) {
+                    if (currCaller && (currCaller.method[$name] || currCaller.method[$anonymous]) && (contains(meta.allowed, currCaller.constructorId) || constructor.prototype instanceof currCaller.constructor)) {
                         return constructor[cacheKeyword].properties[name];
                     }
 
@@ -1926,8 +1925,6 @@ define([
         obfuscateProperty(constructor, '$parent', parent);
 //>>excludeEnd('strict');
 //>>includeStart('strict', pragmas.strict);
-        inheriting = true;
-
         // Inherit methods and properties
         for (key in parent[$class].methods) {
             value = parent[$class].methods[key];
@@ -1986,8 +1983,6 @@ define([
         if (hasOwn(parent[$class], 'forceUnlocked')) {
             constructor[$class].forceUnlocked = parent[$class].forceUnlocked;
         }
-
-        inheriting = false;
 
         obfuscateProperty(constructor, '$parent', parent);
 //>>includeEnd('strict');

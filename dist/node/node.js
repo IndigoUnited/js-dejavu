@@ -4,14 +4,37 @@
 var fs        = require('fs'),
     path      = require('path'),
     deepMixIn = require('mout/object/deepMixIn'),
-    rcFile;
+    rcFile,
+    nextId = 0;
 
 // The _dejavu object should ALWAYS be backwards compatible!
 // Avoid changing this!
 process._dejavu = process._dejavu || {
-    caller: {},
-    nextId: 0
+    caller: null
 };
+
+// Control the set of nextId to avoid users messing with it
+// The class ids is what guarantees the visibility access control
+if (!process._dejavu.hasOwnProperty('nextId')) {
+    if (!Object.defineProperty) {
+        process._dejavu.nextId = nextId;
+    } else {
+        Object.defineProperty(process._dejavu, 'nextId', {
+            get: function () {
+                return nextId;
+            },
+            set: function (newVal) {
+                if (newVal <= nextId) {
+                    throw new Error('Trying to mess with the class ids?');
+                }
+
+                nextId = newVal;
+            },
+            configurable: false,
+            enumerable: true
+        });
+    }
+}
 
 function load() {
     var rc = process._dejavu.rc || {};

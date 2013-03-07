@@ -238,30 +238,9 @@ async.series({
                     next();
                 });
             },
-            'node_load': function (next) {
-                // Run loose tests
-                var command = mochaBin + ' -R spec test/node_load.js',
-                    tests;
-
-                console.log('Running node_load tests..');
-                console.log('-------------------------------------------------');
-
-                if (process.platform === 'win32') {
-                    tests = cp.spawn('cmd', ['/s', '/c', command], { customFds: [0, 1, 2] });
-                } else {
-                    tests = cp.spawn('sh', ['-c', command], { customFds: [0, 1, 2] });
-                }
-                tests.on('exit', function (code) {
-                    if (code !== 0 && exitCode === 0) {
-                        exitCode = code;
-                    }
-
-                    next();
-                });
-            },
-            'node_misc': function (next) {
-                // Run loose tests
-                var command = mochaBin + ' -R spec test/node_misc.js',
+            'node': function (next) {
+                // Run node tests
+                var command = mochaBin + ' -R spec test/node_specific.js',
                     tests;
 
                 console.log('Running node_misc tests..');
