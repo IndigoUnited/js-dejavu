@@ -4,7 +4,6 @@ if (!global.evaluated) {
 
 var path = global.browser || process.argv.indexOf('--node') === -1 ? 'amd/loose' : 'node/loose';
 
-console.log(path);
 global.modules = [
     path + '/Class',
     path + '/AbstractClass',
@@ -14,6 +13,10 @@ global.modules = [
     path + '/options'
 ];
 global.build = path;
+
+if (!global.browser) {
+    console.log(path);
+}
 
 // As of requirejs 2.1 requirejs is also async in node
 // But if we call it directly by id it has sync behavior
