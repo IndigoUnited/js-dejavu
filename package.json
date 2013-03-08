@@ -31,7 +31,8 @@
     "rimraf": "~2.1.2",
     "glob": "~3.1.21",
     "async": "~0.2.6",
-    "fstream": "~0.1.22"
+    "fstream": "~0.1.22",
+    "testem": "~0.2.70"
   },
   "scripts": {
     "build": "node build",
