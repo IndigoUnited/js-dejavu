@@ -1,6 +1,6 @@
 {
   "name": "dejavu",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "main": "src/",
   "dependencies": {
     "mout": "~0.3.0"
