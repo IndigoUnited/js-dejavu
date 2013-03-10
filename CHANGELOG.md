@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.9- 2013-03-10
+- Add minified version of the `regular loose` mode.
+- Fix some error message typos.
+
 ## 0.3.8 - 2013-03-09
 - Fix `console.inspect` not handling circular references on arrays/objects
 
