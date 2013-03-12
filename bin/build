@@ -161,7 +161,7 @@ async.series({
         // Cleanup tmp folder
         rimraf.sync(currentDistDir);
 
-        // Build regular loose
+        // Build regular loose (normal)
         cp.exec(command + ' dir="' + currentDistDir + '" optimize=none pragmas.strict=false', function (error, stdout, stderr) {
             if (error) {
                 return next(new Error(stderr + '\n' + stdout));
@@ -175,7 +175,22 @@ async.series({
             // Cleanup tmp folder
             rimraf.sync(currentDistDir);
 
-            next();
+            // Build regular loose (minified)
+            cp.exec(command + ' dir="' + currentDistDir + '" optimize=uglify pragmas.strict=false', function (error, stdout, stderr) {
+                if (error) {
+                    return next(new Error(stderr + '\n' + stdout));
+                }
+
+                console.log(stdout);
+
+                // Move concatenated file
+                fs.renameSync(currentDistDir + 'dejavu.js', distDir + 'regular/loose/dejavu.min.js');
+
+                // Cleanup tmp folder
+                rimraf.sync(currentDistDir);
+
+                next();
+            });
         });
     },
     'generate-optimized-tests': function (next) {

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.9- 2013-03-10
+- Add minified version of the `regular loose` mode.
+- Fix some error message typos.
+
+## 0.3.8 - 2013-03-09
+- Fix `console.inspect` not handling circular references on arrays/objects
+
 ## 0.3.7 - 2013-03-07
 - Fix `.dejavurc` strict value not being correctly interpreted in some edge cases (only affects `node` users)
 - Fix an important bug when a class extends another one of a different `node` package in `strict` mode (only affects `node` users)

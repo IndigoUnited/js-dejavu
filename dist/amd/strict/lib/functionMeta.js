@@ -38,7 +38,7 @@ define([], function () {
             for (x = 0; x < length; x += 1) {
                 if (split[x].charAt(0) === '$') {
                     ret.optional += 1;
-                    ret.signature += ' ' + split[x] + ', ';
+                    ret.signature += split[x] + ', ';
                     optionalReached = true;
                 } else if (!optionalReached) {
                     ret.mandatory += 1;

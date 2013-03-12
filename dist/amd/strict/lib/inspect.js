@@ -77,8 +77,7 @@ define([
             return target;
         }
 
-        var cached = fetchCache(target, cache),
-            def,
+        var def,
             simpleConstructor,
             methodsCache,
             propertiesCache,
@@ -86,8 +85,9 @@ define([
             tmp,
             key;
 
-        if (cached) {
-            return cached;
+        obj = fetchCache(target, cache.instances);
+        if (obj) {
+            return obj;
         }
 
         def = target.$static[$class];
@@ -96,7 +96,7 @@ define([
         propertiesCache = target[cacheKeyword].properties;
 
         obj = createObject(simpleConstructor.prototype);
-        cache.push({ target: target, inspect: obj });
+        cache.instances.push({ target: target, inspect: obj });
 
         // Methods
         for (key in target[redefinedCacheKeyword].methods) {
@@ -143,8 +143,7 @@ define([
             return target;
         }
 
-        var cached = fetchCache(target, cache),
-            def,
+        var def,
             methodsCache,
             propertiesCache,
             membersCache,
@@ -152,8 +151,9 @@ define([
             tmp,
             key;
 
-        if (cached) {
-            return cached;
+        obj = fetchCache(target, cache.constructors);
+        if (obj) {
+            return obj;
         }
 
         def = target[$class];
@@ -161,7 +161,7 @@ define([
         methodsCache = target[cacheKeyword].methods;
         propertiesCache = target[cacheKeyword].properties;
 
-        cache.push({ target: target, inspect: obj });
+        cache.constructors.push({ target: target, inspect: obj });
 
         // Constructor methods
         for (key in methodsCache) {
@@ -221,14 +221,29 @@ define([
             length,
             ret;
 
-        cache = cache || [];
+        cache = cache || {
+            others: [],
+            instances: [],
+            constructors: []
+        };
 
         if (isObject(prop)) {
+            // Check if it is an instance
             if (prop.$static) {
                 return inspectInstance(prop, cache);
             }
 
-            ret = clone ? {} : prop;
+            // Object is a collection
+            // Attempt to fetch from cache
+            ret = fetchCache(prop, cache.others);
+            if (ret) {
+                return ret;
+            }
+
+            ret = {};
+            cache.others.push({ target: prop, inspect: ret });
+
+            // Iterate over each key value of the object, inspecting it
             for (key in prop) {
                 ret[key] = inspect(prop[key], cache, clone);
             }
@@ -236,21 +251,33 @@ define([
             return ret;
         }
 
+        // Array is a collection
         if (isArray(prop)) {
+            // Attempt to fetch from cache
+            ret = fetchCache(prop, cache.others);
+            if (ret) {
+                return ret;
+            }
+
+            ret = [];
+            cache.others.push({ target: prop, inspect: ret });
+
+            // Iterate over each item of the array, inspecting it
             length = prop.length;
-            ret = clone ? [] : prop;
             for (x = 0; x < length; x += 1) {
-                ret[x] = inspect(prop[x], cache, clone);
+                ret.push(inspect(prop[x], cache, clone));
             }
 
             return ret;
         }
 
         if (isFunction(prop)) {
+            // Check if is a constructor
             if (prop[$class]) {
-                return inspectInstance(prop, cache);
+                return inspectConstructor(prop, cache);
             }
 
+            // Otherwise check if it is a wrapper function or a normal one
             return prop[$wrapped] || prop;
         }
 
