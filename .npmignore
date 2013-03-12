@@ -60,8 +60,13 @@ npm-debug.*
 /src
 /dist/amd
 /dist/regular
-/README_website.md
 /bin/build
 /bin/assets
-/dejavu_readme.md
 /build
+/.gitignore
+/.travis.yml
+/.component.json
+/testem.json
+/CHANGELOG.md
+/README_website.md
+/dejavu_readme.md
