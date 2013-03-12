@@ -174,7 +174,7 @@ have a __lower memory footprint and filesize__.
 Finally, in order to achieve that extra edge, that puts `dejavu` next to vanilla
 JS in terms of performance, you should run the optimizer that is bundled with
 the library. Note that this step is completely optional, and `dejavu` will still
-perform faster than most libraries, even if you don't run the [optimizer](https://github.com/IndigoUnited/dejavu##optimizer).
+perform faster than most libraries, even if you don't run the [optimizer](https://github.com/IndigoUnited/dejavu-optimizer).
 The optimizer will analyse your code and make some improvements,
 boosting it a bit further.
 
@@ -591,67 +591,6 @@ var filipe = new Engineer('Filipe');
 In strict mode, logging instances with `console.log` will print some strange stuff (getters, setters, etc).
 This happens because `dejavu` manages accesses to private/protected members as well as make other stuff work.
 To get around this issue, `dejavu` provides a `console.inspect` method that works just like `console.log` but prints a friendly object representation of the instance.
-
-
-
-## Optimizer
-
-`dejavu` bundles an optimizer that makes your code faster and lighter.
-
-It specifically:
-
-- Improves $super and $self usage
-- Removes all $name and $locked properties because they are not used in the loose version
-- Removes the need for wrappers, improving performance by a great margin
-- Removes abstract functions from abstract classes
-- Removes functions from interfaces
-
-The optimizer is located in the `bin` folder.
-If you are optimizing your code for `nodejs` then pass the `--closure` option. This will boost the performance when running code in v8.
-Please look at the jsperf results to see the difference in the different browsers.
-
-Example usage:
-
-`node optimizer < file_in.js > file_out.js`
-
-You can also use the optimizer programatically, please check `bin/optimizer` for an example.
-
-`dejavu` also comes with an `automaton` and `grunt` task.
-
-Sample usage of automaton:
-
-```js
-var dejavuOptimizer = require('dejavu/tasks/optimizer.autofile');
-
-module.exports = function (task) {
-    task.do(dejavuOptimizer, {
-        description: 'Optimize myfile',
-        options: {
-            closure: true, // defaults to false
-            files: {
-                'src/myfile.js': 'dst/myfile.opt.js'
-            }
-        }
-    });
-}
-```
-
-Sample usage of grunt:
-
-```js
-grunt.loadNpmTasks('dejavu');
-
-grunt.initConfig({
-    dejavuopt: {
-        sometarget: {
-            closure: true, // defaults to false
-            files: {
-                'dst/myfile.opt.js': 'src/myfile.js'
-            }
-        }
-    }
-});
-```
 
 
 

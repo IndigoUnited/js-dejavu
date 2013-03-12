@@ -515,139 +515,19 @@ define('mout/array/forEach',['require','exports','module'],function (require, ex
 
 });
 
-define('mout/array/filter',['require','exports','module','./forEach'],function (require, exports, module) {var forEach = require('./forEach');
+define('mout/function/prop',['require','exports','module'],function (require, exports, module) {
 
     /**
-     * Array filter
+     * Returns a function that gets a property of the passed object
      */
-    function filter(arr, callback, thisObj) {
-        var results = [];
-        forEach(arr, function (val, i, arr) {
-            if ( callback.call(thisObj, val, i, arr) ) {
-                results.push(val);
-            }
-        });
-        return results;
+    function prop(name){
+        return function(obj){
+            return obj[name];
+        };
     }
 
-    module.exports = filter;
+    module.exports = prop;
 
-
-
-});
-
-define('mout/array/unique',['require','exports','module','./indexOf','./filter'],function (require, exports, module) {var indexOf = require('./indexOf');
-var filter = require('./filter');
-
-    /**
-     * @return {array} Array of unique items
-     */
-    function unique(arr){
-        return filter(arr, isUnique);
-    }
-
-    function isUnique(item, i, arr){
-        return indexOf(arr, item, i+1) === -1;
-    }
-
-    module.exports = unique;
-
-
-
-});
-
-define('mout/array/every',['require','exports','module'],function (require, exports, module) {
-
-    /**
-     * Array every
-     */
-    function every(arr, callback, thisObj) {
-        var result = true,
-            i = -1,
-            n = arr.length;
-        while (++i < n) {
-            // we iterate over sparse items since there is no way to make it
-            // work properly on IE 7-8. see #64
-            if (!callback.call(thisObj, arr[i], i, arr) ) {
-                result = false;
-                break;
-            }
-        }
-        return result;
-    }
-
-    module.exports = every;
-
-
-});
-
-define('mout/array/contains',['require','exports','module','./indexOf'],function (require, exports, module) {var indexOf = require('./indexOf');
-
-    /**
-     * If array contains values.
-     */
-    function contains(arr, val) {
-        return indexOf(arr, val) !== -1;
-    }
-    module.exports = contains;
-
-
-});
-
-define('mout/array/intersection',['require','exports','module','./unique','./filter','./every','./contains'],function (require, exports, module) {var unique = require('./unique');
-var filter = require('./filter');
-var every = require('./every');
-var contains = require('./contains');
-
-
-    /**
-     * Return a new Array with elements common to all Arrays.
-     * - based on underscore.js implementation
-     */
-    function intersection(arr) {
-        var arrs = Array.prototype.slice.call(arguments, 1),
-            result = filter(unique(arr), function(needle){
-                return every(arrs, function(haystack){
-                    return contains(haystack, needle);
-                });
-            });
-        return result;
-    }
-
-    module.exports = intersection;
-
-
-
-});
-
-define('mout/array/compact',['require','exports','module','./filter'],function (require, exports, module) {var filter = require('./filter');
-
-    /**
-     * Remove all null/undefined items from array.
-     */
-    function compact(arr) {
-        return filter(arr, function(val){
-            return (val != null);
-        });
-    }
-
-    module.exports = compact;
-
-
-});
-
-define('mout/array/remove',['require','exports','module','./indexOf'],function (require, exports, module) {var indexOf = require('./indexOf');
-
-    /**
-     * Remove a single item from the array.
-     * (it won't remove duplicates, just a single item)
-     */
-    function remove(arr, item){
-        var idx = indexOf(arr, item);
-        if (idx !== -1) arr.splice(idx, 1);
-    }
-
-    module.exports = remove;
 
 
 });
@@ -750,6 +630,198 @@ var forIn = require('./forIn');
 
     module.exports = forOwn;
 
+
+
+});
+
+define('mout/object/matches',['require','exports','module','./forOwn'],function (require, exports, module) {var forOwn = require('./forOwn');
+
+    /**
+     * checks if a object contains all given properties/values
+     */
+    function matches(target, props){
+        // can't use "object/every" because of circular dependency
+        var result = true;
+        forOwn(props, function(val, key){
+            if (target[key] !== val) {
+                // break loop at first difference
+                return (result = false);
+            }
+        });
+        return result;
+    }
+
+    module.exports = matches;
+
+
+
+});
+
+define('mout/function/makeIterator_',['require','exports','module','./prop','../object/matches'],function (require, exports, module) {var prop = require('./prop');
+var matches = require('../object/matches');
+
+    /**
+     * Converts argument into a valid iterator.
+     * Used internally on most array/object/collection methods that receives a
+     * callback/iterator providing a shortcut syntax.
+     */
+    function makeIterator(src){
+        switch(typeof src) {
+            case 'object':
+                // typeof null == "object"
+                return (src != null)? function(val, key, target){
+                    return matches(val, src);
+                } : src;
+            case 'string':
+            case 'number':
+                return prop(src);
+            default:
+                return src;
+        }
+    }
+
+    module.exports = makeIterator;
+
+
+
+});
+
+define('mout/array/filter',['require','exports','module','./forEach','../function/makeIterator_'],function (require, exports, module) {var forEach = require('./forEach');
+var makeIterator = require('../function/makeIterator_');
+
+    /**
+     * Array filter
+     */
+    function filter(arr, callback, thisObj) {
+        callback = makeIterator(callback);
+        var results = [];
+        forEach(arr, function (val, i, arr) {
+            if ( callback.call(thisObj, val, i, arr) ) {
+                results.push(val);
+            }
+        });
+        return results;
+    }
+
+    module.exports = filter;
+
+
+
+});
+
+define('mout/array/unique',['require','exports','module','./indexOf','./filter'],function (require, exports, module) {var indexOf = require('./indexOf');
+var filter = require('./filter');
+
+    /**
+     * @return {array} Array of unique items
+     */
+    function unique(arr){
+        return filter(arr, isUnique);
+    }
+
+    function isUnique(item, i, arr){
+        return indexOf(arr, item, i+1) === -1;
+    }
+
+    module.exports = unique;
+
+
+
+});
+
+define('mout/array/every',['require','exports','module','../function/makeIterator_'],function (require, exports, module) {var makeIterator = require('../function/makeIterator_');
+
+    /**
+     * Array every
+     */
+    function every(arr, callback, thisObj) {
+        callback = makeIterator(callback);
+        var result = true,
+            i = -1,
+            n = arr.length;
+        while (++i < n) {
+            // we iterate over sparse items since there is no way to make it
+            // work properly on IE 7-8. see #64
+            if (!callback.call(thisObj, arr[i], i, arr) ) {
+                result = false;
+                break;
+            }
+        }
+        return result;
+    }
+
+    module.exports = every;
+
+
+});
+
+define('mout/array/contains',['require','exports','module','./indexOf'],function (require, exports, module) {var indexOf = require('./indexOf');
+
+    /**
+     * If array contains values.
+     */
+    function contains(arr, val) {
+        return indexOf(arr, val) !== -1;
+    }
+    module.exports = contains;
+
+
+});
+
+define('mout/array/intersection',['require','exports','module','./unique','./filter','./every','./contains'],function (require, exports, module) {var unique = require('./unique');
+var filter = require('./filter');
+var every = require('./every');
+var contains = require('./contains');
+
+
+    /**
+     * Return a new Array with elements common to all Arrays.
+     * - based on underscore.js implementation
+     */
+    function intersection(arr) {
+        var arrs = Array.prototype.slice.call(arguments, 1),
+            result = filter(unique(arr), function(needle){
+                return every(arrs, function(haystack){
+                    return contains(haystack, needle);
+                });
+            });
+        return result;
+    }
+
+    module.exports = intersection;
+
+
+
+});
+
+define('mout/array/compact',['require','exports','module','./filter'],function (require, exports, module) {var filter = require('./filter');
+
+    /**
+     * Remove all null/undefined items from array.
+     */
+    function compact(arr) {
+        return filter(arr, function(val){
+            return (val != null);
+        });
+    }
+
+    module.exports = compact;
+
+
+});
+
+define('mout/array/remove',['require','exports','module','./indexOf'],function (require, exports, module) {var indexOf = require('./indexOf');
+
+    /**
+     * Remove a single item from the array.
+     * (it won't remove duplicates, just a single item)
+     */
+    function remove(arr, item){
+        var idx = indexOf(arr, item);
+        if (idx !== -1) arr.splice(idx, 1);
+    }
+
+    module.exports = remove;
 
 
 });
@@ -1021,12 +1093,13 @@ define('lib/checkKeywords',[
     return checkKeywords;
 });
 
-define('mout/array/some',['require','exports','module'],function (require, exports, module) {
+define('mout/array/some',['require','exports','module','../function/makeIterator_'],function (require, exports, module) {var makeIterator = require('../function/makeIterator_');
 
     /**
      * Array some
      */
     function some(arr, callback, thisObj) {
+        callback = makeIterator(callback);
         var result = false,
             i = -1,
             n = arr.length;

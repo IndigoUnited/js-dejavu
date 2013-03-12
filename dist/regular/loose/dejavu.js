@@ -1126,12 +1126,83 @@ define('mout/array/forEach',['require','exports','module'],function (require, ex
 
 });
 
-define('mout/array/filter',['require','exports','module','./forEach'],function (require, exports, module) {var forEach = require('./forEach');
+define('mout/function/prop',['require','exports','module'],function (require, exports, module) {
+
+    /**
+     * Returns a function that gets a property of the passed object
+     */
+    function prop(name){
+        return function(obj){
+            return obj[name];
+        };
+    }
+
+    module.exports = prop;
+
+
+
+});
+
+define('mout/object/matches',['require','exports','module','./forOwn'],function (require, exports, module) {var forOwn = require('./forOwn');
+
+    /**
+     * checks if a object contains all given properties/values
+     */
+    function matches(target, props){
+        // can't use "object/every" because of circular dependency
+        var result = true;
+        forOwn(props, function(val, key){
+            if (target[key] !== val) {
+                // break loop at first difference
+                return (result = false);
+            }
+        });
+        return result;
+    }
+
+    module.exports = matches;
+
+
+
+});
+
+define('mout/function/makeIterator_',['require','exports','module','./prop','../object/matches'],function (require, exports, module) {var prop = require('./prop');
+var matches = require('../object/matches');
+
+    /**
+     * Converts argument into a valid iterator.
+     * Used internally on most array/object/collection methods that receives a
+     * callback/iterator providing a shortcut syntax.
+     */
+    function makeIterator(src){
+        switch(typeof src) {
+            case 'object':
+                // typeof null == "object"
+                return (src != null)? function(val, key, target){
+                    return matches(val, src);
+                } : src;
+            case 'string':
+            case 'number':
+                return prop(src);
+            default:
+                return src;
+        }
+    }
+
+    module.exports = makeIterator;
+
+
+
+});
+
+define('mout/array/filter',['require','exports','module','./forEach','../function/makeIterator_'],function (require, exports, module) {var forEach = require('./forEach');
+var makeIterator = require('../function/makeIterator_');
 
     /**
      * Array filter
      */
     function filter(arr, callback, thisObj) {
+        callback = makeIterator(callback);
         var results = [];
         forEach(arr, function (val, i, arr) {
             if ( callback.call(thisObj, val, i, arr) ) {
@@ -1167,12 +1238,13 @@ var filter = require('./filter');
 
 });
 
-define('mout/array/some',['require','exports','module'],function (require, exports, module) {
+define('mout/array/some',['require','exports','module','../function/makeIterator_'],function (require, exports, module) {var makeIterator = require('../function/makeIterator_');
 
     /**
      * Array some
      */
     function some(arr, callback, thisObj) {
+        callback = makeIterator(callback);
         var result = false,
             i = -1,
             n = arr.length;

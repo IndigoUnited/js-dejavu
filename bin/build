@@ -197,7 +197,7 @@ async.series({
         var testDir = __dirname + '/../test/';
 
         async.forEach(['functional', 'verifications'], function (name, next) {
-            cp.exec('node "' + __dirname + '/../bin/optimizer" < "' + testDir + 'specs/' + name + '.js" > "' + testDir + 'specs/' + name + '_optimized.js"', function (error, stdout, stderr) {
+            cp.exec('node "' + __dirname + '/../node_modules/dejavu-optimizer/bin/optimizer" < "' + testDir + 'specs/' + name + '.js" > "' + testDir + 'specs/' + name + '_optimized.js"', function (error, stdout, stderr) {
                 if (error !== null && stderr) {
                     return next(new Error(stderr.toString()));
                 }

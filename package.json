@@ -9,18 +9,12 @@
     "final",
     "inheritance"
   ],
-  "version": "0.3.9",
+  "version": "0.4.0",
   "author": "IndigoUnited <hello@indigounited.com> (http://indigounited.com)",
   "main": "dist/node/node.js",
   "dependencies": {
     "amdefine": "~0.0.4",
-    "mout": "~0.3.0",
-    "commander": "~1.1.1",
-    "esprima": "~1.0.2",
-    "escodegen": "~0.0.15",
-    "glob": "~3.1.14",
-    "async": "~0.2.6",
-    "mkdirp": "~0.3.5"
+    "mout": "~0.4.0"
   },
   "devDependencies": {
     "almond": "~0.2.1",
@@ -32,10 +26,12 @@
     "glob": "~3.1.21",
     "async": "~0.2.6",
     "fstream": "~0.1.22",
+    "mkdirp": "~0.3.5",
+    "dejavu-optimizer": "~0.4.0",
     "testem": "~0.2.70"
   },
   "scripts": {
-    "build": "node build",
+    "build": "node bin/build",
     "test": "mocha -R spec test/strict --node && mocha -R spec test/loose --node && mocha -R spec test/node_specific && testem ci",
     "postinstall": "node bin/post_install.js"
   },
