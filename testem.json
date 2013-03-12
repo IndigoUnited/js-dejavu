@@ -1,7 +1,8 @@
 {
   "framework": "mocha",
-  "test_page": "test/testem_strict.html",
+  "test_page": "test/tester.html",
   "src_files": [
+    "test/tester.html",
     "test/**/*.js",
     "dist/**/*.js"
   ]

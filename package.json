@@ -36,7 +36,7 @@
   },
   "scripts": {
     "build": "node build",
-    "test": "mocha -R spec test/strict && mocha -R spec test/loose && mocha -R spec test/strict --node && mocha -R spec test/loose --node && mocha -R spec test/node_specific",
+    "test": "mocha -R spec test/strict --node && mocha -R spec test/loose --node && mocha -R spec test/node_specific && testem ci",
     "postinstall": "node bin/post_install.js"
   },
   "bugs": {

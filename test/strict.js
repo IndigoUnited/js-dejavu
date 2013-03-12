@@ -14,7 +14,7 @@ global.modules = [
     path + '/lib/hasDefineProperty',
     'assets/cases/Emitter'
 ];
-global.build = path;
+global.build = 'strict';
 
 if (!global.browser) {
     console.log(path);

@@ -5,33 +5,46 @@
         <title>dejavu tests</title>
         <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
         <script src="../node_modules/mocha/mocha.js"></script>
+        <!-- Testem support -->
+        <script type="text/javascript">
+            if (location.hash.indexOf('#testem') !== -1) {
+                document.write('<script src="/testem.js"></'+'script>');
+            }
+        </script>
         <script src="../node_modules/expect.js/expect.js"></script>
         <script src="../node_modules/requirejs/require.js"></script>
         <script src="util/browser.js"></script>
         <script src="util/adapter.js"></script>
         <script>
-            var options = {
-                ui: 'bdd',
-                globals: ['console']
-            },
-                build = getBuild();
+            (function () {
+                var build = getBuild();
 
-            if (navigator.userAgent.indexOf('Firefox') !== -1) {
-                options.globals.push('getInterface');   // Sometimes Firefox exposes a getInterface global.. I think it's Firebug
-            }
+                mocha.setup({
+                    ui: 'bdd',
+                    globals: ['console']
+                });
 
-            mocha.setup(options);
+                require(['domReady!', build], function () {
+                    var elem = document.getElementById(build);
+                        isTestem = location.hash.indexOf('#testem') !== -1;
 
-            require(['domReady!', build.replace(/^[a-z0-9]+\//i, '')], function () {
+                    // Set build link active
+                    if (elem) {
+                        elem.className = 'active';
+                    }
 
-                var elem = document.getElementById(build.replace(/\//g, '_'));
-                if (elem) {
-                    elem.className = 'active';
-                }
+                    // Append #testem to build links
+                    if (isTestem) {
+                        element = document.getElementById('strict').childNodes[0];
+                        element.href += '#testem';
+                        element = document.getElementById('loose').childNodes[0];
+                        element.href += '#testem';
+                    }
 
-                mocha
-                .run();
-            });
+                    mocha
+                    .run();
+                });
+            }());
         </script>
         <style>
             #build {
@@ -58,8 +71,8 @@
     </head>
     <body>
         <ul id="build">
-            <li id="amd_strict"><a href="?build=amd/strict">amd/strict build</a></li>
-            <li id="amd_loose"><a href="?build=amd/loose">amd/loose build</a></li>
+            <li id="strict"><a href="?build=strict">strict build</a></li>
+            <li id="loose"><a href="?build=loose">loose build</a></li>
         </ul>
 
         <div id="mocha"></div>

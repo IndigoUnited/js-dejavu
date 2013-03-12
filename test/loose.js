@@ -12,7 +12,7 @@ global.modules = [
     path + '/instanceOf',
     path + '/options'
 ];
-global.build = path;
+global.build = 'loose';
 
 if (!global.browser) {
     console.log(path);

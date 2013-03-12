@@ -28,11 +28,5 @@ function getQueryParams(qs) {
  * @return {String} The build
  */
 function getBuild() {
-    var build = getQueryParams(location.search).build;
-
-    if (!build || !/^[a-z]/ig.test(build)) {    // Add some security
-        build = 'amd/strict';
-    }
-
-    return build;
+    return getQueryParams(location.search).build || 'strict';
 }
