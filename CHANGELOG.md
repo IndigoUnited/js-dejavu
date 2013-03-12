@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.0- 2013-03-12
+- Move `optimizer` to its own [repository](https://github.com/IndigoUnited/dejavu-optimizer)
+
 ## 0.3.9- 2013-03-10
 - Add minified version of the `regular loose` mode.
 - Fix some error message typos.

@@ -65,7 +65,7 @@ npm-debug.*
 /build
 /.gitignore
 /.travis.yml
-/.component.json
+/component.json
 /testem.json
 /CHANGELOG.md
 /README_website.md
