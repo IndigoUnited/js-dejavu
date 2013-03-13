@@ -619,6 +619,6 @@ Then just run `npm test` to execute them.
 
 
 
-## License ##
+## License
 
 Released under the [MIT License](http://www.opensource.org/licenses/mit-license.php).

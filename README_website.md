@@ -614,6 +614,6 @@ If you use dejavu on `node`, `npm` will take care of fetching everything for you
 
 
 
-## License ##
+## License
 
 Released under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
