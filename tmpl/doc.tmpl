@@ -135,7 +135,7 @@ have a <strong>lower memory footprint and filesize</strong>.</p>
 <p>Finally, in order to achieve that extra edge, that puts <code>dejavu</code> next to vanilla
 JS in terms of performance, you should run the optimizer that is bundled with
 the library. Note that this step is completely optional, and <code>dejavu</code> will still
-perform faster than most libraries, even if you don&#39;t run the <a href="https://github.com/IndigoUnited/dejavu##optimizer">optimizer</a>.
+perform faster than most libraries, even if you don&#39;t run the <a href="https://github.com/IndigoUnited/dejavu-optimizer">optimizer</a>.
 The optimizer will analyse your code and make some improvements,
 boosting it a bit further.</p>
 <p>You can check the benchmarks in <a href="http://jsperf.com/oop-benchmark/79">jsperf</a>
@@ -476,50 +476,6 @@ var filipe = new Engineer(&#39;Filipe&#39;);
 <p>In strict mode, logging instances with <code>console.log</code> will print some strange stuff (getters, setters, etc).
 This happens because <code>dejavu</code> manages accesses to private/protected members as well as make other stuff work.
 To get around this issue, <code>dejavu</code> provides a <code>console.inspect</code> method that works just like <code>console.log</code> but prints a friendly object representation of the instance.</p>
-<h2>Optimizer</h2>
-<p><code>dejavu</code> bundles an optimizer that makes your code faster and lighter.</p>
-<p>It specifically:</p>
-<ul>
-<li>Improves $super and $self usage</li>
-<li>Removes all $name and $locked properties because they are not used in the loose version</li>
-<li>Removes the need for wrappers, improving performance by a great margin</li>
-<li>Removes abstract functions from abstract classes</li>
-<li>Removes functions from interfaces</li>
-</ul>
-<p>The optimizer is located in the <code>bin</code> folder.
-If you are optimizing your code for <code>nodejs</code> then pass the <code>--closure</code> option. This will boost the performance when running code in v8.
-Please look at the jsperf results to see the difference in the different browsers.</p>
-<p>Example usage:</p>
-<p><code>node optimizer &lt; file_in.js &gt; file_out.js</code></p>
-<p>You can also use the optimizer programatically, please check <code>bin/optimizer</code> for an example.</p>
-<p><code>dejavu</code> also comes with an <code>automaton</code> and <code>grunt</code> task.</p>
-<p>Sample usage of automaton:</p>
-<pre><code class="lang-js">var dejavuOptimizer = require(&#39;dejavu/tasks/optimizer.autofile&#39;);
-
-module.exports = function (task) {
-    task.do(dejavuOptimizer, {
-        description: &#39;Optimize myfile&#39;,
-        options: {
-            closure: true, // defaults to false
-            files: {
-                &#39;src/myfile.js&#39;: &#39;dst/myfile.opt.js&#39;
-            }
-        }
-    });
-}</code></pre>
-<p>Sample usage of grunt:</p>
-<pre><code class="lang-js">grunt.loadNpmTasks(&#39;dejavu&#39;);
-
-grunt.initConfig({
-    dejavuopt: {
-        sometarget: {
-            closure: true, // defaults to false
-            files: {
-                &#39;dst/myfile.opt.js&#39;: &#39;src/myfile.js&#39;
-            }
-        }
-    }
-});</code></pre>
 <h2>Works on</h2>
 <ul>
 <li>IE (6+)</li>
