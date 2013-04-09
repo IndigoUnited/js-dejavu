@@ -3405,6 +3405,15 @@ define(global.modules, function (
 
             });
 
+            it('should work if an invalid constructor was passed', function () {
+
+                var SomeClass = Class.declare({});
+
+                expect(instanceOf(new SomeClass(), {})).to.be.equal(false);
+                expect(instanceOf(new SomeClass(), '')).to.be.equal(false);
+                expect(instanceOf(new SomeClass(), 2)).to.be.equal(false);
+
+            });
         });
 
 

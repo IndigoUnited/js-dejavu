@@ -2565,6 +2565,12 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 expect(instanceOf(new Class1(), Interface2)).to.be.equal(false);
                 expect(instanceOf(new Class6(), Interface4)).to.be.equal(false);
             });
+            it('should work if an invalid constructor was passed', function () {
+                var SomeClass = Class.declare({}, true);
+                expect(instanceOf(new SomeClass(), {})).to.be.equal(false);
+                expect(instanceOf(new SomeClass(), '')).to.be.equal(false);
+                expect(instanceOf(new SomeClass(), 2)).to.be.equal(false);
+            });
         });
         describe('Singletons', function () {
             var Singleton = Class.declare({

@@ -5,7 +5,9 @@ if (typeof define !== 'function') {
 }
 
 define([
+    'mout/lang/isFunction'
 ], function instanceOfWrapper(
+    isFunction
 ) {
 
     'use strict';
@@ -67,6 +69,10 @@ define([
      * @return {Boolean} True if it is a valid instance of target, false otherwise
      */
     function instanceOf(instance, target) {
+        if (!isFunction(target)) {
+            return false;
+        }
+
         if (instance instanceof target) {
             return true;
         }

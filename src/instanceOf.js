@@ -1,10 +1,12 @@
 define([
+    'mout/lang/isFunction'
 //>>includeStart('strict', pragmas.strict);
-    './lib/randomAccessor'
+    , './lib/randomAccessor'
 //>>includeEnd('strict');
 ], function instanceOfWrapper(
+    isFunction
 //>>includeStart('strict', pragmas.strict);
-    randomAccessor
+    , randomAccessor
 //>>includeEnd('strict');
 ) {
 
@@ -74,6 +76,10 @@ define([
      * @return {Boolean} True if it is a valid instance of target, false otherwise
      */
     function instanceOf(instance, target) {
+        if (!isFunction(target)) {
+            return false;
+        }
+
         if (instance instanceof target) {
             return true;
         }
