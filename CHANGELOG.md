@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2 - 2013-05-09
+- Change from `component.json` to `bower.json`.
+
+## 0.4.1 - 2013-04-09
+- Fix `instanceOf` throwing an exception when passing non-constructors.
+
 ## 0.4.0- 2013-03-12
 - Move `optimizer` to its own [repository](https://github.com/IndigoUnited/dejavu-optimizer)
 
