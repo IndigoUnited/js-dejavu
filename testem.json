@@ -5,5 +5,19 @@
     "test/tester.html",
     "test/**/*.js",
     "dist/**/*.js"
-  ]
+  ],
+  "launchers": {
+      "Node-Strict": {
+        "command": "mocha -R tap test/strict --node",
+        "protocol": "tap"
+      },
+      "Node-Loose": {
+        "command": "mocha -R tap test/loose --node",
+        "protocol": "tap"
+      },
+      "Node-Specific": {
+        "command": "mocha -R tap test/node_specific",
+        "protocol": "tap"
+      }
+  }
 }

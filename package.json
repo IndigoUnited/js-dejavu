@@ -32,7 +32,7 @@
   },
   "scripts": {
     "build": "node bin/build",
-    "test": "mocha -R spec test/strict --node && mocha -R spec test/loose --node && mocha -R spec test/node_specific && testem ci",
+    "test": "testem ci -l Chrome,Firefox,Safari,Opera,IE9,IE8,IE7,IE6,Node-Strict,Node-Loose,Node-Specific",
     "postinstall": "node bin/post_install.js"
   },
   "bugs": {
