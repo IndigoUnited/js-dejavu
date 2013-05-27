@@ -1,5 +1,4 @@
-dejavu
-------
+# dejavu
 
 [![Build Status](https://secure.travis-ci.org/IndigoUnited/dejavu.png)](http://travis-ci.org/IndigoUnited/dejavu)
 

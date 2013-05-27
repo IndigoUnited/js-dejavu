@@ -1,5 +1,4 @@
-dejavu
-------
+# dejavu
 
 Have you ever had the feeling that you're seeing something you've already seen
 before? That's the feeling you get when using `dejavu`.
