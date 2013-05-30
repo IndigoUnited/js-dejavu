@@ -38,7 +38,6 @@ define(['./isImmutable'], function (isImmutable) {
         }
 
         ret.isImmutable = isImmutable(prop);
-        ret.value = prop;
 
         return ret;
     }

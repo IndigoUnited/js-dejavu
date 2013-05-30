@@ -14,7 +14,6 @@ define([
     './lib/hasDefineProperty',
     './lib/checkObjectPrototype',
     './lib/randomAccessor',
-    './lib/hasFreezeBug',
     './options',
     './lib/inspect',
     './lib/printWarning',
@@ -51,7 +50,6 @@ define([
     hasDefineProperty,
     checkObjectPrototype,
     randomAccessor,
-    hasFreezeBug,
     options,
     inspect,
     printWarning,
@@ -126,6 +124,7 @@ define([
         var parentClass = constructor.$parent,
             parentSource = parentClass && (isStatic ? parentClass : parentClass.prototype),
             parentMeta = parentClass && parentClass[$class][isStatic ? 'staticMethods' : 'methods'][name],
+            parentLocked = parentClass && parentClass[$class].locked && !parentClass[$class].forceUnlocked,
             parentMethod,
             wrapper;
 
@@ -151,7 +150,7 @@ define([
             // Use the real source of the method if available, fallbacking to the
             // cached one because private/protected are not on the parent prototype
             // See: https://github.com/IndigoUnited/dejavu/issues/49
-            parent = (parentSource && parentSource[name]) || parentMethod;
+            parent = parentLocked || !parentSource ? parentMethod : parentSource[name];
 
             prevCaller = caller;
             caller = {
@@ -447,6 +446,7 @@ define([
         }
 
         target[name] = metadata;
+        metadata.value = value;
         if (!isStatic) {
             constructor[$class].ownMembers[name] = true;
         }
@@ -1242,7 +1242,10 @@ define([
      * @param {Function} constructor The constructor to be protected
      */
     function protectConstructor(constructor) {
-        var key;
+        var key,
+            target,
+            meta,
+            prototype = constructor.prototype;
 
         obfuscateProperty(constructor, cacheKeyword, { properties: {}, methods: {} });
 
@@ -1254,18 +1257,10 @@ define([
             protectStaticProperty(key, constructor[$class].staticProperties[key], constructor);
         }
 
-        // Prevent any properties/methods to be added and deleted to the constructor
-        if (constructor[$class].locked && !constructor[$class].forceUnlocked) {
-            if (isFunction(Object.seal)) {
-                Object.seal(constructor);
-            }
-
-            // Prevent any properties/methods to modified in the prototype
-            if (isFunction(Object.freeze) && !hasFreezeBug) {
-                Object.freeze(constructor.prototype);
-            } else if (isFunction(Object.seal)) {
-                Object.seal(constructor.prototype);
-            }
+        // Prevent any properties/methods from being added and deleted to the constructor/prototype
+        if (isFunction(Object.seal) && constructor[$class].locked && !constructor[$class].forceUnlocked) {
+            Object.seal(constructor);
+            Object.seal(prototype);
         }
     }
 

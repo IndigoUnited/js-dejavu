@@ -496,6 +496,9 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
             });
         });
         describe('$locked', function () {
+            afterEach(function () {
+                options.locked = true;
+            });
             it('should have it removed', function () {
                 var SomeClass = Class.declare({}, true), someClass = new SomeClass();
                 expect(someClass.$locked).to.be.equal(undefined);
@@ -567,7 +570,6 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     }).to.throwException(/(cannot set|not extensible|invalid assignment|attempted to assign to readonly)/i);
                 });
                 it('should read the default value', function () {
-                    options.locked = true;
                     var SomeClass = Class.declare({}, true), OtherClass;
                     options.locked = false;
                     OtherClass = Class.declare({}, true);
@@ -602,7 +604,6 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                 it('should be inherited and once unlocked it can\'t be locked', function () {
                     var SomeClass = function () {
                         }, OtherClass = Class.declare({}, true), SomeSubClass, OtherSubClass, someSubClass, otherSubClass;
-                    options.locked = true;
                     SomeSubClass = Class.declare({ $extends: SomeClass }, true);
                     OtherSubClass = Class.declare({ $extends: OtherClass }, true);
                     someSubClass = new SomeSubClass();
@@ -627,7 +628,39 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return Class.declare({ $extends: OtherClass }, true);
                     }).to.throwException(/cannot be locked/);
                 });
-                it('$super should use parent prototypes methods, even when modified', function () {
+                it('$super should use parent prototypes methods, even when modified, when unlocked', function () {
+                    var Person = Class.declare({
+                            $name: 'Person',
+                            speak: function () {
+                                return 'hi';
+                            },
+                            _run: function () {
+                                return 'running';
+                            }
+                        }, true), Engineer = Class.declare({
+                            $name: 'Engineer',
+                            $extends: Person,
+                            speak: function () {
+                                return Person.prototype.speak.call(this) + ' there';
+                            },
+                            foo: function () {
+                                return this._run();
+                            },
+                            _run: function () {
+                                return 'i am ' + Person.prototype._run.call(this);
+                            }
+                        }, true), engineer;
+                    engineer = new Engineer();
+                    Person.prototype.speak = function () {
+                        return 'hello';
+                    };
+                    Person.prototype._run = function () {
+                        return 'flying';
+                    };
+                    expect(engineer.speak()).to.be.equal('hello there');
+                    expect(engineer.foo()).to.be.equal('i am flying');
+                });
+                it('$super should not use parent prototypes methods, when locked', function () {
                     var Person = Class.declare({
                             $name: 'Person',
                             speak: function () {
@@ -644,7 +677,7 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                     Person.prototype.speak = function () {
                         return 'hello';
                     };
-                    expect(engineer.speak()).to.be.equal('hello there');
+                    expect(engineer.speak()).to.be.equal('hi there');
                 });
             }
         });

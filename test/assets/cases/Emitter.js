@@ -20,15 +20,18 @@
             removeListener: function () {}
         }),
             Dummy = AbstractClass.declare({
+                $name: 'Dummy',
                 $implements: SubscriberInterface
             }),
             EventsEmitter = AbstractClass.declare({
+                $name: 'EventsEmitter',
                 $extends: Dummy,
 
                 addListener: function (name, fn, context) {},
                 removeListener: function (name, fn) {}
             }),
             DirectEventsEmitter = AbstractClass.declare({
+                $name: 'DirectEventsEmitter',
                 $implements: SubscriberInterface,
 
                 addListener: function (name, fn, context) {},

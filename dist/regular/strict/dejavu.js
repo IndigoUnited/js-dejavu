@@ -1007,7 +1007,6 @@ define('lib/propertyMeta',['./isImmutable'], function (isImmutable) {
         }
 
         ret.isImmutable = isImmutable(prop);
-        ret.value = prop;
 
         return ret;
     }
@@ -1310,47 +1309,6 @@ define('lib/randomAccessor',['mout/array/contains'], function (contains) {
     }
 
     return randomAccessor;
-});
-
-define('lib/hasFreezeBug',['mout/lang/isFunction'], function (isFunction) {
-
-    'use strict';
-
-    /**
-     * Checks if the browser has Object.freeze bug.
-     *
-     * @see https://bugzilla.mozilla.org/show_bug.cgi?id=744494
-     *
-     * @return {Boolean} True if it has, false otherwise
-     */
-    function checkHasFreezeBug() {
-        if (!isFunction(Object.freeze)) {
-            return false;
-        }
-
-        // Create a constructor
-        var A = function () {},
-            a;
-
-        A.prototype.foo = '';
-        Object.freeze(A.prototype);   // Freeze prototype
-
-        // Create an instance
-        a = new A();
-
-        try {
-            a.foo = 'baz';            // Throws a['foo'] is read only
-            if (a.foo !== 'baz') {    // Or fails silently in at least IE9
-                return true;
-            }
-        } catch (e) {
-            return true;
-        }
-
-        return false;
-    }
-
-    return checkHasFreezeBug();
 });
 
 define('options',[], function () {
@@ -2088,7 +2046,6 @@ define('Class',[
     './lib/hasDefineProperty',
     './lib/checkObjectPrototype',
     './lib/randomAccessor',
-    './lib/hasFreezeBug',
     './options',
     './lib/inspect',
     './lib/printWarning',
@@ -2125,7 +2082,6 @@ define('Class',[
     hasDefineProperty,
     checkObjectPrototype,
     randomAccessor,
-    hasFreezeBug,
     options,
     inspect,
     printWarning,
@@ -2200,6 +2156,7 @@ define('Class',[
         var parentClass = constructor.$parent,
             parentSource = parentClass && (isStatic ? parentClass : parentClass.prototype),
             parentMeta = parentClass && parentClass[$class][isStatic ? 'staticMethods' : 'methods'][name],
+            parentLocked = parentClass && parentClass[$class].locked && !parentClass[$class].forceUnlocked,
             parentMethod,
             wrapper;
 
@@ -2225,7 +2182,7 @@ define('Class',[
             // Use the real source of the method if available, fallbacking to the
             // cached one because private/protected are not on the parent prototype
             // See: https://github.com/IndigoUnited/dejavu/issues/49
-            parent = (parentSource && parentSource[name]) || parentMethod;
+            parent = parentLocked || !parentSource ? parentMethod : parentSource[name];
 
             prevCaller = caller;
             caller = {
@@ -2521,6 +2478,7 @@ define('Class',[
         }
 
         target[name] = metadata;
+        metadata.value = value;
         if (!isStatic) {
             constructor[$class].ownMembers[name] = true;
         }
@@ -3316,7 +3274,10 @@ define('Class',[
      * @param {Function} constructor The constructor to be protected
      */
     function protectConstructor(constructor) {
-        var key;
+        var key,
+            target,
+            meta,
+            prototype = constructor.prototype;
 
         obfuscateProperty(constructor, cacheKeyword, { properties: {}, methods: {} });
 
@@ -3328,18 +3289,10 @@ define('Class',[
             protectStaticProperty(key, constructor[$class].staticProperties[key], constructor);
         }
 
-        // Prevent any properties/methods to be added and deleted to the constructor
-        if (constructor[$class].locked && !constructor[$class].forceUnlocked) {
-            if (isFunction(Object.seal)) {
-                Object.seal(constructor);
-            }
-
-            // Prevent any properties/methods to modified in the prototype
-            if (isFunction(Object.freeze) && !hasFreezeBug) {
-                Object.freeze(constructor.prototype);
-            } else if (isFunction(Object.seal)) {
-                Object.seal(constructor.prototype);
-            }
+        // Prevent any properties/methods from being added and deleted to the constructor/prototype
+        if (isFunction(Object.seal) && constructor[$class].locked && !constructor[$class].forceUnlocked) {
+            Object.seal(constructor);
+            Object.seal(prototype);
         }
     }
 

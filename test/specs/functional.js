@@ -667,6 +667,9 @@ define(global.modules, function (
         });
 
         describe('$locked', function () {
+            afterEach(function () {
+                options.locked = true;
+            });
 
             it('should have it removed', function () {
 
@@ -766,8 +769,6 @@ define(global.modules, function (
 
                 it('should read the default value', function () {
 
-                    options.locked = true;
-
                     var SomeClass = Class.declare({}),
                         OtherClass;
 
@@ -839,8 +840,6 @@ define(global.modules, function (
                         someSubClass,
                         otherSubClass;
 
-                    options.locked = true;
-
                     SomeSubClass = Class.declare({ $extends: SomeClass });
                     OtherSubClass = Class.declare({ $extends: OtherClass });
 
@@ -881,16 +880,57 @@ define(global.modules, function (
 
                 });
 
-                it('$super should use parent prototypes methods, even when modified', function () {
+                it('$super should use parent prototypes methods, even when modified, when unlocked', function () {
+
                     var Person = Class.declare({
+                        $name: 'Person',
                         $locked: false,
+                        speak: function () {
+                            return 'hi';
+                        },
+                        _run: function () {
+                            return 'running';
+                        }
+                    }),
+                        Engineer = Class.declare({
+                            $name: 'Engineer',
+                            $extends: Person,
+                            $locked: false,
+                            speak: function () {
+                                return this.$super() + ' there';
+                            },
+                            foo: function () {
+                                return this._run();
+                            },
+                            _run: function () {
+                                return 'i am ' + this.$super();
+                            }
+                        }),
+                        engineer;
+
+                    engineer = new Engineer();
+
+                    Person.prototype.speak = function () {
+                        return 'hello';
+                    };
+                    Person.prototype._run = function () {
+                        return 'flying';
+                    };
+
+                    expect(engineer.speak()).to.be.equal('hello there');
+                    expect(engineer.foo()).to.be.equal('i am flying');
+
+                });
+
+                it('$super should not use parent prototypes methods, when locked', function () {
+
+                    var Person = Class.declare({
                         $name: 'Person',
                         speak: function () {
                             return 'hi';
                         }
                     }),
                         Engineer = Class.declare({
-                            $locked: false,
                             $name: 'Engineer',
                             $extends: Person,
                             speak: function () {
@@ -905,8 +945,10 @@ define(global.modules, function (
                         return 'hello';
                     };
 
-                    expect(engineer.speak()).to.be.equal('hello there');
+                    expect(engineer.speak()).to.be.equal('hi there');
+
                 });
+
             }
 
         });
