@@ -627,6 +627,25 @@ define(global.modules, function (Class, AbstractClass, Interface, FinalClass, in
                         return Class.declare({ $extends: OtherClass }, true);
                     }).to.throwException(/cannot be locked/);
                 });
+                it('$super should use parent prototypes methods, even when modified', function () {
+                    var Person = Class.declare({
+                            $name: 'Person',
+                            speak: function () {
+                                return 'hi';
+                            }
+                        }, true), Engineer = Class.declare({
+                            $name: 'Engineer',
+                            $extends: Person,
+                            speak: function () {
+                                return Person.prototype.speak.call(this) + ' there';
+                            }
+                        }, true), engineer;
+                    engineer = new Engineer();
+                    Person.prototype.speak = function () {
+                        return 'hello';
+                    };
+                    expect(engineer.speak()).to.be.equal('hello there');
+                });
             }
         });
         describe('$member', function () {

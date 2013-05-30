@@ -1312,6 +1312,7 @@ define('Class',[
     './lib/printWarning',
     './lib/obfuscateProperty',
     './lib/isImmutable',
+    'mout/lang/isString',
     'mout/lang/isFunction',
     'mout/lang/isObject',
     'mout/lang/isArray',
@@ -1332,6 +1333,7 @@ define('Class',[
     printWarning,
     obfuscateProperty,
     isImmutable,
+    isString,
     isFunction,
     isObject,
     isArray,
@@ -1372,34 +1374,36 @@ define('Class',[
 
     /**
      * Wraps a method.
-     * This is to make some alias such as $super and $self to work correctly.
+     * Makes some aliases, such as $super and $self, work correctly.
      *
+     * @param {String}   name        The method name
      * @param {Function} method      The method to wrap
      * @param {Function} constructor The constructor
-     * @param {Function} parent      The parent method
+     * @param {Boolean}  isStatic    True if the method is static, false otherwise
      *
      * @return {Function} The wrapper
      */
-    function wrapMethod(method, constructor, parent) {
+    function wrapMethod(name, method, constructor, isStatic) {
         // Return the method if the class was created efficiently
         if (constructor[$class].efficient) {
             return method;
         }
 
         var wrapper,
-            isWrapped = !!method[$wrapped];
+            parentClass = constructor.$parent,
+            parentSource = parentClass && (isStatic ? parentClass : parentClass.prototype),
+            parentMethod;
 
-        if (isWrapped) {
-            method = method[$wrapped];
-        }
+        method = method[$wrapped] || method;
 
         wrapper = function () {
             var _super = this.$super,
                 _self = this.$self,
+                // Use the real source of the method if available
+                // See: https://github.com/IndigoUnited/dejavu/issues/49
+                parent = parentSource && parentSource[name],
                 ret;
 
-            // TODO: We should be using a try finally here to ensure that $super is restored correctly but it slows down by a lot!
-            //       Find a better solution?
             this.$super = parent;
             this.$self = constructor;
             ret = method.apply(this, arguments);
@@ -1435,7 +1439,7 @@ define('Class',[
 
             if (!hasOwn(constructor.prototype, key)) {    // Already defined members are not overwritten
                 if (isFunction(value) && !value[$class] && !value[$interface]) {
-                    constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
+                    constructor.prototype[key] = wrapMethod(key, value, constructor);
 
                     // If the function is specified to be bound, add it to the binds
                     if (value[$bound]) {
@@ -1527,7 +1531,6 @@ define('Class',[
 
             // Inherit constants and add interface to the interfaces array
             if (!contains(target[$class].interfaces, interf)) {
-
                 for (k = interf[$interface].constants.length - 1; k >= 0; k -= 1) {
                     target[interf[$interface].constants[k]] = interf[interf[$interface].constants[k]];
                     target[$class].staticProperties[interf[$interface].constants[k]] = interf[interf[$interface].constants[k]];
@@ -1556,7 +1559,7 @@ define('Class',[
 
                 if (isFunction(value) && !value[$class] && !value[$interface]) {
                     insert(constructor[$class].staticMethods, key);
-                    constructor[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent[key] : null);
+                    constructor[key] = wrapMethod(key, value, constructor, true);
                 } else {
                     constructor[$class].staticProperties[key] = value;
                     constructor[key] = value;
@@ -1581,7 +1584,7 @@ define('Class',[
             value = params[key];
 
             if (isFunction(value) && !value[$class] && !value[$interface]) {
-                constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
+                constructor.prototype[key] = wrapMethod(key, value, constructor);
 
                 // If the function is specified to be bound, add it to the binds
                 if (value[$bound]) {
@@ -1733,7 +1736,31 @@ define('Class',[
             bound;
 
         if (this && !func[$wrapped] && this.$static && this.$static[$class]) {
-            func = wrapMethod(func, this.$self || this.$static);
+            func = wrapMethod(null, func, this.$self || this.$static);
+        }
+
+        args.splice(1, 0, this);
+        bound = bind.apply(func, args);
+
+        return bound;
+    }
+
+    /**
+     * Static bind.
+     * Works for anonymous functions also.
+     *
+     * @param {Function} func   The function to be bound
+     * @param {...mixed} [args] The arguments to also be bound
+     *
+     * @return {Function} The bound function
+     */
+    function doBindStatic(func) {
+        /*jshint validthis:true*/
+        var args = toArray(arguments),
+            bound;
+
+        if (this && !func[$wrapped] && this.$static && this.$static[$class]) {
+            func = wrapMethod(null, func, this.$self || this.$static, true);
         }
 
         args.splice(1, 0, this);
@@ -1923,7 +1950,7 @@ define('Class',[
         obfuscateProperty(dejavu, '$self', null, true);
         obfuscateProperty(dejavu, '$super', null, true);
         obfuscateProperty(dejavu, '$member', doMember);
-        obfuscateProperty(dejavu, '$bind', doBind);
+        obfuscateProperty(dejavu, '$bind', doBindStatic);
         if (!dejavu.$parent) {
             obfuscateProperty(dejavu.prototype, '$bind', doBind);
             obfuscateProperty(dejavu.prototype, '$member', doMember);
@@ -2014,6 +2041,10 @@ define('Class',[
             obfuscateProperty(Function.prototype, '$bind', function (context) {
                 var args = toArray(arguments);
                 args.splice(0, 1, this);
+
+                if (isFunction(context)) {
+                    return doBindStatic.apply(context, args);
+                }
 
                 return doBind.apply(context, args);
             });

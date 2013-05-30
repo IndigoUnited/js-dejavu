@@ -1,6 +1,5 @@
 define([
 //>>includeStart('strict', pragmas.strict);
-    'mout/lang/isString',
     'mout/lang/isBoolean',
     'mout/array/intersection',
     'mout/array/unique',
@@ -23,6 +22,7 @@ define([
     './lib/printWarning',
     './lib/obfuscateProperty',
     './lib/isImmutable',
+    'mout/lang/isString',
     'mout/lang/isFunction',
     'mout/lang/isObject',
     'mout/lang/isArray',
@@ -42,7 +42,6 @@ define([
     'mout/array/insert'
 ], function ClassWrapper(
 //>>includeStart('strict', pragmas.strict);
-    isString,
     isBoolean,
     intersection,
     unique,
@@ -65,6 +64,7 @@ define([
     printWarning,
     obfuscateProperty,
     isImmutable,
+    isString,
     isFunction,
     isObject,
     isArray,
@@ -133,34 +133,36 @@ define([
 //>>excludeStart('strict', pragmas.strict);
     /**
      * Wraps a method.
-     * This is to make some alias such as $super and $self to work correctly.
+     * Makes some aliases, such as $super and $self, work correctly.
      *
+     * @param {String}   name        The method name
      * @param {Function} method      The method to wrap
      * @param {Function} constructor The constructor
-     * @param {Function} parent      The parent method
+     * @param {Boolean}  isStatic    True if the method is static, false otherwise
      *
      * @return {Function} The wrapper
      */
-    function wrapMethod(method, constructor, parent) {
+    function wrapMethod(name, method, constructor, isStatic) {
         // Return the method if the class was created efficiently
         if (constructor[$class].efficient) {
             return method;
         }
 
         var wrapper,
-            isWrapped = !!method[$wrapped];
+            parentClass = constructor.$parent,
+            parentSource = parentClass && (isStatic ? parentClass : parentClass.prototype),
+            parentMethod;
 
-        if (isWrapped) {
-            method = method[$wrapped];
-        }
+        method = method[$wrapped] || method;
 
         wrapper = function () {
             var _super = this.$super,
                 _self = this.$self,
+                // Use the real source of the method if available
+                // See: https://github.com/IndigoUnited/dejavu/issues/49
+                parent = parentSource && parentSource[name],
                 ret;
 
-            // TODO: We should be using a try finally here to ensure that $super is restored correctly but it slows down by a lot!
-            //       Find a better solution?
             this.$super = parent;
             this.$self = constructor;
             ret = method.apply(this, arguments);
@@ -178,103 +180,48 @@ define([
 //>>includeStart('strict', pragmas.strict);
     /**
      * Wraps a method.
-     * This is to make some alias such as $super and $self to work correctly.
+     * Makes some aliases, such as $super and $self, work correctly.
      *
+     * @param {String}   name        The method name
      * @param {Function} method      The method to wrap
      * @param {Function} constructor The constructor
-     * @param {Object}   parentMeta  The parent method metada
      *
      * @return {Function} The wrapper
      */
-    function wrapMethod(method, constructor, parentMeta) {
+    function wrapMethod(name, method, constructor, isStatic) {
         if (method[$wrapped]) {
             method = method[$wrapped];
         }
 
-        var parent,
+        var parentClass = constructor.$parent,
+            parentSource = parentClass && (isStatic ? parentClass : parentClass.prototype),
+            parentMeta = parentClass && parentClass[$class][isStatic ? 'staticMethods' : 'methods'][name],
+            parentMethod,
             wrapper;
 
         if (parentMeta) {
-            parent = parentMeta.isPrivate && method[$name] === 'initialize' ? callingPrivateConstructor : parentMeta.implementation;
-        } else {
-            parent = defaultSuper;
-        }
-
-        wrapper = function () {
-            var that = this == null || this === glob ? {} : this,
-                _super = that.$super,
-                _self = that.$self,
-                prevCaller,
-                ret;
-
-//>>includeStart('node', pragmas.node);
-            prevCaller = process._dejavu.caller;
-            process._dejavu.caller = {
-                method: method,
-                constructor: constructor,
-                constructorId: constructor[$class].id
-            };
-//>>includeEnd('node');
-//>>excludeStart('node', pragmas.node);
-            prevCaller = caller;
-            caller = {
-                method: method,
-                constructor: constructor,
-                constructorId: constructor[$class].id
-            };
-//>>excludeEnd('node');
-            that.$super = parent;
-            that.$self = constructor;
-
-            try {
-                ret = method.apply(this, arguments);
-            } finally {
-                that.$super = _super;
-                that.$self = _self;
-//>>includeStart('node', pragmas.node);
-                process._dejavu.caller = prevCaller;
-//>>includeEnd('node');
-//>>excludeStart('node', pragmas.node);
-                caller = prevCaller;
-//>>excludeEnd('node');
+            if (!isStatic && parentMeta.isPrivate && name === 'initialize') {
+                parentMethod = callingPrivateConstructor;
+                parentSource = null;
+            } else {
+                parentMethod = parentMeta.implementation;
             }
-
-            return ret;
-        };
-
-        obfuscateProperty(wrapper, $wrapped, method);
-
-        if (method[$name]) {
-            obfuscateProperty(wrapper, $name, method[$name]);
+        } else {
+            parentMethod = defaultSuper;
         }
-
-        return wrapper;
-    }
-
-    /**
-     * Wraps a static method.
-     * This is to make some alias such as $super and $self to work correctly.
-     *
-     * @param {Function} method      The method to wrap
-     * @param {Function} constructor The constructor
-     * @param {Object}   parentMeta  The parent method metadata
-     *
-     * @return {Function} The wrapper
-     */
-    function wrapStaticMethod(method, constructor, parentMeta) {
-        if (method[$wrapped]) {
-            method = method[$wrapped];
-        }
-
-        var parent = parentMeta ? parentMeta.implementation : defaultSuper,
-            wrapper;
 
         wrapper = function () {
             var that = this == null || this === glob ? {} : this,
                 _super = that.$super,
                 _self = that.$self,
                 prevCaller,
-                ret;
+                ret,
+                parent;
+
+            // Use the real source of the method if available, fallbacking to the
+            // cached one because private/protected are not on the parent prototype
+            // See: https://github.com/IndigoUnited/dejavu/issues/49
+            parent = (parentSource && parentSource[name]) || parentMethod;
 
 //>>includeStart('node', pragmas.node);
             prevCaller = process._dejavu.caller;
@@ -459,9 +406,7 @@ define([
         }
 
         originalMethod = method;
-        method = !isStatic ?
-                  wrapMethod(method, constructor, constructor.$parent ? constructor.$parent[$class].methods[name] : null) :
-                  wrapStaticMethod(method, constructor, constructor.$parent ? constructor.$parent[$class].staticMethods[name] : null);
+        method = wrapMethod(name, method, constructor, isStatic);
 
         obfuscateProperty(method, $name, name);
         metadata.implementation = method;
@@ -662,7 +607,7 @@ define([
                     addMethod(key, value, constructor, opts);
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-                    constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
+                    constructor.prototype[key] = wrapMethod(key, value, constructor);
 
                     // If the function is specified to be bound, add it to the binds
                     if (value[$bound]) {
@@ -876,7 +821,6 @@ define([
 
             // Inherit constants and add interface to the interfaces array
             if (!contains(target[$class].interfaces, interf)) {
-
                 // Inherit constants
                 for (k in interf[$interface].constants) {
                     addProperty(k, interf[k], target, opts);
@@ -903,7 +847,6 @@ define([
 
             // Inherit constants and add interface to the interfaces array
             if (!contains(target[$class].interfaces, interf)) {
-
                 for (k = interf[$interface].constants.length - 1; k >= 0; k -= 1) {
                     target[interf[$interface].constants[k]] = interf[interf[$interface].constants[k]];
                     target[$class].staticProperties[interf[$interface].constants[k]] = interf[interf[$interface].constants[k]];
@@ -970,7 +913,7 @@ define([
 //>>excludeStart('strict', pragmas.strict);
                 if (isFunction(value) && !value[$class] && !value[$interface]) {
                     insert(constructor[$class].staticMethods, key);
-                    constructor[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent[key] : null);
+                    constructor[key] = wrapMethod(key, value, constructor, true);
                 } else {
                     constructor[$class].staticProperties[key] = value;
                     constructor[key] = value;
@@ -1007,7 +950,7 @@ define([
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
             if (isFunction(value) && !value[$class] && !value[$interface]) {
-                constructor.prototype[key] = wrapMethod(value, constructor, constructor.$parent ? constructor.$parent.prototype[key] : null);
+                constructor.prototype[key] = wrapMethod(key, value, constructor);
 
                 // If the function is specified to be bound, add it to the binds
                 if (value[$bound]) {
@@ -1279,7 +1222,6 @@ define([
                     }
                 },
                 set: function set(newVal) {
-
                     if (instance.$initializing || !instance.$static[$class].locked || instance.$static[$class].forceUnlocked) {
                         instance[cacheKeyword].methods[name] = newVal;
                         instance[redefinedCacheKeyword].methods[name] = true; // This is just for the inspect
@@ -1773,7 +1715,7 @@ define([
         }
 
         func[$anonymous] = true;
-        func = wrapMethod(func, caller.constructor);
+        func = wrapMethod(null, func, caller.constructor);
         func[$anonymous] = true;
 
 //>>includeEnd('strict');
@@ -1796,7 +1738,31 @@ define([
             bound;
 
         if (this && !func[$wrapped] && this.$static && this.$static[$class]) {
-            func = wrapMethod(func, this.$self || this.$static);
+            func = wrapMethod(null, func, this.$self || this.$static);
+        }
+
+        args.splice(1, 0, this);
+        bound = bind.apply(func, args);
+
+        return bound;
+    }
+
+    /**
+     * Static bind.
+     * Works for anonymous functions also.
+     *
+     * @param {Function} func   The function to be bound
+     * @param {...mixed} [args] The arguments to also be bound
+     *
+     * @return {Function} The bound function
+     */
+    function doBindStatic(func) {
+        /*jshint validthis:true*/
+        var args = toArray(arguments),
+            bound;
+
+        if (this && !func[$wrapped] && this.$static && this.$static[$class]) {
+            func = wrapMethod(null, func, this.$self || this.$static, true);
         }
 
         args.splice(1, 0, this);
@@ -1830,7 +1796,7 @@ define([
 
         if (this && !func[$wrapped] && this.$static && this.$static[$class]) {
             func[$anonymous] = true;
-            func = wrapMethod(func, this.$self || this.$static);
+            func = wrapMethod(null, func, this.$self || this.$static);
             args[0] = func;
             isAnonymous = true;
         }
@@ -1859,9 +1825,9 @@ define([
             bound,
             isAnonymous;
 
-        if (!func[$wrapped] && this.$static && this.$static[$class]) {
+        if (this && !func[$wrapped] && this.$static && this.$static[$class]) {
             func[$anonymous] = true;
-            func = wrapStaticMethod(func, this.$self || this.$static);
+            func = wrapMethod(null, func, this.$self || this.$static, true);
             args[0] = func;
             isAnonymous = true;
         }
@@ -2279,7 +2245,7 @@ define([
         }
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
-        obfuscateProperty(dejavu, '$bind', doBind);
+        obfuscateProperty(dejavu, '$bind', doBindStatic);
         if (!dejavu.$parent) {
             obfuscateProperty(dejavu.prototype, '$bind', doBind);
             obfuscateProperty(dejavu.prototype, '$member', doMember);
@@ -2416,12 +2382,10 @@ define([
                 }
 
 //>>includeEnd('node');
-//>>includeStart('strict', pragmas.strict);
                 if (isFunction(context)) {
                     return doBindStatic.apply(context, args);
                 }
 
-//>>includeEnd('strict');
                 return doBind.apply(context, args);
             });
             Function.prototype.$bind.dejavu = true;

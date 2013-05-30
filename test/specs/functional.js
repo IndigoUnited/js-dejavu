@@ -881,6 +881,32 @@ define(global.modules, function (
 
                 });
 
+                it('$super should use parent prototypes methods, even when modified', function () {
+                    var Person = Class.declare({
+                        $locked: false,
+                        $name: 'Person',
+                        speak: function () {
+                            return 'hi';
+                        }
+                    }),
+                        Engineer = Class.declare({
+                            $locked: false,
+                            $name: 'Engineer',
+                            $extends: Person,
+                            speak: function () {
+                                return this.$super() + ' there';
+                            }
+                        }),
+                        engineer;
+
+                    engineer = new Engineer();
+
+                    Person.prototype.speak = function () {
+                        return 'hello';
+                    };
+
+                    expect(engineer.speak()).to.be.equal('hello there');
+                });
             }
 
         });
