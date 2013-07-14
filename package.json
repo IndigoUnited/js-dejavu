@@ -28,7 +28,7 @@
     "fstream": "~0.1.22",
     "mkdirp": "~0.3.5",
     "dejavu-optimizer": "~0.4.0",
-    "testem": "~0.2.70"
+    "testem": "~0.3.17"
   },
   "scripts": {
     "build": "node bin/build",
