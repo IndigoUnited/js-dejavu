@@ -1,4 +1,4 @@
-# dejavu [![Build Status](https://secure.travis-ci.org/IndigoUnited/dejavu.png)](http://travis-ci.org/IndigoUnited/dejavu)
+# dejavu [![Build Status](https://secure.travis-ci.org/IndigoUnited/dejavu.png)](http://travis-ci.org/IndigoUnited/dejavu) [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/IndigoUnited/dejavu/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 Have you ever had the feeling that you're seeing something you've already seen
 before? That's the feeling you get when using `dejavu`.
