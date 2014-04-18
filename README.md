@@ -1,5 +1,4 @@
-# dejavu [![Build Status](https://secure.travis-ci.org/IndigoUnited/dejavu.png)](http://travis-ci.org/IndigoUnited/dejavu) [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/IndigoUnited/dejavu/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
+# dejavu [![Build Status](https://secure.travis-ci.org/IndigoUnited/js-dejavu.svg)](http://travis-ci.org/IndigoUnited/js-dejavu)
 Have you ever had the feeling that you're seeing something you've already seen
 before? That's the feeling you get when using `dejavu`.
 
@@ -159,7 +158,7 @@ have a __lower memory footprint and filesize__.
 Finally, in order to achieve that extra edge, that puts `dejavu` next to vanilla
 JS in terms of performance, you should run the optimizer that is bundled with
 the library. Note that this step is completely optional, and `dejavu` will still
-perform faster than most libraries, even if you don't run the [optimizer](https://github.com/IndigoUnited/dejavu-optimizer).
+perform faster than most libraries, even if you don't run the [optimizer](https://github.com/IndigoUnited/node-dejavu-optimizer).
 The optimizer will analyse your code and make some improvements,
 boosting it a bit further.
 
@@ -596,7 +595,7 @@ To get around this issue, `dejavu` provides a `console.inspect` method that work
 
 dejavu depends on [mout](https://github.com/mout/mout).
 If you use the regular build, you don't need to worry because all functions used from mout are bundled for you.
-If you use the AMD build, learn [how](https://github.com/IndigoUnited/dejavu#taking-it-to-another-level) to setup your loader.
+If you use the AMD build, learn [how](https://github.com/IndigoUnited/js-dejavu#taking-it-to-another-level) to setup your loader.
 If you use dejavu on `node`, `npm` will take care of fetching everything for you.
 
 
