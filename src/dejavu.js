@@ -32,6 +32,6 @@ define([
     dejavu.mode = 'loose';
 //>>excludeEnd('strict');
 //>>includeStart('regular', pragmas.regular);
-    window.dejavu = dejavu;
+    self.dejavu = dejavu;
 //>>includeEnd('regular');
 });

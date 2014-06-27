@@ -92,7 +92,7 @@ define([
         caller = null,
         toStringInstance,
         toStringConstructor,
-        glob = typeof window !== 'undefined' && window.navigator && window.document ? window : global;
+        glob = typeof self !== 'undefined' ? self : global;
 
     /**
      * Function that does exactly the same as the mout counterpart,

@@ -105,7 +105,7 @@ define([
 //>>excludeEnd('node');
         toStringInstance,
         toStringConstructor,
-        glob = typeof window !== 'undefined' && window.navigator && window.document ? window : global;
+        glob = typeof self !== 'undefined' ? self : global;
 //>>includeEnd('strict');
 //>>excludeStart('strict', pragmas.strict);
     var createClass,

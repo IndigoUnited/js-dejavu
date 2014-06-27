@@ -10,7 +10,7 @@ define(['mout/array/contains'], function (contains) {
         nrAllowed = allowed.length,
         nrAccesses = 0;
 
-    if (!(typeof window !== 'undefined' && window.navigator && window.document)) {
+    if (typeof self === 'undefined') {
         random = process.pid;
     } else {
         random = new Date().getTime() + '_' + Math.floor((Math.random() * 100000000 + 1));
