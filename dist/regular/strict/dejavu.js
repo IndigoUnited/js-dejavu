@@ -1,6 +1,5 @@
-(function() {
-/**
- * almond 0.2.5 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
+(function() {/**
+ * @license almond 0.2.9 Copyright (c) 2011-2014, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/almond for details
  */
@@ -17,7 +16,8 @@ var requirejs, require, define;
         config = {},
         defining = {},
         hasOwn = Object.prototype.hasOwnProperty,
-        aps = [].slice;
+        aps = [].slice,
+        jsSuffixRegExp = /\.js$/;
 
     function hasProp(obj, prop) {
         return hasOwn.call(obj, prop);
@@ -32,7 +32,7 @@ var requirejs, require, define;
      * @returns {String} normalized name
      */
     function normalize(name, baseName) {
-        var nameParts, nameSegment, mapValue, foundMap,
+        var nameParts, nameSegment, mapValue, foundMap, lastIndex,
             foundI, foundStarMap, starI, i, j, part,
             baseParts = baseName && baseName.split("/"),
             map = config.map,
@@ -50,8 +50,15 @@ var requirejs, require, define;
                 //"one/two/three.js", but we want the directory, "one/two" for
                 //this normalization.
                 baseParts = baseParts.slice(0, baseParts.length - 1);
+                name = name.split('/');
+                lastIndex = name.length - 1;
 
-                name = baseParts.concat(name.split("/"));
+                // Node .js allowance:
+                if (config.nodeIdCompat && jsSuffixRegExp.test(name[lastIndex])) {
+                    name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
+                }
+
+                name = baseParts.concat(name);
 
                 //start trimDots
                 for (i = 0; i < name.length; i += 1) {
@@ -260,14 +267,14 @@ var requirejs, require, define;
     main = function (name, deps, callback, relName) {
         var cjsModule, depName, ret, map, i,
             args = [],
+            callbackType = typeof callback,
             usingExports;
 
         //Use name if no relName
         relName = relName || name;
 
         //Call the callback to define the module, if necessary.
-        if (typeof callback === 'function') {
-
+        if (callbackType === 'undefined' || callbackType === 'function') {
             //Pull out the defined dependencies and pass the ordered
             //values to the callback.
             //Default to [require, exports, module] if no deps
@@ -298,7 +305,7 @@ var requirejs, require, define;
                 }
             }
 
-            ret = callback.apply(defined[name], args);
+            ret = callback ? callback.apply(defined[name], args) : undefined;
 
             if (name) {
                 //If setting exports via "module" is in play,
@@ -333,6 +340,13 @@ var requirejs, require, define;
         } else if (!deps.splice) {
             //deps is a config object, not an array.
             config = deps;
+            if (config.deps) {
+                req(config.deps, config.callback);
+            }
+            if (!callback) {
+                return;
+            }
+
             if (callback.splice) {
                 //callback is an array, which means it is a dependency list.
                 //Adjust args if there are dependencies
@@ -377,12 +391,13 @@ var requirejs, require, define;
      * the config return value is used.
      */
     req.config = function (cfg) {
-        config = cfg;
-        if (config.deps) {
-            req(config.deps, config.callback);
-        }
-        return req;
+        return req(cfg);
     };
+
+    /**
+     * Expose module registry for debugging and tooling
+     */
+    requirejs._defined = defined;
 
     define = function (name, deps, callback) {
 
@@ -453,52 +468,16 @@ define('mout/lang/isBoolean',['require','exports','module','./isKind'],function 
 
 });
 
-define('mout/array/indexOf',['require','exports','module'],function (require, exports, module) {
+define('mout/function/identity',['require','exports','module'],function (require, exports, module) {
 
     /**
-     * Array.indexOf
+     * Returns the first argument provided to it.
      */
-    function indexOf(arr, item, fromIndex) {
-        fromIndex = fromIndex || 0;
-        var n = arr.length,
-            i = fromIndex < 0? n + fromIndex : fromIndex;
-        while (i < n) {
-            // we iterate over sparse items since there is no way to make it
-            // work properly on IE 7-8. see #64
-            if (arr[i] === item) {
-                return i;
-            }
-            i += 1;
-        }
-        return -1;
+    function identity(val){
+        return val;
     }
 
-    module.exports = indexOf;
-
-
-});
-
-define('mout/array/forEach',['require','exports','module'],function (require, exports, module) {
-
-    /**
-     * Array forEach
-     */
-    function forEach(arr, callback, thisObj) {
-        if (arr == null) {
-            return;
-        }
-        var i = -1,
-            n = arr.length;
-        while (++i < n) {
-            // we iterate over sparse items since there is no way to make it
-            // work properly on IE 7-8. see #64
-            if ( callback.call(thisObj, arr[i], i, arr) === false ) {
-                break;
-            }
-        }
-    }
-
-    module.exports = forEach;
+    module.exports = identity;
 
 
 
@@ -536,7 +515,7 @@ define('mout/object/hasOwn',['require','exports','module'],function (require, ex
 
 });
 
-define('mout/object/forIn',['require','exports','module'],function (require, exports, module) {
+define('mout/object/forIn',['require','exports','module','./hasOwn'],function (require, exports, module) {var hasOwn = require('./hasOwn');
 
     var _hasDontEnumBug,
         _dontEnums;
@@ -578,11 +557,25 @@ define('mout/object/forIn',['require','exports','module'],function (require, exp
             }
         }
 
+
         if (_hasDontEnumBug) {
+            var ctor = obj.constructor,
+                isProto = !!ctor && obj === ctor.prototype;
+
             while (key = _dontEnums[i++]) {
-                // since we aren't using hasOwn check we need to make sure the
-                // property was overwritten
-                if (obj[key] !== Object.prototype[key]) {
+                // For constructor, if it is a prototype object the constructor
+                // is always non-enumerable unless defined otherwise (and
+                // enumerated above).  For non-prototype objects, it will have
+                // to be defined on this object, since it cannot be defined on
+                // any prototype objects.
+                //
+                // For other [[DontEnum]] properties, check if the value is
+                // different than Object prototype value.
+                if (
+                    (key !== 'constructor' ||
+                        (!isProto && hasOwn(obj, key))) &&
+                    obj[key] !== Object.prototype[key]
+                ) {
                     if (exec(fn, obj, key, thisObj) === false) {
                         break;
                     }
@@ -623,49 +616,103 @@ var forIn = require('./forIn');
 
 });
 
-define('mout/object/matches',['require','exports','module','./forOwn'],function (require, exports, module) {var forOwn = require('./forOwn');
-
+define('mout/lang/isArray',['require','exports','module','./isKind'],function (require, exports, module) {var isKind = require('./isKind');
     /**
-     * checks if a object contains all given properties/values
      */
-    function matches(target, props){
-        // can't use "object/every" because of circular dependency
+    var isArray = Array.isArray || function (val) {
+        return isKind(val, 'Array');
+    };
+    module.exports = isArray;
+
+
+});
+
+define('mout/object/deepMatches',['require','exports','module','./forOwn','../lang/isArray'],function (require, exports, module) {var forOwn = require('./forOwn');
+var isArray = require('../lang/isArray');
+
+    function containsMatch(array, pattern) {
+        var i = -1, length = array.length;
+        while (++i < length) {
+            if (deepMatches(array[i], pattern)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function matchArray(target, pattern) {
+        var i = -1, patternLength = pattern.length;
+        while (++i < patternLength) {
+            if (!containsMatch(target, pattern[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function matchObject(target, pattern) {
         var result = true;
-        forOwn(props, function(val, key){
-            if (target[key] !== val) {
-                // break loop at first difference
+        forOwn(pattern, function(val, key) {
+            if (!deepMatches(target[key], val)) {
+                // Return false to break out of forOwn early
                 return (result = false);
             }
         });
+
         return result;
     }
 
-    module.exports = matches;
+    /**
+     * Recursively check if the objects match.
+     */
+    function deepMatches(target, pattern){
+        if (target && typeof target === 'object') {
+            if (isArray(target) && isArray(pattern)) {
+                return matchArray(target, pattern);
+            } else {
+                return matchObject(target, pattern);
+            }
+        } else {
+            return target === pattern;
+        }
+    }
+
+    module.exports = deepMatches;
 
 
 
 });
 
-define('mout/function/makeIterator_',['require','exports','module','./prop','../object/matches'],function (require, exports, module) {var prop = require('./prop');
-var matches = require('../object/matches');
+define('mout/function/makeIterator_',['require','exports','module','./identity','./prop','../object/deepMatches'],function (require, exports, module) {var identity = require('./identity');
+var prop = require('./prop');
+var deepMatches = require('../object/deepMatches');
 
     /**
      * Converts argument into a valid iterator.
      * Used internally on most array/object/collection methods that receives a
      * callback/iterator providing a shortcut syntax.
      */
-    function makeIterator(src){
+    function makeIterator(src, thisObj){
+        if (src == null) {
+            return identity;
+        }
         switch(typeof src) {
-            case 'object':
-                // typeof null == "object"
-                return (src != null)? function(val, key, target){
-                    return matches(val, src);
+            case 'function':
+                // function is the first to improve perf (most common case)
+                // also avoid using `Function#call` if not needed, which boosts
+                // perf a lot in some cases
+                return (typeof thisObj !== 'undefined')? function(val, i, arr){
+                    return src.call(thisObj, val, i, arr);
                 } : src;
+            case 'object':
+                return function(val){
+                    return deepMatches(val, src);
+                };
             case 'string':
             case 'number':
                 return prop(src);
-            default:
-                return src;
         }
     }
 
@@ -675,20 +722,26 @@ var matches = require('../object/matches');
 
 });
 
-define('mout/array/filter',['require','exports','module','./forEach','../function/makeIterator_'],function (require, exports, module) {var forEach = require('./forEach');
-var makeIterator = require('../function/makeIterator_');
+define('mout/array/filter',['require','exports','module','../function/makeIterator_'],function (require, exports, module) {var makeIterator = require('../function/makeIterator_');
 
     /**
      * Array filter
      */
     function filter(arr, callback, thisObj) {
-        callback = makeIterator(callback);
+        callback = makeIterator(callback, thisObj);
         var results = [];
-        forEach(arr, function (val, i, arr) {
-            if ( callback.call(thisObj, val, i, arr) ) {
-                results.push(val);
+        if (arr == null) {
+            return results;
+        }
+
+        var i = -1, len = arr.length, value;
+        while (++i < len) {
+            value = arr[i];
+            if (callback(value, i, arr)) {
+                results.push(value);
             }
-        });
+        }
+
         return results;
     }
 
@@ -698,18 +751,26 @@ var makeIterator = require('../function/makeIterator_');
 
 });
 
-define('mout/array/unique',['require','exports','module','./indexOf','./filter'],function (require, exports, module) {var indexOf = require('./indexOf');
-var filter = require('./filter');
+define('mout/array/unique',['require','exports','module','./filter'],function (require, exports, module) {var filter = require('./filter');
 
     /**
      * @return {array} Array of unique items
      */
-    function unique(arr){
-        return filter(arr, isUnique);
+    function unique(arr, compare){
+        compare = compare || isEqual;
+        return filter(arr, function(item, i, arr){
+            var n = arr.length;
+            while (++i < n) {
+                if ( compare(item, arr[i]) ) {
+                    return false;
+                }
+            }
+            return true;
+        });
     }
 
-    function isUnique(item, i, arr){
-        return indexOf(arr, item, i+1) === -1;
+    function isEqual(a, b){
+        return a === b;
     }
 
     module.exports = unique;
@@ -724,22 +785,57 @@ define('mout/array/every',['require','exports','module','../function/makeIterato
      * Array every
      */
     function every(arr, callback, thisObj) {
-        callback = makeIterator(callback);
-        var result = true,
-            i = -1,
-            n = arr.length;
-        while (++i < n) {
+        callback = makeIterator(callback, thisObj);
+        var result = true;
+        if (arr == null) {
+            return result;
+        }
+
+        var i = -1, len = arr.length;
+        while (++i < len) {
             // we iterate over sparse items since there is no way to make it
             // work properly on IE 7-8. see #64
-            if (!callback.call(thisObj, arr[i], i, arr) ) {
+            if (!callback(arr[i], i, arr) ) {
                 result = false;
                 break;
             }
         }
+
         return result;
     }
 
     module.exports = every;
+
+
+});
+
+define('mout/array/indexOf',['require','exports','module'],function (require, exports, module) {
+
+    /**
+     * Array.indexOf
+     */
+    function indexOf(arr, item, fromIndex) {
+        fromIndex = fromIndex || 0;
+        if (arr == null) {
+            return -1;
+        }
+
+        var len = arr.length,
+            i = fromIndex < 0 ? len + fromIndex : fromIndex;
+        while (i < len) {
+            // we iterate over sparse items since there is no way to make it
+            // work properly on IE 7-8. see #64
+            if (arr[i] === item) {
+                return i;
+            }
+
+            i++;
+        }
+
+        return -1;
+    }
+
+    module.exports = indexOf;
 
 
 });
@@ -757,10 +853,49 @@ define('mout/array/contains',['require','exports','module','./indexOf'],function
 
 });
 
-define('mout/array/intersection',['require','exports','module','./unique','./filter','./every','./contains'],function (require, exports, module) {var unique = require('./unique');
+define('mout/array/slice',['require','exports','module'],function (require, exports, module) {
+
+    /**
+     * Create slice of source array or array-like object
+     */
+    function slice(arr, start, end){
+        var len = arr.length;
+
+        if (start == null) {
+            start = 0;
+        } else if (start < 0) {
+            start = Math.max(len + start, 0);
+        } else {
+            start = Math.min(start, len);
+        }
+
+        if (end == null) {
+            end = len;
+        } else if (end < 0) {
+            end = Math.max(len + end, 0);
+        } else {
+            end = Math.min(end, len);
+        }
+
+        var result = [];
+        while (start < end) {
+            result.push(arr[start++]);
+        }
+
+        return result;
+    }
+
+    module.exports = slice;
+
+
+
+});
+
+define('mout/array/intersection',['require','exports','module','./unique','./filter','./every','./contains','./slice'],function (require, exports, module) {var unique = require('./unique');
 var filter = require('./filter');
 var every = require('./every');
 var contains = require('./contains');
+var slice = require('./slice');
 
 
     /**
@@ -768,7 +903,7 @@ var contains = require('./contains');
      * - based on underscore.js implementation
      */
     function intersection(arr) {
-        var arrs = Array.prototype.slice.call(arguments, 1),
+        var arrs = slice(arguments, 1),
             result = filter(unique(arr), function(needle){
                 return every(arrs, function(haystack){
                     return contains(haystack, needle);
@@ -1040,10 +1175,14 @@ define('mout/array/append',['require','exports','module'],function (require, exp
      * The first array will be modified.
      */
     function append(arr1, arr2) {
+        if (arr2 == null) {
+            return arr1;
+        }
+
         var pad = arr1.length,
             i = -1,
-            n = arr2.length;
-        while (++i < n) {
+            len = arr2.length;
+        while (++i < len) {
             arr1[pad + i] = arr2[i];
         }
         return arr1;
@@ -1098,18 +1237,22 @@ define('mout/array/some',['require','exports','module','../function/makeIterator
      * Array some
      */
     function some(arr, callback, thisObj) {
-        callback = makeIterator(callback);
-        var result = false,
-            i = -1,
-            n = arr.length;
-        while (++i < n) {
+        callback = makeIterator(callback, thisObj);
+        var result = false;
+        if (arr == null) {
+            return result;
+        }
+
+        var i = -1, len = arr.length;
+        while (++i < len) {
             // we iterate over sparse items since there is no way to make it
             // work properly on IE 7-8. see #64
-            if ( callback.call(thisObj, arr[i], i, arr) ) {
+            if ( callback(arr[i], i, arr) ) {
                 result = true;
                 break;
             }
         }
+
         return result;
     }
 
@@ -1118,17 +1261,18 @@ define('mout/array/some',['require','exports','module','../function/makeIterator
 
 });
 
-define('mout/array/difference',['require','exports','module','./unique','./filter','./some','./contains'],function (require, exports, module) {var unique = require('./unique');
+define('mout/array/difference',['require','exports','module','./unique','./filter','./some','./contains','./slice'],function (require, exports, module) {var unique = require('./unique');
 var filter = require('./filter');
 var some = require('./some');
 var contains = require('./contains');
+var slice = require('./slice');
 
 
     /**
      * Return a new Array with elements that aren't present in the other Arrays.
      */
     function difference(arr) {
-        var arrs = Array.prototype.slice.call(arguments, 1),
+        var arrs = slice(arguments, 1),
             result = filter(unique(arr), function(needle){
                 return !some(arrs, function(haystack){
                     return contains(haystack, needle);
@@ -1379,17 +1523,6 @@ define('mout/lang/isObject',['require','exports','module','./isKind'],function (
         return isKind(val, 'Object');
     }
     module.exports = isObject;
-
-
-});
-
-define('mout/lang/isArray',['require','exports','module','./isKind'],function (require, exports, module) {var isKind = require('./isKind');
-    /**
-     */
-    var isArray = Array.isArray || function (val) {
-        return isKind(val, 'Array');
-    };
-    module.exports = isArray;
 
 
 });
@@ -1781,12 +1914,14 @@ define('mout/array/combine',['require','exports','module','./indexOf'],function 
      * Does not allow duplicates and is case and type sensitive.
      */
     function combine(arr1, arr2) {
+        if (arr2 == null) {
+            return arr1;
+        }
 
-        var x, length = arr2.length;
-
-        for (x = 0; x < length; x++) {
-            if (indexOf(arr1, arr2[x]) === -1) {
-                arr1.push(arr2[x]);
+        var i = -1, len = arr2.length;
+        while (++i < len) {
+            if (indexOf(arr1, arr2[i]) === -1) {
+                arr1.push(arr2[i]);
             }
         }
 
@@ -1803,9 +1938,8 @@ define('mout/lang/isPlainObject',['require','exports','module'],function (requir
      * Checks if the value is created by the `Object` constructor.
      */
     function isPlainObject(value) {
-        return (!!value
-            && typeof value === 'object'
-            && value.constructor === Object);
+        return (!!value && typeof value === 'object' &&
+            value.constructor === Object);
     }
 
     module.exports = isPlainObject;
@@ -1952,11 +2086,7 @@ define('lib/mixIn',[], function () {
     return mixIn;
 });
 
-define('mout/function/bind',['require','exports','module'],function (require, exports, module) {
-
-    function slice(arr, offset){
-        return Array.prototype.slice.call(arr, offset || 0);
-    }
+define('mout/function/bind',['require','exports','module','../array/slice'],function (require, exports, module) {var slice = require('../array/slice');
 
     /**
      * Return a function that will execute in the given context, optionally adding any additional supplied parameters to the beginning of the arguments collection.
@@ -2012,14 +2142,14 @@ define('mout/lang/toArray',['require','exports','module','./kindOf'],function (r
 
 });
 
-define('mout/array/insert',['require','exports','module','./difference','../lang/toArray'],function (require, exports, module) {var difference = require('./difference');
-var toArray = require('../lang/toArray');
+define('mout/array/insert',['require','exports','module','./difference','./slice'],function (require, exports, module) {var difference = require('./difference');
+var slice = require('./slice');
 
     /**
      * Insert item into array if not already present.
      */
     function insert(arr, rest_items) {
-        var diff = difference(toArray(arguments).slice(1), arr);
+        var diff = difference(slice(arguments, 1), arr);
         if (diff.length) {
             Array.prototype.push.apply(arr, diff);
         }
@@ -4833,6 +4963,7 @@ define('dejavu',[
     dejavu.mode = 'strict';
     window.dejavu = dejavu;
 });
+
 
 require('dejavu', null, null, true);
 
