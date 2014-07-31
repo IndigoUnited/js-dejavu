@@ -6,7 +6,7 @@
 
 var fs = require('fs'),
     path = require('path'),
-    escapeStringRegexp = require('escape-string-regexp'),
+    escapeRegExp = require('mout/string/escapeRegExp'),
     defaultRC = {
         strict: true,
         locked: true
@@ -17,7 +17,7 @@ var fs = require('fs'),
 //       Change it with caution
 
 // If module is being installed globably, abort
-if ((new RegExp('^' + escapeStringRegexp(process.env.npm_config_prefix))).test(process.cwd())) {
+if ((new RegExp('^' + escapeRegExp(process.env.npm_config_prefix))).test(process.cwd())) {
     process.exit();
 }
 

@@ -12,7 +12,9 @@
         "afterEach",
         "__dirname",
         "global",
-        "process"
+        "process",
+        "mocha",
+        "getBuild"
     ],
 
     "browser": true,
@@ -42,7 +44,7 @@
     "eqnull": true,
     "es5": false,
     "esnext": false,
-    "evil": false,
+    "evil": true,
     "expr": false,
     "funcscope": false,
     "globalstrict": false,
