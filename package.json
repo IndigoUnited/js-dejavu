@@ -48,5 +48,5 @@
       "url": "http://www.opensource.org/licenses/mit-license.php"
     }
   ],
-  "engine": "node >= 0.8.x"
+  "engine": "node >= 0.10.x"
 }
