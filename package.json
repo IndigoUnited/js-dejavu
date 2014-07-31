@@ -9,7 +9,7 @@
     "final",
     "inheritance"
   ],
-  "version": "0.4.4",
+  "version": "0.4.5",
   "author": "IndigoUnited <hello@indigounited.com> (http://indigounited.com)",
   "main": "dist/node/node.js",
   "dependencies": {
