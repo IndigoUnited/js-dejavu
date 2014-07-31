@@ -17,18 +17,18 @@
     "mout": "^0.9.1"
   },
   "devDependencies": {
-    "almond": "^0.2.1",
+    "almond": "^0.2.9",
     "async": "^0.9.0",
-    "dejavu-optimizer": "^0.4.0",
+    "dejavu-optimizer": "^0.4.2",
     "domReady": "git://github.com/requirejs/domReady.git",
     "expect.js": "^0.3.1",
-    "fstream": "^0.1.22",
+    "fstream": "^0.1.29",
     "glob": "^4.0.5",
     "mkdirp": "^0.5.0",
-    "mocha": "^1.21.0",
-    "requirejs": "^2.1.2",
+    "mocha": "^1.21.3",
+    "requirejs": "^2.1.14",
     "rimraf": "^2.2.8",
-    "testem": "^0.6.0"
+    "testem": "^0.6.17"
   },
   "scripts": {
     "build": "node bin/build",
