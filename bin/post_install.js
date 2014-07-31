@@ -4,8 +4,9 @@
 
 'use strict';
 
-var fs        = require('fs'),
-    path      = require('path'),
+var fs = require('fs'),
+    path = require('path'),
+    escapeStringRegexp = require('escape-string-regexp'),
     defaultRC = {
         strict: true,
         locked: true
@@ -16,7 +17,7 @@ var fs        = require('fs'),
 //       Change it with caution
 
 // If module is being installed globably, abort
-if ((new RegExp('^' + process.env.npm_config_prefix)).test(process.cwd())) {
+if ((new RegExp('^' + escapeStringRegexp(process.env.npm_config_prefix))).test(process.cwd())) {
     process.exit();
 }
 
