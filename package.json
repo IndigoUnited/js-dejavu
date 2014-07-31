@@ -28,7 +28,7 @@
     "mocha": "^1.21.0",
     "requirejs": "^2.1.2",
     "rimraf": "^2.2.8",
-    "testem": "^0.5.0"
+    "testem": "^0.6.0"
   },
   "scripts": {
     "build": "node bin/build",

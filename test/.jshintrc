@@ -12,7 +12,9 @@
         "afterEach",
         "__dirname",
         "global",
-        "process"
+        "process",
+        "mocha",
+        "getBuild"
     ],
 
     "browser": true,

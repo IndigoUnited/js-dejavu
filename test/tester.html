@@ -11,12 +11,14 @@
                 document.write('<script src="/testem.js"></'+'script>');
             }
         </script>
-        <script src="../node_modules/expect.js/expect.js"></script>
+        <script src="../node_modules/expect.js/index.js"></script>
         <script src="../node_modules/requirejs/require.js"></script>
         <script src="util/browser.js"></script>
         <script src="util/adapter.js"></script>
         <script>
             (function () {
+                'use strict';
+
                 var build = getBuild();
 
                 mocha.setup({
@@ -25,8 +27,9 @@
                 });
 
                 require(['domReady!', build], function () {
-                    var elem = document.getElementById(build);
-                        isTestem = location.hash.indexOf('#testem') !== -1;
+                    var elem = document.getElementById(build),
+                        isTestem = location.hash.indexOf('#testem') !== -1,
+                        anchorElem;
 
                     // Set build link active
                     if (elem) {
@@ -35,10 +38,10 @@
 
                     // Append #testem to build links
                     if (isTestem) {
-                        element = document.getElementById('strict').childNodes[0];
-                        element.href += '#testem';
-                        element = document.getElementById('loose').childNodes[0];
-                        element.href += '#testem';
+                        anchorElem = document.getElementById('strict').childNodes[0];
+                        anchorElem.href += '#testem';
+                        anchorElem = document.getElementById('loose').childNodes[0];
+                        anchorElem.href += '#testem';
                     }
 
                     mocha
