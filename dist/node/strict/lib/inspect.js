@@ -300,7 +300,7 @@ define([
         };
 
         // Check if we were able to inject the inspect method
-        // It seems that in some cases, the console object might be imutable
+        // It seems that in some cases, the console object is immutable
         // See: https://github.com/IndigoUnited/js-dejavu/issues/54#issuecomment-50755695
         if (console.inspect) {
             console.inspect.dejavu = true;
