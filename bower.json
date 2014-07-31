@@ -1,6 +1,6 @@
 {
   "name": "dejavu",
-  "version": "0.4.4",
+  "version": "0.4.6",
   "main": "dist/",
   "dependencies": {
     "mout": "^0.9.1"
@@ -15,7 +15,7 @@
   ],
   "homepage": "https://github.com/IndigoUnited/dejavu",
   "authors": [
-    "André Cruz <andremiguelcruz@msn.com>"
+    "IndigoUnited <hello@indigounited.com> (http://indigounited.com)",
   ],
   "description": "A set of object-oriented tools for JavaScript",
   "moduleType": [
