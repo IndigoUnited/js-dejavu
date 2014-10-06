@@ -15,7 +15,7 @@
   ],
   "homepage": "https://github.com/IndigoUnited/dejavu",
   "authors": [
-    "IndigoUnited <hello@indigounited.com> (http://indigounited.com)",
+    "IndigoUnited <hello@indigounited.com> (http://indigounited.com)"
   ],
   "description": "A set of object-oriented tools for JavaScript",
   "moduleType": [
