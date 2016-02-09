@@ -1,4 +1,7 @@
 # dejavu [![Build Status](https://secure.travis-ci.org/IndigoUnited/js-dejavu.svg)](http://travis-ci.org/IndigoUnited/js-dejavu)
+
+**NOTE**: This project is deprecated and is no longer mantained.
+
 Have you ever had the feeling that you're seeing something you've already seen
 before? That's the feeling you get when using `dejavu`.
 
